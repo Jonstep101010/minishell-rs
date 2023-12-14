@@ -26,18 +26,15 @@
     - -:test/support
   :source:
     - +:src/
-    - +:src/utils
-    - +:src/io
-    - +:src/default_pipe
-    - +:src/here_doc
-    - +:src/multiple_pipe
   :include:
     - +:include/
     - +:include/libft/include/
   :support:
     - +:test/support
-  # :libraries:
-  #   - include/libft/
+  
+:files:
+  :include:
+    - include/minishell.h
 
 :defines:
   # in order to add common defines:
@@ -94,7 +91,6 @@
       - -I"$": COLLECTION_PATHS_TEST_SUPPORT_SOURCE_INCLUDE_VENDOR
       - -I"$": COLLECTION_PATHS_TEST_TOOLCHAIN_INCLUDE
       - -MMD -MP
-      - -DRELEASE=1
       - -c ${1}
       - -o ${2}
   :release_linker:
@@ -121,7 +117,7 @@
       :source_path: include/libft
       :artifact_path: include/libft
       :build:
-        - "ceedling release"
+        - "make"
       :artifacts:
         :includes:
           - include
