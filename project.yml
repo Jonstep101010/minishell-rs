@@ -27,7 +27,7 @@
   :source:
     - +:src/
   :include:
-    - +:include/
+    - +:include/*
     - +:include/libft/include/
   :support:
     - +:test/support

@@ -47,9 +47,13 @@ endif
 # ---------------------------------------------------------------------------- #
 #                             building the program                             #
 # ---------------------------------------------------------------------------- #
-ceedling: 
+C_LIBFT:
 	cd include/libft && make ceedling
+ceedling: C_LIBFT
 	ceedling release
+
+test: C_LIBFT
+	ceedling test:all
 # bonus: all
 # all: $(NAME)
 
@@ -80,9 +84,7 @@ clean:
 fclean: clean
 	rm -rf build/*
 
-re:
-	$(MAKE) fclean
-	$(MAKE) ceedling
+re: fclean ceedling
 
 # ----------------------------- additional rules ----------------------------- #
 run: $(ceedling release)

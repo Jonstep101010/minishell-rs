@@ -1,3 +1,4 @@
 {
 	"ceedlingExplorer.projectPath": ".",
+	"ceedlingExplorer.shellPath": "/bin/zsh",
 }
