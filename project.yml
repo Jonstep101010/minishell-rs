@@ -17,24 +17,28 @@
   :output: minishell.out
   :use_assembly: FALSE
 
-:extension:
-  :executable: .out
+# :extension:
+#   :executable: .out
 
 :paths:
   :test:
     - +:test/**
-    - -:test/support
   :source:
     - +:src/
+    - +:include/libft/src/arr/
+    - +:include/libft/src/char/
+    - +:include/libft/src/gnl/
+    - +:include/libft/src/io/
+    - +:include/libft/src/list/
+    - +:include/libft/src/memory/
+    - +:include/libft/src/printf/
+    - +:include/libft/src/string/
   :include:
-    - +:include/*
-    - +:include/libft/include/
+    - include/
+    - include/libft/include/
   :support:
     - +:test/support
-  
-:files:
-  :include:
-    - include/minishell.h
+    - include/libft/include/
 
 :defines:
   # in order to add common defines:
@@ -70,21 +74,26 @@
     :executable: clang
     :name: 'clang test compiler'
     :arguments:
-      - -I"$": COLLECTION_PATHS_TEST_SUPPORT_SOURCE_INCLUDE_VENDOR
       - -c ${1}
+      - -g3
+      - -Wall
+      - -Wextra
+      - -Werror
+      - -I"$": COLLECTION_PATHS_TEST_SUPPORT_SOURCE_INCLUDE_VENDOR
       - -o ${2}
   :test_linker:
     :executable: clang
     :name: 'clang test linker'
     :arguments:
       - ${1}
-      - -o ${2}
       - -Linclude/libft/build/release
       - -lft
+      - -o ${2}
   :release_compiler:
     :executable: clang
     :name: 'clang release compiler'
     :arguments:
+      - -g3
       - -Wall
       - -Wextra
       - -Werror
@@ -98,11 +107,15 @@
     :name: 'clang release linker'
     :arguments:
       - ${1}               #list of object files to link
-      - -Linclude/libft/build/release
-      - -lft
+      # - -Linclude/libft/build/release
+      # - -lft
+      - -lreadline
       - -o minishell
   
   :release_dependencies_generator:
+    :executable: clang
+    :name: Clang
+  :test_dependencies_generator:
     :executable: clang
     :name: Clang
 
@@ -111,18 +124,18 @@
 # common will be used in all types of builds. Otherwise, libraries can be injected in just
 # tests or releases. These options are MERGED with the options in supplemental yaml files.
 
-:dependencies:
-  :libraries:
-    - :name: libft
-      :source_path: include/libft
-      :artifact_path: include/libft
-      :build:
-        - "make"
-      :artifacts:
-        :includes:
-          - include
-        :static_libraries:
-          - build/release/libft.a
+# :dependencies:
+#   :libraries:
+#     - :name: libft
+#       :source_path: include/libft
+#       :artifact_path: include/libft
+#       :build:
+#         - "make"
+#       :artifacts:
+#         :includes:
+#           - include
+#         :static_libraries:
+#           - build/release/libft.a
 
 :plugins:
   :load_paths:
