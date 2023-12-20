@@ -1,15 +1,17 @@
 ---
 :project:
   :use_exceptions: FALSE
-  :use_test_preprocessor: TRUE
-  :use_deep_dependencies: TRUE
-  :use_auxiliary_dependencies: TRUE
-  :use_auto_dependencies: TRUE
+  :use_test_preprocessor: FALSE
+  :use_deep_dependencies: FALSE
+  :use_auxiliary_dependencies: FALSE
+  :use_auto_dependencies: FALSE
   :build_root: build
   :release_build: TRUE
   :test_file_prefix: test_
   :which_ceedling: gem
   :ceedling_version: '?'
+  :compile_threads: 8
+  :test_threads: 8
   :default_tasks:
     - test:all
 
@@ -34,11 +36,10 @@
     - +:include/libft/src/printf/
     - +:include/libft/src/string/
   :include:
-    - include/
-    - include/libft/include/
+    - +:include/
+    - +:include/libft/include/
   :support:
     - +:test/support
-    - include/libft/include/
 
 :defines:
   # in order to add common defines:
@@ -75,7 +76,7 @@
     :name: 'clang test compiler'
     :arguments:
       - -c ${1}
-      - -g3
+      - -g
       - -Wall
       - -Wextra
       - -Werror
@@ -124,24 +125,11 @@
 # common will be used in all types of builds. Otherwise, libraries can be injected in just
 # tests or releases. These options are MERGED with the options in supplemental yaml files.
 
-# :dependencies:
-#   :libraries:
-#     - :name: libft
-#       :source_path: include/libft
-#       :artifact_path: include/libft
-#       :build:
-#         - "make"
-#       :artifacts:
-#         :includes:
-#           - include
-#         :static_libraries:
-#           - build/release/libft.a
 
 :plugins:
   :load_paths:
     - "#{Ceedling.load_path}"
   :enabled:
     - xml_tests_report
-    - dependencies
     - compile_commands_json
 ...

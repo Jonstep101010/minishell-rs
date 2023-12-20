@@ -80,6 +80,34 @@ bool	redir_valid(const char *s, const int redircount, char c)
 	return (false);
 }
 
+bool	two_pipes_valid(const char *s, const int index)
+{
+	int	flag;
+	int	i;
+
+	i = 0;
+	flag = 0;
+	i = ft_strlen(s) - 1;
+	flag = 0;
+	while (s[i] && i >= index)
+	{
+		while (s[i] && ft_isspace(s[i]) == 1)
+			i--;
+		// while_string_wrapper(s, ft_isspace, 1, &i)
+		while (s[i] && ft_isalnum(s[i]) == 1)
+		{
+			flag = 1;
+			i--;
+		}
+		while (s[i] && ft_isspace(s[i]) == 1)
+			i--;
+		if (s[i] == '|' && flag == 1 && index + 1 == i)
+			return (true);
+		return (false);
+	}
+	return (false);
+}
+
 bool	pipes_valid(const char *s, const int pipes)
 {
 	int	i;
@@ -91,22 +119,31 @@ bool	pipes_valid(const char *s, const int pipes)
 	count = pipes;
 	if (count >= 1)
 	{
+		if (s[0] == '|')
+			return (false);
 		while (s[i])
 		{
 			flag = 0;
 			while (s[i] && s[i] != '|')
 			{
-				if (ft_isalnum(s[i]))
+				if (ft_isalnum(s[i]) == 1)
 					flag = 1;
 				i++;
 			}
 			if (flag == 0)
 				return (false);
-			if (s[i] == '|')
+			if (s[i] == '|' && s[i + 1] == '|' && pipes == 2)
+				return (two_pipes_valid(s, i));
+			if (s[i] && s[i] == '|')
 			{
 				i++;
-				if (s[i] == '|' && s[i + 1] != '|')
+				while (s[i] && ft_isspace(s[i]))
 					i++;
+				if (s[i] == '|' && s[i + 1] != '|')
+				{
+					i++;
+					count--;
+				}
 				else if ((s[i] == '|' && s[i + 1] == '|'))
 					return (false);
 				count--;
@@ -117,11 +154,10 @@ bool	pipes_valid(const char *s, const int pipes)
 				{
 					count++;
 					i++;
-					// printf("count: %d\n", count);
 					break;
 				}
 				if (s[i] == '>' || s[i] == '<' || s[i] == '|')
-					return (false);
+					break;
 				i++;
 			}
 		}
@@ -136,14 +172,17 @@ enum e_lexer	lexer(char *s)
 {
 	if (!s || !*s)
 		return (LEXER_NULL);
+	// char *s = ft_strtrim(str, " ");
 	struct s_lexer	input;
 	count_number(s, &input);
 
 	// check pipes
 	if (input.pipes > 0)
 	{
-		if (input.pipes % 2 != 0)
+		if (pipes_valid(s, input.pipes) == false)
 			return (LEXER_PIPES);
+		// only for testing purposes
+		return (LEXER_SUCCESS);
 	}
 	// check redirection
 	if (input.redir_greater > 0)

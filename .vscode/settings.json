@@ -1,5 +1,5 @@
 {
-	"ceedlingExplorer.projectPath": ".",
+	"ceedlingExplorer.projectPath": "./",
 	"ceedlingExplorer.shellPath": "/bin/zsh",
 	"cmake.sourceDirectory": "/workspace/Unity-FFF-Cmake",
 	"C_Cpp.autocomplete": "disabled",

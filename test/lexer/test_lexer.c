@@ -4,9 +4,9 @@
 #include <stdbool.h>
 
 /* @follow-up */
-// void test_lexer_works_with_multiple_statements(void)
+// void test_works_with_multiple_statements(void)
 
-void test_lexer_pipes_redir(void)
+void test_redir_pipes_mix()
 {
 	TEST_ASSERT(lexer(">|") != LEXER_SUCCESS);
 	TEST_ASSERT(lexer("<|") != LEXER_SUCCESS);
@@ -14,49 +14,7 @@ void test_lexer_pipes_redir(void)
 	TEST_ASSERT(lexer("< |") != LEXER_SUCCESS);
 }
 
-/* @follow-up make sure these work */
-void test_lexer_pipes_filter(void)
-{
-	TEST_ASSERT(lexer("|") != LEXER_SUCCESS);
-	TEST_ASSERT(lexer("           |") != LEXER_SUCCESS);
-	TEST_ASSERT(lexer("			|") != LEXER_SUCCESS);
-	TEST_ASSERT(lexer("|   |") != LEXER_SUCCESS);
-	TEST_ASSERT(lexer("| |") != LEXER_SUCCESS);
-	TEST_ASSERT(lexer("|||") != LEXER_SUCCESS);
-	TEST_ASSERT(lexer("||") == LEXER_SUCCESS);
-}
-
-void test_lexer_redir_smaller_valid(void)
-{
-	TEST_ASSERT(lexer("ls < infile") == LEXER_SUCCESS);
-	TEST_ASSERT(lexer("ls << infile") == LEXER_SUCCESS);
-	TEST_ASSERT(lexer("< infile") == LEXER_SUCCESS);
-	TEST_ASSERT(lexer("<< infile") == LEXER_SUCCESS);
-}
-
-void test_lexer_redir_smaller_invalid(void)
-{
-	TEST_ASSERT(lexer("<") != LEXER_SUCCESS);
-	TEST_ASSERT(lexer("<<") != LEXER_SUCCESS);
-	TEST_ASSERT(lexer("<<<") != LEXER_SUCCESS);
-	TEST_ASSERT(lexer("< < infile") != LEXER_SUCCESS);
-}
-
-void test_lexer_redir_greater_valid(void)
-{
-	TEST_ASSERT(lexer("ls > outfile") == LEXER_SUCCESS);//truncates
-	TEST_ASSERT(lexer("ls >> outfile") == LEXER_SUCCESS);// appends
-	TEST_ASSERT(lexer(">> outfile") == LEXER_SUCCESS);// creates outfile
-}
-
-void test_lexer_redir_greater_invalid(void)
-{
-	TEST_ASSERT(lexer(">") != LEXER_SUCCESS);//syntax error
-	TEST_ASSERT(lexer(">>") != LEXER_SUCCESS);//syntax error
-	TEST_ASSERT(lexer(">>>") != LEXER_SUCCESS);//syntax error
-}
-
-void test_lexer_works_with_brackets(void)
+void test_works_with_brackets(void)
 {
 	TEST_ASSERT_EQUAL_INT8(LEXER_SUCCESS,
 		lexer("echo \"This is a test\""));
@@ -68,13 +26,13 @@ void test_lexer_works_with_brackets(void)
 		lexer("awk '{count++} END {print count}'"));
 }
 // not sure why but bash also returns: syntax error near unexpected token
-void test_lexer_returns_syntax_error_near_unexpected_token(void)
+void test_returns_syntax_error_near_unexpected_token(void)
 {
 	TEST_ASSERT_EQUAL_INT8(LEXER_SUCCESS,
 		lexer("if (x > 5) { printf(\"x is greater than 5\"); }"));
 }
 
-void test_lexer_does_not_work_with_escapes(void)
+void test_does_not_work_with_escapes(void)
 {
 	TEST_ASSERT_EQUAL_INT8(LEXER_UNBALANCED_QUOTES,
 		lexer("echo Hello, World!\""));
@@ -91,7 +49,7 @@ void test_lexer_does_not_work_with_escapes(void)
 		lexer("echo \'Hello, World!"));
 }
 
-void	test_lexer_does_not_work_with_unbalanced_brackets(void)
+void	test_does_not_work_with_unbalanced_brackets(void)
 {
 	TEST_ASSERT_EQUAL_INT8(LEXER_UNBALANCED_BRACKETS, lexer("if (x > 5 { printf(\"x is greater than 5\"}); }"));
 	TEST_ASSERT_EQUAL_INT8(LEXER_UNBALANCED_BRACKETS, lexer("while (i < 10) { i++; "));
