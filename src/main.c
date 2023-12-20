@@ -1,23 +1,26 @@
 #include "minishell.h"
+#include <signal.h>
 
 // @follow-up implement calls to readline library
 void	minishell_loop(void)
 {
 	char *line;
+
 	while (1)
 	{
 		line = readline("minishell> ");
 		if (line)
 		{
+			if (ft_strncmp(line, "exit", 4) == 0)
+			{
+				free(line);
+				printf("exiting now...\n");
+				exit(0);
+			}
 			if (lexer(line) == LEXER_SUCCESS)
 				printf(":: %s\n", line);
 			else
 				printf("invalid syntax\n");
-			if (ft_strncmp(line, "exit", 4) == 0)
-			{
-				free(line);
-				exit(0);
-			}
 			free(line);
 		}
 	}

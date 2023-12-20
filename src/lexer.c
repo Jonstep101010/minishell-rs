@@ -2,6 +2,7 @@
 #include "minishell.h"
 #include "struct.h"
 #include <stdbool.h>
+#include <stdio.h>
 
 static int	str_cchr(const char *s, char c)
 {
@@ -91,16 +92,9 @@ bool	two_pipes_valid(const char *s, const int index)
 	flag = 0;
 	while (s[i] && i >= index)
 	{
-		while (s[i] && ft_isspace(s[i]) == 1)
-			i--;
-		// while_string_wrapper(s, ft_isspace, 1, &i)
-		while (s[i] && ft_isalnum(s[i]) == 1)
-		{
-			flag = 1;
-			i--;
-		}
-		while (s[i] && ft_isspace(s[i]) == 1)
-			i--;
+		while_d(s, (int (*)(int))&ft_isspace, 1, &i);
+		flag = while_d(s, (int (*)(int))&ft_isalnum, 1, &i);
+		while_d(s, (int (*)(int))&ft_isspace, 1, &i);
 		if (s[i] == '|' && flag == 1 && index + 1 == i)
 			return (true);
 		return (false);
@@ -112,58 +106,37 @@ bool	pipes_valid(const char *s, const int pipes)
 {
 	int	i;
 	int	count;
-	int	flag;
 
 	i = 0;
-	flag = 0;
 	count = pipes;
-	if (count >= 1)
+	// if (count >= 1)
+	if (s[0] == '|')
+		return (false);
+	while (s[i])
 	{
-		if (s[0] == '|')
+		if (while_not_i(s, (int (*)(int))&ft_isalnum,'|', &i) == 0)
+			return (false);
+		if (s[i] == '|' && s[i + 1] == '|' && pipes == 2)
+			return (two_pipes_valid(s, i));
+		while_i(s, (int (*)(int))&ft_isspace, 1, &i);
+		count -= while_is_i(s, '|', &i);
+		if (count > 2)
 			return (false);
 		while (s[i])
 		{
-			flag = 0;
-			while (s[i] && s[i] != '|')
+			if (ft_isalnum(s[i]))
 			{
-				if (ft_isalnum(s[i]) == 1)
-					flag = 1;
+				count++;
 				i++;
+				break;
 			}
-			if (flag == 0)
-				return (false);
-			if (s[i] == '|' && s[i + 1] == '|' && pipes == 2)
-				return (two_pipes_valid(s, i));
-			if (s[i] && s[i] == '|')
-			{
-				i++;
-				while (s[i] && ft_isspace(s[i]))
-					i++;
-				if (s[i] == '|' && s[i + 1] != '|')
-				{
-					i++;
-					count--;
-				}
-				else if ((s[i] == '|' && s[i + 1] == '|'))
-					return (false);
-				count--;
-			}
-			while (s[i])
-			{
-				if (ft_isalnum(s[i]))
-				{
-					count++;
-					i++;
-					break;
-				}
-				if (s[i] == '>' || s[i] == '<' || s[i] == '|')
-					break;
-				i++;
-			}
+			if (s[i] == '>' || s[i] == '<' || s[i] == '|')
+				break;
+			i++;
 		}
-		if (count == pipes)
-			return (true);
 	}
+	if (count == pipes)
+		return (true);
 	return (false);
 }
 
@@ -204,8 +177,8 @@ enum e_lexer	lexer(char *s)
 	if ((input.open_curly_brackets + input.close_curly_brackets) % 2 != 0 ||(input.open_square_brackets + input.close_square_brackets) % 2 != 0 || (input.open_parentheses + input.close_parentheses) % 2 != 0)
 		return (LEXER_UNBALANCED_BRACKETS);
 	// check for this kind of input: echo \"Hello, World!\\\"
-	if (str_cchr(s, '\\') % 2 != 0)
-		return (LEXER_UNBALANCED_QUOTES);
+	// if (str_cchr(s, '\\') % 2 != 0)
+	// 	return (LEXER_UNBALANCED_QUOTES);
 	// if (check_event_not_found(s))
 	// 	return (LEXER_UNBALANCED_QUOTES);
 	if (str_cchr(s, '\'') % 2 == 0 && (str_cchr(s, '{') == str_cchr(s, '}')) && (str_cchr(s, '{') + str_cchr(s, '}')) % 2 == 0)

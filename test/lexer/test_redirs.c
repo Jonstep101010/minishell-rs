@@ -1,8 +1,14 @@
 #include "../src/lexer.c"
+#include "../src/while_string_wrapper.c"
 #include "struct.h"
 #include "unity.h"
 #include <stdbool.h>
 
+void test_handles_redirection(void)
+{
+	TEST_ASSERT_EQUAL_INT8(LEXER_REDIRECTION, lexer("ls > outfile >"));
+	TEST_ASSERT_EQUAL_INT8(LEXER_REDIRECTION, lexer("ls < infile <"));
+}
 void test_redir_smaller_valid()
 {
 	TEST_ASSERT(lexer("ls < infile") == LEXER_SUCCESS);
