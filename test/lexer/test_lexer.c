@@ -18,15 +18,15 @@ void test_redir_pipes_mix()
 void test_works_with_newlines()
 {
 	TEST_ASSERT(lexer("\n") == LEXER_SUCCESS);
-	TEST_ASSERT(lexer("\n\n") == LEXER_SUCCESS);
-	TEST_ASSERT(lexer("\n\n\n") == LEXER_SUCCESS);
+	TEST_ASSERT(lexer("\n \n") == LEXER_SUCCESS);
+	TEST_ASSERT(lexer("\n	\n \n") == LEXER_SUCCESS);
 	TEST_ASSERT(lexer("\n\n\n\n") == LEXER_SUCCESS);
 	TEST_ASSERT(lexer("\n\n\n\n\n") == LEXER_SUCCESS);
 	TEST_ASSERT(lexer("\n\n\n\n\n\n") == LEXER_SUCCESS);
 	TEST_ASSERT(lexer("\n\n\n\n\n\n\n") == LEXER_SUCCESS);
 	TEST_ASSERT(lexer("\n\n\n\n\n\n\n\n") == LEXER_SUCCESS);
 	TEST_ASSERT(lexer("\n\n\n\n\n\n\n\n\n") == LEXER_SUCCESS);
-	TEST_ASSERT(lexer("\n\n\n\n\n\n\n\n\n\n") == LEXER_SUCCESS);
+	TEST_ASSERT(lexer("\n\n\n\n\n\\n\n\n\n\n") == LEXER_SUCCESS);
 }
 
 void test_works_with_brackets(void)

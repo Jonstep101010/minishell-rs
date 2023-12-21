@@ -31,13 +31,6 @@ int while_i(const char *s, int (*f)(int), int is_true, int *index)
 	return (1);
 }
 
-// flag = 0;
-// while (s[i] && s[i] != '|')
-// {
-// 	// if (ft_isalnum(s[i]) == 1)
-// 	// 	flag = 1;
-// 	// i++;
-// }
 int	while_not_i(const char *s, int (*f)(int), char c, int *index)
 {
 	int i;

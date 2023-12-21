@@ -28,7 +28,6 @@ void	minishell_loop(void)
 
 int main()
 {
-	// minishell_loop();
 	printf("As beautiful as a shell!\n");
 	if (lexer("echo Hello, World!") == LEXER_SUCCESS)
 		printf("lexer works\n");

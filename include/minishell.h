@@ -11,5 +11,5 @@ int while_i(const char *s, int (*)(int), int is_true, int *index);
 int	while_not_i(const char *s, int (*)(int), char c, int *index);
 int	while_is_i(const char *s, char c, int *index);
 
-enum e_lexer	lexer(char *s);
+t_lexer	lexer(char *s);
 #endif

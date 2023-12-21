@@ -6,8 +6,7 @@
 
 void test_handles_redirection(void)
 {
-	TEST_ASSERT_EQUAL_INT8(LEXER_REDIRECTION, lexer("ls > outfile >"));
-	TEST_ASSERT_EQUAL_INT8(LEXER_REDIRECTION, lexer("ls < infile <"));
+	TEST_ASSERT(lexer("ls << infile >>") != LEXER_SUCCESS);
 }
 void test_redir_smaller_valid()
 {
@@ -34,6 +33,8 @@ void test_redir_greater_valid()
 
 void test_redir_greater_invalid()
 {
+	TEST_ASSERT(lexer("ls > outfile >") != LEXER_SUCCESS);
+	TEST_ASSERT(lexer("ls < infile <") != LEXER_SUCCESS);
 	TEST_ASSERT(lexer(">") != LEXER_SUCCESS);//syntax error
 	TEST_ASSERT(lexer(">>") != LEXER_SUCCESS);//syntax error
 	TEST_ASSERT(lexer(">>>") != LEXER_SUCCESS);//syntax error

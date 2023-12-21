@@ -6,12 +6,19 @@
 #include <stdbool.h>
 
 /* @follow-up implement recurring single & double pipes*/
-// void test_pipes_filter_WIP()
+/* @follow-up anything within quotes */
+void test_pipes_filter_WIP()
+{
+	TEST_ASSERT(lexer("echo \"|\"") == LEXER_SUCCESS);
+	TEST_ASSERT(lexer("echo \'|'") == LEXER_SUCCESS);
+	// TEST_ASSERT(lexer("echo Hello || World | hello") == LEXER_SUCCESS);
+	// TEST_ASSERT(lexer("echo Hello | World || hello") == LEXER_SUCCESS);
+	// TEST_ASSERT(lexer("echo Hello | World | hello") == LEXER_SUCCESS);
+	// TEST_ASSERT(lexer("ls || grep file || wc -l") == LEXER_SUCCESS);
+}
+
+// void test_pipes_quotes_pass()
 // {
-// 	TEST_ASSERT(lexer("echo Hello || World | hello") == LEXER_SUCCESS);
-// 	TEST_ASSERT(lexer("echo Hello | World || hello") == LEXER_SUCCESS);
-// 	TEST_ASSERT(lexer("echo Hello | World | hello") == LEXER_SUCCESS);
-// 	TEST_ASSERT(lexer("ls || grep file || wc -l") == LEXER_SUCCESS);
 // }
 
 void test_pipes_filter_fail()
