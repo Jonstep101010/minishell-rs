@@ -4,13 +4,15 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-static int	str_cchr(const char *s, char c)
+int	str_cchr(const char *s, char c)
 {
 	int	i;
 	int	count;
 
 	i = 0;
 	count = 0;
+	if (!s)
+		return (0);
 	while (s[i])
 	{
 		if (s[i] == c)
@@ -199,7 +201,8 @@ static t_lexer	check_brackets_quotes(const char *s, struct s_lexer *input)
 // "this is my input "ignore" 't' 'this' "is" 'a' "test" 'string'""
 // "                 00000000 000 000000 0000 000 000000 000000000"
 
-// make return value an enum
+// handle input like this "this is a cmd "'" hello" (accept in quotes)
+// make other checks use the ignore array
 t_lexer	lexer(char *s)
 {
 	if (!s || !*s)
