@@ -37,7 +37,7 @@ void	bool_arr_zeroing(const char *s, bool **ignore, size_t len)
 // "11111111111111111000000001000100000010000100010000001000000000"
 // "00000000000000000111111110111011111101111011101111110111111111"
 
-// @audit fix spaces being ignored even when they are not in quotes
+// @todo make other checks respect the ignore array
 /**
  * @brief ignore range starting at c
  * @warning caller needs to make sure that c is not unclosed

@@ -43,7 +43,7 @@
 		"name": "ceedlingExplorer",
 		"type": "cppdbg",
 		"request": "launch",
-		"program": "/workspace/${env:PROJ_DIR}/build/test/out/test_lexer/${command:ceedlingExplorer.debugTestExecutable}",
+		"program": "/workspace/${env:PROJ_DIR}/build/test/out/test_bool_arr/${command:ceedlingExplorer.debugTestExecutable}",
 		"args": [],
 		"stopAtEntry": false,
 		"cwd": "${workspaceFolder}/",
