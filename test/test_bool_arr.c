@@ -13,11 +13,8 @@ void test_bool_arr_can_have_a_true_value() {
 	int		i	 = 0;
 
 	bool_arr_fixture("Hello", &arr, 5);
-	while (i < 5)
-	{
+	for (i = 0; i < (int)strlen("Hello");i++)
 		TEST_ASSERT_EQUAL(false, arr[i]);
-		i++;
-	}
 	TEST_ASSERT_EQUAL(true, arr[i]);
 	free(arr);
 }
@@ -66,7 +63,7 @@ void test_range_ignore_both_0() {
 	free(arr);
 }
 
-static void support_ranges_test0(bool *arr) {
+static void support_ranges_test0(const bool *arr) {
 	for (int i = 0; i <= 16; i++)
 		TEST_ASSERT_FALSE(arr[i]);
 	for (int i = 17; i <= 24; i++)
