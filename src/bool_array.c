@@ -1,20 +1,6 @@
-#include "libft.h"
 #include "minishell.h"
 #include <stdbool.h>
-
-void	bool_arr_fixture(const char *s, bool **ignore, size_t len)
-{
-	(void)s;
-	int	i = 0;
-
-	*ignore = (bool *) ft_calloc(len + 1, sizeof(bool));
-	while (i < (int)len)
-	{
-		(*ignore)[i] = false;
-		i++;
-	}
-	(*ignore)[i] = true;
-}
+#include "libft.h"
 
 void	bool_arr_zeroing(const char *s, bool **ignore, size_t len)
 {
@@ -28,9 +14,6 @@ void	bool_arr_zeroing(const char *s, bool **ignore, size_t len)
 		i++;
 	}
 }
-
-
-
 // "this is my input "ignore" 't' 'this' "is" 'a' "test" 'string'""
 // "                 00000000 000 000000 0000 000 000000 000000000"
 // "this is my input \"ignore\" 't' 'this' \"is\" 'a' \"test\" 'string'"

@@ -1,8 +1,7 @@
-#include "../src/while_string_wrapper.c"
+#include "../../src/while_string_wrapper.c"
 #include "libft.h"
 #include "unity.h"
 #include "minishell.h"
-#include "struct.h"
 #include <stdbool.h>
 
 void test_wrapper_both()

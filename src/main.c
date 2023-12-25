@@ -1,5 +1,5 @@
 #include "minishell.h"
-#include <signal.h>
+#include "libft.h"
 
 // @follow-up implement calls to readline library
 void	minishell_loop(void)

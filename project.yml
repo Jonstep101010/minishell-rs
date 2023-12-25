@@ -1,7 +1,7 @@
 ---
 :project:
   :use_exceptions: FALSE
-  :use_test_preprocessor: FALSE
+  :use_test_preprocessor: TRUE
   :use_deep_dependencies: FALSE
   :use_auxiliary_dependencies: FALSE
   :use_auto_dependencies: FALSE
@@ -24,7 +24,9 @@
 
 :paths:
   :test:
-    - +:test/**
+    - +:test/lexer/
+    - +:test/bool_array/
+    - +:test/wrapper/
   :source:
     - +:src/
     - +:include/libft/src/arr/
@@ -81,6 +83,7 @@
       - -Wextra
       - -Werror
       - -I"$": COLLECTION_PATHS_TEST_SUPPORT_SOURCE_INCLUDE_VENDOR
+      - -MMD -MP
       - -o ${2}
   :test_linker:
     :executable: /usr/bin/clang-17

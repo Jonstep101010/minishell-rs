@@ -2,7 +2,6 @@
 #include "minishell.h"
 #include "struct.h"
 #include <stdbool.h>
-#include <stdio.h>
 
 int	str_cchr(const char *s, char c)
 {
@@ -168,33 +167,22 @@ static t_lexer	check_brackets_quotes(const char *s, struct s_lexer *input)
 	return (LEXER_SUCCESS);
 }
 
-// t_lexer	input_ignore(const char *s, struct s_lexer *input, char c)
+// t_lexer	input_ignore(const char *s, struct s_lexer *input)
 // {
 
 // 	input->lexer = LEXER_NULL;
 // 	// if something is in quotes, ignore it
 // 	if (input->doublequotes == 0 && input->singlequotes == 0)
 // 		return (LEXER_SUCCESS);
-// 	int	range = 0;
-// 	while (*s)
-// 	{
-// 		if (*s == c)
-// 		{
-// 			range = 1;
-// 			s++;
-// 			while (*s && *s != c)
-// 			{
-// 				range++;
-// 				s++;
-// 			}
-// 			while (range > 0)
-// 			{
-// 				input->ignore[range] = true;
-// 				range--;
-// 			}
-// 		}
-// 	}
+// 	range_ignore(s, &(input->ignore), '\'');
+// 	range_ignore(s, &(input->ignore), '"');
+// 	return (LEXER_SUCCESS);
+// }
 
+// t_lexer	check_quotes_ignore(const char *s, struct s_lexer *input)
+// {
+// 	(void)s;
+// 	(void)input;
 // 	return (LEXER_SUCCESS);
 // }
 
@@ -203,6 +191,7 @@ static t_lexer	check_brackets_quotes(const char *s, struct s_lexer *input)
 
 // handle input like this "this is a cmd "'" hello" (accept in quotes)
 // make other checks use the ignore array
+// #include "bool_array.c"
 t_lexer	lexer(char *s)
 {
 	if (!s || !*s)
@@ -210,12 +199,17 @@ t_lexer	lexer(char *s)
 	// char *s = ft_strtrim(str, " ");
 	struct s_lexer	input;
 	count_number(s, &input);
+	// range_ignore(s, &input.ignore, '\'');
+	// if (input.singlequotes > 0 || input.doublequotes > 0)
+	// 	input_ignore(s, &input);
 
 	if (check_pipes_redirection(s, &input) != LEXER_SUCCESS)
 		return (input.lexer);
 	if (check_brackets_quotes(s, &input) != LEXER_SUCCESS)
 		return (input.lexer);
-	if (str_cchr(s, '\'') % 2 == 0 && (input.open_curly_brackets == input.close_curly_brackets) && (input.open_curly_brackets + input.close_curly_brackets) % 2 == 0)
+	if (input.singlequotes % 2 == 0 && (input.open_curly_brackets == input.close_curly_brackets) && (input.open_curly_brackets + input.close_curly_brackets) % 2 == 0)
 		return (LEXER_SUCCESS);
+	// if (input.singlequotes % 2 != 0 && input.doublequotes % 2 == 0)
+	// 	return (check_quotes_ignore(s, &input));
 	return (LEXER_NULL);
 }
