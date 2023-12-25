@@ -1,6 +1,7 @@
 #ifndef STRUCT_H
 # define STRUCT_H
 
+#include <stddef.h>
 #include <stdbool.h>
 typedef enum e_lexer
 {
@@ -32,6 +33,7 @@ struct s_lexer
 	int		pipes;
 	t_lexer	lexer;
 	bool	*ignore;
+	size_t	len;
 };
 
 #endif

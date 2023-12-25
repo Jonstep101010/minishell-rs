@@ -6,7 +6,8 @@ bool	redir_valid(const char *s, const int redircount, char c);
 bool	two_pipes_valid(const char *s, const int index);
 bool	pipes_valid(const char *s, const int pipes);
 t_lexer	check_pipes_redirection(const char *s, struct s_lexer *input);
-
+t_lexer	check_brackets_quotes(struct s_lexer *input);
+t_lexer	check_against_ignore(const char *s, struct s_lexer *input);
 void	count_number(char *s, struct s_lexer *input);
 
 # include <stddef.h>
