@@ -1,5 +1,8 @@
-#include "minishell.h"
+#include "unity.h"
 #include "support_bool.h"
+#include <stdlib.h>
+#include <string.h>
+
 
 #define START_INDEX 17
 #define MAX_INDEX_DQ_ZERO 24
@@ -7,7 +10,7 @@
 void test_range_ignore_both_0() {
 	bool 	*arr = NULL;
 	char	s[] = "this is my input \"'ignore'\"";
-	support_bool_arr_zeroing(s, &arr, strlen(s));
+	bool_arr_zeroing(s, &arr, strlen(s));
 	for (int i = 0; i <= (int)strlen(s); i++)
 		TEST_ASSERT(false == arr[i]);
 	range_ignore(s, &arr, '"');
@@ -25,7 +28,7 @@ void test_ignore_can_work1()
 	char	s[] = "\"'\"";
 	int len = (int)strlen(s);
 
-	support_bool_arr_zeroing(s, &actual, len);
+	bool_arr_zeroing(s, &actual, len);
 	range_ignore(s, &actual, '\'');
 	range_ignore(s, &actual, '\"');
 

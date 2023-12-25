@@ -28,7 +28,7 @@
     - +:test/bool_array/
     - +:test/wrapper/
   :source:
-    - +:src/
+    - +:src/*
     - +:include/libft/src/arr/
     - +:include/libft/src/char/
     - +:include/libft/src/gnl/
@@ -38,7 +38,8 @@
     - +:include/libft/src/printf/
     - +:include/libft/src/string/
   :include:
-    - +:include/
+    - +:src/*
+    - +:include/*
     - +:include/libft/include/
   :support:
     - +:test/support
@@ -128,11 +129,17 @@
 # common will be used in all types of builds. Otherwise, libraries can be injected in just
 # tests or releases. These options are MERGED with the options in supplemental yaml files.
 
+:module_generator:
+  :source_root: src
+  :header_root: include
+  :test_root: test
+  :support_root: test/support
 
 :plugins:
   :load_paths:
     - "#{Ceedling.load_path}"
   :enabled:
     - xml_tests_report
+    - module_generator
     - compile_commands_json
 ...

@@ -1,6 +1,6 @@
 #include "unity.h"
 #include "struct.h"
-#include "../src/lexer.c"
+#include "../src/lexer/lexer_support.c"
 #include "../src/while_string_wrapper.c"
 
 void test_count_number()

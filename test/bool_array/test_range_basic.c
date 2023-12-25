@@ -1,5 +1,7 @@
-#include "minishell.h"
+#include "unity.h"
 #include "support_bool.h"
+#include <stdlib.h>
+#include <string.h>
 
 static void support_ranges_test0(const bool *arr) {
 	for (int i = 0; i < 17; i++)
