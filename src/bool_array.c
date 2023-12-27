@@ -1,17 +1,20 @@
 #include <stdbool.h>
 #include "libft.h"
 
-void	bool_arr_zeroing(const char *s, bool **ignore, size_t len)
+bool	*bool_arr_zeroing(size_t len)
 {
-	(void)s;
-	int	i = 0;
+	size_t	i = 0;
+	bool	*ignore;
 
-	*ignore = (bool *) ft_calloc(len + 1, sizeof(bool));
-	while (i <= (int)len)
+	ignore = (bool *) ft_calloc(len + 1, sizeof(bool));
+	if (!ignore)
+		return (NULL);
+	while (i < len + 1)
 	{
-		(*ignore)[i] = false;
+		ignore[i] = false;
 		i++;
 	}
+	return (ignore);
 }
 // "this is my input "ignore" 't' 'this' "is" 'a' "test" 'string'""
 // "                 00000000 000 000000 0000 000 000000 000000000"
@@ -27,27 +30,27 @@ void	bool_arr_zeroing(const char *s, bool **ignore, size_t len)
  * @param ignore array of bools
  * @param c character delimiting the range
  */
-void	range_ignore(const char *s, bool **ignore, unsigned char c)
+void	range_ignore(const char *s, bool *ignore, unsigned char c)
 {
 	int	i;
 
 	i = 0;
 	while (s[i])
 	{
-		if (s[i] == c && (*ignore)[i] == false)
+		if (s[i] == c && ignore[i] == false)
 		{
-			(*ignore)[i] = true;
+			ignore[i] = true;
 			i++;
 			while (s[i] && s[i] != c)
 			{
-				(*ignore)[i] = true;
+				ignore[i] = true;
 				i++;
 			}
 			if (s[i] == c)
-				(*ignore)[i] = true;
+				ignore[i] = true;
 			while (s[i] != c)
 			{
-				(*ignore)[i] = false;
+				ignore[i] = false;
 				i--;
 			}
 		}
