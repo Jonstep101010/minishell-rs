@@ -10,11 +10,11 @@
 void test_range_ignore_both_0() {
 	bool 	*arr = NULL;
 	char	s[] = "this is my input \"'ignore'\"";
-	bool_arr_zeroing(s, &arr, strlen(s));
+	support_bool_arr_zeroing(s, &arr, strlen(s));
 	for (int i = 0; i <= (int)strlen(s); i++)
 		TEST_ASSERT(false == arr[i]);
-	range_ignore(s, &arr, '"');
-	range_ignore(s, &arr, '\''); TEST_ASSERT(arr[24] == true);
+	range_ignore(s, arr, '"');
+	range_ignore(s, arr, '\''); TEST_ASSERT(arr[24] == true);
 	for (int i = 0; i < START_INDEX; i++)
 		TEST_ASSERT_EQUAL(arr[i], false);
 	for (int i = START_INDEX; i <= MAX_INDEX_DQ_ZERO; i++)
@@ -28,9 +28,9 @@ void test_ignore_can_work1()
 	char	s[] = "\"'\"";
 	int len = (int)strlen(s);
 
-	bool_arr_zeroing(s, &actual, len);
-	range_ignore(s, &actual, '\'');
-	range_ignore(s, &actual, '\"');
+	support_bool_arr_zeroing(s, &actual, len);
+	range_ignore(s, actual, '\'');
+	range_ignore(s, actual, '\"');
 
 	bool *expected = support_expected("1110");
 	for (int i = 0; i <= len; i++) {

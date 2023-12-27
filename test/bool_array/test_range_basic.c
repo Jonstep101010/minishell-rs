@@ -36,9 +36,11 @@ void test_ignore_can_work0()
 	bool	*expected = support_expected("00000000000000000111111110111011111101111011101111110111111110");
 	int len = (int)strlen(s);
 
-	support_bool_arr_zeroing(s, &arr, len);
-	range_ignore(s, &arr, '\"');
-	range_ignore(s, &arr, '\'');
+	arr = bool_arr_zeroing(len);
+	if (!arr)
+		TEST_FAIL();
+	range_ignore(s, arr, '\"');
+	range_ignore(s, arr, '\'');
 	// support_print(s, arr);
 	for (int i = 0; i < (int)strlen(s); i++) {
 		TEST_ASSERT_EQUAL(expected[i], arr[i]);
@@ -54,7 +56,7 @@ void test_range_ignore_sq_0() {
 	support_bool_arr_zeroing(s, &arr, strlen(s));
 	for (int i = 0; i <= (int)strlen(s); i++)
 		TEST_ASSERT(false == arr[i]);
-	range_ignore(s, &arr, '\'');
+	range_ignore(s, arr, '\'');
 	TEST_ASSERT(arr[24] == true);
 	for (int i = 0; i <= 16; i++)
 		TEST_ASSERT_EQUAL(arr[i], false);
@@ -69,7 +71,7 @@ void test_range_ignore_dq_0() {
 	support_bool_arr_zeroing(s, &arr, strlen(s));
 	for (int i = 0; i <= (int)strlen(s); i++)
 		TEST_ASSERT(false == arr[i]);
-	range_ignore(s, &arr, '"'); TEST_ASSERT(arr[24] == true);
+	range_ignore(s, arr, '"'); TEST_ASSERT(arr[24] == true);
 	for (int i = 0; i < 17; i++)
 		TEST_ASSERT_EQUAL(arr[i], false);
 	for (int i = 17; i <= 24; i++)

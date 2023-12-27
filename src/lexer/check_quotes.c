@@ -33,18 +33,17 @@ void debug_print_line(const char *s, const bool *arr) {
 	fprintf(stderr,"\n");
 }
 
-t_lexer	check_quotes_ignore(const char *s, struct s_lexer *input)
+t_lexer	ignore_quotes(const char *s, struct s_lexer *input)
 {
 	if (!s || !input)
 		return (LEXER_NULL);
-	input->ignore = NULL;
 	if (input->singlequotes % 2 != 0 && (input->doublequotes % 2 == 0 || input->doublequotes == 0))
 		;
 	else if (!(input->doublequotes % 2 == 0 || input->singlequotes % 2 == 0))
 		return (LEXER_UNBALANCED_QUOTES);
-	bool_arr_zeroing(s, &(input->ignore), ft_strlen(s));
-	range_ignore(s, &(input->ignore),'\'');
-	range_ignore(s, &(input->ignore),'"');
+	input->ignore = bool_arr_zeroing(ft_strlen(s));
+	range_ignore(s, input->ignore,'"');
+	range_ignore(s, input->ignore,'\'');
 	debug_print_line(s, input->ignore);
 	return (LEXER_SUCCESS);
 }
@@ -53,15 +52,15 @@ t_lexer	check_against_ignore(const char *s, struct s_lexer *input)
 {
 	int i;
 
-	if (!s || !input)
+	if (!s)
 		return (LEXER_NULL);
-	if (!input->ignore)
-		return (LEXER_UNBALANCED_QUOTES);
+	if (input->ignore == NULL)
+		return (fprintf(stderr, "will result in segfault\n"), LEXER_NULL);
+	// 	return (LEXER_UNBALANCED_QUOTES);
 	i = 0;
-	input->lexer = LEXER_NULL;
 	if (input->singlequotes > 0 && input->doublequotes == 0)
 		return (LEXER_UNBALANCED_QUOTES);
-	while (i <= (int)input->len)
+	while (i < (int)input->len)
 	{
 		if (input->ignore[i] == false)
 		{

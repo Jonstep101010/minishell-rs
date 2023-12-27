@@ -15,6 +15,6 @@ t_test *returns_test_struct(const char *s, const char *expected);
 void	cleanup_test_struct(struct s_test *test);
 void	support_print(const char *s, const bool *arr);
 
-void	range_ignore(const char *s, bool **ignore, unsigned char c);
-void	bool_arr_zeroing(const char *s, bool **ignore, size_t len);
+void	range_ignore(const char *s, bool *ignore, unsigned char c);
+bool	*bool_arr_zeroing(size_t len);
 #endif

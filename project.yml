@@ -75,7 +75,7 @@
 # See documentation to configure a given toolchain for use
 :tools:
   :test_compiler:
-    :executable: /usr/bin/clang-17
+    :executable: clang
     :name: 'clang test compiler'
     :arguments:
       - -c ${1}
@@ -87,7 +87,7 @@
       - -MMD -MP
       - -o ${2}
   :test_linker:
-    :executable: /usr/bin/clang-17
+    :executable: clang
     :name: 'clang test linker'
     :arguments:
       - ${1}
@@ -95,7 +95,7 @@
       - -lft
       - -o ${2}
   :release_compiler:
-    :executable: /usr/bin/clang-17
+    :executable: clang
     :name: 'clang release compiler'
     :arguments:
       - -g3
@@ -108,7 +108,7 @@
       - -c ${1}
       - -o ${2}
   :release_linker:
-    :executable: /usr/bin/clang-17
+    :executable: clang
     :name: 'clang release linker'
     :arguments:
       - ${1}               #list of object files to link
@@ -118,10 +118,10 @@
       - -o minishell
   
   :release_dependencies_generator:
-    :executable: /usr/bin/clang-17
+    :executable: clang
     :name: Clang
   :test_dependencies_generator:
-    :executable: /usr/bin/clang-17
+    :executable: clang
     :name: Clang
 
 # LIBRARIES

@@ -18,7 +18,8 @@ void support_print(const char *s, const bool *arr) {
 // provide a wrapper for bool_arr_zeroing
 void	support_bool_arr_zeroing(const char *s, bool **ignore, size_t len)
 {
-	bool_arr_zeroing(s, ignore, len);
+	(void)s;
+	*ignore = bool_arr_zeroing(len);
 }
 
 // convert char array to bool array
@@ -50,8 +51,8 @@ t_test *returns_test_struct(const char *s, const char *expected) {
 	support_bool_arr_zeroing(s, &(test->actual), test->slen);
 	if (!test->actual)
 		return (NULL);
-	range_ignore(s, &(test->actual), '\'');
-	range_ignore(s, &(test->actual), '\"');
+	range_ignore(s, test->actual, '\'');
+	range_ignore(s, test->actual, '\"');
 	test->expected = support_expected(expected);
 	return (test);
 }
