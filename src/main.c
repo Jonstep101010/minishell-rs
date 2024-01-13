@@ -1,5 +1,8 @@
 #include "minishell.h"
 #include "libft.h"
+#include <readline/readline.h>
+#include <stdio.h>
+#include <readline/history.h>
 
 // @follow-up implement calls to readline library
 void	minishell_loop(void)
@@ -21,6 +24,7 @@ void	minishell_loop(void)
 				printf(":: %s\n", line);
 			else
 				printf("invalid syntax\n");
+			add_history(line);
 			free(line);
 		}
 	}
