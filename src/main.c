@@ -3,14 +3,17 @@
 #include <readline/readline.h>
 #include <stdio.h>
 #include <readline/history.h>
+#include "../src/signals/msh_signals.h"
 
 // @follow-up implement calls to readline library
 void	minishell_loop(void)
 {
 	char *line;
+	struct termios p_termios;
 
 	while (1)
 	{
+		check_signals(&p_termios);
 		line = readline("minishell> ");
 		if (line)
 		{
@@ -27,6 +30,8 @@ void	minishell_loop(void)
 			add_history(line);
 			free(line);
 		}
+		else
+			return ;
 	}
 }
 
