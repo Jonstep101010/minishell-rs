@@ -1,2 +1,4 @@
 minishell
 build
+
+valgrind.log

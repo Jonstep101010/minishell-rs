@@ -27,6 +27,7 @@
     - +:test/lexer/
     - +:test/bool_array/
     - +:test/wrapper/
+    - +:test/parser/
   :source:
     - +:src/*
     - +:include/libft/src/arr/
