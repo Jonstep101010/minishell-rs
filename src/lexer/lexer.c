@@ -3,11 +3,8 @@
 #include "struct.h"
 #include <stdbool.h>
 
-// "this is my input "ignore" 't' 'this' "is" 'a' "test" 'string'""
-// "                 00000000 000 000000 0000 000 000000 000000000"
-
-// handle input like this "this is a cmd "'" hello" (accept in quotes)
-// make other checks use the ignore array
+// @audit-info error  "cmd "'" hello" or any other unbalanced delimiters
+// @follow-up free in caller and just get ref to struct?
 t_lexer	lexer(char *s)
 {
 	if (!s || !*s)
@@ -15,8 +12,6 @@ t_lexer	lexer(char *s)
 	struct s_lexer	input;
 	input.lexer = LEXER_NULL;
 	count_number(s, &input);
-	// fprintf(stderr, "singlequotes: %d\n", input.singlequotes);
-	// fprintf(stderr, "doublequotes: %d\n", input.doublequotes);
 	if (input.singlequotes > 0 || input.doublequotes > 0)
 		ignore_quotes(s, &input);
 	if (check_pipes_redirection(s, &input) != LEXER_SUCCESS && check_against_ignore(s, &input) != LEXER_SUCCESS)
