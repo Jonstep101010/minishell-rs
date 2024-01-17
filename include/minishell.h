@@ -9,4 +9,7 @@ int	while_not_i(const char *s, int (*)(int), char c, int *index);
 int	while_is_i(const char *s, char c, int *index);
 
 t_lexer	lexer(char *s);
+
+// error/exit
+void	msh_exit(t_shell *shell, int exitcode);
 #endif
