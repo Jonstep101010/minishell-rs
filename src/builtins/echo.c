@@ -4,20 +4,23 @@
 
 char	*occurs_exclusively(const char *expected, const char *actual);
 
+static int	is_n_arg(const char *arg)
+{
+	if (occurs(arg, "-n")
+		&& ft_strncmp(arg, "-n", 2) == 0)
+			return (1);
+	return (0);
+}
+
 static int	echo_default(const char **cmd_arr, size_t writelen)
 {
 	size_t	n_args;
-	size_t	skip_n;
 
 	n_args = arr_len(cmd_arr);
-	skip_n = 0;
-	if (writelen == 1 && (cmd_arr + writelen) && *(cmd_arr + writelen))
+	if (writelen == 1 && (cmd_arr + writelen))
 	{
-		while (cmd_arr + writelen + skip_n
-			&& occurs(*(cmd_arr + writelen + skip_n), "-n")
-				&& ft_strncmp(*(cmd_arr + 1), "-n", 2) == 0)
-				skip_n++;
-		writelen += skip_n;
+		while (cmd_arr + writelen && is_n_arg(*(cmd_arr + writelen)))
+			writelen++;
 	}
 	while (cmd_arr + writelen && *(cmd_arr + writelen) && writelen <= n_args)
 	{
