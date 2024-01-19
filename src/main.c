@@ -11,7 +11,6 @@
 
 void	core_functions(t_shell *shell);
 
-// @follow-up implement calls to readshell.line library
 void	minishell_loop(t_shell *shell)
 {
 	struct termios p_termios;
@@ -36,12 +35,12 @@ void	core_functions(t_shell *shell)
 		msh_exit(shell, 0);
 	else if (lexer(shell->line) == LEXER_SUCCESS)
 	{
-		// @todo @audit modify parser to format correctly and return error codes
+		// @todo modify parser to format correctly and return error codes
 		if (parser(shell) == -1)
 			msh_exit(shell, 1);
 		if (builtin((const char **)shell->command) == -1)
 			ft_printf("command is not a builtin/command not found\n");
-		//@todo @follow-up executor
+		// @todo executor
 		arr_free(shell->command);
 		add_history(shell->line);
 	}
