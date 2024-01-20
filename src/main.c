@@ -3,7 +3,7 @@
 #include "struct.h"
 #include <readline/readline.h>
 #include <readline/history.h>
-#include <stdio.h>
+#include <unistd.h>
 
 #include "../src/signals/msh_signals.h"
 #include "../src/builtins/builtins.h"
@@ -11,13 +11,17 @@
 
 void	core_functions(t_shell *shell);
 
+#include <sys/param.h>
 void	minishell_loop(t_shell *shell)
 {
 	struct termios p_termios;
+	// char	buf[MAXPATHLEN + 1];
 
 	while (1)
 	{
 		check_signals(&p_termios);
+		// getcwd(buf, MAXPATHLEN);
+		// ft_printf("%s\n", buf);
 		shell->line = readline("minishell> ");
 		if (shell->line)
 		{
