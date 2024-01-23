@@ -1,7 +1,6 @@
 #include "libft.h"
 #include "unity.h"
 
-#include "../src/env/remove_array.c"
 #include "../src/utils/arr_utils.c"
 #include "../include/libft/src/arr/print_arr.c"
 #include "../src/utils/occurs.c"

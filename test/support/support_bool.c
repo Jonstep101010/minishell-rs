@@ -1,4 +1,4 @@
-#include "../src/bool_array.c"
+#include "../src/utils/bool_array.c"
 #include "support_bool.h"
 #include <stdlib.h>
 
