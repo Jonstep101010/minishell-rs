@@ -2,11 +2,12 @@
 #include "../src/lexer/check_quotes.c"
 #include "../src/lexer/check_pipes.c"
 #include "../src/lexer/lexer_support.c"
-#include "../src/while_string_wrapper.c"
+#include "../src/utils/while_string_wrapper.c"
 #include "../src/bool_array.c"
 #include "struct.h"
 #include "unity.h"
 #include <stdbool.h>
+#include "str_cchr.c"
 
 /* @follow-up anything within balanced quotes */
 void test_pipes_filter_WIP()

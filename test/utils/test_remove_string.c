@@ -1,9 +1,10 @@
 #include "libft.h"
 #include "unity.h"
 
-#include "../src/remove_array.c"
-#include "../src/append_array.c"
+#include "../src/env/remove_array.c"
+#include "../src/utils/arr_utils.c"
 #include "../include/libft/src/arr/print_arr.c"
+#include "../src/utils/occurs.c"
 
 void	test_arr_remove_hello() {
 	char	*tmp[] = {"Hello, ", "World", "!", NULL};

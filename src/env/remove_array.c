@@ -1,5 +1,7 @@
+#include "minishell.h"
 #include "libft.h"
-#include "utils.h"
+
+char	*occurs_exclusively(const char *expected, const char *actual);
 
 void	rm_str_arr(char **arr, const char *s)
 {
@@ -24,4 +26,5 @@ void	rm_str_arr(char **arr, const char *s)
 		}
 		i++;
 	}
+	// arr[i] = ft_strdup("");
 }

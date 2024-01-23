@@ -11,17 +11,14 @@
 
 void	core_functions(t_shell *shell);
 
-#include <sys/param.h>
+
 void	minishell_loop(t_shell *shell)
 {
 	struct termios p_termios;
-	// char	buf[MAXPATHLEN + 1];
 
 	while (1)
 	{
 		check_signals(&p_termios);
-		// getcwd(buf, MAXPATHLEN);
-		// ft_printf("%s\n", buf);
 		shell->line = readline("minishell> ");
 		if (shell->line)
 		{
@@ -35,6 +32,7 @@ void	minishell_loop(t_shell *shell)
 
 void	core_functions(t_shell *shell)
 {
+
 	if (ft_strncmp(shell->line, "exit", 4) == 0 && ft_strlen(shell->line) == 4)
 		msh_exit(shell, 0);
 	else if (lexer(shell->line) == LEXER_SUCCESS)
@@ -42,11 +40,12 @@ void	core_functions(t_shell *shell)
 		// @todo modify parser to format correctly and return error codes
 		if (parser(shell) == -1)
 			msh_exit(shell, 1);
-		if (builtin((const char **)shell->command) == -1)
+		if (builtin(shell, (const char **)shell->command) == -1)
 			ft_printf("command is not a builtin/command not found\n");
 		// @todo executor
 		arr_free(shell->command);
 		add_history(shell->line);
+		free_null(shell->line);
 	}
 	else
 		ft_printf("invalid syntax\n");

@@ -1,6 +1,7 @@
 #include "unity.h"
 
-#include "../src/append_array.c"
+#include "arr_utils.c"
+#include "occurs.c"
 #include "../include/libft/src/arr/print_arr.c"
 
 void	test_append() {

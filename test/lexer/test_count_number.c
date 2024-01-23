@@ -1,7 +1,8 @@
 #include "unity.h"
 #include "struct.h"
 #include "../src/lexer/lexer_support.c"
-#include "../src/while_string_wrapper.c"
+#include "../src/utils/while_string_wrapper.c"
+#include "str_cchr.c"
 
 void test_count_number()
 {
