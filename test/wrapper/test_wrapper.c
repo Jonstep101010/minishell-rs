@@ -1,4 +1,4 @@
-#include "../../src/while_string_wrapper.c"
+#include "../../src/utils/while_string_wrapper.c"
 #include "libft.h"
 #include "unity.h"
 #include "minishell.h"

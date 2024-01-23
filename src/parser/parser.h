@@ -3,6 +3,9 @@
 
 # include "struct.h"
 int		parser(t_shell *shell);
-char	*occurs(const char *big, const char *little);
-char	*occurs_exclusively(const char *expected, const char *actual);
+
+void	expand_variables(t_shell *shell);
+
+bool	interpret_quotes(char **cmd_arr);
+
 #endif

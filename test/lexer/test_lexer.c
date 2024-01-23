@@ -2,8 +2,9 @@
 #include "../src/lexer/lexer_support.c"
 #include "../src/lexer/check_quotes.c"
 #include "../src/lexer/check_pipes.c"
-#include "../src/while_string_wrapper.c"
-#include "../src/bool_array.c"
+#include "../include/libft/src/string/str_cchr.c"
+#include "../src/utils/while_string_wrapper.c"
+#include "../src/utils/bool_array.c"
 #include "struct.h"
 #include "unity.h"
 #include <stdbool.h>

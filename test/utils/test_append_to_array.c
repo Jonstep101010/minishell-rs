@@ -1,6 +1,7 @@
 #include "unity.h"
 
-#include "../src/append_array.c"
+#include "arr_utils.c"
+#include "occurs.c"
 #include "../include/libft/src/arr/print_arr.c"
 
 void	test_append() {
@@ -13,8 +14,6 @@ void	test_append() {
 	TEST_ASSERT_EQUAL(arr_len((const char **)arr), arr_len((const char **)expected));
 	TEST_ASSERT_EQUAL(arr_len((const char **)arr), arr_len((const char **)expected));
 }
-
-#include "../src/remove_array.c"
 
 void	test_append_after_rm() {
 	char	*tmp[] = {"World", NULL, NULL};
