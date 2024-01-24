@@ -1,5 +1,5 @@
 #include "unity.h"
-#include "../src/parser/occurs.c"
+#include "occurs.c"
 
 void	test_returns_null() {
 	TEST_ASSERT_NULL(occurs(NULL, "echo "));

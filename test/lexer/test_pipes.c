@@ -1,15 +1,15 @@
+#include "../include/libft/src/string/str_cchr.c"
 #include "../src/lexer/lexer.c"
 #include "../src/lexer/check_quotes.c"
 #include "../src/lexer/check_pipes.c"
 #include "../src/lexer/lexer_support.c"
-#include "../src/while_string_wrapper.c"
-#include "../src/bool_array.c"
+#include "../src/utils/while_string_wrapper.c"
+#include "../src/utils/bool_array.c"
 #include "struct.h"
 #include "unity.h"
 #include <stdbool.h>
 
-/* @follow-up implement recurring single & double pipes*/
-/* @follow-up anything within quotes */
+/* @follow-up anything within balanced quotes */
 void test_pipes_filter_WIP()
 {
 	TEST_ASSERT(lexer("echo \"|\"") == LEXER_SUCCESS);
@@ -20,11 +20,9 @@ void test_pipes_filter_WIP()
 	TEST_ASSERT(lexer("echo Hello | World | hello") == LEXER_SUCCESS);
 	TEST_ASSERT(lexer("echo Hello | World | hello") == LEXER_SUCCESS);
 	TEST_ASSERT(lexer("ls \"||\" grep file '||' wc -l") == LEXER_SUCCESS);
+	// @audit-info make this an error (no handling)
+	// TEST_ASSERT(lexer("echo |") == LEXER_SUCCESS);
 }
-
-// void test_pipes_quotes_pass()
-// {
-// }
 
 void test_pipes_filter_fail()
 {
@@ -42,11 +40,9 @@ void test_pipes_filter_fail()
 	TEST_ASSERT(lexer("||       ") != LEXER_SUCCESS);
 }
 
-/* handle this: "cmd ||" (open cmd (wait for second:
-	 (does not have to be valid))) ? -> only for bonus*/
-/* handle this: "cmd |" (neither cmd has to be valid) ? -> only for bonus*/
+
+// @audit-info do not handle "cmd ||" / "cmd |"
 /* only needs to be input before opening a pipe */
-/* @follow-up make sure these work */
 void test_pipes_filter_working()
 {
 	TEST_ASSERT(lexer("|") != LEXER_SUCCESS);

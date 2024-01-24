@@ -3,7 +3,7 @@
 #include "struct.h"
 #include <readline/readline.h>
 #include <readline/history.h>
-#include <stdio.h>
+#include <unistd.h>
 
 #include "../src/signals/msh_signals.h"
 #include "../src/builtins/builtins.h"
@@ -11,7 +11,7 @@
 
 void	core_functions(t_shell *shell);
 
-// @follow-up implement calls to readshell.line library
+
 void	minishell_loop(t_shell *shell)
 {
 	struct termios p_termios;
@@ -32,18 +32,20 @@ void	minishell_loop(t_shell *shell)
 
 void	core_functions(t_shell *shell)
 {
+
 	if (ft_strncmp(shell->line, "exit", 4) == 0 && ft_strlen(shell->line) == 4)
 		msh_exit(shell, 0);
 	else if (lexer(shell->line) == LEXER_SUCCESS)
 	{
-		// @todo @audit modify parser to format correctly and return error codes
+		// @todo modify parser to format correctly and return error codes
 		if (parser(shell) == -1)
 			msh_exit(shell, 1);
-		if (builtin((const char **)shell->command) == -1)
+		if (builtin(shell, (const char **)shell->command) == -1)
 			ft_printf("command is not a builtin/command not found\n");
-		//@todo @follow-up executor
+		// @todo executor
 		arr_free(shell->command);
 		add_history(shell->line);
+		free_null(shell->line);
 	}
 	else
 		ft_printf("invalid syntax\n");

@@ -56,9 +56,8 @@ t_lexer	check_against_ignore(const char *s, struct s_lexer *input)
 		return (LEXER_NULL);
 	if (input->ignore == NULL)
 		return (fprintf(stderr, "will result in segfault\n"), LEXER_NULL);
-	// 	return (LEXER_UNBALANCED_QUOTES);
 	i = 0;
-	if (input->singlequotes > 0 && input->doublequotes == 0)
+	if (input->singlequotes % 2 != 0 || input->doublequotes % 2 != 0)
 		return (LEXER_UNBALANCED_QUOTES);
 	while (i < (int)input->len)
 	{

@@ -16,13 +16,13 @@ bool	*bool_arr_zeroing(size_t len)
 	}
 	return (ignore);
 }
+
 // "this is my input "ignore" 't' 'this' "is" 'a' "test" 'string'""
 // "                 00000000 000 000000 0000 000 000000 000000000"
 // "this is my input \"ignore\" 't' 'this' \"is\" 'a' \"test\" 'string'"
 // "11111111111111111000000001000100000010000100010000001000000000"
 // "00000000000000000111111110111011111101111011101111110111111111"
 
-// @todo make other checks respect the ignore array
 /**
  * @brief ignore range starting at c
  * @warning caller needs to make sure that c is not unclosed
