@@ -38,6 +38,7 @@ char	**append_str_arr(char **arr, const char *s)
 	return (ret);
 }
 
+// @follow-up @audit-info this can only find the exact string, might need something that enables find and replace
 void	rm_str_arr(char **arr, const char *s)
 {
 	size_t	i;

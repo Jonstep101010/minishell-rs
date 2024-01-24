@@ -3,8 +3,8 @@
 #include "struct.h"
 #include "libft.h"
 #include <stdbool.h>
-#include <stdlib.h>
 #include <sys/param.h>
+
 char	*occurs_exclusively(const char *, const char *);
 int		export(char **owned_envp, const char **cmd_arr);
 // @follow-up parser needs to run before builtins in future,
@@ -18,6 +18,9 @@ int		builtin(t_shell *shell, const char **cmd_arr)
 	print_arr(cmd_arr);
 	if (occurs_exclusively("echo", *cmd_arr))
 		return (echo(cmd_arr));
+	// @todo implement unset command
+	// if (occurs_exclusively("unset", *cmd_arr))
+	// 	return (unset(shell->owned_envp, cmd_arr));
 	if (occurs_exclusively("export", *cmd_arr))
 		return (export(shell->owned_envp, cmd_arr));
 	if (occurs_exclusively("pwd", *cmd_arr))
