@@ -40,6 +40,8 @@ bool	interpret_quotes(char **cmd_arr)
 
 	i = 0;
 	quote = 0;
+	if (!cmd_arr)
+		return (true);
 	while (cmd_arr[i])
 	{
 		if (str_cchr(cmd_arr[i], '\'') != 0 || str_cchr(cmd_arr[i], '"') != 0)

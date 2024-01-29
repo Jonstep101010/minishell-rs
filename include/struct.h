@@ -45,6 +45,7 @@ typedef struct s_shell
 	char	*tmp;
 	char	**tmp_arr;
 	char	**command;
+	char	**tokens;
 }	t_shell;
 
 #endif

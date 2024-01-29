@@ -13,8 +13,8 @@ int		parser(t_shell *shell)
 {
 	if (!shell->line)
 		return (EXIT_FAILURE);
-	shell->command = ft_split(shell->line, ' ');
-	if (shell->command == NULL)
+	split_command(shell);
+	if (!shell->command)
 		return (EXIT_FAILURE);
 	// @audit do expansion -> replace $KEY with value
 	expand_variables(shell);

@@ -103,8 +103,9 @@ bool	pipes_valid(const char *s, const int pipes)
 t_lexer	check_pipes_redirection(const char *s, struct s_lexer *input)
 {
 	input->lexer = LEXER_PIPES;
-	if (input->pipes > 0 && pipes_valid(s, input->pipes) == false)
-		return (LEXER_PIPES);
+	// something wrong with checking pipes @audit-info
+	// if (input->pipes > 0 && pipes_valid(s, input->pipes) == false)
+	// 	return (LEXER_PIPES);
 	// check redirection
 	input->lexer = LEXER_REDIRECTION;
 	if (input->redir_greater > 0 && redir_valid(s, input->redir_greater, '>') == false)

@@ -19,11 +19,8 @@ char	**append_str_arr(char **arr, const char *s)
 	if (!s || !*s)
 		return (NULL);
 	len = 0;
-	ft_printf("append to arr:\n");
-	print_arr(arr);
 	if (arr)
 		len = arr_len((const char **)arr);
-	ft_printf("len of appended array: %zu", len);
 	ret = (char **) ft_calloc(len + 2, sizeof(char *));
 	if (!ret)
 		return (NULL);
@@ -41,8 +38,8 @@ char	**append_str_arr(char **arr, const char *s)
 	ret[i] = ft_strdup(s);
 	if (!ret[i])
 		return (NULL);
-	ft_printf("appended: ret\n");
-	print_arr(ret);
+	ft_printf("%zu(len)", len + 1);
+	print_arr_sep(ret, '{', '}');
 	free(arr);
 	return (ret);
 }
