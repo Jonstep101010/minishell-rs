@@ -1,7 +1,5 @@
 #include "struct.h"
 #include "libft.h"
-#include "minishell.h"
-#include <limits.h>
 #include <stdlib.h>
 #include "parser.h"
 
@@ -23,8 +21,5 @@ int		parser(t_shell *shell)
 	// expansion should be done by this point
 	if (!interpret_quotes(shell->command))
 		return (EXIT_FAILURE);
-	// if (lexer(shell->line) == LEXER_SUCCESS)
-	// {
-	// }
 	return (EXIT_SUCCESS);
 }

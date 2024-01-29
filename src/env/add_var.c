@@ -6,43 +6,55 @@
 // export VARNAME="value"
 // export VARNAME='value'
 // export VARNAME=value
-// split at '=' sign
-// commands like these seem to go through lexer fine
 // guaranteed to not have unbalanced quotes at this point
 
+#include "struct.h"
 #include "utils.h"
 
-int	add_env(char **owned_envp, const char *s)
+// input like key=val
+char	**add_env(char **arr, const char *s)
 {
 	char	**tmp;
 	char	*s_tmp;
 
-	ft_printf("from add_env:\n");
-	ft_printf("%s\n", s);
-	tmp = ft_split(s, '=');
-	// [0] export VARNAME [1] value (in quotes or whatever)
-	if (!tmp || !tmp[1] || !tmp[1][0])
-		return (-1);
-	s_tmp = tmp[1]; // should contain info about string
-	print_arr((const char **)tmp);
-	append_str_arr(owned_envp, s_tmp);
-	// trim first string to remove before envar (ft_substr)
-	ft_printf("added to env:\n");
-	print_arr((const char **)owned_envp);
-	return (0);
+	if (!arr || !s)
+		return (NULL);
+	int	index = find_key_env(arr, s, get_key_len);
+	if (!arr)
+		return (ft_printf("error!\n"), NULL);
+	if (index == -1)
+	{
+		tmp = append_str_arr(arr, s);
+		if (!tmp)
+			return (NULL);
+		ft_printf("created new at end\n");
+		return (tmp);
+	}
+	ft_printf("replacing %s with %s\n", arr[index], s);
+	s_tmp = ft_strdup(s);
+	if (!s_tmp)
+	{
+		ft_printf("error in var alloc!\n");
+		exit(1);
+	}
+	free(arr[index]);
+	arr[index] = s_tmp;
+	ft_printf("new item: %s\n", arr[index]);
+	return (arr);
 }
 
-int	export(char **owned_envp, const char **cmd_arr)
+void	export(t_shell *shell)
 {
-	if (*cmd_arr && *(cmd_arr + 1) && str_cchr(*(cmd_arr + 1), '=') == 1)
+	if (*shell->command && *(shell->command + 1)
+		&& str_cchr(*(shell->command + 1), '=') == 1)
 	{
-		ft_printf("gets to export\n");
-		// if (*(cmd_arr + 1)[0] == '='
-		// 	|| *(cmd_arr + 1)[ft_strlen(*(cmd_arr + 1))] == '=')
-		// return (add_env(owned_envp, *(cmd_arr + 1)));
-		add_env(owned_envp, *(cmd_arr + 1));
-		ft_printf("no issues in export\n");
+		ft_printf("gets to export: %s\n", *(shell->command + 1));
+		shell->tmp_arr = add_env(shell->owned_envp, *(shell->command + 1));
+		if (!shell->tmp_arr)
+			return ((void)ft_printf("add_env failed\n"));
+		shell->owned_envp = shell->tmp_arr;
+		shell->tmp_arr = NULL;
 	}
-	ft_printf("export failed\n");
-	return (-1);
+	else
+		ft_printf("export failed\n");
 }
