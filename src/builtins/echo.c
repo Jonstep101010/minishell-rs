@@ -1,3 +1,4 @@
+#include "env.h"
 #include "libft.h"
 #include "builtins.h"
 #include <stddef.h>
@@ -12,9 +13,13 @@ static int	is_n_arg(const char *arg)
 	return (0);
 }
 
+
+// need to enable passthrough for env
 static int	echo_default(const char **cmd_arr, size_t writelen)
 {
 	size_t	n_args;
+	char	*location;
+	char	*tmp;
 
 	n_args = arr_len(cmd_arr);
 	if (writelen == 1 && (cmd_arr + writelen))
@@ -24,6 +29,23 @@ static int	echo_default(const char **cmd_arr, size_t writelen)
 	}
 	while (cmd_arr + writelen && *(cmd_arr + writelen) && writelen <= n_args)
 	{
+		location = ft_strnstr(*(cmd_arr + writelen), "$", ft_strlen(*(cmd_arr + writelen)));
+		// string contains $KEY somewhere
+		if (location && location + 1)
+		{
+			tmp = ft_strdup(location + 1);
+			if (!tmp)
+				return (-1);
+			// printf("\nenvar: %s\n", tmp);
+			char	*var[] = {"seom=env", "KEY=val", "other=none", NULL};
+			char	**owned = arr_dup((const char **)var);
+			// free_null(location);
+			location = get_var_val(owned, tmp);
+			// printf("\nkv: %s\n", location);
+			size_t newlen = (ft_strlen(*(cmd_arr + writelen)) - ft_strlen(tmp) + 1) + ft_strlen(location);
+			// basic blueprint for doing the replacement of $KEY with val
+		}
+
 		ft_printf(*(cmd_arr + writelen));
 		if (writelen < n_args - 1)
 			write(1, " ", 1);

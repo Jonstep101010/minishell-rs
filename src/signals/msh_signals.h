@@ -3,7 +3,7 @@
 
 // #include <stdbool.h> //@follow-up
 // bool	g_ctrl_c	= false;
-#include <bits/types/siginfo_t.h>
+#include <signal.h>
 #include <termios.h>
 void	check_signals(struct termios *p_termios);
 void	ctrl_c_init(void);

@@ -1,14 +1,15 @@
+#include "ft_printf.h"
 #include "libft.h"
 #include <stddef.h>
 #include "utils.h"
 
-size_t	null_arr_len(char **arr)
-{
-	if (!arr)
-		return (0);
-	return (arr_len((const char **)arr));
-}
-
+/**
+ * @brief returns copy with new item added, frees old
+ *
+ * @param arr heap-allocated 2d array
+ * @param s possibly stack allocated string
+ * @return char** copy with new element
+ */
 char	**append_str_arr(char **arr, const char *s)
 {
 	size_t	len;
@@ -17,14 +18,19 @@ char	**append_str_arr(char **arr, const char *s)
 
 	if (!s || !*s)
 		return (NULL);
-	len = null_arr_len(arr);
+	len = 0;
+	ft_printf("append to arr:\n");
+	print_arr(arr);
+	if (arr)
+		len = arr_len((const char **)arr);
+	ft_printf("len of appended array: %zu", len);
 	ret = (char **) ft_calloc(len + 2, sizeof(char *));
 	if (!ret)
 		return (NULL);
 	i = 0;
-	while (arr && arr[i] && i <= len)
+	while (arr && arr[i])
 	{
-		ret[i] = ft_strdup(arr[i]);
+		ret[i] = arr[i];
 		if (!ret[i])
 		{
 			arr_free(ret);
@@ -35,6 +41,9 @@ char	**append_str_arr(char **arr, const char *s)
 	ret[i] = ft_strdup(s);
 	if (!ret[i])
 		return (NULL);
+	ft_printf("appended: ret\n");
+	print_arr(ret);
+	free(arr);
 	return (ret);
 }
 
