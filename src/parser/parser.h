@@ -19,7 +19,7 @@ typedef struct s_expander
 	int		singlequote;
 }	t_expander;
 
-char	*expand_variables(char *line, char **envp);
+char	*expand_variables(char *line, const char **envp);
 
 bool	interpret_quotes(char **cmd_arr);
 

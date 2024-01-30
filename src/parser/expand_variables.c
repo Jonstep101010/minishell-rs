@@ -3,16 +3,12 @@
 #include "libft.h"
 #include <stdbool.h>
 
-// @audit-info add the same to export
 static bool	is_valid_key(int c)
 {
 	if (ft_isalnum(c) || c == '_')
 		return (true);
 	return (false);
 }
-
-// envp should be const (in get_var_val as well)
-// will replace valid keys that are not found with empty strings
 
 static void	handle_singlequotes(t_expander *ex, const char *line)
 {
@@ -22,7 +18,7 @@ static void	handle_singlequotes(t_expander *ex, const char *line)
 		ex->singlequote = 0;
 }
 
-static char	*replace_variables(t_expander *ex, const char *line, char **envp)
+static char	*replace_variables(t_expander *ex, const char *line, const char **envp)
 {
 	ex->key = ft_substr(line, ex->start, ex->i - ex->start);
 	if (!ex->key)
@@ -53,12 +49,13 @@ static char	*replace_variables(t_expander *ex, const char *line, char **envp)
 
 /**
  * @brief expands and replaces environment variables, non needed '$' will be filled with spaces
+ * will replace valid keys that are not found with empty strings
  *
  * @param line raw input line
  * @param envp envars
  * @return char*
  */
-char	*expand_variables(char *line, char **envp)
+char	*expand_variables(char *line, const char **envp)
 {
 	t_expander	ex;
 

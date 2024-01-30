@@ -11,7 +11,7 @@ void	test_expander() {
 	char	*expected_ret = strdup("echo true | echo false");
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expand_variables(line, envp);
+	char	*actual = expand_variables(line, (const char **)envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	// printf("%s\n", actual);
@@ -26,7 +26,7 @@ void	test_expander_two() {
 	char	*expected_ret = strdup("echo true | echo \"false\" | echo false | echo true");
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expand_variables(line, envp);
+	char	*actual = expand_variables(line, (const char **)envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -50,7 +50,7 @@ void	test_expander_ignore_in_singlequotes() {
 	char	*expected_ret = strdup("echo '$PAGER'");
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expand_variables(line, envp);
+	char	*actual = expand_variables(line, (const char **)envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -65,7 +65,7 @@ void	test_expander_followed() {
 	char	*expected_ret = strdup("echo truefalse");
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expand_variables(line, envp);
+	char	*actual = expand_variables(line, (const char **)envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -80,7 +80,7 @@ void	test_expander_followed_dq() {
 	char	*expected_ret = strdup("echo \"true\"false");
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expand_variables(line, envp);
+	char	*actual = expand_variables(line, (const char **)envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -95,7 +95,7 @@ void	test_expander_ignore_in_singlequotes_key() {
 	char	*expected_ret = strdup("echo  'TEST'");
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expand_variables(line, envp);
+	char	*actual = expand_variables(line, (const char **)envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -110,7 +110,7 @@ void	test_expander_ignore_in_doublequotes_key() {
 	char	*expected_ret = strdup("echo  \"TEST\"");
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expand_variables(line, envp);
+	char	*actual = expand_variables(line, (const char **)envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -125,7 +125,7 @@ void	test_expander_ignore_in_doublequotes() {
 	char	*expected_ret = strdup("echo \"true\"");
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expand_variables(line, envp);
+	char	*actual = expand_variables(line, (const char **)envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -141,7 +141,7 @@ void	test_expander_followed_sq() {
 	char	*expected_ret = strdup("echo  'PAGER'hello");
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expand_variables(line, envp);
+	char	*actual = expand_variables(line, (const char **)envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -157,7 +157,7 @@ void	test_expander_followed_sq_var() {
 	char	*expected_ret = strdup("echo  'PAGER'false");
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expand_variables(line, envp);
+	char	*actual = expand_variables(line, (const char **)envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -172,7 +172,38 @@ void	test_error_invalid_name() {
 	char	*expected_ret = strdup("echo  'PA?GER'false");
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expand_variables(line, envp);
+	char	*actual = expand_variables(line, (const char **)envp);
+	TEST_ASSERT_NOT_NULL(actual);
+	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
+	printf("%s\n", actual);
+}
+
+void	test_replace_key_not_found_name() {
+	char	*line = strdup("echo $hello");
+	char	**envp = NULL;
+	envp = append_str_arr(append_str_arr(envp, "PAGER=true"), "test=false");
+	TEST_ASSERT_NOT_NULL(envp);
+
+	char	*expected_ret = strdup("echo ");
+	TEST_ASSERT_NOT_NULL(expected_ret);
+
+	char	*actual = expand_variables(line, (const char **)envp);
+	TEST_ASSERT_NOT_NULL(actual);
+	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
+	printf("%s\n", actual);
+}
+
+// weird stuff with invalid names
+void	test_invalid_key_found_name() {
+	char	*line = strdup("echo $h?echo");
+	char	**envp = NULL;
+	envp = append_str_arr(append_str_arr(envp, "PAGER=true"), "test=false");
+	TEST_ASSERT_NOT_NULL(envp);
+
+	char	*expected_ret = "echo ?echo";
+	TEST_ASSERT_NOT_NULL(expected_ret);
+
+	char	*actual = expand_variables(line, (const char **)envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
