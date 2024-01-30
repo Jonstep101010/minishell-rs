@@ -1,90 +1,86 @@
 #include "env.h"
+#include "parser.h"
 #include "libft.h"
 #include <stdbool.h>
 
+// @audit-info add the same to export
 static bool	is_valid_key(int c)
 {
-	if ((c >= 'A' && c <= 'Z') || c == '_')
+	if (ft_isalnum(c) || c == '_')
 		return (true);
 	return (false);
 }
 
-// testing
-
-// echo hello$PAGER -> echo helloVAL
-// echo "$PAGER" -> echo VAL
-// echo $PAGER -> echo VAL
-// echo $'PAGER'S -> echo PAGERS (remove $)
-// echo '$PAGER' -> echo $PAGER
-// echo $"PAGER"S -> echo PAGERS
-// echo $PAGER_S -> echo VAL
-void	*do_quote_bs(const char *s, int *quote);
 // envp should be const (in get_var_val as well)
 // will replace valid keys that are not found with empty strings
+
+static void	handle_singlequotes(t_expander *ex, const char *line)
+{
+	if (line[ex->i] == '\'' && ex->singlequote == 0)
+		ex->singlequote = line[ex->i];
+	else if (line[ex->i] == '\'' && ex->singlequote == line[ex->i])
+		ex->singlequote = 0;
+}
+
+static char	*replace_variables(t_expander *ex, const char *line, char **envp)
+{
+	ex->key = ft_substr(line, ex->start, ex->i - ex->start);
+	if (!ex->key)
+		return (NULL);
+	ex->val = get_var_val(envp, ex->key);
+	free(ex->key);
+	if (!ex->val)
+		return (NULL);
+	ex->tmp = ft_substr(line, 0, ex->start - 1);
+	if (!ex->tmp)
+		return (free(ex->val), NULL);
+	ex->ret = ft_strjoin(ex->tmp, ex->val);
+	free(ex->val);
+	free(ex->tmp);
+	if (!ex->ret)
+		return (NULL);
+	ex->remainder_line = ft_substr(line, ex->i, ft_strlen(line));
+	if (!ex->remainder_line)
+		return (NULL);
+	ex->tmp = expand_variables(ex->remainder_line, envp);
+	if (!ex->tmp)
+		return (free(ex->remainder_line), NULL);
+	ex->new_ret = ft_strjoin(ex->ret, ex->tmp);
+	free(ex->ret);
+	free(ex->tmp);
+	return (ex->new_ret);
+}
+
+/**
+ * @brief expands and replaces environment variables, non needed '$' will be filled with spaces
+ *
+ * @param line raw input line
+ * @param envp envars
+ * @return char*
+ */
 char	*expand_variables(char *line, char **envp)
 {
-	size_t	i;
-	char	*ret;
-	char	*key;
-	size_t	start;
-	char	*val;
-	char	*tmp;
-	char	*remainder_line;
-	char	*new_ret;
-	int		singlequote = 0;
+	t_expander	ex;
 
-	if (ft_strchr(line, '$') == 0)
-		return (line);
-	i = 0;
-	singlequote = 0;
-	while (line[i])
+	ex.i = 0;
+	ex.singlequote = 0;
+	while (line[ex.i])
 	{
-		if (line[i] == '\'' && singlequote == 0)
-			singlequote = line[i];
-		else if (line[i] == '\'' && singlequote == line[i])
-			singlequote = 0;
-		else if (line[i] && line[i + 1] && line[i] == '$' && singlequote == 0
-				&& is_valid_key(line[i + 1]))
+		handle_singlequotes(&ex, line);
+		if (line[ex.i] && line[ex.i + 1] && line[ex.i] == '$'
+			&& ex.singlequote == 0 && is_valid_key(line[ex.i + 1]))
 		{
-			i++;
-			start = i;
-			while (line[i] && is_valid_key(line[i]))
-				i++;
-			if (start == i)
-				continue;;
-			key = ft_substr(line, start, i - start);
-			if (!key)
-				return (NULL);
-			ft_printf("key: %s\n", key);
-			val = get_var_val(envp, key);
-			if (!val)
-				return (free(key), NULL);
-			ft_printf("value for %s is %s\n", key, val);
-			// join key with preceding string (maybe take care of empty begin)
-			tmp = ft_substr(line, 0, start - 1);
-			if (!tmp)
-				return (free(key), free(val), NULL);
-			ret = ft_strjoin(tmp, val);
-			free(tmp);
-			free(key);
-			free(val);
-			if (!ret)
-				return (NULL);
-			remainder_line = ft_substr(line, i, ft_strlen(line));
-			if (!remainder_line)
-				return (free(ret), NULL);
-			tmp = expand_variables(remainder_line, envp);
-			free(remainder_line);
-			if (!tmp)
-				return (free(ret), NULL);
-			new_ret = ft_strjoin(ret, tmp);
-			if (!new_ret)
-				return (NULL);
-			return (new_ret);
+			ex.i++;
+			ex.start = ex.i;
+			while (line[ex.i] && is_valid_key(line[ex.i]))
+				ex.i++;
+			if (ex.start == ex.i)
+				continue;
+			return (replace_variables(&ex, line, envp));
 		}
-		else if (line[i] == '$' && singlequote == 0)
-			line[i] = ' ';
-		i++;
+		if (line[ex.i] == '$' && ex.singlequote == 0)
+			line[ex.i] = ' ';
+		ex.i++;
 	}
 	return (line);
 }

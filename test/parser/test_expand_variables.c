@@ -130,3 +130,50 @@ void	test_expander_ignore_in_doublequotes() {
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
 }
+
+// echo $'PAGER'S -> echo  PAGERS (remove $ and replace with space)
+void	test_expander_followed_sq() {
+	char	*line = strdup("echo $'PAGER'hello");
+	char	**envp = NULL;
+	envp = append_str_arr(append_str_arr(envp, "PAGER=true"), "TEST=false");
+	TEST_ASSERT_NOT_NULL(envp);
+
+	char	*expected_ret = strdup("echo  'PAGER'hello");
+	TEST_ASSERT_NOT_NULL(expected_ret);
+
+	char	*actual = expand_variables(line, envp);
+	TEST_ASSERT_NOT_NULL(actual);
+	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
+	printf("%s\n", actual);
+}
+
+// echo $'PAGER'S -> echo  PAGERS (remove $ and replace with space)
+void	test_expander_followed_sq_var() {
+	char	*line = strdup("echo $'PAGER'$TEST");
+	char	**envp = NULL;
+	envp = append_str_arr(append_str_arr(envp, "PAGER=true"), "TEST=false");
+	TEST_ASSERT_NOT_NULL(envp);
+
+	char	*expected_ret = strdup("echo  'PAGER'false");
+	TEST_ASSERT_NOT_NULL(expected_ret);
+
+	char	*actual = expand_variables(line, envp);
+	TEST_ASSERT_NOT_NULL(actual);
+	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
+	printf("%s\n", actual);
+}
+
+void	test_error_invalid_name() {
+	char	*line = strdup("echo $'PA?GER'$test");
+	char	**envp = NULL;
+	envp = append_str_arr(append_str_arr(envp, "PA?GER=true"), "test=false");
+	TEST_ASSERT_NOT_NULL(envp);
+
+	char	*expected_ret = strdup("echo  'PA?GER'false");
+	TEST_ASSERT_NOT_NULL(expected_ret);
+
+	char	*actual = expand_variables(line, envp);
+	TEST_ASSERT_NOT_NULL(actual);
+	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
+	printf("%s\n", actual);
+}

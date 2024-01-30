@@ -7,11 +7,11 @@
 // NULL on error or key not found (then caller should not replace)
 char	*get_var_val(char **arr, const char *key)
 {
-	int	index;
+	int		index;
 	char	*key_eq;
 	char	*val;
 
-	if (!arr)
+	if (!arr || !key)
 		return (NULL);
 	index = find_key_env(arr, key, ft_strlen);
 	if (index != -1 && arr[index])
