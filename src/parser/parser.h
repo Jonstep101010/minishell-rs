@@ -14,7 +14,7 @@ typedef struct s_splitter
 	char	*tmp;
 }	t_splitter;
 
-char	**split_command(t_shell *shell);
+char	**split_outside_quotes(char *to_split, char c);
 
 typedef struct s_expander
 {

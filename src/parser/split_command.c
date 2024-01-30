@@ -1,6 +1,5 @@
 #include "parser.h"
 #include "libft.h"
-#include "struct.h"
 #include "utils.h"
 #include <unistd.h>
 
@@ -68,18 +67,4 @@ char	**split_outside_quotes(char *to_split, char c)
 		return (NULL);
 	free(split.tmp);
 	return (split.ret);
-}
-
-char	**split_command(t_shell *shell)
-{
-	shell->tokens = split_outside_quotes(shell->line, '|');
-	if (!shell->tokens)
-		return (NULL);
-	print_arr(shell->tokens);
-	// @todo this would usually take place in the childs
-	shell->command = split_outside_quotes(
-		shell->tokens[0], ' ');
-	print_arr_sep(shell->command, '{', '}');
-	arr_free(shell->tokens);
-	return (shell->tokens);
 }
