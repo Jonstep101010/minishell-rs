@@ -13,11 +13,11 @@ int		parser(t_shell *shell)
 {
 	if (!shell->line)
 		return (EXIT_FAILURE);
+	// @audit do expansion -> replace $KEY with value
+	shell->line = expand_variables(shell->line, shell->owned_envp);
 	split_command(shell);
 	if (!shell->command)
 		return (EXIT_FAILURE);
-	// @audit do expansion -> replace $KEY with value
-	expand_variables(shell);
 	// expansion should be done by this point
 	if (!interpret_quotes(shell->command))
 		return (EXIT_FAILURE);

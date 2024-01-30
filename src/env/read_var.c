@@ -29,5 +29,5 @@ char	*get_var_val(char **arr, const char *key)
 			return (NULL);
 		return (val);
 	}
-	return (NULL);
+	return (ft_strdup(""));
 }
