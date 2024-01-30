@@ -1,27 +1,5 @@
-// #include "../include/libft/src/string/str_cchr.c"
-// #include "quotes.c"
-// #include "libft.h"
-// #include "parser.h"
 #include "unity.h"
-// #include "lexer.c"
-// #include "lexer.h"
-// #include "../src/lexer/lexer_support.c"
-// #include "../src/lexer/check_quotes.c"
-// #include "../src/lexer/check_pipes.c"
-// #include "../src/utils/while_string_wrapper.c"
-// #include "../src/utils/bool_array.c"
-// #include "struct.h"
-// #include <stdbool.h>
-// #include <stdio.h>
-// #include <string.h>
-// // lexer src (run through first, only then run if passes)
-
-// #include "parser.h"
-// #include "expand_variables.c"
-// #include "quotes.c"
-// #include "parser.c"
 #include "support_parser.h"
-#include <limits.h>
 
 t_shell	*setup_shell(char *line) {
 	t_shell *shell = (t_shell *) calloc(sizeof(t_shell), 1);

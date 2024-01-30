@@ -4,7 +4,7 @@
 # include "expand_variables.c"
 # include "parser.c"
 # include "quotes.c"
-# include "split_command.c"
+# include "split_quotes.c"
 # include "read_var.c"
 # include "find_key.c"
 
