@@ -24,6 +24,7 @@ void test_pipes_filter_WIP()
 	// TEST_ASSERT(lexer("echo |") == LEXER_SUCCESS);
 }
 
+// @audit fix lexer to make these fail
 void test_pipes_filter_fail()
 {
 	TEST_ASSERT(lexer("hello ||") != LEXER_SUCCESS);
@@ -41,7 +42,7 @@ void test_pipes_filter_fail()
 }
 
 
-// @audit-info do not handle "cmd ||" / "cmd |"
+// @audit fix lexer to make these fail
 /* only needs to be input before opening a pipe */
 void test_pipes_filter_working()
 {

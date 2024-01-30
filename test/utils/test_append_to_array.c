@@ -6,6 +6,7 @@
 #include "../include/libft/src/arr/print_arr.c"
 #include "utils.h"
 
+#include "print_arr_sep.c"
 
 // @follow-up fix test
 // char	**append_once() {

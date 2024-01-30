@@ -6,6 +6,8 @@
 #include "libft.h"
 #include "../include/libft/src/string/str_cchr.c"
 
+#include "print_arr_sep.c"
+
 void	test_replace_key() {
 	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};
 	char	**arr = arr_dup((const char **)env);

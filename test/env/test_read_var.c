@@ -9,6 +9,8 @@
 
 #include "read_var.c"
 
+#include "print_arr_sep.c"
+
 void	test_read_returns_correct() {
 	char	*env[] = {"not=looking", "maybe=?looking", "key=forsure", "notmine=(null)", NULL};
 	char	**expected = arr_dup((const char **)env);

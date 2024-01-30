@@ -3,6 +3,8 @@
 #include "arr_utils.c"
 #include "occurs.c"
 
+#include "print_arr_sep.c"
+
 void	test_get_key_len() {
 	char	*s = "KEY=val";
 	TEST_ASSERT_EQUAL(3, get_key_len(s));

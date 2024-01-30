@@ -5,6 +5,8 @@
 #include "../include/libft/src/arr/print_arr.c"
 #include "../src/utils/occurs.c"
 
+#include "print_arr_sep.c"
+
 void	test_arr_remove_hello() {
 	char	*tmp[] = {"Hello, ", "World", "!", NULL};
 

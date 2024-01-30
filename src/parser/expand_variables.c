@@ -1,10 +1,6 @@
-#include "ft_printf.h"
-#include "struct.h"
 #include "env.h"
 #include "libft.h"
-#include <ctype.h>
 #include <stdbool.h>
-
 
 static bool	is_valid_key(int c)
 {
@@ -22,7 +18,7 @@ static bool	is_valid_key(int c)
 // echo '$PAGER' -> echo $PAGER
 // echo $"PAGER"S -> echo PAGERS
 // echo $PAGER_S -> echo VAL
-
+void	*do_quote_bs(const char *s, int *quote);
 // envp should be const (in get_var_val as well)
 // will replace valid keys that are not found with empty strings
 char	*expand_variables(char *line, char **envp)
@@ -40,20 +36,16 @@ char	*expand_variables(char *line, char **envp)
 	if (ft_strchr(line, '$') == 0)
 		return (line);
 	i = 0;
-	// ret = ft_calloc(ft_strlen(line) + 1, sizeof(char));
-	// if (!ret)
-	// 	return (NULL);
+	singlequote = 0;
 	while (line[i])
 	{
 		if (line[i] == '\'' && singlequote == 0)
 			singlequote = line[i];
 		else if (line[i] == '\'' && singlequote == line[i])
 			singlequote = 0;
-		// @follow-up while in doublequotes (& uppercase or underscore) or if space afterwards
 		else if (line[i] && line[i + 1] && line[i] == '$' && singlequote == 0
 				&& is_valid_key(line[i + 1]))
 		{
-			// ONLY UPPERCASE/UNDERSCORE!
 			i++;
 			start = i;
 			while (line[i] && is_valid_key(line[i]))
@@ -88,11 +80,9 @@ char	*expand_variables(char *line, char **envp)
 			new_ret = ft_strjoin(ret, tmp);
 			if (!new_ret)
 				return (NULL);
-			// free(ret);
-			// free(tmp);
 			return (new_ret);
 		}
-		else if (line[i] == '$' && !is_valid_key(line[i + 1]))
+		else if (line[i] == '$' && singlequote == 0)
 			line[i] = ' ';
 		i++;
 	}
