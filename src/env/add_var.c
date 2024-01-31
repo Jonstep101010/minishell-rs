@@ -24,7 +24,7 @@ char	**add_env(char **arr, const char *s)
 		return (ft_printf("error!\n"), NULL);
 	if (index == -1)
 	{
-		tmp = append_str_arr(arr, s);
+		tmp = append_str_arr((const char **)arr, s);
 		if (!tmp)
 			return (NULL);
 		ft_printf("created new at end\n");
@@ -69,6 +69,7 @@ void	export(t_shell *shell)
 		shell->tmp_arr = add_env(shell->owned_envp, *(shell->command + 1));
 		if (!shell->tmp_arr)
 			return ((void)ft_printf("add_env failed\n"));
+		arr_free(shell->owned_envp);
 		shell->owned_envp = shell->tmp_arr;
 		shell->tmp_arr = NULL;
 	}

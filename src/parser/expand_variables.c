@@ -1,5 +1,4 @@
 #include "env.h"
-#include "parser.h"
 #include "libft.h"
 #include <stdbool.h>
 
@@ -10,74 +9,75 @@ static bool	is_valid_key(int c)
 	return (false);
 }
 
-static void	handle_singlequotes(t_expander *ex, const char *line)
+char	*expand_variables(const char *input, const char **envp)
 {
-	if (line[ex->i] == '\'' && ex->singlequote == 0)
-		ex->singlequote = line[ex->i];
-	else if (line[ex->i] == '\'' && ex->singlequote == line[ex->i])
-		ex->singlequote = 0;
-}
+	size_t	i;
+	char	*ret;
+	char	*key;
+	size_t	start;
+	char	*val;
+	char	*tmp;
+	int		singlequote;
+	char	*remainder_line;
 
-static char	*replace_variables(t_expander *ex, const char *line, const char **envp)
-{
-	ex->key = ft_substr(line, ex->start, ex->i - ex->start);
-	if (!ex->key)
+	i = 0;
+	singlequote = 0;
+	char	*line = ft_strdup(input);
+	if (!line)
 		return (NULL);
-	ex->val = get_var_val(envp, ex->key);
-	free(ex->key);
-	if (!ex->val)
-		return (NULL);
-	ex->tmp = ft_substr(line, 0, ex->start - 1);
-	if (!ex->tmp)
-		return (free(ex->val), NULL);
-	ex->ret = ft_strjoin(ex->tmp, ex->val);
-	free(ex->val);
-	free(ex->tmp);
-	if (!ex->ret)
-		return (NULL);
-	ex->remainder_line = ft_substr(line, ex->i, ft_strlen(line));
-	if (!ex->remainder_line)
-		return (NULL);
-	ex->tmp = expand_variables(ex->remainder_line, envp);
-	if (!ex->tmp)
-		return (free(ex->remainder_line), NULL);
-	ex->new_ret = ft_strjoin(ex->ret, ex->tmp);
-	free(ex->ret);
-	free(ex->tmp);
-	return (ex->new_ret);
-}
-
-/**
- * @brief expands and replaces environment variables, non needed '$' will be filled with spaces
- * will replace valid keys that are not found with empty strings
- *
- * @param line raw input line
- * @param envp envars
- * @return char*
- */
-char	*expand_variables(char *line, const char **envp)
-{
-	t_expander	ex;
-
-	ex.i = 0;
-	ex.singlequote = 0;
-	while (line[ex.i])
+	while (line[i])
 	{
-		handle_singlequotes(&ex, line);
-		if (line[ex.i] && line[ex.i + 1] && line[ex.i] == '$'
-			&& ex.singlequote == 0 && is_valid_key(line[ex.i + 1]))
+		if (line[i] == '\'' && singlequote == 0)
+			singlequote = line[i];
+		else if (line[i] == '\'' && singlequote == line[i])
+			singlequote = 0;
+		else if (line[i] && line[i + 1] && line[i] == '$'
+			&& singlequote == 0 && is_valid_key(line[i + 1]))
 		{
-			ex.i++;
-			ex.start = ex.i;
-			while (line[ex.i] && is_valid_key(line[ex.i]))
-				ex.i++;
-			if (ex.start == ex.i)
+			i++;
+			start = i;
+			// iterate over key
+			while (line[i] && is_valid_key(line[i]))
+				i++;
+			// if no key, continue looping
+			if (start == i)
 				continue;
-			return (replace_variables(&ex, line, envp));
+			// get key
+			key = ft_substr(line, start, i - start);
+			if (!key)
+				return (NULL);
+			val = get_var_val(envp, key);
+			free(key);
+			if (!val)
+				return (NULL);
+			tmp = ft_substr(line, 0, start - 1);
+			if (!tmp)
+				return (free(val), NULL);
+			ret = ft_strjoin(tmp, val);
+			free(tmp);
+			free(val);
+			if (!ret)
+				return (NULL);
+			// if not done looping the line -> replace ret after line index with line
+			if (i <= ft_strlen(line))
+			{
+				remainder_line = ft_strdup(&line[i]);
+				free(line);
+				if (!remainder_line)
+					return (ret);
+				printf("remainder: %s\n", remainder_line);
+				tmp = ft_strjoin(ret, remainder_line);
+				free(remainder_line);
+				free(ret);
+				ret = expand_variables(tmp, envp);
+				free(tmp);
+			}
+			printf("expanded now: %s\n", ret);
+			return (ret);
 		}
-		if (line[ex.i] == '$' && ex.singlequote == 0)
-			line[ex.i] = ' ';
-		ex.i++;
+		if (line[i] == '$' && singlequote == 0)
+			line[i] = ' ';
+		i++;
 	}
 	return (line);
 }
