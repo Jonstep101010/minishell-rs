@@ -3,8 +3,6 @@
 #include "utils.h"
 #include <unistd.h>
 
-// @follow-up will be called by children if pipes present
-
 // takes literal pipes not in quotes
 // splits into strings
 // split since last pipe or start of string
@@ -14,17 +12,21 @@
 // (childs will handle their own splitting)
 
 // check for spaces if no pipes, otherwise childs handle it
-
-static char	**split_iterator(
-		t_splitter *split, char ***new_arr, const char *to_split, char c)
+static void	init_splitter(t_splitter *split, size_t to_split_len)
 {
 	split->quote = 0;
 	split->i = 0;
 	split->start = 0;
-	split->len = ft_strlen(to_split);
+	split->len = to_split_len;
 	split->ret = NULL;
 	split->tmp = NULL;
+}
 
+// do not touch unless tested changes -> this leaks like a *****
+static char	**split_iterator(
+		t_splitter *split, const char *to_split, char c)
+{
+	init_splitter(split, ft_strlen(to_split));
 	while (to_split[split->i] && split->start < split->len)
 	{
 		if (split->quote == 0 &&
@@ -37,13 +39,13 @@ static char	**split_iterator(
 			split->tmp = ft_substr(to_split, split->start,
 					split->i - split->start);
 			if (!split->tmp)
-				return (arr_free(*new_arr), NULL);
-			split->ret = append_str_arr((const char **)*new_arr, split->tmp);
+				return (arr_free(split->arr), NULL);
+			split->ret = append_str_arr((const char **)split->arr, split->tmp);
 			free(split->tmp);
-			arr_free(*new_arr);
+			arr_free(split->arr);
 			if (!split->ret)
-				return (arr_free((char **)split->ret), arr_free(*new_arr), NULL);
-			*new_arr = split->ret;
+				return (arr_free(split->ret), NULL);
+			split->arr = split->ret;
 			split->start = split->i + 1;
 		}
 		split->i++;
@@ -55,24 +57,18 @@ char	**split_outside_quotes(const char *to_split, char c)
 {
 	t_splitter	split;
 	char		**ret;
-	char		**notlast;
-	char		**new_arr;
-	char		*substr;
+	char		**not_last_token;
+	char		*last_token;
 
 	if (!to_split)
 		return (NULL);
-	// new_arr = (char **) ft_calloc(1, sizeof(char *));
-	// if (!new_arr)
-	// 	return (NULL);
-	new_arr = NULL;
-	notlast = split_iterator(&split, &new_arr, to_split, c);
-	// arr_free(new_arr);
-	if (!notlast)
+	split.arr = NULL;
+	not_last_token = split_iterator(&split, to_split, c);
+	if (!not_last_token)
 		return (NULL);
-	substr = ft_substr(to_split, split.start, split.i - split.start);
-	ft_printf("substr: %s\n", substr);
-	ret = append_str_arr((const char **)notlast, substr);
-	free(substr);
-	arr_free(notlast);
+	last_token = ft_substr(to_split, split.start, split.i - split.start);
+	ret = append_str_arr((const char **)not_last_token, last_token);
+	free(last_token);
+	arr_free(not_last_token);
 	return (ret);
 }

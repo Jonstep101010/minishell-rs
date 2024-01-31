@@ -12,6 +12,7 @@ typedef struct s_splitter
 	size_t	len;
 	char	**ret;
 	char	*tmp;
+	char	**arr;
 }	t_splitter;
 
 char	*expand_variables(const char *line, const char **envp);
