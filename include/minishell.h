@@ -1,7 +1,6 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 # include "struct.h"
-# include <readline/readline.h>
 /* helper functions to prototype*/
 int while_d(const char *s, int (*)(int), int is_true, int *index);
 int while_i(const char *s, int (*)(int), int is_true, int *index);

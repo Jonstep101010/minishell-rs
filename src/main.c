@@ -1,3 +1,4 @@
+#include "ft_printf.h"
 #include "minishell.h"
 #include "libft.h"
 #include "struct.h"
@@ -10,7 +11,6 @@
 #include "../src/parser/parser.h"
 
 void	core_functions(t_shell *shell);
-
 
 void	minishell_loop(t_shell *shell)
 {
@@ -40,7 +40,7 @@ void	core_functions(t_shell *shell)
 		// @todo modify parser to format correctly and return error codes
 		if (parser(shell) == -1)
 			msh_exit(shell, 1);
-		if (builtin(shell, (const char **)shell->command) == -1)
+		if (builtin(shell) == -1)
 			ft_printf("command is not a builtin/command not found\n");
 		// @todo executor
 		arr_free(shell->command);
@@ -51,15 +51,16 @@ void	core_functions(t_shell *shell)
 		ft_printf("invalid syntax\n");
 }
 
-int main(int ac, char **av, const char **envp)
+int main(int ac, char **av, char **envp)
 {
 	t_shell		*shell;
 
 	(void)ac;
 	(void)av;
 	shell = (t_shell *) ft_calloc(1, sizeof(t_shell));
-	shell->envp = envp;
-	shell->owned_envp = arr_dup(envp);
+	shell->owned_envp = arr_dup((const char **)envp);
+	if (!shell->owned_envp)
+		exit(1);
 	if (lexer("echo Hello, World!") != LEXER_SUCCESS)
 		ft_printf("lexer does not work\n");
 	minishell_loop(shell);

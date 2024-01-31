@@ -29,6 +29,7 @@
     - +:test/wrapper/
     - +:test/parser/
     - +:test/utils/
+    - +:test/env/
   :source:
     - +:src/*
     - +:include/libft/src/arr/
