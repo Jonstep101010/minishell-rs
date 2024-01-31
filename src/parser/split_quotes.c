@@ -15,17 +15,16 @@
 
 // check for spaces if no pipes, otherwise childs handle it
 
-static void	init_splitter(t_splitter *split, char *to_split)
+static char	**split_iterator(t_splitter *split, char **new_arr, const char *to_split, char c)
 {
 	split->quote = 0;
 	split->i = 0;
 	split->start = 0;
 	split->len = ft_strlen(to_split);
 	split->ret = NULL;
-}
-
-static char	**split_iterator(t_splitter *split, char *to_split, char c)
-{
+	split->tmp = NULL;
+	if (!new_arr)
+		return (NULL);
 	while (to_split[split->i] && split->start < split->len)
 	{
 		if (split->quote == 0 &&
@@ -38,11 +37,11 @@ static char	**split_iterator(t_splitter *split, char *to_split, char c)
 			split->tmp = ft_substr(to_split, split->start,
 					split->i - split->start);
 			if (!split->tmp)
-				return (NULL);
-			split->ret = append_str_arr(split->ret, split->tmp);
+				return (arr_free(new_arr), NULL);
+			split->ret = append_str_arr((const char **)new_arr, split->tmp);
 			free(split->tmp);
 			if (!split->ret)
-				return (NULL);
+				return (arr_free((char **)split->ret), arr_free(new_arr), NULL);
 			split->start = split->i + 1;
 		}
 		split->i++;
@@ -50,21 +49,26 @@ static char	**split_iterator(t_splitter *split, char *to_split, char c)
 	return (split->ret);
 }
 
-char	**split_outside_quotes(char *to_split, char c)
+char	**split_outside_quotes(const char *to_split, char c)
 {
 	t_splitter	split;
+	char		**ret;
+	char		**notlast;
+	char		**new_arr;
+	char		*substr;
 
 	if (!to_split)
 		return (NULL);
-	init_splitter(&split, to_split);
-	if (!split_iterator(&split, to_split, c))
+	new_arr = (char **) ft_calloc(1, sizeof(char *));
+	if (!new_arr)
 		return (NULL);
-	split.tmp = ft_substr(to_split,
-		split.start, split.i - split.start);
-	ft_printf("%s\n", split.tmp);
-	split.ret = append_str_arr(split.ret, split.tmp);
-	if (!split.ret)
+	notlast = split_iterator(&split, new_arr, to_split, c);
+	if (!notlast)
 		return (NULL);
-	free(split.tmp);
-	return (split.ret);
+	substr = ft_substr(to_split, split.start, split.i - split.start);
+	ft_printf("%s\n", substr);
+	ret = append_str_arr((const char **)notlast, substr);
+	free(substr);
+	arr_free(notlast);
+	return (ret);
 }

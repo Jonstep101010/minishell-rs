@@ -8,7 +8,7 @@ char	*occurs_exclusively(const char *expected, const char *actual);
 
 #include <stddef.h>
 void	print_arr_sep(char **arr, char sep_open, char sep_close);
-char	**append_str_arr(char **arr, const char *s);
+char	**append_str_arr(const char **arr, const char *s);
 void	rm_str_arr(char **arr, const char *s);
 
 #include <stdbool.h>
