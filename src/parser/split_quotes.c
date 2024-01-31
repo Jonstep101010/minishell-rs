@@ -22,6 +22,14 @@ static void	init_splitter(t_splitter *split, size_t to_split_len)
 	split->tmp = NULL;
 }
 
+// this is beyond cursed
+static	char	**return_check(char **ret)
+{
+	if (!ret)
+		return ((char **) ft_calloc(1, sizeof(char *)));
+	return (ret);
+}
+
 // do not touch unless tested changes -> this leaks like a *****
 static char	**split_iterator(
 		t_splitter *split, const char *to_split, char c)
@@ -50,7 +58,7 @@ static char	**split_iterator(
 		}
 		split->i++;
 	}
-	return (split->ret);
+	return (return_check(split->ret));
 }
 
 char	**split_outside_quotes(const char *to_split, char c)
@@ -65,7 +73,7 @@ char	**split_outside_quotes(const char *to_split, char c)
 	split.arr = NULL;
 	not_last_token = split_iterator(&split, to_split, c);
 	if (!not_last_token)
-		return (NULL);
+		return (arr_free(split.arr), NULL);
 	last_token = ft_substr(to_split, split.start, split.i - split.start);
 	ret = append_str_arr((const char **)not_last_token, last_token);
 	free(last_token);
