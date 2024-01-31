@@ -15,7 +15,8 @@
 
 // check for spaces if no pipes, otherwise childs handle it
 
-static char	**split_iterator(t_splitter *split, char **new_arr, const char *to_split, char c)
+static char	**split_iterator(
+		t_splitter *split, char ***new_arr, const char *to_split, char c)
 {
 	split->quote = 0;
 	split->i = 0;
@@ -23,8 +24,7 @@ static char	**split_iterator(t_splitter *split, char **new_arr, const char *to_s
 	split->len = ft_strlen(to_split);
 	split->ret = NULL;
 	split->tmp = NULL;
-	if (!new_arr)
-		return (NULL);
+
 	while (to_split[split->i] && split->start < split->len)
 	{
 		if (split->quote == 0 &&
@@ -37,11 +37,13 @@ static char	**split_iterator(t_splitter *split, char **new_arr, const char *to_s
 			split->tmp = ft_substr(to_split, split->start,
 					split->i - split->start);
 			if (!split->tmp)
-				return (arr_free(new_arr), NULL);
-			split->ret = append_str_arr((const char **)new_arr, split->tmp);
+				return (arr_free(*new_arr), NULL);
+			split->ret = append_str_arr((const char **)*new_arr, split->tmp);
 			free(split->tmp);
+			arr_free(*new_arr);
 			if (!split->ret)
-				return (arr_free((char **)split->ret), arr_free(new_arr), arr_free(new_arr), NULL);
+				return (arr_free((char **)split->ret), arr_free(*new_arr), NULL);
+			*new_arr = split->ret;
 			split->start = split->i + 1;
 		}
 		split->i++;
@@ -59,14 +61,16 @@ char	**split_outside_quotes(const char *to_split, char c)
 
 	if (!to_split)
 		return (NULL);
-	new_arr = (char **) ft_calloc(1, sizeof(char *));
-	if (!new_arr)
-		return (NULL);
-	notlast = split_iterator(&split, new_arr, to_split, c);
+	// new_arr = (char **) ft_calloc(1, sizeof(char *));
+	// if (!new_arr)
+	// 	return (NULL);
+	new_arr = NULL;
+	notlast = split_iterator(&split, &new_arr, to_split, c);
+	// arr_free(new_arr);
 	if (!notlast)
 		return (NULL);
 	substr = ft_substr(to_split, split.start, split.i - split.start);
-	ft_printf("%s\n", substr);
+	ft_printf("substr: %s\n", substr);
 	ret = append_str_arr((const char **)notlast, substr);
 	free(substr);
 	arr_free(notlast);
