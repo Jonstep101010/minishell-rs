@@ -41,7 +41,7 @@ static char	**split_iterator(t_splitter *split, char **new_arr, const char *to_s
 			split->ret = append_str_arr((const char **)new_arr, split->tmp);
 			free(split->tmp);
 			if (!split->ret)
-				return (arr_free((char **)split->ret), arr_free(new_arr), NULL);
+				return (arr_free((char **)split->ret), arr_free(new_arr), arr_free(new_arr), NULL);
 			split->start = split->i + 1;
 		}
 		split->i++;
