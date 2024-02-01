@@ -24,10 +24,11 @@ int		builtin(t_shell *shell)
 	char	buf[MAXPATHLEN + 1];
 	// if (!shell->owned_envp || !*(shell->owned_envp))
 	// 	return (-1);
+	if (!shell->command || !*(shell->command))
+		return (-1);
 	// print_arr(shell->owned_envp);
 	if (occurs_exclusively("echo", *shell->command))
 		return (echo(shell));
-	// @todo implement unset command
 	if (occurs_exclusively("unset", *shell->command)
 		&& unset(shell))
 		return (0);

@@ -38,13 +38,14 @@ struct s_lexer
 
 typedef struct s_shell
 {
-	const char	**envp;
 	int		exit_status;
 	char	**owned_envp;
 	char	*line;
+	char	*expanded_line;
 	char	*tmp;
 	char	**tmp_arr;
 	char	**command;
+	char	**tokens;
 }	t_shell;
 
 #endif

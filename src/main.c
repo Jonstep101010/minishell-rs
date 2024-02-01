@@ -22,6 +22,7 @@ void	minishell_loop(t_shell *shell)
 		shell->line = readline("minishell> ");
 		if (shell->line)
 		{
+			add_history(shell->line);
 			core_functions(shell);
 		}
 		// does quitting using ctrl_d cause leaks?
@@ -39,12 +40,12 @@ void	core_functions(t_shell *shell)
 	{
 		// @todo modify parser to format correctly and return error codes
 		if (parser(shell) == -1)
-			msh_exit(shell, 1);
+			ft_printf("I am not segfaulting (yet)\n");
 		if (builtin(shell) == -1)
 			ft_printf("command is not a builtin/command not found\n");
 		// @todo executor
-		arr_free(shell->command);
-		add_history(shell->line);
+		if (shell->command)
+			arr_free(shell->command);
 		free_null(shell->line);
 	}
 	else

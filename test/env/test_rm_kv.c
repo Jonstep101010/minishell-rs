@@ -6,6 +6,7 @@
 #include "find_key.c"
 #include "env.h"
 #include <string.h>
+#include "print_arr_sep.c"
 
 void	test_remove_key_value() {
 	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};

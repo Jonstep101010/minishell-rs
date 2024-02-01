@@ -2,3 +2,4 @@ minishell
 build
 
 valgrind.log
+input_leaks.txt

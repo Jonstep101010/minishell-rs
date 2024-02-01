@@ -14,7 +14,7 @@ size_t	get_key_len(const char *s)
 	return (-1);
 }
 
-int	find_key_env(char **arr, const char *s, size_t (*f)(const char *s))
+int	find_key_env(const char **arr, const char *s, size_t (*f)(const char *s))
 {
 	size_t	i;
 	size_t	key_len;

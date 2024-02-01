@@ -8,7 +8,7 @@ char	**rm_env(char **arr, const char *s)
 {
 	if (!arr || !s)
 		return (NULL);
-	int	index = find_key_env(arr, s, ft_strlen);
+	int	index = find_key_env((const char **)arr, s, ft_strlen);
 	if (!arr)
 		return (ft_printf("error!\n"), NULL);
 	if (index == -1)

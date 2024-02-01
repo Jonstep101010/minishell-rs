@@ -3,14 +3,7 @@
 #include <stddef.h>
 #include "utils.h"
 
-/**
- * @brief returns copy with new item added, frees old
- *
- * @param arr heap-allocated 2d array
- * @param s possibly stack allocated string
- * @return char** copy with new element
- */
-char	**append_str_arr(char **arr, const char *s)
+char	**append_str_arr(const char **arr, const char *s)
 {
 	size_t	len;
 	size_t	i;
@@ -18,19 +11,14 @@ char	**append_str_arr(char **arr, const char *s)
 
 	if (!s || !*s)
 		return (NULL);
-	len = 0;
-	ft_printf("append to arr:\n");
-	print_arr(arr);
-	if (arr)
-		len = arr_len((const char **)arr);
-	ft_printf("len of appended array: %zu", len);
+	len = arr_len((const char **)arr);
 	ret = (char **) ft_calloc(len + 2, sizeof(char *));
 	if (!ret)
-		return (NULL);
+		return (NULL);// leave original array intact
 	i = 0;
-	while (arr && arr[i])
+	while (arr && arr[i] && i <= len)
 	{
-		ret[i] = arr[i];
+		ret[i] = ft_strdup(arr[i]);// duplicate instead
 		if (!ret[i])
 		{
 			arr_free(ret);
@@ -40,10 +28,9 @@ char	**append_str_arr(char **arr, const char *s)
 	}
 	ret[i] = ft_strdup(s);
 	if (!ret[i])
-		return (NULL);
-	ft_printf("appended: ret\n");
-	print_arr(ret);
-	free(arr);
+		return (arr_free(ret), NULL);
+	ft_printf("%zu(len)", len + 2);
+	print_arr_sep(ret, '{', '}');
 	return (ret);
 }
 

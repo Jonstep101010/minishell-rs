@@ -82,7 +82,7 @@
     :name: 'clang test compiler'
     :arguments:
       - -c ${1}
-      - -g
+      - -g3
       - -Wall
       - -Wextra
       - -Werror
