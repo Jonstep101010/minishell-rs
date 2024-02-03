@@ -4,7 +4,7 @@
 
 // see if exists, remove using rm_str_arr
 // otherwise: error with not found
-char	**rm_env(char **arr, const char *s)
+char	**unset(char **arr, const char *s)
 {
 	if (!arr || !s)
 		return (NULL);

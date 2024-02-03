@@ -30,7 +30,7 @@ void	test_arr_null() {
 void	test_arr_free() {
 	char	**arr = NULL;
 	TEST_ASSERT_NULL(arr);
-	char	**actual = calloc(1, sizeof(char *));
+	char	**actual = (char **)calloc(1, sizeof(char *));
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_NULL(actual[0]);
 	char	**copy = arr_dup((const char **)actual);

@@ -26,7 +26,7 @@ int		builtin(t_shell *shell)
 	if (occurs_exclusively("unset", *shell->command)
 		&& shell->command[1] && shell->owned_envp)
 	{
-		shell->owned_envp = rm_env(shell->owned_envp, *(shell->command + 1));
+		shell->owned_envp = unset(shell->owned_envp, *(shell->command + 1));
 		if (!shell->owned_envp)
 			return (-1);
 	}

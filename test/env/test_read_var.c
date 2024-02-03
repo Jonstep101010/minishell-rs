@@ -16,4 +16,6 @@ void	test_read_returns_correct() {
 	char	**expected = arr_dup((const char **)env);
 	char	*ret = get_var_val((const char **)expected, "key");
 	TEST_ASSERT_EQUAL_STRING("forsure", ret);
+	arr_free(expected);
+	free(ret);
 }

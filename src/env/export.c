@@ -12,7 +12,7 @@
 #include "utils.h"
 
 // input like key=val
-char	**add_env(char **arr, const char *s)
+char	**export_var(char **arr, const char *s)
 {
 	char	**tmp;
 	char	*s_tmp;
@@ -21,25 +21,19 @@ char	**add_env(char **arr, const char *s)
 		return (NULL);
 	int	index = find_key_env((const char **)arr, s, get_key_len);
 	if (!arr)
-		return (ft_printf("error!\n"), NULL);
+		return (ft_printf("environment does not exist!\n"), NULL);
 	if (index == -1)
 	{
 		tmp = append_str_arr((const char **)arr, s);
 		if (!tmp)
 			return (NULL);
-		ft_printf("created new at end\n");
 		return (tmp);
 	}
-	ft_printf("replacing %s with %s\n", arr[index], s);
 	s_tmp = ft_strdup(s);
 	if (!s_tmp)
-	{
-		ft_printf("error in var alloc!\n");
-		exit(1);
-	}
+		return (ft_printf("error exporting variable\n"), NULL);
 	free(arr[index]);
 	arr[index] = s_tmp;
-	ft_printf("new item: %s\n", arr[index]);
 	return (arr);
 }
 
@@ -66,7 +60,7 @@ void	export(t_shell *shell)
 		ft_printf("gets to export: %s\n", *(shell->command + 1));
 		if (!check_valid_key(*(shell->command + 1)))
 			return ((void)ft_printf("invalid variable name\n"));
-		shell->tmp_arr = add_env(shell->owned_envp, *(shell->command + 1));
+		shell->tmp_arr = export_var(shell->owned_envp, *(shell->command + 1));
 		if (!shell->tmp_arr)
 			return ((void)ft_printf("add_env failed\n"));
 		arr_free(shell->owned_envp);
