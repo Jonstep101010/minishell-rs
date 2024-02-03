@@ -9,12 +9,6 @@ char	*occurs_exclusively(const char *, const char *);
 int		export(t_shell *shell);
 
 #include "env.h"
-char	**unset(t_shell *shell)
-{
-	if (!shell->owned_envp || !(shell->command + 1))
-		return (NULL);
-	return (rm_env(shell->owned_envp, *(shell->command + 1)));
-}
 
 // @follow-up parser needs to run before builtins in future,
 // pass in only command char **
@@ -30,10 +24,12 @@ int		builtin(t_shell *shell)
 	if (occurs_exclusively("echo", *shell->command))
 		return (echo(shell));
 	if (occurs_exclusively("unset", *shell->command)
-		&& unset(shell))
-		return (0);
-	// if (!shell->owned_envp)
-	// 	return (-1);
+		&& shell->command[1] && shell->owned_envp)
+	{
+		shell->owned_envp = rm_env(shell->owned_envp, *(shell->command + 1));
+		if (!shell->owned_envp)
+			return (-1);
+	}
 	if (occurs_exclusively("export", *(shell->command)))
 		return (export(shell));
 	if (occurs_exclusively("pwd", *(shell->command)))

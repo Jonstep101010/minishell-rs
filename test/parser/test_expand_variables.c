@@ -1,6 +1,6 @@
 #include "unity.h"
-char	**split_outside_quotes(const char *to_split, char c);
 #include "support_parser.h"
+
 void	test_expander() {
 	char	*line = "echo $PAGER";
 	char	*envp[] = {"TEST_SOME=false", "PAGER=true", NULL};
