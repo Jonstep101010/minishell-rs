@@ -1,15 +1,13 @@
 #include "export.c"
-#include "env.h"
+#include "environment.h"
 #include "find_key.c"
 #include "unity.h"
 #include "arr_utils.c"
 #include "occurs.c"
 #include "libft.h"
 #include "../include/libft/src/string/str_cchr.c"
-
-#include "read_var.c"
-
 #include "print_arr_sep.c"
+#include "export_var.c"
 
 void	test_read_returns_correct() {
 	char	*env[] = {"not=looking", "maybe=?looking", "key=forsure", "notmine=(null)", NULL};

@@ -1,11 +1,8 @@
 #ifndef SUPPORT_PARSER_H
 # define SUPPORT_PARSER_H
 
-# include "expand_variables.c"
-# include "parser.c"
-# include "quotes.c"
-# include "split_quotes.c"
-# include "read_var.c"
+# include "interpret_quotes.c"
+# include "split_outside_quotes.c"
 # include "find_key.c"
 
 # include "arr_utils.c"

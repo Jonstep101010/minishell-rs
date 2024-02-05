@@ -41,3 +41,24 @@ void	test_arr_free() {
 	TEST_ASSERT_NULL(arr_dup((const char **)NULL));
 }
 
+#include "print_arr_sep.c"
+#include "occurs.c"
+#include "arr_utils.c"
+
+void	test_arr_trim_one(void)
+{
+	char	**arr = (char *[]){"  ls -l somedir ", " cat -e ", " wc -l", NULL};
+	char	**expected = (char *[]){"ls -l somedir", "cat -e", "wc -l", NULL};
+	char	**ret = arr_trim(arr, " ");
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, ret, 4);
+	arr_free(ret);
+}
+
+void	test_arr_trim_two(void)
+{
+	char	**arr = (char *[]){"  ls -l somedir ", " cat -e ", " wc -l", NULL};
+	char	**expected = (char *[]){"ls -l somedir", "cat -e", "wc -l", NULL};
+	char	**ret = arr_trim(arr, " ");
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, ret, 4);
+	arr_free(ret);
+}

@@ -3,9 +3,11 @@
 #include "struct.h"
 #include <stdbool.h>
 
+t_lexer	lexer_checks_basic(char *s);
+
 // @audit-info error  "cmd "'" hello" or any other unbalanced delimiters
 // @follow-up free in caller and just get ref to struct?
-t_lexer	lexer(char *s)
+t_lexer	lexer_checks_basic(char *s)
 {
 	if (!s || !*s)
 		return (LEXER_NULL);
@@ -23,4 +25,13 @@ t_lexer	lexer(char *s)
 	if (input.singlequotes > 0 && input.doublequotes % 2 == 0 && check_against_ignore(s, &input) == LEXER_SUCCESS)
 		return (free_null(input.ignore), LEXER_SUCCESS);
 	return (free_null(input.ignore), LEXER_NULL);
+}
+
+t_token	*lexer(t_shell *shell)
+{
+	if (lexer_checks_basic(shell->line) != LEXER_SUCCESS)
+		return (NULL);
+	// build tokens
+
+	return (NULL);
 }

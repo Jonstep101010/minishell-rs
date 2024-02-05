@@ -24,12 +24,14 @@
 
 :paths:
   :test:
+    # @audit need to refactor these
     - +:test/lexer/
     - +:test/bool_array/
     - +:test/wrapper/
     - +:test/parser/
     - +:test/utils/
     - +:test/env/
+    - +:test/tokens/
   :source:
     - +:src/*
     - +:include/libft/src/arr/

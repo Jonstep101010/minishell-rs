@@ -1,7 +1,17 @@
-#include "parser.h"
 #include "libft.h"
 #include "utils.h"
 #include <unistd.h>
+
+typedef struct s_splitter
+{
+	int		quote;
+	size_t	i;
+	size_t	start;
+	size_t	len;
+	char	**ret;
+	char	*tmp;
+	char	**arr;
+}	t_splitter;
 
 // takes literal pipes not in quotes
 // splits into strings

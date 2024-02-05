@@ -1,51 +1,24 @@
 #ifndef STRUCT_H
 # define STRUCT_H
 
-#include <stddef.h>
-#include <stdbool.h>
-typedef enum e_lexer
-{
-	LEXER_SUCCESS,
-	LEXER_NULL,
-	LEXER_UNBALANCED_QUOTES,
-	LEXER_UNBALANCED_BRACKETS,
-	LEXER_REDIRECTION,
-	LEXER_PIPES,
-	// LEXER_UNBALANCED_PARENTHESIS,
-	// LEXER_UNBALANCED_SINGLE_QUOTES,
-	// LEXER_UNBALANCED_DOUBLE_QUOTES,
-	// LEXER_UNBALANCED_CURLY_BRACKETS,
-	// LEXER_UNBALANCED_SQUARE_BRACKETS,
-}	t_lexer;
+# include <stddef.h>
+# include "tokens.h"
+# include <stdbool.h>
 
-struct s_lexer
-{
-	int		singlequotes;
-	int		doublequotes;
-	int		open_curly_brackets;
-	int		close_curly_brackets;
-	int		open_square_brackets;
-	int		close_square_brackets;
-	int		open_parentheses;
-	int		close_parentheses;
-	int		redir_greater;
-	int		redir_smaller;
-	int		pipes;
-	t_lexer	lexer;
-	bool	*ignore;
-	size_t	len;
-};
-
+# include <termios.h>
 typedef struct s_shell
 {
+	char	**split_tokens;
+	char	**split_pipes;
 	int		exit_status;
 	char	**owned_envp;
 	char	*line;
 	char	*expanded_line;
 	char	*tmp;
 	char	**tmp_arr;
-	char	**command;
-	char	**tokens;
+	// char	**command;// not sure if we need this
+	t_token	*token;
+	struct termios	p_termios;
 }	t_shell;
 
 #endif

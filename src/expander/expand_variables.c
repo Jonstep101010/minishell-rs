@@ -1,7 +1,19 @@
-#include "env.h"
 #include "libft.h"
-#include "parser.h"
 #include <stdbool.h>
+
+typedef struct s_expander
+{
+	size_t	i;
+	char	*ret;
+	char	*key;
+	size_t	start;
+	char	*val;
+	char	*tmp;
+	int		singlequote;
+	char	*remainder_line;
+	char	*line;
+}	t_expander;
+
 
 static bool	is_valid_key(int c)
 {
@@ -9,6 +21,9 @@ static bool	is_valid_key(int c)
 		return (true);
 	return (false);
 }
+
+char	*get_var_val(const char **arr, const char *key);
+char	*expand_variables(const char *input, const char **envp);
 
 static char *replacer(t_expander *x, const char **envp)
 {
@@ -69,7 +84,7 @@ static char	*check_line(t_expander *x, const char **envp)
 				return (NULL);
 			return (replacer(x, envp));
 		}
-		if (x->line[x->i] == '$' && x->singlequote == 0)
+		if (x->line[x->i] == '$' && x->singlequote == 0 && x->line[x->i + 1])
 			x->line[x->i] = ' ';
 		x->i++;
 	}

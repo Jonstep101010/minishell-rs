@@ -4,9 +4,9 @@
 #include "arr_utils.c"
 #include "occurs.c"
 #include "find_key.c"
-#include "env.h"
 #include <string.h>
 #include "print_arr_sep.c"
+#include "support_shell.c"
 
 void	test_remove_key_value() {
 	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};
