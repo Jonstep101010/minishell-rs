@@ -62,3 +62,36 @@ void	test_arr_trim_two(void)
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, ret, 4);
 	arr_free(ret);
 }
+
+void	test_strncmp_one(void)
+{
+	TEST_ASSERT_GREATER_OR_EQUAL(1, ft_strncmp("hello", "gello", 5));
+	TEST_ASSERT_NOT_EQUAL(0, ft_strncmp("gello", "hello", 5));
+}
+
+void	test_arr_ncmp_one(void)
+{
+	const char	*arr[] = {"hello", "world", "!", NULL};
+	const char	*arr2[] = {"hello", "world", "!", NULL};
+	TEST_ASSERT_EQUAL(0, arr_ncmp(arr, arr2, arr_len(arr)));
+}
+
+void	test_arr_ncmp_two(void)
+{
+	// check with different lengths
+	const char	*arr[] = {"hello", "world", "!", NULL};
+	const char	*arr2[] = {"hello", "world", "!", "!", NULL};
+	TEST_ASSERT_NOT_EQUAL(0, arr_ncmp(arr, arr2, arr_len(arr)));
+	// check with invalid array
+	TEST_ASSERT_NOT_EQUAL(0, arr_ncmp(arr, NULL, arr_len(arr)));
+	// check with invalid string inside array
+	const char	*arr3[] = {"hello", "world", "!", "!", NULL};
+	TEST_ASSERT_NOT_EQUAL(0, arr_ncmp(arr, arr3, arr_len(arr)));
+}
+
+void	test_arr_dup_empty_string() {
+	char **arr = arr_dup((const char *[]){"", NULL});
+	TEST_ASSERT_NOT_NULL(arr);
+	TEST_ASSERT_EQUAL_STRING("", arr[0]);
+	arr_free(arr);
+}

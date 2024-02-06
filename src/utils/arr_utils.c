@@ -83,3 +83,22 @@ char	**arr_trim(char **arr, char const *set)
 	ret[i] = NULL;
 	return (ret);
 }
+
+int	arr_ncmp(const char **arr1, const char **arr2, size_t n)
+{
+	size_t	i;
+
+	i = 0;
+	if (!arr1 || !arr2)
+		return (1);
+	while (n-- > 0)
+	{
+		if (ft_strlen(arr1[i]) != ft_strlen(arr2[i])
+			|| ft_strncmp(arr1[i], arr2[i], ft_strlen(arr1[i])) != 0)
+				return (1);
+		i++;
+	}
+	if (arr1[i] || arr2[i])
+		return (1);
+	return (0);
+}

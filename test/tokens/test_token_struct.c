@@ -454,3 +454,31 @@ void	test_convert_tokens_to_string_array(void) {
 	arr_free(shell->split_tokens);
 	free(shell);
 }
+
+void	test_convert_single_command_no_pipes(void) {
+	t_shell	*shell = support_test_tokens_input("$somedir", (char **)((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", NULL}));
+
+	TEST_ASSERT_NOT_NULL(shell->token[0].split_pipes);
+	// we want recursive expansion
+	TEST_ASSERT_EQUAL_STRING("mypath$", shell->token[0].cmd_args[0].elem);
+
+	// TEST_ASSERT_EQUAL_STRING("ls", shell->token[0].cmd_args[0].elem);
+	// TEST_ASSERT_EQUAL_STRING("-l", shell->token[0].cmd_args[1].elem);
+	// TEST_ASSERT_EQUAL_STRING("' '", shell->token[0].cmd_args[3].elem);
+	// TEST_ASSERT_EQUAL_STRING("cat", shell->token[1].cmd_args[0].elem);
+	// TEST_ASSERT_EQUAL_STRING("-e", shell->token[1].cmd_args[1].elem);
+	// TEST_ASSERT_EQUAL_STRING("wc", shell->token[2].cmd_args[0].elem);
+	// TEST_ASSERT_EQUAL_STRING("-l", shell->token[2].cmd_args[1].elem);
+
+	convert_tokens_to_string_array(shell->token);
+	TEST_ASSERT_NOT_NULL(shell->token->command);
+
+	char	**expected = (char *[]){"mypath$", NULL};
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, shell->token[0].command, 1);
+	arr_free(shell->token[0].command);
+	arr_free(shell->token[1].command);
+	destroy_all_tokens(shell);
+	arr_free(shell->owned_envp);
+	arr_free(shell->split_tokens);
+	free(shell);
+}
