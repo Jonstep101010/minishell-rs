@@ -36,7 +36,7 @@ enum e_builtin
 	UNSET,
 	CD,
 	PWD,
-	ECHO,
+	BUILTIN_ECHO,
 	EXIT,
 	NOT_BUILTIN,
 };
