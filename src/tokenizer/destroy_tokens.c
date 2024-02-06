@@ -1,6 +1,7 @@
 #include "tokens.h"
 
 #ifndef TEST_TOKENS_H
+# include "libft.h"
 # include "struct.h"
 # include <stdlib.h>
 #endif
@@ -27,6 +28,8 @@ void	destroy_all_tokens(t_shell *shell)
 			}
 			free(token[i].cmd_args);
 		}
+		if (token[i].command)
+			arr_free(token[i].command);
 		i++;
 	}
 	free(shell->token);

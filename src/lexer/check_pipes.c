@@ -1,6 +1,6 @@
+#include "lexer.h"
 #include "minishell.h"
 #include "libft.h"
-#include "struct.h"
 
 bool	redir_valid(const char *s, const int redircount, char c)
 {

@@ -3,3 +3,5 @@ build
 
 valgrind.log
 input_leaks.txt
+tmp.sh
+notes.md

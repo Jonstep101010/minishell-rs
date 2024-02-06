@@ -8,23 +8,8 @@
 #include "msh_signals.h"
 void	get_tokens(t_shell *shell);
 int		builtin(t_shell *shell, t_token *token);
-void	execute_commands(t_shell *shell, t_token *token)
-{
-	size_t	i;
-	int		ret;
-
-	i = 0;
-	while (token[i].command)
-	{
-		ret = builtin(shell, token + i);
-		if (ret == -1)
-		{
-			ft_printf("minishell: %s: command not found\n", token[i].command[0]);
-
-		}
-		i++;
-	}
-}
+void	execute_commands(t_shell *shell, t_token *token);
+void	destroy_all_tokens(t_shell *shell);
 
 void	minishell_loop(t_shell *shell)
 {
@@ -32,10 +17,15 @@ void	minishell_loop(t_shell *shell)
 	{
 		get_tokens(shell);
 		if (shell->token)
-			execute_commands(shell, shell->token);
+		{
+			builtin(shell, shell->token);
+			destroy_all_tokens(shell);
+		}
+		else if (shell->exit_status == 2)
+			continue;
 		// does quitting using ctrl_d cause leaks?
-		// else
-		// 	return ;
+		else
+			return ;
 	}
 }
 
@@ -60,14 +50,18 @@ void	tokenize(t_shell *shell)
 		return ;// some exit code
 	// handle exit code for failed parsing/lexical errors
 }
-
+#include "utils.h"
+#include "builtins.h"
 void	get_tokens(t_shell *shell)
 {
 	shell->line = readline("minishell> ");
 	if (shell->line && *shell->line)
 	{
 		check_signals(&(shell->p_termios));
+		if (occurs_exclusively("exit", shell->line))
+			return (builtin_exit(shell, 0));
 		add_history(shell->line);
 		tokenize(shell);
+		free(shell->line);
 	}
 }

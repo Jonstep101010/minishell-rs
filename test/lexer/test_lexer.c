@@ -1,4 +1,4 @@
-#include "../src/lexer/lexer.c"
+#include "../src/lexer/checks_basic.c"
 #include "../src/lexer/lexer_support.c"
 #include "../src/lexer/check_quotes.c"
 #include "../src/lexer/check_pipes.c"

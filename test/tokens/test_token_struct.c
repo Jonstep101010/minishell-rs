@@ -1,73 +1,4 @@
-#include "libft.h"
 #include "unity.h"
-#include "utils.h"
-#include <stdbool.h>
-#include <stdio.h>
-#include <unistd.h>
-
-#include "split_outside_quotes.c"
-#include "arr_utils.c"
-#include "find_key.c"
-#include "print_arr_sep.c"
-#include "occurs.c"
-#include "expand_variables.c"
-
-#ifndef TOKENS_H
-# define TEST_TOKENS_H
-// @audit-info testing version of tokens and struct
-typedef struct s_token	t_token;
-
-enum e_arg
-{
-	STRING,
-	PIPE,
-	EXPANSION,
-};
-
-enum e_quote
-{
-	SINGLE,
-	DOUBLE,
-	NONE,
-};
-
-typedef struct s_arg
-{
-	char	*elem;
-	enum	e_arg	type;
-	enum	e_quote	quote;
-}	t_arg;
-
-struct s_token
-{
-	t_arg	*cmd_args;// keep attributes in execution (i.e. redirs), cmd_args[0] is the first token/command (not pipe)
-	char	*split_pipes;
-	// char	**args;
-	char	**tmp_arr;
-	char	**command;// for execution (each token has the command)
-	// size_t	status;// for usage with the pipes?
-	// char	*bin;// for finding path/to/bin?
-	int		(*func)(t_token *);
-};
-
-#include <termios.h>
-typedef struct s_shell
-{
-	char	**split_tokens;
-	char	**split_pipes;
-	int		exit_status;
-	char	**owned_envp;
-	char	*line;
-	char	*expanded_line;
-	char	*tmp;
-	char	**tmp_arr;
-	// char	**command;// not sure if we need this
-	t_token	*token;
-	struct termios	p_termios;
-}	t_shell;
-#endif
-
-
 // make sure we can tokenize a line that is split by pipes
 // then each token has a command and arguments, which are stored in an array of structs that contain the command/args and their attributes
 
@@ -83,8 +14,7 @@ typedef struct s_shell
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "build_tokens.c"
+#include "support_tokens.c"
 
 void	test_token_struct(void)
 {
@@ -201,7 +131,7 @@ void	test_convert_string_array_to_tokens(void)
 	TEST_ASSERT_EQUAL_STRING("ls", shell->token[0].cmd_args[0].elem);
 	TEST_ASSERT_EQUAL_STRING("-l", shell->token[0].cmd_args[1].elem);
 	TEST_ASSERT_EQUAL_STRING("you", shell->token[0].cmd_args[2].elem);
-	TEST_ASSERT_EQUAL_STRING("' '", shell->token[0].cmd_args[3].elem);
+	TEST_ASSERT_EQUAL_STRING(" ", shell->token[0].cmd_args[3].elem);
 	printf("from test_convert_string_array_to_tokens: $%s\n", shell->token[0].cmd_args[3].elem);
 	// TEST_ASSERT_EQUAL_STRING("cat", shell->token[1].cmd[0].elem);
 	TEST_ASSERT_EQUAL_STRING("cat", shell->token[1].cmd_args[0].elem);
@@ -274,7 +204,7 @@ t_shell	*support_test_tokens_as_input_execution(void)
 	TEST_ASSERT_EQUAL_STRING("ls", shell->token[0].cmd_args[0].elem);
 	TEST_ASSERT_EQUAL_STRING("-l", shell->token[0].cmd_args[1].elem);
 	TEST_ASSERT_EQUAL_STRING("you", shell->token[0].cmd_args[2].elem);
-	TEST_ASSERT_EQUAL_STRING("' '", shell->token[0].cmd_args[3].elem);
+	TEST_ASSERT_EQUAL_STRING(" ", shell->token[0].cmd_args[3].elem);
 
 	// TEST_ASSERT_EQUAL_STRING("cat", shell->token[1].cmd[0].elem);
 	TEST_ASSERT_EQUAL_STRING("cat", shell->token[1].cmd_args[0].elem);
@@ -370,32 +300,6 @@ void	test_destroy_null() {
 	free(shell);
 }
 
-t_shell	*support_test_tokens_input(char *line, char **envp)
-{
-	t_shell	*shell;
-
-	// input like "ls -l somedir | cat -e | wc -l";
-	shell = (t_shell *) malloc(sizeof(t_shell));
-	char	*input = ft_strdup(line);
-
-	shell->split_pipes = split_outside_quotes(input, '|');
-	free(input);
-
-	// trim beforehand
-	shell->split_tokens = arr_trim(shell->split_pipes, " ");
-	arr_free(shell->split_pipes);
-	shell->owned_envp = arr_dup((const char **)envp);
-	TEST_ASSERT_NOT_NULL(shell->owned_envp);
-
-	// add the split tokens as tokens
-	add_pipe_split_as_tokens(shell->split_tokens, shell);
-	TEST_ASSERT_NOT_NULL(shell->token->split_pipes);
-
-	convert_split_token_string_array_to_tokens(shell);
-	TEST_ASSERT_NOT_NULL(shell->token->cmd_args);
-	return (shell);
-}
-
 void	test_recursive_expansion() {
 	t_shell	*shell = support_test_tokens_input("ls -l $somedir ' ' | cat -e | wc -l", (char **)((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", NULL}));
 
@@ -419,7 +323,7 @@ void	test_recursive_expansion() {
 
 #include "build_command.c"
 
-void	test_convert_tokens_to_string_array(void) {
+void	test_mock_convert_tokens_to_string_array(void) {
 	t_shell	*shell = support_test_tokens_input("ls -l $somedir ' ' | cat -e | wc -l", (char **)((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", NULL}));
 
 	TEST_ASSERT_NOT_NULL(shell->token[0].split_pipes);
@@ -446,39 +350,106 @@ void	test_convert_tokens_to_string_array(void) {
 	char	**expected3 = (char *[]){"wc", "-l", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected3, shell->token[2].command, 2);
 
-	arr_free(shell->token[0].command);
-	arr_free(shell->token[1].command);
-	arr_free(shell->token[2].command);
 	destroy_all_tokens(shell);
 	arr_free(shell->owned_envp);
 	arr_free(shell->split_tokens);
 	free(shell);
 }
 
-void	test_convert_single_command_no_pipes(void) {
+void	test_mock_convert_single_command_no_pipes(void) {
 	t_shell	*shell = support_test_tokens_input("$somedir", (char **)((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", NULL}));
 
 	TEST_ASSERT_NOT_NULL(shell->token[0].split_pipes);
 	// we want recursive expansion
 	TEST_ASSERT_EQUAL_STRING("mypath$", shell->token[0].cmd_args[0].elem);
 
-	// TEST_ASSERT_EQUAL_STRING("ls", shell->token[0].cmd_args[0].elem);
-	// TEST_ASSERT_EQUAL_STRING("-l", shell->token[0].cmd_args[1].elem);
-	// TEST_ASSERT_EQUAL_STRING("' '", shell->token[0].cmd_args[3].elem);
-	// TEST_ASSERT_EQUAL_STRING("cat", shell->token[1].cmd_args[0].elem);
-	// TEST_ASSERT_EQUAL_STRING("-e", shell->token[1].cmd_args[1].elem);
-	// TEST_ASSERT_EQUAL_STRING("wc", shell->token[2].cmd_args[0].elem);
-	// TEST_ASSERT_EQUAL_STRING("-l", shell->token[2].cmd_args[1].elem);
-
 	convert_tokens_to_string_array(shell->token);
 	TEST_ASSERT_NOT_NULL(shell->token->command);
 
 	char	**expected = (char *[]){"mypath$", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, shell->token[0].command, 1);
-	arr_free(shell->token[0].command);
-	arr_free(shell->token[1].command);
 	destroy_all_tokens(shell);
 	arr_free(shell->owned_envp);
 	arr_free(shell->split_tokens);
+	free(shell);
+}
+
+t_token	*mock_lexer(t_shell *shell)
+{
+	// build tokens
+	shell->split_pipes = split_outside_quotes(shell->line, '|');
+	if (!shell->split_pipes)
+		return (NULL);
+	add_pipe_split_as_tokens(shell->split_pipes, shell);
+	if (!shell->token->split_pipes)
+		return (NULL);
+	convert_split_token_string_array_to_tokens(shell);
+	if (!shell->token->cmd_args)
+		return (NULL);
+	arr_free(shell->split_pipes);
+	return (shell->token);
+}
+
+// void	test_quotes_removed_after_elements_tokenized() {
+// 	t_shell	*shell = support_test_tokens_input("ls -l $somedir ' ' | cat -e | wc -l", (char **)((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", NULL}));
+
+// 	TEST_ASSERT_NOT_NULL(shell->token[0].split_pipes);
+
+// 	shell->token = mock_lexer(shell);
+
+// 	TEST_ASSERT_NOT_NULL(shell->token->cmd_args);
+
+
+
+
+// }
+
+void	mock_builtin_info(t_token *token)
+{
+	if (!token)
+		return ;
+	size_t	i = 0;
+	while (token[i].cmd_args)
+	{
+		if (ft_strncmp(token[i].cmd_args[0].elem, "export", 6) == 0)
+			token[i].builtin_info = EXPORT;
+		else if (ft_strncmp(token[i].cmd_args[0].elem, "echo", 4) == 0)
+			token[i].builtin_info = ECHO;
+		else if (ft_strncmp(token[i].cmd_args[0].elem, "unset", 5) == 0)
+			token[i].builtin_info = UNSET;
+		else if (ft_strncmp(token[i].cmd_args[0].elem, "cd", 2) == 0)
+			token[i].builtin_info = CD;
+		else if (ft_strncmp(token[i].cmd_args[0].elem, "pwd", 3) == 0)
+			token[i].builtin_info = PWD;
+		else if (ft_strncmp(token[i].cmd_args[0].elem, "env", 3) == 0)
+			token[i].builtin_info = ENV;
+		else if (ft_strncmp(token[i].cmd_args[0].elem, "exit", 4) == 0)
+			token[i].builtin_info = EXIT;
+		else
+			token[i].builtin_info = NOT_BUILTIN;
+		i++;
+	}
+}
+
+void	test_builtin_info() {
+	char	*input = strdup("env | unset \"nopipes |\" | export hello | ls -l");
+	char	**tokens = split_outside_quotes(input, '|');
+	t_shell	*shell = support_test_tokens_input(input, (char *[]){"PATH=/usr/bin", "USER=me", NULL});
+
+	if (!tokens || !input)
+		TEST_FAIL();
+	free(input);
+	char	*expected[] =
+		{"env ", " unset \"nopipes |\" ", " export hello ", " ls -l", NULL};
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 4);
+	mock_builtin_info(shell->token);
+	TEST_ASSERT_EQUAL_INT(ENV, shell->token[0].builtin_info);
+	TEST_ASSERT_EQUAL_INT(UNSET, shell->token[1].builtin_info);
+	TEST_ASSERT_EQUAL_INT(EXPORT, shell->token[2].builtin_info);
+	TEST_ASSERT_EQUAL_INT(NOT_BUILTIN, shell->token[3].builtin_info);
+	destroy_all_tokens(shell);
+	arr_free(shell->owned_envp);
+	arr_free(shell->split_tokens);
+	arr_free(tokens);
 	free(shell);
 }

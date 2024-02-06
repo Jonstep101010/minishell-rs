@@ -1,6 +1,9 @@
 #include "unity.h"
 #include "support_shell.c"
 #include "support_parser.h"
+#include "checks_basic.c"
+#include "build_tokens.c"
+#include "expand_variables.c"
 
 void	test_nested_one() {
 	// "'"'"'test'"'"'"

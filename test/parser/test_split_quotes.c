@@ -1,7 +1,10 @@
 #include "libft.h"
 #include "unity.h"
 
+#include "checks_basic.c"
 #include "support_parser.h"
+#include "build_tokens.c"
+#include "expand_variables.c"
 
 void	test_find_leaks() {
 	char	*input = strdup("echo | \"nopipes |\" | echo hello");

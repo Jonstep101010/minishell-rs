@@ -33,12 +33,14 @@ size_t	echo(const char *cmd, char **args, char **envp)
 {
 	(void)cmd;
 	(void)envp;
-	if (!args || !*args)
-		return (write(1, "\n", 1));
-	if (occurs(*args, "-n")
-		&& ft_strncmp(*args, "-n", 2) == 0)
-			return (echo_default(args, 1));
-	echo_default(args, 0);
+	// print_arr(args + 2);
+	printf("echo builtin gets called\n");
+	// if (!args || !*args)
+	// 	return (write(1, "\n", 1));
+	if (occurs(*(args + 1), "-n")
+		&& ft_strncmp(*(args + 1), "-n", 2) == 0)
+			return (echo_default(args + 1, 1));
+	echo_default(args + 1, 0);
 	write(1, "\n", 1);
 	return (0);
 }

@@ -1,37 +1,38 @@
 #include "libft.h"
 #include "lexer.h"
 #include "struct.h"
+#include "utils.h"
 #include <stdbool.h>
+#include <unistd.h>
 
 t_lexer	lexer_checks_basic(char *s);
-
-// @audit-info error  "cmd "'" hello" or any other unbalanced delimiters
-// @follow-up free in caller and just get ref to struct?
-t_lexer	lexer_checks_basic(char *s)
-{
-	if (!s || !*s)
-		return (LEXER_NULL);
-	struct s_lexer	input;
-	input.lexer = LEXER_NULL;
-	count_number(s, &input);
-	if (input.singlequotes > 0 || input.doublequotes > 0)
-		ignore_quotes(s, &input);
-	if (check_pipes_redirection(s, &input) != LEXER_SUCCESS && check_against_ignore(s, &input) != LEXER_SUCCESS)
-		return (free_null(input.ignore), input.lexer);
-	if (check_brackets_quotes(&input) != LEXER_SUCCESS && check_against_ignore(s, &input) != LEXER_SUCCESS)
-		return (free_null(input.ignore), input.lexer);
-	if (input.singlequotes % 2 == 0 && (input.open_curly_brackets == input.close_curly_brackets) && (input.open_curly_brackets + input.close_curly_brackets) % 2 == 0)
-		return (free_null(input.ignore), LEXER_SUCCESS);
-	if (input.singlequotes > 0 && input.doublequotes % 2 == 0 && check_against_ignore(s, &input) == LEXER_SUCCESS)
-		return (free_null(input.ignore), LEXER_SUCCESS);
-	return (free_null(input.ignore), LEXER_NULL);
-}
+#ifndef TEST
+// char	**split_outside_quotes(const char *to_split, char c);
+void	add_pipe_split_as_tokens(char **pipe_split, t_shell *shell);
+void	convert_split_token_string_array_to_tokens(t_shell *shell);
+void	convert_tokens_to_string_array(t_token *token);
+#include <sys/wait.h>
 
 t_token	*lexer(t_shell *shell)
 {
 	if (lexer_checks_basic(shell->line) != LEXER_SUCCESS)
+	{
+		ft_printf("syntax error\n");
+		shell->exit_status = 2;
 		return (NULL);
+	}
 	// build tokens
-
-	return (NULL);
+	shell->split_pipes = split_outside_quotes(shell->line, '|');
+	if (!shell->split_pipes)
+		return (NULL);
+	add_pipe_split_as_tokens(shell->split_pipes, shell);
+	if (!shell->token->split_pipes)
+		return (NULL);
+	convert_split_token_string_array_to_tokens(shell);
+	if (!shell->token->cmd_args)
+		return (NULL);
+	arr_free(shell->split_pipes);
+	return (shell->token);
 }
+#endif
+

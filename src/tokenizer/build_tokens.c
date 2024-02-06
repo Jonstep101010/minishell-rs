@@ -1,12 +1,8 @@
 #include <stddef.h>
-#include "tokens.h"
 #include "libft.h"
-
-#ifndef TEST_TOKENS_H
-# include "utils.h"
-# include "struct.h"
-#endif
-
+#include "tokens.h"
+#include "utils.h"
+#include "struct.h"
 t_arg	*init_cmdargs(size_t size)
 {
 	t_arg	*args;
@@ -30,6 +26,7 @@ t_token	*init_token(size_t size)
 	return (token);
 }
 
+void	*do_quote_bs(const char *s, int *quote);
 void	add_pipe_split_as_tokens(char **pipe_split, t_shell *shell)
 {
 	size_t	i;
@@ -48,6 +45,26 @@ void	add_pipe_split_as_tokens(char **pipe_split, t_shell *shell)
 		shell->token[i].split_pipes = pipe_split[i];
 		i++;
 	}
+}
+
+void	builtin_info(t_token *token)
+{
+	if (ft_strncmp(token->cmd_args[0].elem, "export", 6) == 0)
+		token->builtin_info = EXPORT;
+	else if (ft_strncmp(token->cmd_args[0].elem, "echo", 4) == 0)
+		token->builtin_info = BUILTIN_ECHO;
+	else if (ft_strncmp(token->cmd_args[0].elem, "unset", 5) == 0)
+		token->builtin_info = UNSET;
+	else if (ft_strncmp(token->cmd_args[0].elem, "cd", 2) == 0)
+		token->builtin_info = CD;
+	else if (ft_strncmp(token->cmd_args[0].elem, "pwd", 3) == 0)
+		token->builtin_info = PWD;
+	else if (ft_strncmp(token->cmd_args[0].elem, "env", 3) == 0)
+		token->builtin_info = ENV;
+	else if (ft_strncmp(token->cmd_args[0].elem, "exit", 4) == 0)
+		token->builtin_info = EXIT;
+	else
+		token->builtin_info = NOT_BUILTIN;
 }
 
 // @audit-info mod split_quotes to take a function pointer (for whitespace that can be space or tab)
@@ -79,12 +96,14 @@ void	convert_split_token_string_array_to_tokens(t_shell *shell)
 		if (!shell->token[i].cmd_args)
 			return ;
 		ii = 0;
+		// printf("elem: %s, %d\n", shell->token[i].cmd_args[0].elem, shell->token[i].builtin_info);
 		while (shell->token[i].tmp_arr[ii])
 		{
 			// store the cmd_args in the token
 			shell->token[i].cmd_args[ii].elem = shell->token[i].tmp_arr[ii];
 			if (!shell->token[i].cmd_args[ii].elem)
 				return ;
+			builtin_info(&shell->token[i]);
 			// @follow-up add more properties (count?), separate function?
 			if (str_cchr(shell->token[i].cmd_args[ii].elem, '\'') == 0 && str_cchr(shell->token[i].cmd_args[ii].elem, '"') == 0)
 				shell->token[i].cmd_args[ii].quote = NONE;
@@ -92,7 +111,10 @@ void	convert_split_token_string_array_to_tokens(t_shell *shell)
 				shell->token[i].cmd_args[ii].quote = DOUBLE;
 			if (str_cchr(shell->token[i].cmd_args[ii].elem, '\''))
 				shell->token[i].cmd_args[ii].quote = SINGLE;
-			while (str_cchr(shell->token[i].cmd_args[ii].elem, '$'))
+			while (shell->token[i].builtin_info != ENV &&
+					shell->token[i].builtin_info != EXPORT &&
+					shell->token[i].builtin_info != UNSET &&
+				str_cchr(shell->token[i].cmd_args[ii].elem, '$'))
 			{
 				tmp = expand_variables(shell->token[i].cmd_args[ii].elem, (const char **)shell->owned_envp);
 				if (!tmp)
@@ -104,6 +126,15 @@ void	convert_split_token_string_array_to_tokens(t_shell *shell)
 					free(tmp);
 					break ;
 				}
+				free(shell->token[i].cmd_args[ii].elem);
+				shell->token[i].cmd_args[ii].elem = tmp;
+			}
+			int quote = 0;
+			if (shell->token[i].cmd_args[ii].quote != NONE)
+			{
+				tmp = do_quote_bs(shell->token[i].cmd_args[ii].elem, &quote);
+				if (!tmp)
+					return ;
 				free(shell->token[i].cmd_args[ii].elem);
 				shell->token[i].cmd_args[ii].elem = tmp;
 			}

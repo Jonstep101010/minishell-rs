@@ -1,5 +1,5 @@
 #include "../include/libft/src/string/str_cchr.c"
-#include "../src/lexer/lexer.c"
+#include "../src/lexer/checks_basic.c"
 #include "../src/lexer/check_quotes.c"
 #include "../src/lexer/check_pipes.c"
 #include "../src/lexer/lexer_support.c"
