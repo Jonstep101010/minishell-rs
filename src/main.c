@@ -1,55 +1,32 @@
 #include "ft_printf.h"
-#include "minishell.h"
 #include "libft.h"
 #include "struct.h"
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <unistd.h>
 
-#include "../src/signals/msh_signals.h"
-#include "../src/builtins/builtins.h"
-#include "../src/parser/parser.h"
-
-void	core_functions(t_shell *shell);
+#include "msh_signals.h"
+void	get_tokens(t_shell *shell);
+int		builtin(t_shell *shell, t_token *token);
+void	execute_commands(t_shell *shell, t_token *token);
+void	destroy_all_tokens(t_shell *shell);
 
 void	minishell_loop(t_shell *shell)
 {
-	struct termios p_termios;
-
 	while (1)
 	{
-		check_signals(&p_termios);
-		shell->line = readline("minishell> ");
-		if (shell->line)
+		get_tokens(shell);
+		if (shell->token)
 		{
-			add_history(shell->line);
-			core_functions(shell);
+			builtin(shell, shell->token);
+			destroy_all_tokens(shell);
 		}
+		else if (shell->exit_status == 2)
+			continue;
 		// does quitting using ctrl_d cause leaks?
 		else
 			return ;
 	}
-}
-
-void	core_functions(t_shell *shell)
-{
-
-	if (ft_strncmp(shell->line, "exit", 4) == 0 && ft_strlen(shell->line) == 4)
-		msh_exit(shell, 0);
-	else if (lexer(shell->line) == LEXER_SUCCESS)
-	{
-		// @todo modify parser to format correctly and return error codes
-		if (parser(shell) == -1)
-			ft_printf("I am not segfaulting (yet)\n");
-		if (builtin(shell) == -1)
-			ft_printf("command is not a builtin/command not found\n");
-		// @todo executor
-		if (shell->command)
-			arr_free(shell->command);
-		free_null(shell->line);
-	}
-	else
-		ft_printf("invalid syntax\n");
 }
 
 int main(int ac, char **av, char **envp)
@@ -60,10 +37,31 @@ int main(int ac, char **av, char **envp)
 	(void)av;
 	shell = (t_shell *) ft_calloc(1, sizeof(t_shell));
 	shell->owned_envp = arr_dup((const char **)envp);
-	if (!shell->owned_envp)
-		exit(1);
-	if (lexer("echo Hello, World!") != LEXER_SUCCESS)
-		ft_printf("lexer does not work\n");
 	minishell_loop(shell);
 	return (0);
+}
+
+t_token	*lexer(t_shell *shell);
+
+void	tokenize(t_shell *shell)
+{
+	shell->token = lexer(shell);
+	if (!shell->token)
+		return ;// some exit code
+	// handle exit code for failed parsing/lexical errors
+}
+#include "utils.h"
+#include "builtins.h"
+void	get_tokens(t_shell *shell)
+{
+	shell->line = readline("minishell> ");
+	if (shell->line && *shell->line)
+	{
+		check_signals(&(shell->p_termios));
+		if (occurs_exclusively("exit", shell->line))
+			return (builtin_exit(shell, 0));
+		add_history(shell->line);
+		tokenize(shell);
+		free(shell->line);
+	}
 }

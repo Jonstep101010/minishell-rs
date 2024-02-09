@@ -14,8 +14,8 @@ void	print_arr_sep(char **arr, char sep_open, char sep_close)
 		return ;
 	while (i <= len)
 	{
-		ft_printf("[%d]%c%s%c", i, sep_open, arr[i], sep_close);
+		printf("[%lu]%c%s%c", i, sep_open, arr[i], sep_close);
 		i++;
 	}
-	ft_printf("\n");
+	printf("\n");
 }

@@ -1,31 +1,9 @@
 #include "unity.h"
+#include "support_shell.c"
 #include "support_parser.h"
-
-t_shell	*setup_shell(char *line) {
-	t_shell *shell = (t_shell *) calloc(sizeof(t_shell), 1);
-	shell->line = strdup(line);
-	if (!shell || !shell->line)
-		TEST_FAIL();
-	if (lexer(shell->line) != LEXER_SUCCESS)
-		TEST_FAIL_MESSAGE("lexer failed!");
-	return (shell);
-}
-
-void	clean_shell(t_shell *shell) {
-	if (shell->line)
-		free_null(shell->line);
-	if (shell->command)
-		arr_free(shell->command);
-	free_null(shell);
-}
-
-void	debug_print_arr(t_shell *this)
-{
-	for (int i = 0; this->command[i]; i++)
-	{
-		fprintf(stderr, "string in arr:%s\n", this->command[i]);
-	}
-}
+#include "checks_basic.c"
+#include "build_tokens.c"
+#include "expand_variables.c"
 
 void	test_nested_one() {
 	// "'"'"'test'"'"'"

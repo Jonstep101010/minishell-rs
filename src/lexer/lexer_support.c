@@ -1,6 +1,5 @@
-#include "struct.h"
+#include "lexer.h"
 #include "libft.h"
-#include "utils.h"
 
 void	count_number(char *s, struct s_lexer *input)
 {

@@ -30,7 +30,7 @@ void	test_arr_null() {
 void	test_arr_free() {
 	char	**arr = NULL;
 	TEST_ASSERT_NULL(arr);
-	char	**actual = calloc(1, sizeof(char *));
+	char	**actual = (char **)calloc(1, sizeof(char *));
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_NULL(actual[0]);
 	char	**copy = arr_dup((const char **)actual);
@@ -41,3 +41,57 @@ void	test_arr_free() {
 	TEST_ASSERT_NULL(arr_dup((const char **)NULL));
 }
 
+#include "print_arr_sep.c"
+#include "occurs.c"
+#include "arr_utils.c"
+
+void	test_arr_trim_one(void)
+{
+	char	**arr = (char *[]){"  ls -l somedir ", " cat -e ", " wc -l", NULL};
+	char	**expected = (char *[]){"ls -l somedir", "cat -e", "wc -l", NULL};
+	char	**ret = arr_trim(arr, " ");
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, ret, 4);
+	arr_free(ret);
+}
+
+void	test_arr_trim_two(void)
+{
+	char	**arr = (char *[]){"  ls -l somedir ", " cat -e ", " wc -l", NULL};
+	char	**expected = (char *[]){"ls -l somedir", "cat -e", "wc -l", NULL};
+	char	**ret = arr_trim(arr, " ");
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, ret, 4);
+	arr_free(ret);
+}
+
+void	test_strncmp_one(void)
+{
+	TEST_ASSERT_GREATER_OR_EQUAL(1, ft_strncmp("hello", "gello", 5));
+	TEST_ASSERT_NOT_EQUAL(0, ft_strncmp("gello", "hello", 5));
+}
+
+void	test_arr_ncmp_one(void)
+{
+	const char	*arr[] = {"hello", "world", "!", NULL};
+	const char	*arr2[] = {"hello", "world", "!", NULL};
+	TEST_ASSERT_EQUAL(0, arr_ncmp(arr, arr2, arr_len(arr)));
+}
+
+void	test_arr_ncmp_two(void)
+{
+	// check with different lengths
+	const char	*arr[] = {"hello", "world", "!", NULL};
+	const char	*arr2[] = {"hello", "world", "!", "!", NULL};
+	TEST_ASSERT_NOT_EQUAL(0, arr_ncmp(arr, arr2, arr_len(arr)));
+	// check with invalid array
+	TEST_ASSERT_NOT_EQUAL(0, arr_ncmp(arr, NULL, arr_len(arr)));
+	// check with invalid string inside array
+	const char	*arr3[] = {"hello", "world", "!", "!", NULL};
+	TEST_ASSERT_NOT_EQUAL(0, arr_ncmp(arr, arr3, arr_len(arr)));
+}
+
+void	test_arr_dup_empty_string() {
+	char **arr = arr_dup((const char *[]){"", NULL});
+	TEST_ASSERT_NOT_NULL(arr);
+	TEST_ASSERT_EQUAL_STRING("", arr[0]);
+	arr_free(arr);
+}

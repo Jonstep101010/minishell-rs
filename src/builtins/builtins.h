@@ -3,8 +3,7 @@
 
 #include "struct.h"
 
-int		echo(t_shell *shell);
-int		builtin(t_shell *shell);
-char	*occurs(const char *big, const char *little);
-
+// size_t		echo(char *cmd, char **args, char **envp);
+void		builtin_exit(t_shell *shell, int exitcode);
+int			builtin_env(char **envp);
 #endif
