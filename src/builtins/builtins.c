@@ -1,4 +1,4 @@
-#include "ft_printf.h"
+#include "libft.h"
 #include "struct.h"
 #include <stdbool.h>
 #include <sys/param.h>
@@ -6,7 +6,7 @@
 char	*occurs_exclusively(const char *, const char *);
 
 int		export(t_shell *shell, t_token *token);
-char	**unset(t_shell *shell, const char *key);
+int		unset(char *cmd, char **args, char **envp);
 size_t	echo(char *cmd, char **args, char **envp);
 int		builtin_env(char **envp);
 char	**split_outside_quotes(const char *to_split, char c);
@@ -25,7 +25,7 @@ void	execute_commands(t_shell *shell, t_token *token)
 	if (test == 0)
 	{
 		if (execvp(token->cmd_args[0].elem, token->command) == -1)
-			ft_printf("command not found\n");
+			printf("command not found\n");
 		destroy_all_tokens(shell);
 		exit(0);
 	}
@@ -56,9 +56,7 @@ int		builtin(t_shell *shell, t_token *token)
 	if (occurs_exclusively("unset", *token->command)
 		&& token->command[1] && shell->owned_envp)
 	{
-		if (arr_len((const char **)token->command) > 2)
-			return(ft_printf("Error: too many arguments!\n"), -1);
-		if (!unset(shell, token->command[1]))
+		if (unset(token->command[0], token->command, shell->owned_envp) != 0)
 			return (-1);
 		return (0);
 	}
@@ -67,7 +65,7 @@ int		builtin(t_shell *shell, t_token *token)
 	if (occurs_exclusively("pwd", token->command[0]))
 	{
 		getcwd(buf, MAXPATHLEN);
-		return (ft_printf("%s\n", buf));
+		return (printf("%s\n", buf));
 	}
 	if (occurs_exclusively("env", token->command[0]))
 		return (builtin_env(shell->owned_envp));

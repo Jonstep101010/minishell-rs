@@ -34,7 +34,6 @@ void	test_find_leaks_two() {
 		{"echo", NULL, NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 2);
 	TEST_ASSERT_EQUAL(arr_len((const char **)tokens), arr_len((const char **)expected));
-	print_arr(tokens);
 	arr_free(tokens);
 }
 
@@ -52,7 +51,6 @@ void	test_only_expand() {
 		{"$somedir ", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 2);
 	TEST_ASSERT_EQUAL(arr_len((const char **)tokens), arr_len((const char **)expected));
-	print_arr(tokens);
 	arr_free(tokens);
 }
 
@@ -68,7 +66,6 @@ void	test_leading_trailing_char() {
 		{"echo $somedir", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 2);
 	TEST_ASSERT_EQUAL(arr_len((const char **)tokens), arr_len((const char **)expected));
-	print_arr(tokens);
 	arr_free(tokens);
 	free(input);
 }
@@ -85,7 +82,6 @@ void	test_leading_trailing_and_split() {
 		{"echo", "$somedir' '", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 3);
 	TEST_ASSERT_EQUAL(arr_len((const char **)tokens), arr_len((const char **)expected));
-	print_arr(tokens);
 	arr_free(tokens);
 	free(input);
 }
@@ -102,7 +98,6 @@ void	test_only_trim() {
 		{"", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 2);
 	TEST_ASSERT_EQUAL(arr_len((const char **)tokens), arr_len((const char **)expected));
-	print_arr(tokens);
 	arr_free(tokens);
 	free(input);
 }
@@ -119,7 +114,6 @@ void	test_only_trim_single() {
 		{"h", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 2);
 	TEST_ASSERT_EQUAL(arr_len((const char **)tokens), arr_len((const char **)expected));
-	print_arr(tokens);
 	arr_free(tokens);
 	free(input);
 }
@@ -136,7 +130,6 @@ void	test_only_trim_single_quotes() {
 		{"'", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 2);
 	TEST_ASSERT_EQUAL(arr_len((const char **)tokens), arr_len((const char **)expected));
-	print_arr(tokens);
 	arr_free(tokens);
 	free(input);
 }

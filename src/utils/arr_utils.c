@@ -29,7 +29,7 @@ char	**append_str_arr(const char **arr, const char *s)
 	ret[i] = ft_strdup(s);
 	if (!ret[i])
 		return (arr_free(ret), NULL);
-	ft_printf("%zu(len)", len + 2);
+	printf("%zu(len)", len + 2);
 	print_arr_sep(ret, '{', '}');
 	return (ret);
 }

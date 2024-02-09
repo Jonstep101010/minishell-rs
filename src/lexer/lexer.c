@@ -17,7 +17,7 @@ t_token	*lexer(t_shell *shell)
 {
 	if (lexer_checks_basic(shell->line) != LEXER_SUCCESS)
 	{
-		ft_printf("syntax error\n");
+		printf("syntax error\n");
 		shell->exit_status = 2;
 		return (NULL);
 	}

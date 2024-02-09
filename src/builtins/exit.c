@@ -9,7 +9,7 @@ void	builtin_exit(t_shell *shell)
 	exit_code = 0;
 	if (shell->line)
 		free_null(shell->line);
-	ft_printf("exiting now...\n");
+	printf("exiting now...\n");
 	if (shell->owned_envp)
 		arr_free(shell->owned_envp);
 	size_t	i = 0;
