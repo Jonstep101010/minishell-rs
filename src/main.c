@@ -1,15 +1,13 @@
-#include "ft_printf.h"
-#include "libft.h"
 #include "struct.h"
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <unistd.h>
 
 #include "msh_signals.h"
-void	get_tokens(t_shell *shell);
-int		builtin(t_shell *shell, t_token *token);
-void	execute_commands(t_shell *shell, t_token *token);
-void	destroy_all_tokens(t_shell *shell);
+
+#include "minishell.h"
+
+#include <stdlib.h>
 
 void	minishell_loop(t_shell *shell)
 {
@@ -29,27 +27,22 @@ void	minishell_loop(t_shell *shell)
 	}
 }
 
-int main(int ac, char **av, char **envp)
+
+int main(int ac, char **av, const char **envp)
 {
 	t_shell		*shell;
 
-	(void)ac;
-	(void)av;
-	shell = (t_shell *) ft_calloc(1, sizeof(t_shell));
-	shell->owned_envp = arr_dup((const char **)envp);
+	if (ac > 1 || av[1])
+		return (printf("do not pass arguments\n"), 1);
+	shell = init_shell(envp);
+	if (!shell)
+		return (1);
 	minishell_loop(shell);
 	return (0);
 }
 
 t_token	*lexer(t_shell *shell);
 
-void	tokenize(t_shell *shell)
-{
-	shell->token = lexer(shell);
-	if (!shell->token)
-		return ;// some exit code
-	// handle exit code for failed parsing/lexical errors
-}
 #include "utils.h"
 #include "builtins.h"
 void	get_tokens(t_shell *shell)
@@ -61,7 +54,10 @@ void	get_tokens(t_shell *shell)
 		if (occurs_exclusively("exit", shell->line))
 			return (builtin_exit(shell, 0));
 		add_history(shell->line);
-		tokenize(shell);
+		shell->token = lexer(shell);
+		if (!shell->token)
+			return ;// some exit code
+		// handle exit code for failed parsing/lexical errors
 		free(shell->line);
 	}
 }

@@ -27,7 +27,7 @@ int	find_key_env(const char **arr, const char *s, size_t (*f)(const char *s))
 		return (-1);
 	while (arr[i])
 	{
-		if (ft_strncmp(arr[i], s, key_len - 1) == 0
+		if (ft_strncmp(arr[i], s, key_len) == 0
 			&& arr[i][key_len] && arr[i][key_len] == '=')
 				return (i);
 		i++;
@@ -55,7 +55,7 @@ char	*get_var_val(const char **arr, const char *key)
 			return (NULL);
 		val = ft_substr(arr[index], ft_strlen(key_eq), ft_strlen(arr[index]) - ft_strlen(key_eq));
 		fprintf(stderr, "val: %s\n", val);
-		free_null(key_eq);
+		free(key_eq);
 		if (!val)
 			return (NULL);
 		return (val);

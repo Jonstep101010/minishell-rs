@@ -1,4 +1,3 @@
-#include "libft.h"
 #include "struct.h"
 #include <stdbool.h>
 #include <sys/param.h>
@@ -15,8 +14,16 @@ void	convert_split_token_string_array_to_tokens(t_shell *shell);
 void	convert_tokens_to_string_array(t_token *token);
 void	destroy_all_tokens(t_shell *shell);
 #include <sys/wait.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
 
-// atm only works for execution of one command
+/**
+ * @brief
+ * @audit atm only works for execution of one command (forbidden function)
+ * @param shell
+ * @param token pointer to element in array of tokens
+ */
 void	execute_commands(t_shell *shell, t_token *token)
 {
 	pid_t test = -1;

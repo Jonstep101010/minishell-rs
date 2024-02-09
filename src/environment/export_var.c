@@ -9,6 +9,28 @@
 
 #include "utils.h"
 
+// search for key
+// make it key=value if it exists
+void	update_variable(char **envp, const char *key, const char *value)
+{
+	char	*key_value;
+	char	*tmp;
+	int		index;
+
+	index = find_key_env((const char **)envp, key, ft_strlen);
+	if (index == -1)
+		return ;// error handling?
+	tmp = ft_strjoin(key, "=");
+	if (!tmp)
+		return ;
+	key_value = ft_strjoin(tmp, value);
+	free(tmp);
+	if (!key_value)
+		return ;
+	free(envp[index]);
+	envp[index] = key_value;
+}
+
 // input like key=val
 char	**export_var(char **arr, const char *s)
 {

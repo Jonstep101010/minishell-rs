@@ -95,3 +95,25 @@ void	test_arr_dup_empty_string() {
 	TEST_ASSERT_EQUAL_STRING("", arr[0]);
 	arr_free(arr);
 }
+
+char	**init_env(const char **envp)
+{
+	char	**env;
+
+	if (!envp)
+		return (NULL);
+	env = append_str_arr(envp, "$?=0");
+	if (!env)
+		return (NULL);
+	return (env);
+}
+
+void	test_arr_init_env() {
+	char	*envp[] = {"PATH=/usr/bin", "HOME=/home", "USER=me", NULL};
+	char	**env = init_env((const char **)envp);
+
+	TEST_ASSERT_NOT_NULL(env);
+	char	*expected[] = {"PATH=/usr/bin", "HOME=/home", "USER=me", "$?=0", NULL};
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, env, 5);
+	arr_free(env);
+}
