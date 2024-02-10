@@ -32,8 +32,10 @@ int main(int ac, char **av, const char **envp)
 {
 	t_shell		*shell;
 
-	if (ac > 1 || av[1])
-		return (printf("do not pass arguments\n"), 1);
+	(void)ac;
+	(void)av;
+	// if (ac > 1 || av[1])
+	// 	return (printf("do not pass arguments\n"), 1);
 	shell = init_shell(envp);
 	if (!shell)
 		return (1);

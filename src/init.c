@@ -9,7 +9,7 @@ char	**init_env(const char **envp)
 
 	if (!envp)
 		return (NULL);
-	env = append_str_arr(envp, "$?=0");
+	env = append_str_arr(envp, "?=0");
 	if (!env)
 		return (NULL);
 	return (env);
@@ -39,7 +39,7 @@ void	update_exit_status(t_shell *shell, int status)
 	status_str = ft_itoa(status);
 	if (!status_str)
 		return ;
-	new_status = ft_strjoin("$?=", status_str);
+	new_status = ft_strjoin("?=", status_str);
 	free(status_str);
 	if (!new_status)
 		return ;

@@ -72,11 +72,14 @@ static char	*check_line(t_expander *x, const char **envp)
 		else if (x->line[x->i] == '\'' && x->singlequote == x->line[x->i])
 			x->singlequote = 0;
 		else if (x->line[x->i] && x->line[x->i + 1] && x->line[x->i] == '$'
-			&& x->singlequote == 0 && is_valid_key(x->line[x->i + 1]))
+			&& x->singlequote == 0 && (is_valid_key(x->line[x->i + 1]) || x->line[x->i + 1] == '?'))
 		{
 			x->i++;
 			x->start = x->i;
-			while (x->line[x->i] && is_valid_key(x->line[x->i]))
+			if (x->line[x->i] != '?')
+				while (x->line[x->i] && is_valid_key(x->line[x->i]))
+					x->i++;
+			else
 				x->i++;
 			if (x->start == x->i)
 				continue;
