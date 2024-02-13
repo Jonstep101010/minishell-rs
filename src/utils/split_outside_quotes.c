@@ -26,9 +26,20 @@ static	char	**return_check(char **ret)
 	return (ret);
 }
 
+static int is_in_set(char c, const char *set)
+{
+	while (*set)
+	{
+		if (c == *set)
+			return (1);
+		set++;
+	}
+	return (0);
+}
+
 // do not touch unless tested changes -> this leaks like a *****
 static char	**split_iterator(
-		t_splitter *split, const char *to_split, char c)
+		t_splitter *split, const char *to_split, const char *set)
 {
 	while (to_split[split->i] && split->start < split->len)
 	{
@@ -37,10 +48,18 @@ static char	**split_iterator(
 				split->quote = to_split[split->i];
 		else if (split->quote != 0 && to_split[split->i] == split->quote)
 			split->quote = 0;
-		else if (split->quote == 0 && to_split[split->i] == c)
+		else if (split->quote == 0 && is_in_set(to_split[split->i], set))
 		{
+			while (is_in_set(to_split[split->i + 1], set))
+			{
+				split->i++;
+				if (split->i >= split->len)
+					break;
+			}
+			if (split->token_end < split->start)
+				split->token_end = split->start - 1;
 			split->tmp = ft_substr(to_split, split->start,
-					split->i - split->start);
+					split->token_end - split->start + 1);
 			if (!split->tmp)
 				return (arr_free(split->arr), NULL);
 			split->ret = append_str_arr((const char **)split->arr, split->tmp);
@@ -51,12 +70,14 @@ static char	**split_iterator(
 			split->arr = split->ret;
 			split->start = split->i + 1;
 		}
+		else
+			split->token_end = split->i;
 		split->i++;
 	}
 	return (return_check(split->ret));
 }
 
-char	**split_outside_quotes(const char *to_split, char c)
+char	**split_outside_quotes(const char *to_split, const char *set)
 {
 	t_splitter	split;
 	char		**ret;
@@ -65,9 +86,9 @@ char	**split_outside_quotes(const char *to_split, char c)
 	if (!to_split)
 		return (NULL);
 	init_splitter(&split, ft_strlen(to_split));
-	if (to_split[0] == c || to_split[ft_strlen(to_split) - 1] == c)
+	if (is_in_set(to_split[0], set) || is_in_set(to_split[ft_strlen(to_split) - 1], set))
 	{
-		while (*to_split == c)
+		while (is_in_set(*to_split, set))
 			to_split++;
 		if (!*to_split)
 			return (arr_dup((const char *[]){"", NULL}));
@@ -75,7 +96,7 @@ char	**split_outside_quotes(const char *to_split, char c)
 		if (!split.tmp)
 			return (NULL);
 		split.trim = ft_strlen(split.tmp);
-		while (split.trim > 0 && split.tmp[split.trim - 1] == c)
+		while (split.trim > 0 && is_in_set(split.tmp[split.trim - 1], set))
 			split.trim--;
 		if (split.trim == 0)
 			return (ft_calloc(1, sizeof(char *)));
@@ -83,11 +104,11 @@ char	**split_outside_quotes(const char *to_split, char c)
 		free(split.tmp);
 		if (!split.tmp2)
 			return (NULL);
-		split.not_last_token = split_iterator(&split, split.tmp2, c);
+		split.not_last_token = split_iterator(&split, split.tmp2, set);
 		free(split.tmp2);
 	}
 	else
-		split.not_last_token = split_iterator(&split, to_split, c);
+		split.not_last_token = split_iterator(&split, to_split, set);
 	if (!split.not_last_token)
 		return (arr_free(split.arr), NULL);
 	last_token = ft_substr(to_split, split.start, split.i - split.start);

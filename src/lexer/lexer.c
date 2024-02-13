@@ -17,12 +17,12 @@ t_token	*lexer(t_shell *shell)
 {
 	if (lexer_checks_basic(shell->line) != LEXER_SUCCESS)
 	{
-		printf("syntax error\n");
+		// printf("syntax error\n");
 		shell->exit_status = 2;
 		return (NULL);
 	}
 	// build tokens
-	shell->split_pipes = split_outside_quotes(shell->line, '|');
+	shell->split_pipes = split_outside_quotes(shell->line, "|");
 	if (!shell->split_pipes)
 		return (NULL);
 	add_pipe_split_as_tokens(shell->split_pipes, shell);

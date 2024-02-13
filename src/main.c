@@ -6,24 +6,34 @@
 #include "msh_signals.h"
 
 #include "minishell.h"
-
+#include "libft.h"
 #include <stdlib.h>
 
 void	minishell_loop(t_shell *shell)
 {
 	while (1)
 	{
-		get_tokens(shell);
-		if (shell->token)
+		if (isatty(fileno(stdin)))
 		{
-			builtin(shell, shell->token);
-			destroy_all_tokens(shell);
+			get_tokens(shell);
+			if (shell->token)
+			{
+				builtin(shell, shell->token);
+				destroy_all_tokens(shell);
+			}
+			// else if (shell->exit_status == 2)
+			// 	continue;
+			// // does quitting using ctrl_d cause leaks?
+			else
+				return ;
 		}
-		else if (shell->exit_status == 2)
-			continue;
-		// does quitting using ctrl_d cause leaks?
 		else
-			return ;
+		{
+			char *line;
+			line = get_next_line(fileno(stdin));
+			shell->line = ft_strtrim(line, "\n");
+			free(line);
+		}
 	}
 }
 

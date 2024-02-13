@@ -41,7 +41,8 @@ char	**export_var(char **arr, const char *s)
 		return (NULL);
 	int	index = find_key_env((const char **)arr, s, get_key_len);
 	if (!arr)
-		return (printf("environment does not exist!\n"), NULL);
+		return (NULL);
+		// return (printf("environment does not exist!\n"), NULL);
 	if (index == -1)
 	{
 		tmp = append_str_arr((const char **)arr, s);
@@ -51,7 +52,8 @@ char	**export_var(char **arr, const char *s)
 	}
 	s_tmp = ft_strdup(s);
 	if (!s_tmp)
-		return (printf("error exporting variable\n"), NULL);
+		return (NULL);
+		// return (printf("error exporting variable\n"), NULL);
 	free(arr[index]);
 	arr[index] = s_tmp;
 	return (arr);

@@ -12,7 +12,8 @@ int		unset(char *cmd, char **args, char **envp)
 
 	// key should be at args[1]
 	if (!envp)
-		return ((void)printf("Error: environment does not exist!\n"), -2);
+		return (-2);
+		// return ((void)printf("Error: environment does not exist!\n"), -2);
 	if (!args || !*args || arr_len((const char **)args) > 2)
 		return ((void)printf("Error: no variable name provided!\n"), -1);
 	if (!occurs_exclusively("unset", cmd)
@@ -20,15 +21,16 @@ int		unset(char *cmd, char **args, char **envp)
 		return ((void)printf("Error: no variable name provided!\n"), -1);
 	key = args[1];
 	if (!key || !*key)
-		return ((void)printf("Error: no variable name provided!\n"), -1);
+		return (0);
+		// return ((void)printf("Error: no variable name provided!\n"), -1);
 	index = find_key_env((const char **)envp, key, ft_strlen);
 	if (index >= 0 && envp[index])
 	{
-		printf("removing variable: %s\n", envp[index]);
+		// printf("removing variable: %s\n", envp[index]);
 		rm_str_arr(envp, envp[index]);
 		return (0);
 	}
-	printf("Error: varname does not exist in env!\n");
+	// printf("Error: varname does not exist in env!\n");
 	return (-1);
 }
 // int		unset(t_shell *shell, char *key)

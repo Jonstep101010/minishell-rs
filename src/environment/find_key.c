@@ -50,11 +50,11 @@ char	*get_var_val(const char **arr, const char *key)
 	if (index != -1 && arr[index])
 	{
 		key_eq = ft_strjoin(key, "=");
-		fprintf(stderr, "key_eq: '%s'\n", key_eq);
+		// fprintf(stderr, "key_eq: '%s'\n", key_eq);
 		if (!key_eq)
 			return (NULL);
 		val = ft_substr(arr[index], ft_strlen(key_eq), ft_strlen(arr[index]) - ft_strlen(key_eq));
-		fprintf(stderr, "val: %s\n", val);
+		// fprintf(stderr, "val: %s\n", val);
 		free(key_eq);
 		if (!val)
 			return (NULL);

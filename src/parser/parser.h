@@ -7,6 +7,7 @@ typedef struct s_splitter
 	int		quote;
 	size_t	i;
 	size_t	start;
+	size_t	token_end;
 	size_t	len;
 	char	**ret;
 	char	*tmp;

@@ -35,7 +35,7 @@ static char *replacer(t_expander *x, const char **envp)
 		free(x->line);
 		if (!x->remainder_line)
 			return (x->ret);
-		printf("remainder: %s\n", x->remainder_line);
+		// printf("remainder: %s\n", x->remainder_line);
 		x->tmp = ft_strjoin(x->ret, x->remainder_line);
 		free(x->remainder_line);
 		free(x->ret);

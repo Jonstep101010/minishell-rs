@@ -38,7 +38,7 @@ size_t	echo(const char *cmd, char **args, char **envp)
 	(void)cmd;
 	(void)envp;
 	// print_arr(args + 2);
-	printf("echo builtin gets called\n");
+	// printf("echo builtin gets called\n");
 	if (!args || !*args)
 		return (write(1, "\n", 1));
 	if (!occurs_exclusively("echo", *args))

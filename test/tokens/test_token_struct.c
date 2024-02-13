@@ -20,22 +20,22 @@ void	test_token_struct(void)
 {
 	t_shell	*shell;
 	shell = (t_shell *) malloc(sizeof(t_shell));
-	shell->line = "ls -l somedir | cat -e | wc -l";
+	shell->line = "ls \n-l\r \tsomedir | cat -e | wc -l";
 	shell->owned_envp = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL};
 	shell->token = init_token(3);// should have space for 3 tokens (shell->line)
 	TEST_ASSERT_NOT_NULL(shell->token);
-	char	**expected = (char *[]){"ls -l somedir ", " cat -e ", " wc -l", NULL};
-	char	**split_tokens = split_outside_quotes(shell->line, '|');
+	char	**expected = (char *[]){"ls \n-l\r \tsomedir ", " cat -e ", " wc -l", NULL};
+	char	**split_tokens = split_outside_quotes(shell->line, "|");
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, split_tokens, 4);
 
 	// do string trim on all spaces inside the split tokens
-	char	**trimmed_tokens = arr_trim(split_tokens, " ");
-	char	**expected_trimmed = (char *[]){"ls -l somedir", "cat -e", "wc -l", NULL};
+	char	**trimmed_tokens = arr_trim(split_tokens, WHITESPACE);
+	char	**expected_trimmed = (char *[]){"ls \n-l\r \tsomedir", "cat -e", "wc -l", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_trimmed, trimmed_tokens, 4);
 
-	char	**split_tokens_0 = split_outside_quotes(trimmed_tokens[0], ' ');
-	char	**split_tokens_1 = split_outside_quotes(trimmed_tokens[1], ' ');
-	char	**split_tokens_2 = split_outside_quotes(trimmed_tokens[2], ' ');
+	char	**split_tokens_0 = split_outside_quotes(trimmed_tokens[0], WHITESPACE);
+	char	**split_tokens_1 = split_outside_quotes(trimmed_tokens[1], WHITESPACE);
+	char	**split_tokens_2 = split_outside_quotes(trimmed_tokens[2], WHITESPACE);
 
 	TEST_ASSERT_NOT_NULL(split_tokens);
 	TEST_ASSERT_NOT_NULL(split_tokens_0);
@@ -85,7 +85,7 @@ void	test_add_string_array_as_tokens()
 	shell = (t_shell *) malloc(sizeof(t_shell));
 	shell->line = "ls -l somedir | cat -e | wc -l";
 	shell->owned_envp = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL};
-	char	**split_pipe_tokens = split_outside_quotes(shell->line, '|');
+	char	**split_pipe_tokens = split_outside_quotes(shell->line, "|");
 	shell->split_tokens = arr_trim(split_pipe_tokens, " ");// trim the spaces
 	add_pipe_split_as_tokens(shell->split_tokens, shell);
 	TEST_ASSERT_NOT_NULL(shell->token);
@@ -106,7 +106,7 @@ void	test_convert_string_array_to_tokens(void)
 	shell = (t_shell *) malloc(sizeof(t_shell));
 	char	*input = ft_strdup(" ls -l $somedir ' ' | cat -e | wc -l");
 
-	shell->split_pipes = split_outside_quotes(input, '|');
+	shell->split_pipes = split_outside_quotes(input, "|");
 	free(input);
 
 	// trim beforehand
@@ -178,11 +178,11 @@ t_shell	*support_test_tokens_as_input_execution(void)
 	shell = (t_shell *) malloc(sizeof(t_shell));
 	char	*input = ft_strdup(" ls -l $somedir ' ' | cat -e | wc -l");
 
-	shell->split_pipes = split_outside_quotes(input, '|');
+	shell->split_pipes = split_outside_quotes(input, "|");
 	free(input);
 
 	// trim beforehand
-	shell->split_tokens = arr_trim(shell->split_pipes, " ");
+	shell->split_tokens = arr_trim(shell->split_pipes, WHITESPACE);
 	arr_free(shell->split_pipes);
 	char	**expected = arr_dup((const char **)((char *[]){"ls -l $somedir ' '", "cat -e", "wc -l", NULL}));
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, shell->split_tokens, 4);
@@ -377,7 +377,7 @@ void	test_mock_convert_single_command_no_pipes(void) {
 t_token	*mock_lexer(t_shell *shell)
 {
 	// build tokens
-	shell->split_pipes = split_outside_quotes(shell->line, '|');
+	shell->split_pipes = split_outside_quotes(shell->line, "|");
 	if (!shell->split_pipes)
 		return (NULL);
 	add_pipe_split_as_tokens(shell->split_pipes, shell);
@@ -433,7 +433,7 @@ void	mock_builtin_info(t_token *token)
 
 void	test_builtin_info() {
 	char	*input = strdup("env | unset \"nopipes |\" | export hello | ls -l");
-	char	**tokens = split_outside_quotes(input, '|');
+	char	**tokens = split_outside_quotes(input, "|");
 	t_shell	*shell = support_test_tokens_input(input, (char *[]){"PATH=/usr/bin", "USER=me", NULL});
 
 	if (!tokens || !input)
@@ -447,6 +447,37 @@ void	test_builtin_info() {
 	TEST_ASSERT_EQUAL_INT(UNSET, shell->token[1].builtin_info);
 	TEST_ASSERT_EQUAL_INT(EXPORT, shell->token[2].builtin_info);
 	TEST_ASSERT_EQUAL_INT(NOT_BUILTIN, shell->token[3].builtin_info);
+	destroy_all_tokens(shell);
+	arr_free(shell->owned_envp);
+	arr_free(shell->split_tokens);
+	arr_free(tokens);
+	free(shell);
+}
+
+void	test_token_splitting() {
+	char	*input = strdup("env | unset \"nopipes |\" | export hello | ls -l");
+	char	**tokens = split_outside_quotes(input, "|");
+	t_shell	*shell = support_test_tokens_input(input, (char *[]){"PATH=/usr/bin", "USER=me", NULL});
+
+	if (!tokens || !input)
+		TEST_FAIL();
+	free(input);
+	char	*expected[] =
+		{"env ", " unset \"nopipes |\" ", " export hello ", " ls -l", NULL};
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 4);
+
+	char	***split_tokens = (char **[]){split_outside_quotes(tokens[0], WHITESPACE), split_outside_quotes(tokens[1], WHITESPACE), split_outside_quotes(tokens[2], WHITESPACE), split_outside_quotes(tokens[3], WHITESPACE), NULL};
+
+	// check if the split tokens are correct
+	char	*expected0[] = {"env", NULL};
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected0, split_tokens[0], 2);
+	char	*expected1[] = {"unset", "\"nopipes |\"", NULL};
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected1, split_tokens[1], 3);
+	char	*expected2[] = {"export", "hello", NULL};
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected2, split_tokens[2], 3);
+	char	*expected3[] = {"ls", "-l", NULL};
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected3, split_tokens[3], 3);
+
 	destroy_all_tokens(shell);
 	arr_free(shell->owned_envp);
 	arr_free(shell->split_tokens);
