@@ -31,7 +31,8 @@ int	export(t_shell *shell, t_token *token)
 		shell->tmp_arr = export_var(shell->owned_envp, *(token->command + 1));
 		if (!shell->tmp_arr)
 			return (-1);
-		arr_free(shell->owned_envp);
+		if (shell->owned_envp != shell->tmp_arr)
+			arr_free(shell->owned_envp);
 		shell->owned_envp = shell->tmp_arr;
 		shell->tmp_arr = NULL;
 		return (0);
