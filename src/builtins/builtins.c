@@ -1,22 +1,11 @@
 #include "struct.h"
 #include <stdbool.h>
 #include <sys/param.h>
-
-char	*occurs_exclusively(const char *, const char *);
-
-int		export(t_shell *shell, t_token *token);
-int		unset(char *cmd, char **args, char **envp);
-size_t	echo(char *cmd, char **args, char **envp);
-int		builtin_env(char **envp);
-char	**split_outside_quotes(const char *to_split, char c);
-void	add_pipe_split_as_tokens(char **pipe_split, t_shell *shell);
-void	convert_split_token_string_array_to_tokens(t_shell *shell);
-void	convert_tokens_to_string_array(t_token *token);
-void	destroy_all_tokens(t_shell *shell);
 #include <sys/wait.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include "builtins.h"
 
 /**
  * @brief
@@ -41,7 +30,6 @@ void	execute_commands(t_shell *shell, t_token *token)
 		waitpid(test, NULL, 0);
 }
 
-void	builtin_exit(t_shell *shell);
 // @follow-up parser needs to run before builtins in future,
 // pass in only command char **
 // need to add
@@ -77,8 +65,9 @@ int		builtin(t_shell *shell, t_token *token)
 	}
 	if (occurs_exclusively("env", token->command[0]))
 		return (builtin_env(shell->owned_envp));
+	if (occurs_exclusively("cd", token->command[0]))
+		return (builtin_cd(token->command, shell->owned_envp));
 	// printf("builtin not found: running exec!\n");
 	execute_commands(shell, token);
 	return (0);
 }
-

@@ -4,6 +4,7 @@
 #include "print_arr_sep.c"
 #include "occurs.c"
 #include "find_key.c"
+#include "str_utils.c"
 
 void	test_replace_key() {
 	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};
