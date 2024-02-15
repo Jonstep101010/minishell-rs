@@ -1,68 +1,75 @@
-#include "ft_printf.h"
-#include "minishell.h"
-#include "libft.h"
 #include "struct.h"
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <unistd.h>
 
-#include "../src/signals/msh_signals.h"
-#include "../src/builtins/builtins.h"
-#include "../src/parser/parser.h"
+#include "msh_signals.h"
 
-void	core_functions(t_shell *shell);
+#include "minishell.h"
+#include "libft.h"
+#include <stdlib.h>
 
 void	minishell_loop(t_shell *shell)
 {
-	struct termios p_termios;
-
 	while (1)
 	{
-		check_signals(&p_termios);
-		shell->line = readline("minishell> ");
-		if (shell->line)
+		if (isatty(fileno(stdin)))
 		{
-			core_functions(shell);
+			get_tokens(shell);
+			if (shell->token)
+			{
+				builtin(shell, shell->token);
+				destroy_all_tokens(shell);
+			}
+			// else if (shell->exit_status == 2)
+			// 	continue;
+			// // does quitting using ctrl_d cause leaks?
+			else
+				return ;
 		}
-		// does quitting using ctrl_d cause leaks?
 		else
-			return ;
+		{
+			char *line;
+			line = get_next_line(fileno(stdin));
+			shell->line = ft_strtrim(line, "\n");
+			free(line);
+		}
 	}
 }
 
-void	core_functions(t_shell *shell)
-{
 
-	if (ft_strncmp(shell->line, "exit", 4) == 0 && ft_strlen(shell->line) == 4)
-		msh_exit(shell, 0);
-	else if (lexer(shell->line) == LEXER_SUCCESS)
-	{
-		// @todo modify parser to format correctly and return error codes
-		if (parser(shell) == -1)
-			msh_exit(shell, 1);
-		if (builtin(shell) == -1)
-			ft_printf("command is not a builtin/command not found\n");
-		// @todo executor
-		arr_free(shell->command);
-		add_history(shell->line);
-		free_null(shell->line);
-	}
-	else
-		ft_printf("invalid syntax\n");
-}
-
-int main(int ac, char **av, char **envp)
+int main(int ac, char **av, const char **envp)
 {
 	t_shell		*shell;
 
 	(void)ac;
 	(void)av;
-	shell = (t_shell *) ft_calloc(1, sizeof(t_shell));
-	shell->owned_envp = arr_dup((const char **)envp);
-	if (!shell->owned_envp)
-		exit(1);
-	if (lexer("echo Hello, World!") != LEXER_SUCCESS)
-		ft_printf("lexer does not work\n");
+	// if (ac > 1 || av[1])
+	// 	return (printf("do not pass arguments\n"), 1);
+	shell = init_shell(envp);
+	if (!shell)
+		return (1);
 	minishell_loop(shell);
 	return (0);
+}
+
+t_token	*lexer(t_shell *shell);
+
+#include "utils.h"
+#include "builtins.h"
+void	get_tokens(t_shell *shell)
+{
+	shell->line = readline("minishell> ");
+	if (shell->line && *shell->line)
+	{
+		check_signals(&(shell->p_termios));
+		if (occurs_exclusively("exit", shell->line))
+			return (builtin_exit(shell, 0));
+		add_history(shell->line);
+		shell->token = lexer(shell);
+		if (!shell->token)
+			return ;// some exit code
+		// handle exit code for failed parsing/lexical errors
+		free(shell->line);
+	}
 }

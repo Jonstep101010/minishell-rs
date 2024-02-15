@@ -48,5 +48,3 @@ void	ctrl_c_handler(int sig, siginfo_t *info, void *unused)
 		rl_redisplay();
 	}
 }
-
-

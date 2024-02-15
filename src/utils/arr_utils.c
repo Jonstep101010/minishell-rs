@@ -3,14 +3,7 @@
 #include <stddef.h>
 #include "utils.h"
 
-/**
- * @brief returns copy with new item added, frees old
- *
- * @param arr heap-allocated 2d array
- * @param s possibly stack allocated string
- * @return char** copy with new element
- */
-char	**append_str_arr(char **arr, const char *s)
+char	**append_str_arr(const char **arr, const char *s)
 {
 	size_t	len;
 	size_t	i;
@@ -18,19 +11,14 @@ char	**append_str_arr(char **arr, const char *s)
 
 	if (!s || !*s)
 		return (NULL);
-	len = 0;
-	ft_printf("append to arr:\n");
-	print_arr(arr);
-	if (arr)
-		len = arr_len((const char **)arr);
-	ft_printf("len of appended array: %zu", len);
+	len = arr_len((const char **)arr);
 	ret = (char **) ft_calloc(len + 2, sizeof(char *));
 	if (!ret)
-		return (NULL);
+		return (NULL);// leave original array intact
 	i = 0;
-	while (arr && arr[i])
+	while (arr && arr[i] && i <= len)
 	{
-		ret[i] = arr[i];
+		ret[i] = ft_strdup(arr[i]);// duplicate instead
 		if (!ret[i])
 		{
 			arr_free(ret);
@@ -40,10 +28,9 @@ char	**append_str_arr(char **arr, const char *s)
 	}
 	ret[i] = ft_strdup(s);
 	if (!ret[i])
-		return (NULL);
-	ft_printf("appended: ret\n");
-	print_arr(ret);
-	free(arr);
+		return (arr_free(ret), NULL);
+	// printf("%zu(len)", len + 2);
+	// print_arr_sep(ret, '{', '}');
 	return (ret);
 }
 
@@ -71,4 +58,47 @@ void	rm_str_arr(char **arr, const char *s)
 		}
 		i++;
 	}
+}
+
+char	**arr_trim(char **arr, char const *set)
+{
+	size_t	i;
+	size_t	len;
+	char	**ret;
+
+	if (!arr)
+		return (NULL);
+	if (!set)
+		return (arr);
+	i = 0;
+	len = arr_len((const char **)arr);
+	ret = malloc(sizeof(char *) * (len + 1));
+	if (!ret)
+		return (NULL);
+	while (arr[i])
+	{
+		ret[i] = ft_strtrim(arr[i], set);
+		i++;
+	}
+	ret[i] = NULL;
+	return (ret);
+}
+
+int	arr_ncmp(const char **arr1, const char **arr2, size_t n)
+{
+	size_t	i;
+
+	i = 0;
+	if (!arr1 || !arr2)
+		return (1);
+	while (n-- > 0)
+	{
+		if (ft_strlen(arr1[i]) != ft_strlen(arr2[i])
+			|| ft_strncmp(arr1[i], arr2[i], ft_strlen(arr1[i])) != 0)
+				return (1);
+		i++;
+	}
+	if (arr1[i] || arr2[i])
+		return (1);
+	return (0);
 }

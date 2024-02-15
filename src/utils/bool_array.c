@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stddef.h>
 #include "libft.h"
 
 bool	*bool_arr_zeroing(size_t len)

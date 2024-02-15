@@ -30,6 +30,7 @@
     - +:test/parser/
     - +:test/utils/
     - +:test/env/
+    - +:test/tokens/
   :source:
     - +:src/*
     - +:include/libft/src/arr/
@@ -55,6 +56,7 @@
   :test:
     - *common_defines
     - TEST
+    - DEBUG
   :test_preprocess:
     - *common_defines
     - TEST
@@ -82,12 +84,13 @@
     :name: 'clang test compiler'
     :arguments:
       - -c ${1}
-      - -g
+      - -g3
       - -Wall
       - -Wextra
       - -Werror
       - -I"$": COLLECTION_PATHS_TEST_SUPPORT_SOURCE_INCLUDE_VENDOR
       - -MMD -MP
+      - -DDEBUG
       - -o ${2}
   :test_linker:
     :executable: clang
@@ -108,6 +111,7 @@
       - -I"$": COLLECTION_PATHS_TEST_SUPPORT_SOURCE_INCLUDE_VENDOR
       - -I"$": COLLECTION_PATHS_TEST_TOOLCHAIN_INCLUDE
       - -MMD -MP
+      - -DDEBUG
       - -c ${1}
       - -o ${2}
   :release_linker:

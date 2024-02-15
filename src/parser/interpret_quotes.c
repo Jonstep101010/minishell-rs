@@ -1,11 +1,11 @@
 #include "libft.h"
 #include <stddef.h>
-#include "utils.h"
 
 /**
  * only keeps if nested and not same as outer
+ * make this work with tokens? @audit
  */
-static void	*do_quote_bs(const char *s, int *quote)
+void	*do_quote_bs(const char *s, int *quote)
 {
 	char	*tmp;
 	size_t	len;
@@ -40,9 +40,12 @@ bool	interpret_quotes(char **cmd_arr)
 
 	i = 0;
 	quote = 0;
+	if (!cmd_arr)
+		return (true);
 	while (cmd_arr[i])
 	{
-		if (str_cchr(cmd_arr[i], '\'') != 0 || str_cchr(cmd_arr[i], '"') != 0)
+		if (str_cchr(cmd_arr[i], '\'') != 0
+			|| str_cchr(cmd_arr[i], '"') != 0)
 		{
 			tmp = do_quote_bs(cmd_arr[i], &quote);
 			if (!tmp)
