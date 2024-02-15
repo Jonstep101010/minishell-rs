@@ -3,6 +3,7 @@
 #include "tokens.h"
 #include "utils.h"
 #include "struct.h"
+
 t_arg	*init_cmdargs(size_t size)
 {
 	t_arg	*args;
@@ -85,7 +86,7 @@ void	convert_split_token_string_array_to_tokens(t_shell *shell)
 	while (shell->token[i].split_pipes)
 	{
 		// split into command and arguments
-		shell->token[i].tmp_arr = split_outside_quotes(shell->token[i].split_pipes, ' ');
+		shell->token[i].tmp_arr = split_outside_quotes(shell->token[i].split_pipes, WHITESPACE);
 		if (!shell->token[i].tmp_arr)
 			return ;
 		len = arr_len((const char **)shell->token[i].tmp_arr);
@@ -121,8 +122,8 @@ void	convert_split_token_string_array_to_tokens(t_shell *shell)
 					return ;
 				if (ft_strncmp(tmp, shell->token[i].cmd_args[ii].elem, ft_strlen(tmp)) == 0)
 				{
-					printf("recursive expansion is the same as the original, freeing\n");
-					printf("reex: %s\n", shell->token[i].cmd_args[ii].elem);
+					// printf("recursive expansion is the same as the original, freeing\n");
+					// printf("reex: %s\n", shell->token[i].cmd_args[ii].elem);
 					free(tmp);
 					break ;
 				}

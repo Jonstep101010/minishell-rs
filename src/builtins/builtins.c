@@ -1,4 +1,3 @@
-#include "libft.h"
 #include "struct.h"
 #include <stdbool.h>
 #include <sys/param.h>
@@ -15,8 +14,16 @@ void	convert_split_token_string_array_to_tokens(t_shell *shell);
 void	convert_tokens_to_string_array(t_token *token);
 void	destroy_all_tokens(t_shell *shell);
 #include <sys/wait.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
 
-// atm only works for execution of one command
+/**
+ * @brief
+ * @audit atm only works for execution of one command (forbidden function)
+ * @param shell
+ * @param token pointer to element in array of tokens
+ */
 void	execute_commands(t_shell *shell, t_token *token)
 {
 	pid_t test = -1;
@@ -24,8 +31,9 @@ void	execute_commands(t_shell *shell, t_token *token)
 		test = fork();
 	if (test == 0)
 	{
-		if (execvp(token->cmd_args[0].elem, token->command) == -1)
-			printf("command not found\n");
+		// if (execvp(token->cmd_args[0].elem, token->command) == -1)
+		// 	printf("command not found\n");
+		execvp(token->cmd_args[0].elem, token->command);
 		destroy_all_tokens(shell);
 		exit(0);
 	}
@@ -44,7 +52,7 @@ int		builtin(t_shell *shell, t_token *token)
 	convert_tokens_to_string_array(shell->token);
 	char	buf[MAXPATHLEN + 1];
 
-	printf("my builtins:\n");
+	// printf("my builtins:\n");
 	if (!token || !token->command || !*token->command)
 		return (-1);
 	// if (!shell->owned_envp || !*(shell->owned_envp))
@@ -69,7 +77,7 @@ int		builtin(t_shell *shell, t_token *token)
 	}
 	if (occurs_exclusively("env", token->command[0]))
 		return (builtin_env(shell->owned_envp));
-	printf("builtin not found: running exec!\n");
+	// printf("builtin not found: running exec!\n");
 	execute_commands(shell, token);
 	return (0);
 }

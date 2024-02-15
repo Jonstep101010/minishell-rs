@@ -2,6 +2,10 @@
 # define TOKENS_H
 typedef struct s_token	t_token;
 
+# ifndef WHITESPACE
+#  define WHITESPACE " \t\n\r\v\f"
+# endif
+
 enum e_arg
 {
 	STRING,

@@ -4,11 +4,13 @@
 char	*occurs(const char *big, const char *little);
 char	*occurs_exclusively(const char *expected, const char *actual);
 
-char	**split_outside_quotes(const char *to_split, char c);
+char	**split_outside_quotes(const char *to_split, const char *set);
 void	print_arr_sep(char **arr, char sep_open, char sep_close);
 char	**append_str_arr(const char **arr, const char *s);
 void	rm_str_arr(char **arr, const char *s);
 char	**arr_trim(char **arr, char const *set);
+
+void	update_variable(char **envp, const char *key, const char *value);
 
 # include <stddef.h>
 int		arr_ncmp(const char **arr1, const char **arr2, size_t n);

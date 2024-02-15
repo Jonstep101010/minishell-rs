@@ -13,6 +13,10 @@
 #define TOKENS_H
 #define STRUCT_H
 
+#ifndef WHITESPACE
+# define WHITESPACE " \t\n\r\v\f"
+#endif
+
 typedef struct s_token	t_token;
 
 enum e_arg
@@ -124,7 +128,7 @@ void	mock_convert_split_token_string_array_to_tokens(t_shell *shell)
 	while (shell->token[i].split_pipes)
 	{
 		// split into command and arguments
-		shell->token[i].tmp_arr = split_outside_quotes(shell->token[i].split_pipes, ' ');
+		shell->token[i].tmp_arr = split_outside_quotes(shell->token[i].split_pipes, WHITESPACE);
 		if (!shell->token[i].tmp_arr)
 			return ;
 		len = arr_len((const char **)shell->token[i].tmp_arr);
@@ -180,11 +184,11 @@ t_shell	*support_test_tokens_input(char *line, char **envp)
 	shell = (t_shell *) malloc(sizeof(t_shell));
 	char	*input = ft_strdup(line);
 
-	shell->split_pipes = split_outside_quotes(input, '|');
+	shell->split_pipes = split_outside_quotes(input, "|");
 	free(input);
 
 	// trim beforehand
-	shell->split_tokens = arr_trim(shell->split_pipes, " ");
+	shell->split_tokens = arr_trim(shell->split_pipes, WHITESPACE);
 	arr_free(shell->split_pipes);
 	shell->owned_envp = arr_dup((const char **)envp);
 

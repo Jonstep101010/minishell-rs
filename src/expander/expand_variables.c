@@ -35,7 +35,7 @@ static char *replacer(t_expander *x, const char **envp)
 		free(x->line);
 		if (!x->remainder_line)
 			return (x->ret);
-		printf("remainder: %s\n", x->remainder_line);
+		// printf("remainder: %s\n", x->remainder_line);
 		x->tmp = ft_strjoin(x->ret, x->remainder_line);
 		free(x->remainder_line);
 		free(x->ret);
@@ -72,11 +72,14 @@ static char	*check_line(t_expander *x, const char **envp)
 		else if (x->line[x->i] == '\'' && x->singlequote == x->line[x->i])
 			x->singlequote = 0;
 		else if (x->line[x->i] && x->line[x->i + 1] && x->line[x->i] == '$'
-			&& x->singlequote == 0 && is_valid_key(x->line[x->i + 1]))
+			&& x->singlequote == 0 && (is_valid_key(x->line[x->i + 1]) || x->line[x->i + 1] == '?'))
 		{
 			x->i++;
 			x->start = x->i;
-			while (x->line[x->i] && is_valid_key(x->line[x->i]))
+			if (x->line[x->i] != '?')
+				while (x->line[x->i] && is_valid_key(x->line[x->i]))
+					x->i++;
+			else
 				x->i++;
 			if (x->start == x->i)
 				continue;

@@ -7,7 +7,7 @@ int	builtin_env(char **envp)
 	int	i = 0;
 	if (!envp || !*(envp))
 	{
-		printf("fatal error\n");
+		// printf("fatal error\n");
 		return (1);
 	}
 	while (envp[i + 1])
