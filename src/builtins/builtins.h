@@ -7,7 +7,7 @@ int		builtin_cd(char **cmd_args, char **envp);
 char	*occurs_exclusively(const char *, const char *);
 
 int		export(t_shell *shell, t_token *token);
-int		unset(char *cmd, char **args, char **envp);
+int		unset(const char **args, char **envp);
 size_t	echo(char *cmd, char **args, char **envp);
 void	builtin_exit(t_shell *shell, int exitcode);
 int		builtin_env(char **envp);

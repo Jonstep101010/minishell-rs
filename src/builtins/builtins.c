@@ -47,13 +47,8 @@ int		builtin(t_shell *shell, t_token *token)
 	// 	return (-1);
 	if (occurs_exclusively("echo", *token->command))
 		return (echo(*token->command, token->command, shell->owned_envp));
-	if (occurs_exclusively("unset", *token->command)
-		&& token->command[1] && shell->owned_envp)
-	{
-		if (unset(token->command[0], token->command, shell->owned_envp) != 0)
-			return (-1);
-		return (0);
-	}
+	if (occurs_exclusively("unset", *token->command) && shell->owned_envp)
+		return (unset((const char **)token->command, shell->owned_envp));
 	if (occurs_exclusively("export", token->command[0]))
 		return (export(shell, token));
 	if (occurs_exclusively("pwd", token->command[0]))

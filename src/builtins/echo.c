@@ -33,7 +33,7 @@ static int	echo_default(const char **cmd_arr, size_t writelen)
 	return (0);
 }
 
-size_t	echo(const char *cmd, const char **args, const char **envp)
+int	echo(const char *cmd, const char **args, const char **envp)
 {
 	(void)cmd;
 	(void)envp;
