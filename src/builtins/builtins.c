@@ -38,9 +38,7 @@ int		builtin(t_shell *shell, t_token *token)
 	if (!token)
 		return (-1);
 	convert_tokens_to_string_array(shell->token);
-	char	buf[MAXPATHLEN + 1];
 
-	// printf("my builtins:\n");
 	if (!token || !token->command || !*token->command)
 		return (-1);
 	// if (!shell->owned_envp || !*(shell->owned_envp))
@@ -59,15 +57,12 @@ int		builtin(t_shell *shell, t_token *token)
 	if (occurs_exclusively("export", token->command[0]))
 		return (export(shell, token));
 	if (occurs_exclusively("pwd", token->command[0]))
-	{
-		getcwd(buf, MAXPATHLEN);
-		return (printf("%s\n", buf));
-	}
+		return (builtin_pwd((const char **)shell->owned_envp));
 	if (occurs_exclusively("env", token->command[0]))
 		return (builtin_env(shell->owned_envp));
 	if (occurs_exclusively("cd", token->command[0]))
 		return (builtin_cd(token->command, shell->owned_envp));
-	// printf("builtin not found: running exec!\n");
+	printf("builtin not found: running exec!\n");
 	execute_commands(shell, token);
 	return (0);
 }
