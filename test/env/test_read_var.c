@@ -8,6 +8,7 @@
 #include "../include/libft/src/string/str_cchr.c"
 #include "print_arr_sep.c"
 #include "export_var.c"
+#include "str_utils.c"
 
 void	test_read_returns_correct() {
 	char	*env[] = {"not=looking", "maybe=?looking", "key=forsure", "notmine=(null)", NULL};

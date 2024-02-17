@@ -23,8 +23,7 @@ void	update_variable(char **envp, const char *key, const char *value)
 	tmp = ft_strjoin(key, "=");
 	if (!tmp)
 		return ;
-	key_value = ft_strjoin(tmp, value);
-	free(tmp);
+	key_value = free_first_join(tmp, value);
 	if (!key_value)
 		return ;
 	free(envp[index]);

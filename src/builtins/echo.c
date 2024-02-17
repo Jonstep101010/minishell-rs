@@ -9,7 +9,7 @@ static int	is_n_arg(const char *arg)
 	return (0);
 }
 
-static int	echo_default(char **cmd_arr, size_t writelen)
+static int	echo_default(const char **cmd_arr, size_t writelen)
 {
 	size_t	n_args;
 	size_t	len;
@@ -33,19 +33,15 @@ static int	echo_default(char **cmd_arr, size_t writelen)
 	return (0);
 }
 
-size_t	echo(const char *cmd, char **args, char **envp)
+int	echo(const char *cmd, const char **args, const char **envp)
 {
 	(void)cmd;
 	(void)envp;
-	// print_arr(args + 2);
-	// printf("echo builtin gets called\n");
 	if (!args || !*args)
-		return (write(1, "\n", 1));
-	if (!occurs_exclusively("echo", *args))
-		return (0);
+		return (write(1, "\n", 1), 0);
 	if (occurs(*(args + 1), "-n")
 		&& ft_strncmp(*(args + 1), "-n", 2) == 0)
-			return (echo_default(args + 1, 1));
+			return (echo_default(args + 1, 1), 0);
 	echo_default(&args[1], 0);
 	write(1, "\n", 1);
 	return (0);

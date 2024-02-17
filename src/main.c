@@ -18,7 +18,7 @@ void	minishell_loop(t_shell *shell)
 			get_tokens(shell);
 			if (shell->token)
 			{
-				builtin(shell, shell->token);
+				update_exit_status(shell, builtin(shell, shell->token));
 				destroy_all_tokens(shell);
 			}
 			// else if (shell->exit_status == 2)
