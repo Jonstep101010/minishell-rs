@@ -9,7 +9,7 @@ char	**append_str_arr(const char **arr, const char *s)
 	size_t	i;
 	char	**ret;
 
-	if (!s || !*s)
+	if (!s)
 		return (NULL);
 	len = arr_len((const char **)arr);
 	ret = (char **) ft_calloc(len + 2, sizeof(char *));

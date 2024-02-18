@@ -6,6 +6,9 @@
 #include "support_parser.h"
 #include "build_tokens.c"
 #include "expand_variables.c"
+#include "expander.c"
+#include "join_strings.c"
+#include "check_key.c"
 
 void	test_find_leaks() {
 	char	*input = strdup("echo | \"nopipes |\" | echo hello");

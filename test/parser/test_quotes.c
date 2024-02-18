@@ -4,6 +4,9 @@
 #include "checks_basic.c"
 #include "build_tokens.c"
 #include "expand_variables.c"
+#include "join_strings.c"
+#include "expander.c"
+#include "check_key.c"
 
 void	test_nested_one() {
 	// "'"'"'test'"'"'"

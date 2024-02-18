@@ -96,7 +96,7 @@ static char	*check_line(t_expander *x, const char **envp)
 
 // @follow-up handle in parentheses
 /* @todo correct behaviour with quotes (pass in from top, same in recursion (shared state))*/
-char	*expand_variables(const char *input, const char **envp)
+char	*expand_variables_old(const char *input, const char **envp)
 {
 	t_expander	x;
 
@@ -105,3 +105,4 @@ char	*expand_variables(const char *input, const char **envp)
 	x.line = ft_strdup(input);
 	return (check_line(&x, envp));
 }
+
