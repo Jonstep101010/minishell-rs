@@ -5,16 +5,15 @@
 #include <unistd.h>
 #include "tokens.h"
 
+int	export_env(const char **envp);
+
 int	export(t_shell *shell, t_token *token)
 {
 	size_t	i;
 
 	i = 1;
 	if (!token->command[i])
-	{
-		// @todo handle export without arguments?
-		return (0);
-	}
+		return (export_env((const char **)shell->owned_envp));
 	while (token->command[i])
 	{
 		if (!check_valid_key(token->command[i])

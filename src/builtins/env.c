@@ -1,6 +1,17 @@
-#include "utils.h"
-#include "libft.h"
-#include <stddef.h>
+#include <stdio.h>
+
+int	export_env(const char **envp)
+{
+	int	i;
+
+	i = 0;
+	while (envp[i])
+	{
+		printf("declare -x %s\n", envp[i]);
+		i++;
+	}
+	return (0);
+}
 
 int	builtin_env(char **envp)
 {
@@ -10,10 +21,10 @@ int	builtin_env(char **envp)
 		// printf("fatal error\n");
 		return (1);
 	}
-	while (envp[i + 1])
+	while (envp[i])
 	{
 		printf("%s\n", envp[i]);
 		i++;
 	}
-	return ((void)printf("%s\n", envp[i]), 0);
+	return (0);
 }
