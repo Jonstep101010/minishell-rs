@@ -5,7 +5,7 @@
 #include "occurs.c"
 #include "find_key.c"
 #include "str_utils.c"
-#include "join_strings.c"
+#include "free_strjoin.c"
 
 void	test_replace_key() {
 	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};

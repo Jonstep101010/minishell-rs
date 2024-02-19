@@ -5,7 +5,7 @@
 #include "arr_utils.c"
 #include "check_key.c"
 #include "occurs.c"
-#include "join_strings.c"
+#include "free_strjoin.c"
 
 void	test_remove_key_value() {
 	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};

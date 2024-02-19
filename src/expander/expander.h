@@ -1,6 +1,6 @@
 #ifndef EXPANDER_H
 # define EXPANDER_H
 
-char	*expand_variables(const char *input, const char **envp);
+char	*expander(const char *input_expander, const char **envp);
 
 #endif

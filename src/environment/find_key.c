@@ -50,7 +50,7 @@ int	find_key_env(const char **arr, const char *s, size_t (*f)(const char *s))
 // get value of key
 // use index, then trim off key
 // NULL on error or key not found (then caller should not replace)
-char	*get_var_val(const char **arr, const char *key)
+char	*get_env_var(const char **arr, const char *key)
 {
 	int		index;
 	char	*key_eq;
@@ -75,7 +75,7 @@ char	*get_var_val(const char **arr, const char *key)
 	return (NULL);
 }
 
-char	*join_strings_free(int count, ...);
+char	*free_strjoin(int count, ...);
 
 /**
  * @brief replace expandable variable with its value
@@ -85,7 +85,7 @@ char	*join_strings_free(int count, ...);
  * @param envp {"KEY=VALUE", NULL}
  * @return char* VALUEsomething
  */
-char	*expand_in_string(const char *input, const char **envp)
+char	*expand_var(const char *input, const char **envp)
 {
 	size_t	i;
 	char	*tmp;
@@ -96,26 +96,25 @@ char	*expand_in_string(const char *input, const char **envp)
 		return (NULL);
 	if (*input != '$')
 		return (ft_strdup(input));
-	i = get_len_until(&input[1], '$') + 1;
+	i = get_len_until(&input[1], '$') + 2;
 	// fprintf(stderr, "i: %zu\n", i);
 	// for (size_t j = 0; j < i; j++)
 		// fprintf(stderr, "%c", input[j]);
 	// fprintf(stderr, "\n");
-	while (i > 0)
+	while (i > 2 && --i)
 	{
 		tmp = ft_substr(input, 1, i - 1);
 		// fprintf(stderr, "tmp: %s\n", tmp);
-		fprintf(stderr, "input: %s\n", &input[1]);
-		val = get_var_val(envp, tmp);
+		// fprintf(stderr, "input: %s\n", tmp);
+		val = get_env_var(envp, tmp);
 		// fprintf(stderr, "val: %s\n", val);
 		free(tmp);
 		if (val)
 		{
 			remainder = ft_substr(input, i, ft_strlen(input));
-			// fprintf(stderr, "joined: '%s'\n", join_strings_free(2, val, remainder));
-			return (join_strings_free(2, val, remainder));
+			// fprintf(stderr, "joined: '%s'\n", free_strjoin(2, val, remainder));
+			return (free_strjoin(2, val, remainder));
 		}
-		i--;
 	}
 	return (ft_strdup(""));
 }

@@ -8,7 +8,7 @@
 #include "find_key.c"
 #include "print_arr_sep.c"
 #include "occurs.c"
-#include "expand_variables.c"
+#include "expander.c"
 
 #define TOKENS_H
 #define STRUCT_H
@@ -154,7 +154,7 @@ void	mock_convert_split_token_string_array_to_tokens(t_shell *shell)
 				shell->token[i].cmd_args[ii].quote = SINGLE;
 			while (str_cchr(shell->token[i].cmd_args[ii].elem, '$'))
 			{
-				tmp = expand_variables(shell->token[i].cmd_args[ii].elem, (const char **)shell->owned_envp);
+				tmp = expander(shell->token[i].cmd_args[ii].elem, (const char **)shell->owned_envp);
 				if (!tmp)
 					return ;
 				if (ft_strncmp(tmp, shell->token[i].cmd_args[ii].elem, ft_strlen(tmp)) == 0)

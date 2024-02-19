@@ -1,4 +1,4 @@
-#include "join_strings.c"
+#include "free_strjoin.c"
 #include "unity.h"
 #include <string.h>
 
@@ -7,7 +7,7 @@ void test_join_multiple_strings() {
 	char	*s2 = strdup("world");
 	char	*s3 = strdup("!");
 
-	char	*joined = join_strings_free(3, s1, s2, s3);
+	char	*joined = free_strjoin(3, s1, s2, s3);
 
 	TEST_ASSERT_EQUAL_STRING("helloworld!", joined);
 	free(joined);
@@ -18,7 +18,7 @@ void test_join_null() {
 	char	*s2 = strdup("world");
 	char	*s3 = NULL;
 
-	char	*joined = join_strings_free(3, s1, s2, s3);
+	char	*joined = free_strjoin(3, s1, s2, s3);
 
 	TEST_ASSERT_EQUAL_STRING(NULL, joined);
 }
@@ -28,7 +28,7 @@ void test_join_null_two() {
 	char	*s2 = strdup("world");
 	char	*s3 = NULL;
 
-	char	*joined = join_strings_free(3, s1, s2, s3);
+	char	*joined = free_strjoin(3, s1, s2, s3);
 
 	TEST_ASSERT_EQUAL_STRING(NULL, joined);
 }
@@ -38,7 +38,7 @@ void test_join_null_three() {
 	char	*s2 = strdup("world");
 	char	*s3 = NULL;
 
-	char	*joined = join_strings_free(3, s1, s2, s3);
+	char	*joined = free_strjoin(3, s1, s2, s3);
 
 	TEST_ASSERT_EQUAL_STRING(NULL, joined);
 }
@@ -48,7 +48,7 @@ void test_join_null_four() {
 	char	*s2 = strdup("world");
 	char	*s3 = strdup("!");
 
-	char	*joined = join_strings_free(3, s1, s2, s3);
+	char	*joined = free_strjoin(3, s1, s2, s3);
 
 	TEST_ASSERT_EQUAL_STRING(NULL, joined);
 }

@@ -73,8 +73,6 @@ char	*expander(const char *input, const char **envp);
 
 // take the token with command string and split it into command and arguments
 // if we find any pipes
-char	*expand_variables(const char *input, const char **envp);
-char	*expand_variables_old(const char *input, const char **envp);
 void	convert_split_token_string_array_to_tokens(t_shell *shell)
 {
 	size_t	i;
@@ -116,7 +114,7 @@ void	convert_split_token_string_array_to_tokens(t_shell *shell)
 			if (str_cchr(shell->token[i].cmd_args[ii].elem, '\''))
 				shell->token[i].cmd_args[ii].quote = SINGLE;
 			tmp = expander(shell->token[i].cmd_args[ii].elem, (const char **)shell->owned_envp);
-			fprintf(stderr, "tmp in convert: %s\n", tmp);
+			// fprintf(stderr, "tmp in convert: %s\n", tmp);
 			if (!tmp)
 				return ;
 			if (ft_strncmp(tmp, shell->token[i].cmd_args[ii].elem, MAX(ft_strlen(tmp), ft_strlen(shell->token[i].cmd_args[ii].elem))== 0))

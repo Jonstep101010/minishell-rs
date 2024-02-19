@@ -44,10 +44,10 @@ void	update_exit_status(t_shell *shell, int status)
 	if (!new_status)
 		return ;
 	shell->tmp_arr = export_var(shell->owned_envp, new_status);
+	free(new_status);
 	if (!shell->tmp_arr)
 	{
 		free(status_str);
-		free(new_status);
 		return ;
 	}
 }

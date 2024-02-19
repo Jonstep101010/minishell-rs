@@ -11,13 +11,13 @@
 #include "export.c"
 #include "check_key.c"
 #include "env.c"
-#include "join_strings.c"
+#include "free_strjoin.c"
 #include "utils.h"
 
 void	test_read_returns_correct() {
 	char	*env[] = {"not=looking", "maybe=?looking", "key=forsure", "notmine=(null)", NULL};
 	char	**expected = arr_dup((const char **)env);
-	char	*ret = get_var_val((const char **)expected, "key");
+	char	*ret = get_env_var((const char **)expected, "key");
 	TEST_ASSERT_EQUAL_STRING("forsure", ret);
 	arr_free(expected);
 	free(ret);
@@ -26,59 +26,59 @@ void	test_read_returns_correct() {
 void	test_read_returns_correct_two() {
 	char	*env[] = {"not=looking", "maybe=?looking", "key=forsure", "notmine=(null)", NULL};
 	char	**expected = arr_dup((const char **)env);
-	char	*ret = expand_in_string("ke", (const char **)expected);
+	char	*ret = expand_var("ke", (const char **)expected);
 	TEST_ASSERT_EQUAL_STRING("ke", ret);
 	free(ret);
-	ret = expand_in_string("$ke", (const char **)expected);
+	ret = expand_var("$ke", (const char **)expected);
 	TEST_ASSERT_EQUAL_STRING("", ret);
 	free(ret);
-	ret = expand_in_string("$key", (const char **)expected);
+	ret = expand_var("$key", (const char **)expected);
 	TEST_ASSERT_EQUAL_STRING("forsure", ret);
 	arr_free(expected);
 	free(ret);
 }
 
-void	test_expand_in_string() {
+void	test_expand_var() {
 	char	*env[] = {"not=looking", "maybe=?looking", "key=forsure", "notmine=(null)", NULL};
-	char	*ret = expand_in_string("$keylong", (const char **)env);
+	char	*ret = expand_var("$keylong", (const char **)env);
 	TEST_ASSERT_EQUAL_STRING("forsurelong", ret);
 
 	free(ret);
 }
 
-void	test_expand_in_string_dollarsign() {
+void	test_expand_var_dollarsign() {
 	char	*env[] = {"not=looking", "maybe=?looking", "key=forsure", "notmine=(null)", NULL};
-	char	*ret = expand_in_string("$keyl$ong", (const char **)env);
+	char	*ret = expand_var("$keyl$ong", (const char **)env);
 	TEST_ASSERT_EQUAL_STRING("forsurel$ong", ret);
 
 	free(ret);
 }
 
-void	test_expand_in_string_prefix_dollarsign() {
+void	test_expand_var_prefix_dollarsign() {
 	char	*env[] = {"not=looking", "maybe=?looking", "key=forsure", "notmine=(null)", NULL};
-	char	*ret = expand_in_string("$keylong", (const char **)env);
+	char	*ret = expand_var("$keylong", (const char **)env);
 	TEST_ASSERT_EQUAL_STRING("forsurelong", ret);
 
 	free(ret);
 }
 
-void	test_expand_in_string_prefix_no_match() {
+void	test_expand_var_prefix_no_match() {
 	char	*env[] = {"not=looking", "maybe=?looking", "key=forsure", "notmine=(null)", NULL};
-	char	*ret = expand_in_string("$ke", (const char **)env);
+	char	*ret = expand_var("$ke", (const char **)env);
 	TEST_ASSERT_EQUAL_STRING("", ret);
 	free(ret);
 }
 
-void	test_expand_in_string_prefix_dollarsign_null() {
+void	test_expand_var_prefix_dollarsign_null() {
 	char	*env[] = {"not=looking", "maybe=?looking", "key=forsure", "notmine=(null)", NULL};
-	char	*ret = expand_in_string("$key$", (const char **)env);
+	char	*ret = expand_var("$key$", (const char **)env);
 	TEST_ASSERT_EQUAL_STRING("forsure$", ret);
 	free(ret);
 }
 
-// void	test_expand_in_string_prefix_multiple() {
+// void	test_expand_var_prefix_multiple() {
 // 	char	*env[] = {"not=looking", "maybe=?looking", "key=forsure", "notmine=(null)", NULL};
-// 	char	*ret = expand_in_string("$$key$notmine", (const char **)env);
+// 	char	*ret = expand_var("$$key$notmine", (const char **)env);
 // 	TEST_ASSERT_EQUAL_STRING("$$forsure$notmine", ret);
 // 	// trim off until non-expanded key
 // 	free(ret);

@@ -48,8 +48,8 @@ int	builtin_cd(char **cmd_args, char **envp)
 	char	*path;
 	char	*oldpwd;
 
-	path = get_var_val((const char **)envp, "HOME");
-	oldpwd = get_var_val((const char **)envp, "OLDPWD");
+	path = get_env_var((const char **)envp, "HOME");
+	oldpwd = get_env_var((const char **)envp, "OLDPWD");
 	if (!cmd_args[1] && !path)
 		return (dprintf(STDERR_FILENO, "minishell: cd: HOME not set\n"), 1);
 	if (!cmd_args[1] && path)

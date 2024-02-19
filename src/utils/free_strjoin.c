@@ -4,7 +4,20 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-void	free_n(int n, ...);
+void	free_n(int n, ...)
+{
+	va_list	args;
+	int		i;
+
+	va_start(args, n);
+	i = 0;
+	while (i < n)
+	{
+		free(va_arg(args, void *));
+		i++;
+	}
+	va_end(args);
+}
 
 /**
  * @brief requires heap-allocation
@@ -13,7 +26,7 @@ void	free_n(int n, ...);
  * @param ... strings to join
  * @return char* joined string
  */
-char	*join_strings_free(int count, ...)
+char	*free_strjoin(int count, ...)
 {
 	va_list	args;
 	char	*ret;
@@ -41,19 +54,3 @@ char	*join_strings_free(int count, ...)
 	}
 	return (va_end(args), ret);
 }
-
-void	free_n(int n, ...)
-{
-	va_list	args;
-	int		i;
-
-	va_start(args, n);
-	i = 0;
-	while (i < n)
-	{
-		free(va_arg(args, void *));
-		i++;
-	}
-	va_end(args);
-}
-
