@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <sys/param.h>
 #include "libft.h"
 #include "tokens.h"
 #include "utils.h"
@@ -68,10 +69,10 @@ void	builtin_info(t_token *token)
 		token->builtin_info = NOT_BUILTIN;
 }
 
-// @audit-info mod split_quotes to take a function pointer (for whitespace that can be space or tab)
+char	*expander(const char *input, const char **envp);
+
 // take the token with command string and split it into command and arguments
 // if we find any pipes
-char	*expand_variables(const char *input, const char **envp);
 void	convert_split_token_string_array_to_tokens(t_shell *shell)
 {
 	size_t	i;
@@ -112,24 +113,19 @@ void	convert_split_token_string_array_to_tokens(t_shell *shell)
 				shell->token[i].cmd_args[ii].quote = DOUBLE;
 			if (str_cchr(shell->token[i].cmd_args[ii].elem, '\''))
 				shell->token[i].cmd_args[ii].quote = SINGLE;
-			while (shell->token[i].builtin_info != ENV &&
-					shell->token[i].builtin_info != EXPORT &&
-					shell->token[i].builtin_info != UNSET &&
-				str_cchr(shell->token[i].cmd_args[ii].elem, '$'))
+			tmp = expander(shell->token[i].cmd_args[ii].elem, (const char **)shell->owned_envp);
+			// fprintf(stderr, "tmp in convert: %s\n", tmp);
+			if (!tmp)
+				return ;
+			if (ft_strncmp(tmp, shell->token[i].cmd_args[ii].elem, MAX(ft_strlen(tmp), ft_strlen(shell->token[i].cmd_args[ii].elem))== 0))
 			{
-				tmp = expand_variables(shell->token[i].cmd_args[ii].elem, (const char **)shell->owned_envp);
-				if (!tmp)
-					return ;
-				if (ft_strncmp(tmp, shell->token[i].cmd_args[ii].elem, ft_strlen(tmp)) == 0)
-				{
-					// printf("recursive expansion is the same as the original, freeing\n");
-					// printf("reex: %s\n", shell->token[i].cmd_args[ii].elem);
-					free(tmp);
-					break ;
-				}
-				free(shell->token[i].cmd_args[ii].elem);
-				shell->token[i].cmd_args[ii].elem = tmp;
+				// printf("recursive expansion is the same as the original, freeing\n");
+				// printf("reex: %s\n", shell->token[i].cmd_args[ii].elem);
+				free(tmp);
+				break ;
 			}
+			free(shell->token[i].cmd_args[ii].elem);
+			shell->token[i].cmd_args[ii].elem = tmp;
 			int quote = 0;
 			if (shell->token[i].cmd_args[ii].quote != NONE)
 			{

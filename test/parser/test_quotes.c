@@ -3,7 +3,9 @@
 #include "support_parser.h"
 #include "checks_basic.c"
 #include "build_tokens.c"
-#include "expand_variables.c"
+#include "free_strjoin.c"
+#include "expander.c"
+#include "check_key.c"
 
 void	test_nested_one() {
 	// "'"'"'test'"'"'"

@@ -5,6 +5,8 @@
 
 #include "print_arr_sep.c"
 
+#include "free_strjoin.c"
+
 void	test_get_key_len() {
 	char	*s = "KEY=val";
 	TEST_ASSERT_EQUAL(3, get_key_len(s));
@@ -38,5 +40,18 @@ void	test_find_key_error() {
 	TEST_ASSERT_EQUAL(-1, index);
 }
 
+void	test_get_len_until() {
+	char	*s = "hello=world";
+	TEST_ASSERT_EQUAL(5, get_len_until(s, '='));
 
+	char	*s2 = "$key$";
+	TEST_ASSERT_EQUAL(0, get_len_until(s2, '$'));
+	TEST_ASSERT_EQUAL(3, get_len_until(&s2[1], '$'));
 
+	// int i = 1;
+	// while (s2[i] && i <= 3)
+	// {
+	// 	printf("%c\n", s2[i]);
+	// 	i++;
+	// }
+}

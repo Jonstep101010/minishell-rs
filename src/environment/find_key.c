@@ -14,6 +14,18 @@ size_t	get_key_len(const char *s)
 	return (-1);
 }
 
+size_t	get_len_until(const char *s, char c)
+{
+	size_t	i;
+
+	i = 0;
+	if (!s)
+		return (0);
+	while (s[i] && s[i] != c)
+		i++;
+	return (i);
+}
+
 int	find_key_env(const char **arr, const char *s, size_t (*f)(const char *s))
 {
 	size_t	i;
@@ -38,7 +50,7 @@ int	find_key_env(const char **arr, const char *s, size_t (*f)(const char *s))
 // get value of key
 // use index, then trim off key
 // NULL on error or key not found (then caller should not replace)
-char	*get_var_val(const char **arr, const char *key)
+char	*get_env_var(const char **arr, const char *key)
 {
 	int		index;
 	char	*key_eq;
@@ -59,6 +71,50 @@ char	*get_var_val(const char **arr, const char *key)
 		if (!val)
 			return (NULL);
 		return (val);
+	}
+	return (NULL);
+}
+
+char	*free_strjoin(int count, ...);
+
+/**
+ * @brief replace expandable variable with its value
+ * @details check for valid key & null before calling, do not hand in without single $ at beginning, key does not have to exist, only single variable will be expanded
+ *
+ * @param input $KEYsomething
+ * @param envp {"KEY=VALUE", NULL}
+ * @return char* VALUEsomething
+ */
+char	*expand_var(const char *input, const char **envp)
+{
+	size_t	i;
+	char	*tmp;
+	char	*remainder;
+	char	*val;
+
+	if (!input || !envp || !*envp)
+		return (NULL);
+	if (*input != '$')
+		return (ft_strdup(input));
+	i = get_len_until(&input[1], '$') + 2;
+	// fprintf(stderr, "i: %zu\n", i);
+	// for (size_t j = 0; j < i; j++)
+		// fprintf(stderr, "%c", input[j]);
+	// fprintf(stderr, "\n");
+	while (i > 2 && --i)
+	{
+		tmp = ft_substr(input, 1, i - 1);
+		// fprintf(stderr, "tmp: %s\n", tmp);
+		// fprintf(stderr, "input: %s\n", tmp);
+		val = get_env_var(envp, tmp);
+		// fprintf(stderr, "val: %s\n", val);
+		free(tmp);
+		if (val)
+		{
+			remainder = ft_substr(input, i, ft_strlen(input));
+			// fprintf(stderr, "joined: '%s'\n", free_strjoin(2, val, remainder));
+			return (free_strjoin(2, val, remainder));
+		}
 	}
 	return (ft_strdup(""));
 }

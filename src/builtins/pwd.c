@@ -9,7 +9,7 @@ int	builtin_pwd(const char **envp)
 	char	*env_pwd;
 
 	tmp = getcwd(NULL, 0);
-	env_pwd = get_var_val(envp, "PWD");
+	env_pwd = get_env_var(envp, "PWD");
 	if (!env_pwd)
 		printf("%s\n", tmp);
 	else
