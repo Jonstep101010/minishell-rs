@@ -1,4 +1,8 @@
 [submodule "include/libft"]
 	path = include/libft
 	url = https://github.com/Jonstep101010/libft
-	branch = minishell
+	branch = core-dep
+[submodule "include/libutils"]
+	path = include/libutils
+	url = https://github.com/Jonstep101010/libutils
+	branch = smaller-lib
