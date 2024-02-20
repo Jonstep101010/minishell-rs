@@ -4,6 +4,7 @@
 # include "libft.h"
 # include "struct.h"
 # include <stdlib.h>
+# include "arr_utils.h"
 #endif
 
 void	destroy_all_tokens(t_shell *shell)

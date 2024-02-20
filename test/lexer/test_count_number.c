@@ -1,6 +1,6 @@
 #include "unity.h"
-#include "../include/libft/src/string/str_cchr.c"
-#include "struct.h"
+#include "str_cchr.c"
+#include "ft_strlen.c"
 #include "../src/lexer/lexer_support.c"
 #include "../src/utils/while_string_wrapper.c"
 

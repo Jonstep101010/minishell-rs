@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "tokens.h"
+#include "libutils.h"
 
 int	export_env(const char **envp);
 

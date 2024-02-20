@@ -6,3 +6,9 @@
 	path = include/libutils
 	url = https://github.com/Jonstep101010/libutils
 	branch = smaller-lib
+[submodule "include/libftprintf"]
+	path = include/libftprintf
+	url = https://github.com/Jonstep101010/ft_printf.git
+[submodule "include/libgnl"]
+	path = include/libgnl
+	url = https://github.com/Jonstep101010/get_next_line.git

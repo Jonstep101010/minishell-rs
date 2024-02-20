@@ -1,8 +1,10 @@
 #include <stddef.h>
 #include <sys/param.h>
+#include "arr_utils.h"
 #include "libft.h"
 #include "tokens.h"
 #include "utils.h"
+#include "libutils.h"
 #include "struct.h"
 
 t_arg	*init_cmdargs(size_t size)

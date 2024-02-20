@@ -1,5 +1,6 @@
 #include "struct.h"
-#include "libft.h"
+#include "arr_utils.h"
+#include <stdlib.h>
 
 void	destroy_all_tokens(t_shell *shell);
 void	builtin_exit(t_shell *shell)
@@ -8,7 +9,7 @@ void	builtin_exit(t_shell *shell)
 
 	exit_code = 0;
 	if (shell->line)
-		free_null(shell->line);
+		free(shell->line);
 	// printf("exiting now...\n");
 	if (shell->owned_envp)
 		arr_free(shell->owned_envp);

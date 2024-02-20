@@ -8,6 +8,7 @@
 #include "minishell.h"
 #include "libft.h"
 #include <stdlib.h>
+#include "get_next_line.h"
 
 void	minishell_loop(t_shell *shell)
 {

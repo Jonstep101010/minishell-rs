@@ -1,5 +1,7 @@
 #include "libft.h"
 #include <stddef.h>
+#include <stdbool.h>
+#include "str_utils.h"
 
 /**
  * only keeps if nested and not same as outer
@@ -50,7 +52,7 @@ bool	interpret_quotes(char **cmd_arr)
 			tmp = do_quote_bs(cmd_arr[i], &quote);
 			if (!tmp)
 				return (false);
-			free_null(cmd_arr[i]);
+			free(cmd_arr[i]);
 			cmd_arr[i] = tmp;
 		}
 		i++;

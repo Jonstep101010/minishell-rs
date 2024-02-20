@@ -2,16 +2,12 @@
 :project:
   :use_exceptions: FALSE
   :use_test_preprocessor: TRUE
-  :use_deep_dependencies: FALSE
   :use_auxiliary_dependencies: FALSE
-  :use_auto_dependencies: FALSE
   :build_root: build
   :release_build: TRUE
   :test_file_prefix: test_
   :which_ceedling: gem
-  :ceedling_version: '?'
-  :compile_threads: 8
-  :test_threads: 8
+  :ceedling_version: 0.31.1
   :default_tasks:
     - test:all
 
@@ -33,20 +29,71 @@
     - +:test/tokens/
   :source:
     - +:src/*
-    - +:include/libft/src/arr/
-    - +:include/libft/src/char/
-    - +:include/libft/src/gnl/
-    - +:include/libft/src/io/
-    - +:include/libft/src/list/
-    - +:include/libft/src/memory/
-    - +:include/libft/src/printf/
-    - +:include/libft/src/string/
   :include:
     - +:src/*
     - +:include/*
-    - +:include/libft/include/
   :support:
     - +:test/support
+  :libraries:
+    - include/libft
+    - include/libgnl
+    - include/libutils
+    - include/libftprintf
+
+:dependencies:
+  :libraries:
+    - :name: libft
+      :source_path: include/libft
+      :build_path: include/libft
+      :artifact_path: include/libft
+      :environment:
+        - CC=clang
+      :build:
+        - make
+      :artifacts:
+        :includes:
+          - ./
+        :static_libraries:
+          - libft.a
+    - :name: libgnl
+      :source_path: include/libgnl
+      :build_path: include/libgnl
+      :artifact_path: include/libgnl
+      :environment:
+        - CC=clang
+      :build:
+        - make
+      :artifacts:
+        :includes:
+          - ./
+        :static_libraries:
+          - libgnl.a
+    - :name: libutils
+      :source_path: include/libutils
+      :build_path: include/libutils
+      :artifact_path: include/libutils
+      :build:
+        - make
+      :artifacts:
+        :includes:
+          - ./include
+          - ./src/array
+          - ./src/string
+        :static_libraries:
+          - build/release/libutils.a
+    - :name: libftprintf
+      :source_path: include/libftprintf
+      :build_path: include/libftprintf
+      :artifact_path: include/libftprintf
+      :environment:
+        - CC=clang
+      :build:
+        - make
+      :artifacts:
+        :includes:
+          - ./
+        :static_libraries:
+          - libftprintf.a
 
 :defines:
   # in order to add common defines:
@@ -97,8 +144,6 @@
     :name: 'clang test linker'
     :arguments:
       - ${1}
-      - -Linclude/libft/build/release
-      - -lft
       - -o ${2}
   :release_compiler:
     :executable: clang
@@ -119,10 +164,10 @@
     :name: 'clang release linker'
     :arguments:
       - ${1}               #list of object files to link
-      # - -Linclude/libft/build/release
-      # - -lft
       - -lreadline
-      - -o minishell
+      - -L./include/libgnl -lgnl -I./include/libgnl -L./include/libft -lft -I./include/libft
+      - -L./include/libutils -lutils -I./include/libutils -L./include/libftprintf -lftprintf -I./include/libftprintf
+      - -o ${2}            #output file
   
   :release_dependencies_generator:
     :executable: clang
@@ -148,5 +193,7 @@
   :enabled:
     - xml_tests_report
     - module_generator
+    - stdout_pretty_tests_report
     - compile_commands_json
+    - dependencies
 ...

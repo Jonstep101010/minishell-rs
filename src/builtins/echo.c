@@ -1,5 +1,6 @@
 #include "libft.h"
 #include "utils.h"
+#include "arr_utils.h"
 
 static int	is_n_arg(const char *arg)
 {
