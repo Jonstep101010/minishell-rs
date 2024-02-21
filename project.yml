@@ -2,12 +2,13 @@
 :project:
   :use_exceptions: FALSE
   :use_test_preprocessor: TRUE
-  :use_auxiliary_dependencies: FALSE
+  :use_auxiliary_dependencies: TRUE
   :build_root: build
   :release_build: TRUE
   :test_file_prefix: test_
   :which_ceedling: gem
   :ceedling_version: 0.31.1
+  :output: minishell
   :default_tasks:
     - test:all
 
@@ -31,7 +32,7 @@
     - +:src/*
   :include:
     - +:src/*
-    - +:include/*
+    - +:include/
   :support:
     - +:test/support
   :libraries:
@@ -43,52 +44,58 @@
 :dependencies:
   :libraries:
     - :name: libft
+      :fetch:
+        :method: :none
       :source_path: include/libft
-      :build_path: include/libft
       :artifact_path: include/libft
       :environment:
         - CC=clang
       :build:
         - make
+        - "mkdir -p build && mv *.o build"
       :artifacts:
         :includes:
           - ./
         :static_libraries:
           - libft.a
     - :name: libgnl
+      :fetch:
+        :method: :none
       :source_path: include/libgnl
-      :build_path: include/libgnl
       :artifact_path: include/libgnl
       :environment:
         - CC=clang
       :build:
         - make
+        - "mkdir -p build && mv *.o build"
       :artifacts:
         :includes:
           - ./
         :static_libraries:
           - libgnl.a
     - :name: libutils
+      :fetch:
+        :method: :none
       :source_path: include/libutils
-      :build_path: include/libutils
       :artifact_path: include/libutils
       :build:
         - make
+        - "mkdir -p build && mv *.o build"
       :artifacts:
         :includes:
           - ./include
           - ./src/array
           - ./src/string
         :static_libraries:
-          - build/release/libutils.a
+          - libutils.a
     - :name: libftprintf
+      :fetch:
+        :method: :none
       :source_path: include/libftprintf
-      :build_path: include/libftprintf
       :artifact_path: include/libftprintf
-      :environment:
-        - CC=clang
       :build:
         - make
+        - "mkdir -p build && mv *.o build"
       :artifacts:
         :includes:
           - ./

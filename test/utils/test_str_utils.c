@@ -1,6 +1,7 @@
 #include "str_utils.c"
 #include "unity.h"
 #include <string.h>
+#include "support_lib.c"
 
 void	test_free_first_join_no_leaks() {
 	char	*s1 = strdup("Hello");

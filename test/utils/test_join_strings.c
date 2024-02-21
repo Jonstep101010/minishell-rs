@@ -1,6 +1,7 @@
 #include "free_strjoin.c"
 #include "unity.h"
 #include <string.h>
+#include "support_lib.c"
 
 void test_join_multiple_strings() {
 	char	*s1 = strdup("hello");

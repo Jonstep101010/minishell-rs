@@ -9,6 +9,7 @@
 #include "print_arr_sep.c"
 #include "occurs.c"
 #include "expander.c"
+#include "support_lib.c"
 
 #define TOKENS_H
 #define STRUCT_H

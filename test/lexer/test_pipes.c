@@ -1,4 +1,4 @@
-#include "../include/libft/src/string/str_cchr.c"
+#include "support_lib.c"
 #include "../src/lexer/checks_basic.c"
 #include "../src/lexer/check_quotes.c"
 #include "../src/lexer/check_pipes.c"
@@ -60,7 +60,7 @@ void test_pipes_filter_valid()
 	TEST_ASSERT(lexer_checks_basic("hello|hello") == LEXER_SUCCESS);
 	TEST_ASSERT(lexer_checks_basic("echo Hello | World") == LEXER_SUCCESS);
 	TEST_ASSERT(lexer_checks_basic("ls | grep file | wc -l") == LEXER_SUCCESS);
-	TEST_ASSERT(lexer_checks_basic("hello || hello") == LEXER_SUCCESS);
+	TEST_ASSERT(lexer_checks_basic("hello || hello") != LEXER_SUCCESS);
 	TEST_ASSERT(lexer_checks_basic("\n") == LEXER_SUCCESS);
 }
 

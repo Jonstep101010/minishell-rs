@@ -1,5 +1,6 @@
 #include "unity.h"
-#include "libft.h"
+#include "support_lib.c"
+
 // TEST_INCLUDE_PATH("../include/libft/src/")
 
 void	test_arr_len() {

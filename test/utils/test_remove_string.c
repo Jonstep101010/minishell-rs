@@ -1,8 +1,7 @@
-#include "libft.h"
+#include "support_lib.c"
 #include "unity.h"
 
 #include "../src/utils/arr_utils.c"
-#include "../include/libft/src/arr/print_arr.c"
 #include "../src/utils/occurs.c"
 
 #include "print_arr_sep.c"

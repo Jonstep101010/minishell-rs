@@ -9,6 +9,7 @@
 #include "expander.c"
 #include "free_strjoin.c"
 #include "check_key.c"
+#include "support_lib.c"
 
 void	test_find_leaks() {
 	char	*input = strdup("echo | \"nopipes |\" | echo hello");

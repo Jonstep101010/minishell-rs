@@ -1,4 +1,4 @@
-#include "libft.h"
+#include "support_lib.c"
 #include "unity.h"
 #include "unset.c"
 #include "find_key.c"
@@ -15,6 +15,5 @@ void	test_remove_key_value() {
 		TEST_FAIL();
 	char	*expected[] = {"something=wrong", "some=none", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, arr, 3);
-	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, arr, 4);
 	arr_free(arr);
 }

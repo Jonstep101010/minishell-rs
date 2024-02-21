@@ -1,12 +1,12 @@
-#include "../src/lexer/checks_basic.c"
-#include "../src/lexer/lexer_support.c"
-#include "../src/lexer/check_quotes.c"
-#include "../src/lexer/check_pipes.c"
-#include "../include/libft/src/string/str_cchr.c"
-#include "../src/utils/while_string_wrapper.c"
-#include "../src/utils/bool_array.c"
+#include "checks_basic.c"
+#include "lexer_support.c"
+#include "check_quotes.c"
+#include "check_pipes.c"
+#include "while_string_wrapper.c"
+#include "bool_array.c"
 #include "unity.h"
 #include <stdbool.h>
+#include "support_lib.c"
 
 void test_redir_pipes_mix()
 {

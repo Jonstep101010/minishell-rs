@@ -6,6 +6,7 @@
 #include "free_strjoin.c"
 #include "expander.c"
 #include "check_key.c"
+#include "support_lib.c"
 
 void	test_nested_one() {
 	// "'"'"'test'"'"'"

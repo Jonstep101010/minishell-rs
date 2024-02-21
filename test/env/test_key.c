@@ -6,6 +6,7 @@
 #include "print_arr_sep.c"
 
 #include "free_strjoin.c"
+#include "support_lib.c"
 
 void	test_get_key_len() {
 	char	*s = "KEY=val";

@@ -48,7 +48,7 @@ endif
 #                             building the program                             #
 # ---------------------------------------------------------------------------- #
 C_LIBFT:
-	cd include/libft && make ceedling
+	cd include/libft && make
 ceedling: C_LIBFT
 	ceedling release
 
