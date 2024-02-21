@@ -54,9 +54,9 @@ bool	two_pipes_valid(const char *s, const int index)
 	flag = 0;
 	while (s[i] && i >= index)
 	{
-		while_d(s, (int (*)(int))&isspace, 1, &i);
+		while_d(s, (int (*)(int))&ft_isspace, 1, &i);
 		flag = while_d(s, (int (*)(int))&ft_isalnum, 1, &i);
-		while_d(s, (int (*)(int))&isspace, 1, &i);
+		while_d(s, (int (*)(int))&ft_isspace, 1, &i);
 		if (s[i] == '|' && flag == 1 && index + 1 == i)
 			return (true);
 		return (false);
@@ -79,7 +79,7 @@ bool	pipes_valid(const char *s, const int pipes)
 			return (false);
 		if (s[i] == '|' && s[i + 1] == '|' && pipes == 2)
 			return (two_pipes_valid(s, i));
-		while_i(s, (int (*)(int))isspace, 1, &i);
+		while_i(s, (int (*)(int))ft_isspace, 1, &i);
 		count -= while_is_i(s, '|', &i);
 		if (count > 2)
 			return (false);

@@ -13,7 +13,7 @@
     - test:all
 
 :release_build:
-  :output: minishell.out
+  :output: minishell
   :use_assembly: FALSE
 
 # :extension:
@@ -52,7 +52,8 @@
         - CC=clang
       :build:
         - make
-        - "mkdir -p build && mv *.o build"
+        - mkdir -p build
+        - mv *.o build
       :artifacts:
         :includes:
           - ./
@@ -67,7 +68,8 @@
         - CC=clang
       :build:
         - make
-        - "mkdir -p build && mv *.o build"
+        - mkdir -p build
+        - mv *.o build
       :artifacts:
         :includes:
           - ./
@@ -80,12 +82,12 @@
       :artifact_path: include/libutils
       :build:
         - make
-        - "mkdir -p build && mv *.o build"
       :artifacts:
         :includes:
           - ./include
           - ./src/array
           - ./src/string
+          - ./src/char
         :static_libraries:
           - libutils.a
     - :name: libftprintf
@@ -95,7 +97,8 @@
       :artifact_path: include/libftprintf
       :build:
         - make
-        - "mkdir -p build && mv *.o build"
+        - mkdir -p build
+        - mv *.o *.d build
       :artifacts:
         :includes:
           - ./

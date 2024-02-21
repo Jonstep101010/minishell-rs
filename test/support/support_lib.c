@@ -29,5 +29,4 @@
 
 #include "support_printf.c"
 #include "print_arr.c"
-
-
+#include "ft_isspace.c"

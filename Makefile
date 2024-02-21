@@ -84,7 +84,12 @@ clean:
 fclean: clean
 	rm -rf build/*
 
-re: fclean ceedling
+re: fclean
+	rm -rf include/libft/
+	rm -rf include/libgnl/
+	rm -rf include/libutils/
+	rm -rf include/libftprintf/
+	git submodule update --init
 
 # ----------------------------- additional rules ----------------------------- #
 run: $(ceedling release)
