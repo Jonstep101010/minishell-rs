@@ -1,30 +1,26 @@
+#include "struct.h"
+#include "tokens.h"
 #include <stdio.h>
 
 int	export_env(const char **envp)
 {
-	int	i;
-
-	i = 0;
-	while (envp[i])
+	while (*envp)
 	{
-		printf("declare -x %s\n", envp[i]);
-		i++;
+		printf("declare -x %s\n", *envp);
+		envp++;
 	}
 	return (0);
 }
 
-int	builtin_env(char **envp)
+int	builtin_env(t_shell *shell, t_token *token)
 {
-	int	i = 0;
-	if (!envp || !*(envp))
+	const char	**envp = (const char **)shell->owned_envp;
+
+	(void)token;
+	while (*envp)
 	{
-		// printf("fatal error\n");
-		return (1);
-	}
-	while (envp[i])
-	{
-		printf("%s\n", envp[i]);
-		i++;
+		printf("%s\n", *envp);
+		envp++;
 	}
 	return (0);
 }

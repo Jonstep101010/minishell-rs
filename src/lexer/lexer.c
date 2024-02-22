@@ -1,10 +1,11 @@
-#include "libutils.h"
+#include "libft.h"
 #include "lexer.h"
 #include "struct.h"
 #include "utils.h"
 #include <stdbool.h>
 #include <unistd.h>
 
+void	arr_free(char **arr);
 t_lexer	lexer_checks_basic(char *s);
 #ifndef TEST
 // char	**split_outside_quotes(const char *to_split, char c);

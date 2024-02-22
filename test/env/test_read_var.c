@@ -11,6 +11,7 @@
 #include "check_key.c"
 #include "env.c"
 #include "free_strjoin.c"
+#include "error.c"
 
 void	test_read_returns_correct() {
 	char	*env[] = {"not=looking", "maybe=?looking", "key=forsure", "notmine=(null)", NULL};

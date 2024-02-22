@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "struct.h"
 #include "environment.h"
 #include <errno.h>
 #include <stdio.h>
@@ -9,12 +10,12 @@
 
 /**
  * @brief change directory to path, update PWD and OLDPWD
- * @audit uses dprintf
+ * @audit uses eprint
  * @param path if no path is given, change to home
  * @param envp environment
  * @return int
  */
-static int	changedir(char *path, char **envp)
+static int	changedir(const char *path, char **envp)
 {
 	char	*pwd;
 	char	*oldpwd;
@@ -22,13 +23,13 @@ static int	changedir(char *path, char **envp)
 	oldpwd = getcwd(NULL, 0);
 	if (chdir(path) == -1)
 	{
-		dprintf(STDERR_FILENO, "minishell: cd: %s: %s\n", path, strerror(errno));
+		eprint("cd: %s: %s\n", path, strerror(errno));
 		return (free(oldpwd), -1);
 	}
 	pwd = getcwd(NULL, 0);
 	if (!pwd)
 	{
-		dprintf(STDERR_FILENO, "minishell: cd: %s: %s\n", path, strerror(errno));
+		eprint("cd: %s: %s\n", path, strerror(errno));
 		return (free(oldpwd), -1);
 	}
 	update_variable(envp, "PWD", pwd);
@@ -38,12 +39,12 @@ static int	changedir(char *path, char **envp)
 
 /**
  * @brief change directory
- * @audit uses dprintf
+ * @audit uses eprint
  * @param cmd_args dir to change to
  * @param envp environment
  * @return int exit code
  */
-int	builtin_cd(char **cmd_args, char **envp)
+static int	cd(const char **cmd_args, char **envp)
 {
 	char	*path;
 	char	*oldpwd;
@@ -51,7 +52,7 @@ int	builtin_cd(char **cmd_args, char **envp)
 	path = get_env_var((const char **)envp, "HOME");
 	oldpwd = get_env_var((const char **)envp, "OLDPWD");
 	if (!cmd_args[1] && !path)
-		return (dprintf(STDERR_FILENO, "minishell: cd: HOME not set\n"), 1);
+		return (eprint("cd: HOME not set\n"), 1);
 	if (!cmd_args[1] && path)
 		changedir(path, envp);
 	else if (*cmd_args[1] == '~' && path)
@@ -69,4 +70,9 @@ int	builtin_cd(char **cmd_args, char **envp)
 	else if (changedir(cmd_args[1], envp) == -1)
 		return (free(path), free(oldpwd), 1);
 	return (free(path), free(oldpwd), 0);
+}
+
+int	builtin_cd(t_shell *shell, t_token *token)
+{
+	return (cd((const char **)token->command, shell->owned_envp));
 }
