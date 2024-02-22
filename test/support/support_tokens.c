@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "split_outside_quotes.c"
 #include "arr_utils.c"
 #include "find_key.c"
 #include "print_arr_sep.c"
@@ -54,6 +53,7 @@ typedef struct s_arg
 }	t_arg;
 t_arg	*init_cmdargs(size_t size);
 
+typedef struct s_shell	t_shell;
 struct s_token
 {
 	t_arg	*cmd_args;// keep attributes in execution (i.e. redirs), cmd_args[0] is the first token/command (not pipe)
@@ -61,10 +61,10 @@ struct s_token
 	// char	**args;
 	char	**tmp_arr;
 	char	**command;// for execution (each token has the command)
+	enum	e_builtin	builtin_info;
 	// size_t	status;// for usage with the pipes?
 	// char	*bin;// for finding path/to/bin?
-	int		(*func)(t_token *);
-	enum	e_builtin	builtin_info;
+	int		(*cmd_func)(t_shell *, t_token *);// not sure if this is necessary
 };
 
 // @audit-info mod split_quotes to take a function pointer (for whitespace that can be space or tab)
@@ -87,33 +87,6 @@ typedef struct s_shell
 	t_token	*token;
 	struct termios	p_termios;
 }	t_shell;
-
-void	*do_quote_bs(const char *s, int *quote)
-{
-	char	*tmp;
-	size_t	len;
-	size_t	tmp_len;
-
-	len = ft_strlen(s);
-	tmp = (char *)ft_calloc(len + 1, sizeof(char));
-	if (!tmp)
-		return (NULL);
-	while (*s)
-	{
-		if (*quote == 0 && (*s == '\'' || *s == '"'))
-			*quote = *s;
-		else if (*quote != 0 && *s == *quote)
-			*quote = 0;
-		else
-		{
-			tmp_len = ft_strlen(tmp);
-			tmp[tmp_len] = *s;
-			tmp[tmp_len + 1] = '\0';
-		}
-		s++;
-	}
-	return (tmp);
-}
 
 void	mock_convert_split_token_string_array_to_tokens(t_shell *shell)
 {

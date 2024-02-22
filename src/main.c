@@ -17,11 +17,13 @@ void	minishell_loop(t_shell *shell)
 		if (isatty(fileno(stdin)))
 		{
 			get_tokens(shell);
-			if (shell->token)
+			if (shell->token && shell->owned_envp)
 			{
-				update_exit_status(shell, builtin(shell, shell->token));
+				execute_commands(shell, shell->token);
 				destroy_all_tokens(shell);
 			}
+			// @todo fix leaks/errors with empty input
+			// @todo fix leaks line
 			// else if (shell->exit_status == 2)
 			// 	continue;
 			// // does quitting using ctrl_d cause leaks?
@@ -58,14 +60,15 @@ t_token	*lexer(t_shell *shell);
 
 #include "utils.h"
 #include "builtins.h"
+#include "commands.h"
 void	get_tokens(t_shell *shell)
 {
 	shell->line = readline("minishell> ");
-	if (shell->line && *shell->line)
+	if (shell->line && *shell->line && shell->owned_envp && *shell->owned_envp)
 	{
 		check_signals(&(shell->p_termios));
 		if (occurs_exclusively("exit", shell->line))
-			return (builtin_exit(shell, 0));
+			builtin_exit(shell, 0);
 		add_history(shell->line);
 		shell->token = lexer(shell);
 		if (!shell->token)

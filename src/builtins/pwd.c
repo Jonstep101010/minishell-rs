@@ -1,15 +1,17 @@
 #include "environment.h"
+#include "struct.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
-int	builtin_pwd(const char **envp)
+int	builtin_pwd(t_shell *shell, t_token *token_nullable)
 {
 	char	*tmp;
 	char	*env_pwd;
 
+	(void)token_nullable;
 	tmp = getcwd(NULL, 0);
-	env_pwd = get_env_var(envp, "PWD");
+	env_pwd = get_env_var((const char **)shell->owned_envp, "PWD");
 	if (!env_pwd)
 		printf("%s\n", tmp);
 	else

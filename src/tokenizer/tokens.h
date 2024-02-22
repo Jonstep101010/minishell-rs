@@ -22,12 +22,12 @@ enum e_quote
 
 enum e_builtin
 {
-	ENV,
-	EXPORT,
-	UNSET,
+	BUILTIN_ECHO,
 	CD,
 	PWD,
-	BUILTIN_ECHO,
+	EXPORT,
+	UNSET,
+	ENV,
 	EXIT,
 	NOT_BUILTIN,
 };
@@ -39,6 +39,7 @@ typedef struct s_arg
 	enum	e_quote	quote;
 }	t_arg;
 
+typedef struct s_shell	t_shell;
 struct s_token
 {
 	t_arg	*cmd_args;// keep attributes in execution (i.e. redirs), cmd_args[0] is the first token/command (not pipe)
@@ -49,6 +50,6 @@ struct s_token
 	enum	e_builtin	builtin_info;
 	// size_t	status;// for usage with the pipes?
 	// char	*bin;// for finding path/to/bin?
-	// int		(*func)(t_token *);// not sure if this is necessary
+	int		(*cmd_func)(t_shell *, t_token *);// not sure if this is necessary
 };
 # endif

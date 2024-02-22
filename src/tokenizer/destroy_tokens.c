@@ -1,8 +1,9 @@
+#include "struct.h"
 #include "tokens.h"
+#include "libft.h"
 
 #ifndef TEST_TOKENS_H
 # include "libft.h"
-# include "struct.h"
 # include <stdlib.h>
 # include "arr_utils.h"
 #endif
@@ -34,15 +35,15 @@ void	destroy_all_tokens(t_shell *shell)
 		i++;
 	}
 	free(shell->token);
-	shell->token = NULL;
 }
 
 // remove single token from shell
 void	destroy_single_token(t_shell *shell, t_token *token)
 {
-	size_t	i = 0;
+	size_t	i;
 	size_t	ii;
 
+	i = 0;
 	if (!token || !shell || !shell->token)
 		return ;
 	i = 0;
@@ -62,7 +63,6 @@ void	destroy_single_token(t_shell *shell, t_token *token)
 	}
 }
 
-#include "libft.h"
 t_token	*remove_token(t_shell *shell, t_token *token)
 {
 	size_t	i;

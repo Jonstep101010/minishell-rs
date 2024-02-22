@@ -1,7 +1,11 @@
+#ifndef SUPPORT_SHELL_C
+# define SUPPORT_SHELL_C
+
 #include "unity.h"
 #include "struct.h"
 #include <stdlib.h>
 #include <string.h>
+#include "support_lib.c"
 
 t_shell	*setup_shell(char *line) {
 	t_shell *shell = (t_shell *) calloc(sizeof(t_shell), 1);
@@ -25,3 +29,4 @@ void	debug_print_arr(t_shell *this, t_token *token)
 		fprintf(stderr, "string in arr:%s\n", token->command[i]);
 	}
 }
+#endif
