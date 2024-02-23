@@ -54,9 +54,12 @@ ceedling: C_LIBFT
 
 test: C_LIBFT
 	ceedling test:all
-
+MEMCHECK_PARAMS = ceedling release; valgrind --leak-check=full --track-origins=yes -s --log-file=valgrind.log 
+EXEC_PATH = ./build/release/$(NAME)
 memcheck:
-	ceedling release; valgrind --leak-check=full --track-origins=yes -s --log-file=valgrind.log ./build/release/minishell
+	$(MEMCHECK_PARAMS) $(EXEC_PATH)
+memcheck-all:
+	$(MEMCHECK_PARAMS) --show-leak-kinds=all $(EXEC_PATH)
 # bonus: all
 # all: $(NAME)
 

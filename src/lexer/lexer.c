@@ -17,16 +17,14 @@ void	convert_split_token_string_array_to_tokens(t_shell *shell);
 void	convert_tokens_to_string_array(t_token *token);
 #include <sys/wait.h>
 
-static int		lex_error(t_shell *shell, t_lexer code)
+static int		lex_error(t_lexer code)
 {
+	if (code == LEXER_SINGLE_QUOTE)
+		return (eprint_single("syntax error near unexpected token '''\n"), 0);
+	if (code == LEXER_DOUBLE_QUOTE)
+		return (eprint_single("syntax error near unexpected token '\"'\n"), 0);
 	if (code == LEXER_UNBALANCED_QUOTES)
-	{
-		eprint_single("syntax error near unexpected token ");
-		if (str_cchr(shell->trimmed_line, '\'') % 2 != 0)
-			return (write(1, "'''\n", 4), 127);
-		if (str_cchr(shell->trimmed_line, '"') % 2 != 0)
-			return (write(1, "\"\n", 4), 0);
-	}
+		return (eprint_single("Error: quotes not closed\n"), 0);
 	if (code == LEXER_PIPES)
 		return (eprint_single("syntax error near unexpected token '|'\n"), 127);
 	return (0);
@@ -41,7 +39,7 @@ t_lexer	lexer(t_shell *shell)
 	code = lexer_checks_basic(shell->trimmed_line);
 	if (code != LEXER_SUCCESS)
 	{
-		update_exit_status(shell, lex_error(shell, code));
+		update_exit_status(shell, lex_error(code));
 		return (code);
 	}
 	shell->split_pipes = split_outside_quotes(shell->trimmed_line, "|");

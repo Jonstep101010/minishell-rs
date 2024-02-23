@@ -51,4 +51,6 @@ void	update_exit_status(t_shell *shell, int status)
 		free(status_str);
 		return ;
 	}
+	shell->exit_status = status;
+	shell->owned_envp = shell->tmp_arr;
 }

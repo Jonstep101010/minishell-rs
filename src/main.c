@@ -32,6 +32,7 @@ void	minishell_loop(t_shell *shell)
 			shell->trimmed_line = ft_strtrim(shell->line, WHITESPACE);
 			if (!shell->trimmed_line)
 				builtin_exit(shell, NULL);
+			add_history(shell->trimmed_line);
 			if (*shell->trimmed_line == '\0' || lexer(shell) != LEXER_SUCCESS)
 			{
 				free(shell->line);
@@ -70,7 +71,6 @@ void	deploy_tokens(t_shell *shell)
 {
 	if (shell->owned_envp && *shell->owned_envp)
 	{
-		add_history(shell->line);
 		free(shell->line);
 		free(shell->trimmed_line);
 		if (shell->line && shell->trimmed_line)

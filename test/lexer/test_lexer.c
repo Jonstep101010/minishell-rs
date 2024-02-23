@@ -34,34 +34,11 @@ void test_works_with_quotes() {
 
 	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo \"This is a test\""));
 	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo \"Hello, World!\""));
-}
-
-void test_works_with_brackets(void)
-{
-	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("if (x > 5) { printf(\"x is greater than 5\"); }"));
-	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("awk '{count++} END {print count}'"));
-	TEST_ASSERT(LEXER_SUCCESS ==
-		lexer_checks_basic("int x = 5; printf(The value of x is %d, x);"));
-	TEST_ASSERT(LEXER_SUCCESS ==
-		lexer_checks_basic("for (int i = 0; i < 5; i++) { printf(\"%d\n\", i); }"));
-	TEST_ASSERT(LEXER_SUCCESS ==
-		lexer_checks_basic("while (i < 10) { i++; }"));
-}
-
-//@audit-info no need to handle semi-colons
-void	test_does_not_work_with_unbalanced_brackets(void)
-{
-	TEST_ASSERT(LEXER_SUCCESS != lexer_checks_basic("if (x > 5 { printf(\"x is greater than 5\"}); }"));
-	TEST_ASSERT(LEXER_SUCCESS != lexer_checks_basic("while (i < 10) { i++; "));
-	TEST_ASSERT(LEXER_SUCCESS != lexer_checks_basic("while (i < 10) i++;} "));
-}
-
-void	test_error() {
-	TEST_ASSERT(LEXER_UNBALANCED_QUOTES
+	TEST_ASSERT(LEXER_DOUBLE_QUOTE
 		== lexer_checks_basic("echo Hello, World!\""));
-	TEST_ASSERT(LEXER_UNBALANCED_QUOTES
+	TEST_ASSERT(LEXER_DOUBLE_QUOTE
 		== lexer_checks_basic("echo \"Hello, World!"));
-	TEST_ASSERT(LEXER_UNBALANCED_QUOTES
+	TEST_ASSERT(LEXER_SINGLE_QUOTE
 		== lexer_checks_basic("echo \'Hello, World!"));
 	// @audit-info no need to handle!
 	TEST_ASSERT(LEXER_SUCCESS != lexer_checks_basic("echo 'Hello, World!"));
@@ -72,26 +49,33 @@ void	test_error() {
 
 void test_trailing_leading_quote() {
 	TEST_ASSERT(lexer_checks_basic("\"Hello, World!\"") == LEXER_SUCCESS);
-	TEST_ASSERT(lexer_checks_basic("\"Hello, World!") == LEXER_UNBALANCED_QUOTES);
-	TEST_ASSERT(lexer_checks_basic("\"Hello, World!") == LEXER_UNBALANCED_QUOTES);
-	TEST_ASSERT(lexer_checks_basic("echo 'Hello, World!") == 2);
-	TEST_ASSERT(lexer_checks_basic("echo Hello, World!'") == 2);
-	TEST_ASSERT(lexer_checks_basic("echo \"Hello, World!'") == 2);
-	TEST_ASSERT(lexer_checks_basic("echo Hello, World!\"") == 2);
+	TEST_ASSERT(lexer_checks_basic("\"Hello, World!") == LEXER_DOUBLE_QUOTE);
+	TEST_ASSERT(lexer_checks_basic("\"Hello, World!") == LEXER_DOUBLE_QUOTE);
+	TEST_ASSERT(lexer_checks_basic("echo 'Hello, World!") == LEXER_SINGLE_QUOTE);
+	TEST_ASSERT(lexer_checks_basic("echo Hello, World!'") == LEXER_SINGLE_QUOTE);
+	TEST_ASSERT(lexer_checks_basic("echo \"Hello, World!'") != LEXER_SUCCESS);
+	TEST_ASSERT(lexer_checks_basic("echo Hello, World!\"") == LEXER_DOUBLE_QUOTE);
 	TEST_ASSERT(lexer_checks_basic("echo \"Hello, World!\"") == LEXER_SUCCESS);
 	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("'echo'"));
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("if (x > 5) { printf(\"x is greater than 5\"); }"));
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("awk '{count++} END {print count}'"));
+	TEST_ASSERT(LEXER_SUCCESS ==
+		lexer_checks_basic("int x = 5; printf(The value of x is %d, x);"));
+	TEST_ASSERT(LEXER_SUCCESS ==
+		lexer_checks_basic("for (int i = 0; i < 5; i++) { printf(\"%d\n\", i); }"));
+	TEST_ASSERT(LEXER_SUCCESS ==
+		lexer_checks_basic("while (i < 10) { i++; }"));
 }
 
 // test () {} [] each and unbalanced aquivalents
 void	test_parenthesis() {
 	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo (Hello, World!)"));
 	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo {Hello, World!}"));
-}
-
-void	test_backlog() {
 	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo Hello, World!}"));
 	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo Hello, World!)"));
 	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo (Hello, World!"));
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("if (x > 5 {{ printf(\"x is greater than 5\"})); }"));
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("while (i < 10) { i++; "));
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("while (i < 10) i++;} "));
 	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo {Hello, World!"));
-
 }
