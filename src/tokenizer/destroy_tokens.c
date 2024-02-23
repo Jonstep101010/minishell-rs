@@ -8,6 +8,23 @@
 # include "arr_utils.h"
 #endif
 
+/**
+ * @brief free and set pointer to NULL
+ * @warning use address of pointer
+ * @param p address of pointer
+ */
+void	free_null(void *p)
+{
+	void	**ptr;
+
+	if (!p)
+		return ;
+	ptr = (void **)p;
+	if (*ptr)
+		free(*ptr);
+	*ptr = NULL;
+}
+
 void	destroy_all_tokens(t_shell *shell)
 {
 	t_token	*token;
@@ -25,16 +42,16 @@ void	destroy_all_tokens(t_shell *shell)
 			ii = 0;
 			while (token[i].cmd_args[ii].elem)
 			{
-				free(token[i].cmd_args[ii].elem);
+				free_null(&token[i].cmd_args[ii].elem);
 				ii++;
 			}
-			free(token[i].cmd_args);
+			free_null(&token[i].cmd_args);
 		}
 		if (token[i].command)
 			arr_free(token[i].command);
 		i++;
 	}
-	free(shell->token);
+	free_null(&shell->token);
 }
 
 // remove single token from shell

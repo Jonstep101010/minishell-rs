@@ -11,11 +11,8 @@ typedef enum e_lexer
 	LEXER_UNBALANCED_BRACKETS,
 	LEXER_REDIRECTION,
 	LEXER_PIPES,
-	// LEXER_PARENTHESIS,
-	// LEXER_UNBALANCED_SINGLE_QUOTES,
-	// LEXER_UNBALANCED_DOUBLE_QUOTES,
-	// LEXER_UNBALANCED_CURLY_BRACKETS,
-	// LEXER_UNBALANCED_SQUARE_BRACKETS,
+	LEXER_SINGLE_QUOTE,
+	LEXER_DOUBLE_QUOTE,
 }	t_lexer;
 
 struct s_lexer
@@ -41,9 +38,8 @@ bool	redir_valid(const char *s, const int redircount, char c);
 bool	two_pipes_valid(const char *s, const int index);
 bool	pipes_valid(const char *s, const int pipes);
 t_lexer	check_pipes_redirection(const char *s, struct s_lexer *input);
-t_lexer	check_brackets_quotes(struct s_lexer *input);
 t_lexer	check_against_ignore(const char *s, struct s_lexer *input);
-void	count_number(char *s, struct s_lexer *input);
+void	count_number(const char *s, struct s_lexer *input);
 
 # include <stddef.h>
 bool	*bool_arr_zeroing(size_t len);
