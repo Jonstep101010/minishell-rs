@@ -1,7 +1,8 @@
 #include <stddef.h>
 #include "tokens.h"
-#include "libft.h"
+#include "libutils.h"
 #include "utils.h"
+#include <stdio.h>
 
 void	convert_tokens_to_string_array(t_token *token)
 {

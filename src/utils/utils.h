@@ -22,4 +22,7 @@ int		arr_ncmp(const char **arr1, const char **arr2, size_t n);
 
 bool	*bool_arr_zeroing(size_t len);
 void	range_ignore(const char *s, bool *ignore, unsigned char c);
+
+// error handling
+void	eprint(const char *fmt, ...);
 #endif

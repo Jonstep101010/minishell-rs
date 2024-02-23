@@ -1,12 +1,9 @@
-#include "libft.h"
 #include "unity.h"
 
 #include "arr_utils.c"
 #include "occurs.c"
-#include "../include/libft/src/arr/print_arr.c"
+#include "support_lib.c"
 #include "utils.h"
-
-#include "print_arr_sep.c"
 
 // @follow-up fix test
 char	**append_once() {

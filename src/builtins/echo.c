@@ -1,14 +1,17 @@
 #include "libft.h"
+#include "tokens.h"
 #include "utils.h"
+#include "arr_utils.h"
 
 static int	is_n_arg(const char *arg)
 {
 	if (occurs(arg, "-n")
 		&& ft_strncmp(arg, "-n", 2) == 0)
-			return (1);
+		return (1);
 	return (0);
 }
 
+// @todo echo -nhello will not print at all
 static int	echo_default(const char **cmd_arr, size_t writelen)
 {
 	size_t	n_args;
@@ -33,18 +36,17 @@ static int	echo_default(const char **cmd_arr, size_t writelen)
 	return (0);
 }
 
-int	echo(const char *cmd, const char **args, const char **envp)
+int	echo(t_shell *nullable, t_token *token)
 {
-	(void)cmd;
-	(void)envp;
+	const char	**args = (const char **)token->command;
+
+	(void)nullable;
 	if (!args || !*args)
 		return (write(1, "\n", 1), 0);
 	if (occurs(*(args + 1), "-n")
 		&& ft_strncmp(*(args + 1), "-n", 2) == 0)
-			return (echo_default(args + 1, 1), 0);
+		return (echo_default(args + 1, 1), 0);
 	echo_default(&args[1], 0);
 	write(1, "\n", 1);
 	return (0);
 }
-
-

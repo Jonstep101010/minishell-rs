@@ -1,9 +1,10 @@
 #include "struct.h"
-#include "libft.h"
 #include "environment.h"
 #include <stdio.h>
 #include <unistd.h>
 #include "tokens.h"
+#include "libutils.h"
+#include "utils.h"
 
 int	export_env(const char **envp);
 
@@ -18,7 +19,10 @@ int	export(t_shell *shell, t_token *token)
 	{
 		if (!check_valid_key(token->command[i])
 			|| str_cchr(token->command[i], '=') != 1)
-			return (dprintf(STDERR_FILENO, "minishell: export: '%s': invalid variable name\n", token->command[i]), 1);
+		{
+			eprint("export: '%s': not a valid identifier\n", token->command[i]);
+			return (1);
+		}
 		shell->tmp_arr = export_var(shell->owned_envp, token->command[i]);
 		if (!shell->tmp_arr)
 			return (0);

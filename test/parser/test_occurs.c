@@ -1,5 +1,6 @@
 #include "unity.h"
 #include "occurs.c"
+#include "support_lib.c"
 
 void	test_returns_null() {
 	TEST_ASSERT_NULL(occurs(NULL, "echo "));

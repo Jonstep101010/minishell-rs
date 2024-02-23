@@ -1,5 +1,5 @@
 #include "../../src/utils/while_string_wrapper.c"
-#include "libft.h"
+#include "support_lib.c"
 #include "unity.h"
 #include "minishell.h"
 #include <stdbool.h>

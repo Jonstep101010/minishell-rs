@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 
+void	arr_free(char **arr);
 t_lexer	lexer_checks_basic(char *s);
 #ifndef TEST
 // char	**split_outside_quotes(const char *to_split, char c);

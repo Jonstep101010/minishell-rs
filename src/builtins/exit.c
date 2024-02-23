@@ -1,18 +1,20 @@
 #include "struct.h"
-#include "libft.h"
+#include "arr_utils.h"
+#include <stdlib.h>
 
 void	destroy_all_tokens(t_shell *shell);
+
 void	builtin_exit(t_shell *shell)
 {
-	int	exit_code;
+	size_t	i;
+	int		exit_code;
 
 	exit_code = 0;
 	if (shell->line)
-		free_null(shell->line);
-	// printf("exiting now...\n");
+		free(shell->line);
 	if (shell->owned_envp)
 		arr_free(shell->owned_envp);
-	size_t	i = 0;
+	i = 0;
 	while (shell->token && shell->token[i].split_pipes)
 	{
 		if (shell->token[i].command)

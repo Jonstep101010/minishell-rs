@@ -3,8 +3,7 @@
 #include "unity.h"
 #include "arr_utils.c"
 #include "occurs.c"
-#include "libft.h"
-#include "../include/libft/src/string/str_cchr.c"
+#include "support_lib.c"
 #include "print_arr_sep.c"
 #include "export_var.c"
 #include "str_utils.c"
@@ -12,7 +11,7 @@
 #include "check_key.c"
 #include "env.c"
 #include "free_strjoin.c"
-#include "utils.h"
+#include "error.c"
 
 void	test_read_returns_correct() {
 	char	*env[] = {"not=looking", "maybe=?looking", "key=forsure", "notmine=(null)", NULL};

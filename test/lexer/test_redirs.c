@@ -1,4 +1,4 @@
-#include "../include/libft/src/string/str_cchr.c"
+#include "support_lib.c"
 #include "../src/lexer/checks_basic.c"
 #include "../src/lexer/check_quotes.c"
 #include "../src/lexer/check_pipes.c"
