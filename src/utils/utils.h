@@ -10,6 +10,8 @@ char	**append_str_arr(const char **arr, const char *s);
 void	rm_str_arr(char **arr, const char *s);
 char	**arr_trim(char **arr, char const *set);
 
+void	free_null(void *p);
+
 void	update_variable(char **envp, const char *key, const char *value);
 char	*free_first_join(char *s1, const char *s2);
 char	*free_strjoin(int count, ...);

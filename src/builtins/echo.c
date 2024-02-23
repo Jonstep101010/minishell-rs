@@ -1,39 +1,48 @@
 #include "libft.h"
 #include "tokens.h"
-#include "utils.h"
-#include "arr_utils.h"
 
 static int	is_n_arg(const char *arg)
 {
-	if (occurs(arg, "-n")
-		&& ft_strncmp(arg, "-n", 2) == 0)
-		return (1);
+	if (*arg == '-')
+	{
+		arg++;
+		while (*arg == 'n')
+		{
+			arg++;
+			if (*arg == '\0')
+				return (1);
+		}
+	}
 	return (0);
 }
 
-// @todo echo -nhello will not print at all
-static int	echo_default(const char **cmd_arr, size_t writelen)
+// 0 is case of -n flag running and a string with -nsomething -> "\n"
+// 1 is case of normal -n flag -> no newline
+// 2 is case of no -n flag -> "\n"
+static void	echo_default(const char **cmd_args)
 {
-	size_t	n_args;
-	size_t	len;
+	int		i;
+	int		flag;
 
-	n_args = arr_len((const char **)cmd_arr);
-	if (writelen == 1 && (cmd_arr + writelen))
+	i = 0;
+	flag = 0;
+	while (cmd_args[i] && is_n_arg(cmd_args[i]) == 1)
+		i++;
+	if (i == 0)
+		flag = 2;
+	if (i > 0)
+		flag = 1;
+	while (cmd_args[i])
 	{
-		while (cmd_arr + writelen && is_n_arg(*(cmd_arr + writelen)))
-			writelen++;
+		if (flag == 1 && ft_strncmp(cmd_args[i], "-n", 2) == 0)
+			flag = 0;
+		printf("%s", cmd_args[i]);
+		if (cmd_args[i + 1])
+			printf(" ");
+		i++;
 	}
-	while (cmd_arr + writelen && *(cmd_arr + writelen) && writelen <= n_args)
-	{
-		len = 0;
-		while (cmd_arr[writelen][len] != '\0')
-			len++;
-		write(1, cmd_arr[writelen], len);
-		if (writelen < n_args - 1)
-			write(1, " ", 1);
-		writelen++;
-	}
-	return (0);
+	if (flag != 1)
+		printf("\n");
 }
 
 int	echo(t_shell *nullable, t_token *token)
@@ -43,10 +52,6 @@ int	echo(t_shell *nullable, t_token *token)
 	(void)nullable;
 	if (!args || !*args)
 		return (write(1, "\n", 1), 0);
-	if (occurs(*(args + 1), "-n")
-		&& ft_strncmp(*(args + 1), "-n", 2) == 0)
-		return (echo_default(args + 1, 1), 0);
-	echo_default(&args[1], 0);
-	write(1, "\n", 1);
+	echo_default(&args[1]);
 	return (0);
 }
