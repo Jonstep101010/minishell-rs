@@ -24,5 +24,14 @@ bool	*bool_arr_zeroing(size_t len);
 void	range_ignore(const char *s, bool *ignore, unsigned char c);
 
 // error handling
+
+/**
+ * @brief "minishell: " + fmt on stderr
+ */
 void	eprint(const char *fmt, ...);
+
+/**
+ * @brief fmt on stderr
+ */
+void	eprint_single(const char *fmt, ...);
 #endif

@@ -22,6 +22,7 @@ t_shell	*init_shell(const char **envp)
 	shell = (t_shell *)ft_calloc(1, sizeof(t_shell));
 	if (!shell)
 		return (NULL);
+	shell->p_termios = (struct termios){0};
 	shell->owned_envp = init_env(envp);
 	if (!shell->owned_envp)
 	{
@@ -50,4 +51,6 @@ void	update_exit_status(t_shell *shell, int status)
 		free(status_str);
 		return ;
 	}
+	shell->exit_status = status;
+	shell->owned_envp = shell->tmp_arr;
 }

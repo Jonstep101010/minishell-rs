@@ -5,3 +5,5 @@ valgrind.log
 input_leaks.txt
 tmp.sh
 notes.md
+
+msh_tester.log
