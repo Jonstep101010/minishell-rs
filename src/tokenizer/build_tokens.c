@@ -31,6 +31,8 @@ t_token	*init_token(size_t size)
 	token[size].cmd_args = NULL;
 	token[size].tmp_arr = NULL;
 	token[size].command = NULL;
+	token[size].split_pipes = NULL;
+	token[size].cmd_func = NULL;
 	return (token);
 }
 

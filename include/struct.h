@@ -13,6 +13,7 @@ typedef struct s_shell
 	int		exit_status;
 	char	**owned_envp;
 	char	*line;
+	char	*trimmed_line;
 	char	*expanded_line;
 	char	*tmp;
 	char	**tmp_arr;

@@ -2,7 +2,7 @@
 #include "libft.h"
 #include "str_utils.h"
 
-void	count_number(char *s, struct s_lexer *input)
+void	count_number(const char *s, struct s_lexer *input)
 {
 	*input = (struct s_lexer){
 		.singlequotes = str_cchr(s, '\''),

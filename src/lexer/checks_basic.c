@@ -3,7 +3,7 @@
 
 // @audit-info error  "cmd "'" hello" or any other unbalanced delimiters
 // @follow-up free in caller and just get ref to struct?
-t_lexer	lexer_checks_basic(char *s)
+t_lexer	lexer_checks_basic(const char *s)
 {
 	if (!s || !*s)
 		return (LEXER_NULL);

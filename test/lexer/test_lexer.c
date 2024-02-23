@@ -69,3 +69,29 @@ void	test_error() {
 	TEST_ASSERT(LEXER_SUCCESS != lexer_checks_basic("echo \"'Hello, World!\""));
 	TEST_ASSERT(LEXER_SUCCESS != lexer_checks_basic("\"'\""));
 }
+
+void test_trailing_leading_quote() {
+	TEST_ASSERT(lexer_checks_basic("\"Hello, World!\"") == LEXER_SUCCESS);
+	TEST_ASSERT(lexer_checks_basic("\"Hello, World!") == LEXER_UNBALANCED_QUOTES);
+	TEST_ASSERT(lexer_checks_basic("\"Hello, World!") == LEXER_UNBALANCED_QUOTES);
+	TEST_ASSERT(lexer_checks_basic("echo 'Hello, World!") == 2);
+	TEST_ASSERT(lexer_checks_basic("echo Hello, World!'") == 2);
+	TEST_ASSERT(lexer_checks_basic("echo \"Hello, World!'") == 2);
+	TEST_ASSERT(lexer_checks_basic("echo Hello, World!\"") == 2);
+	TEST_ASSERT(lexer_checks_basic("echo \"Hello, World!\"") == LEXER_SUCCESS);
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("'echo'"));
+}
+
+// test () {} [] each and unbalanced aquivalents
+void	test_parenthesis() {
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo (Hello, World!)"));
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo {Hello, World!}"));
+}
+
+void	test_backlog() {
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo Hello, World!}"));
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo Hello, World!)"));
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo (Hello, World!"));
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo {Hello, World!"));
+
+}

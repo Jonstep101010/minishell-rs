@@ -54,6 +54,9 @@ ceedling: C_LIBFT
 
 test: C_LIBFT
 	ceedling test:all
+
+memcheck:
+	ceedling release; valgrind --leak-check=full --track-origins=yes -s --log-file=valgrind.log ./build/release/minishell
 # bonus: all
 # all: $(NAME)
 
