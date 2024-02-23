@@ -2,16 +2,35 @@
 #include "libft.h"
 #include "utils.h"
 #include "environment.h"
+#include "arr_utils.h"
+#include "utils.h"
 
 char	**init_env(const char **envp)
 {
 	char	**env;
+	char	**tmp_arr;
+	char	*PWD;
+	char	*tmp;
 
-	if (!envp)
-		return (NULL);
 	env = append_str_arr(envp, "?=0");
-	if (!env)
-		return (NULL);
+	PWD = get_env_var((const char **)env, "PWD");
+	if (!PWD)
+	{
+		PWD = getcwd(NULL, 0);
+		if (!PWD)
+			return (arr_free(env), NULL);
+		tmp = ft_strjoin("PWD=", PWD);
+		free_null(&PWD);
+		tmp_arr = export_var(env, tmp);
+		if (tmp_arr != env)
+			arr_free(tmp_arr);
+		free_null(&tmp);
+		env = export_var(tmp_arr, "OLDPWD=''");
+		if (tmp_arr != env)
+			arr_free(tmp_arr);
+	}
+	else
+		free_null(&PWD);
 	return (env);
 }
 

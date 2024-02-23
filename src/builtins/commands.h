@@ -5,8 +5,8 @@ int							not_builtin(t_shell *shell, t_token *token);
 int							builtin_cd(t_shell *shell, t_token *token);
 int							export(t_shell *shell, t_token *token);
 int							unset(t_shell *shell, t_token *token);
-int							echo(t_shell *shell, t_token *token);
-int							builtin_exit(t_shell *shell, t_token *token);
+int							echo(t_shell *nullable, t_token *token);
+int							builtin_exit(t_shell *shell, t_token *nullable);
 int							builtin_env(t_shell *shell, t_token *token);
 int							builtin_pwd(t_shell *shell, t_token *token);
 

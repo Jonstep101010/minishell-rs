@@ -10,7 +10,6 @@
 
 /**
  * @brief change directory to path, update PWD and OLDPWD
- * @audit uses eprint
  * @param path if no path is given, change to home
  * @param envp environment
  * @return int
@@ -39,7 +38,6 @@ static int	changedir(const char *path, char **envp)
 
 /**
  * @brief change directory
- * @audit uses eprint
  * @param cmd_args dir to change to
  * @param envp environment
  * @return int exit code
