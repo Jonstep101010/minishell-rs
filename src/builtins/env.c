@@ -1,19 +1,26 @@
-#include "utils.h"
-#include "libft.h"
-#include <stddef.h>
+#include "struct.h"
+#include "tokens.h"
+#include <stdio.h>
 
-int	builtin_env(char **envp)
+int	export_env(const char **envp)
 {
-	int	i = 0;
-	if (!envp || !*(envp))
+	while (*envp)
 	{
-		// printf("fatal error\n");
-		return (1);
+		printf("declare -x %s\n", *envp);
+		envp++;
 	}
-	while (envp[i + 1])
+	return (0);
+}
+
+int	builtin_env(t_shell *shell, t_token *token)
+{
+	const char	**envp = (const char **)shell->owned_envp;
+
+	(void)token;
+	while (*envp)
 	{
-		printf("%s\n", envp[i]);
-		i++;
+		printf("%s\n", *envp);
+		envp++;
 	}
-	return ((void)printf("%s\n", envp[i]), 0);
+	return (0);
 }

@@ -1,7 +1,7 @@
-#include "ft_printf.h"
 #include "libft.h"
 #include <stddef.h>
 #include "utils.h"
+#include "arr_utils.h"
 
 char	**append_str_arr(const char **arr, const char *s)
 {
@@ -9,7 +9,7 @@ char	**append_str_arr(const char **arr, const char *s)
 	size_t	i;
 	char	**ret;
 
-	if (!s || !*s)
+	if (!s)
 		return (NULL);
 	len = arr_len((const char **)arr);
 	ret = (char **) ft_calloc(len + 2, sizeof(char *));
@@ -48,7 +48,7 @@ void	rm_str_arr(char **arr, const char *s)
 	{
 		if (occurs_exclusively(arr[i], s))
 		{
-			free_null(arr[i]);
+			free(arr[i]);
 			while (i < len)
 			{
 				arr[i] = arr[i + 1];

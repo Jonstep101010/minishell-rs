@@ -1,11 +1,14 @@
-#include "libft.h"
+#include "support_lib.c"
 #include "tokens.h"
 #include "unity.h"
 
-#include "checks_basic.c"
-#include "support_parser.h"
-#include "build_tokens.c"
-#include "expand_variables.c"
+#include "interpret_quotes.c"
+#include "split_outside_quotes.c"
+#include "free_strjoin.c"
+#include "expander.c"
+#include "find_key.c"
+#include "arr_utils.c"
+#include "occurs.c"
 
 void	test_find_leaks() {
 	char	*input = strdup("echo | \"nopipes |\" | echo hello");

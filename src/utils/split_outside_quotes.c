@@ -1,5 +1,6 @@
 #include "libft.h"
 #include "utils.h"
+#include "arr_utils.h"
 #include <unistd.h>
 #include "parser.h"
 

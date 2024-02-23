@@ -1,9 +1,11 @@
 #ifndef BUILTINS_H
 # define BUILTINS_H
 
-#include "struct.h"
+# include "struct.h"
 
-// size_t		echo(char *cmd, char **args, char **envp);
-void		builtin_exit(t_shell *shell, int exitcode);
-int			builtin_env(char **envp);
+void	add_pipe_split_as_tokens(char **pipe_split, t_shell *shell);
+void	convert_split_token_string_array_to_tokens(t_shell *shell);
+void	convert_tokens_to_string_array(t_token *token);
+void	destroy_all_tokens(t_shell *shell);
+
 #endif

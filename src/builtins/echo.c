@@ -1,54 +1,57 @@
 #include "libft.h"
-#include "utils.h"
+#include "tokens.h"
 
 static int	is_n_arg(const char *arg)
 {
-	if (occurs(arg, "-n")
-		&& ft_strncmp(arg, "-n", 2) == 0)
-			return (1);
-	return (0);
-}
-
-static int	echo_default(char **cmd_arr, size_t writelen)
-{
-	size_t	n_args;
-	size_t	len;
-
-	n_args = arr_len((const char **)cmd_arr);
-	if (writelen == 1 && (cmd_arr + writelen))
+	if (*arg == '-')
 	{
-		while (cmd_arr + writelen && is_n_arg(*(cmd_arr + writelen)))
-			writelen++;
-	}
-	while (cmd_arr + writelen && *(cmd_arr + writelen) && writelen <= n_args)
-	{
-		len = 0;
-		while (cmd_arr[writelen][len] != '\0')
-			len++;
-		write(1, cmd_arr[writelen], len);
-		if (writelen < n_args - 1)
-			write(1, " ", 1);
-		writelen++;
+		arg++;
+		while (*arg == 'n')
+		{
+			arg++;
+			if (*arg == '\0')
+				return (1);
+		}
 	}
 	return (0);
 }
 
-size_t	echo(const char *cmd, char **args, char **envp)
+// 0 is case of -n flag running and a string with -nsomething -> "\n"
+// 1 is case of normal -n flag -> no newline
+// 2 is case of no -n flag -> "\n"
+static void	echo_default(const char **cmd_args)
 {
-	(void)cmd;
-	(void)envp;
-	// print_arr(args + 2);
-	// printf("echo builtin gets called\n");
+	int		i;
+	int		flag;
+
+	i = 0;
+	flag = 0;
+	while (cmd_args[i] && is_n_arg(cmd_args[i]) == 1)
+		i++;
+	if (i == 0)
+		flag = 2;
+	if (i > 0)
+		flag = 1;
+	while (cmd_args[i])
+	{
+		if (flag == 1 && ft_strncmp(cmd_args[i], "-n", 2) == 0)
+			flag = 0;
+		printf("%s", cmd_args[i]);
+		if (cmd_args[i + 1])
+			printf(" ");
+		i++;
+	}
+	if (flag != 1)
+		printf("\n");
+}
+
+int	echo(t_shell *nullable, t_token *token)
+{
+	const char	**args = (const char **)token->command;
+
+	(void)nullable;
 	if (!args || !*args)
-		return (write(1, "\n", 1));
-	if (!occurs_exclusively("echo", *args))
-		return (0);
-	if (occurs(*(args + 1), "-n")
-		&& ft_strncmp(*(args + 1), "-n", 2) == 0)
-			return (echo_default(args + 1, 1));
-	echo_default(&args[1], 0);
-	write(1, "\n", 1);
+		return (write(1, "\n", 1), 0);
+	echo_default(&args[1]);
 	return (0);
 }
-
-

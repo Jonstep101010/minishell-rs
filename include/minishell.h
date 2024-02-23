@@ -13,7 +13,7 @@ t_shell	*init_shell(const char **envp);
 void	update_exit_status(t_shell *shell, int status);
 
 // parsing / tokenization
-void	get_tokens(t_shell *shell);
+void	deploy_tokens(t_shell *shell);
 void	destroy_all_tokens(t_shell *shell);
 
 int		builtin(t_shell *shell, t_token *token);

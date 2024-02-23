@@ -1,22 +1,15 @@
 #include "struct.h"
+#include "tokens.h"
+#include "utils.h"
 #include <stdbool.h>
 #include <sys/param.h>
-
-char	*occurs_exclusively(const char *, const char *);
-
-int		export(t_shell *shell, t_token *token);
-int		unset(char *cmd, char **args, char **envp);
-size_t	echo(char *cmd, char **args, char **envp);
-int		builtin_env(char **envp);
-char	**split_outside_quotes(const char *to_split, char c);
-void	add_pipe_split_as_tokens(char **pipe_split, t_shell *shell);
-void	convert_split_token_string_array_to_tokens(t_shell *shell);
-void	convert_tokens_to_string_array(t_token *token);
-void	destroy_all_tokens(t_shell *shell);
 #include <sys/wait.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include "builtins.h"
+
+void	update_exit_status(t_shell *shell, int status);
 
 /**
  * @brief
@@ -24,7 +17,7 @@ void	destroy_all_tokens(t_shell *shell);
  * @param shell
  * @param token pointer to element in array of tokens
  */
-void	execute_commands(t_shell *shell, t_token *token)
+int	not_builtin(t_shell *shell, t_token *token)
 {
 	pid_t test = -1;
 	if (!occurs_exclusively("exit", token->cmd_args[0].elem))
@@ -39,46 +32,14 @@ void	execute_commands(t_shell *shell, t_token *token)
 	}
 	else
 		waitpid(test, NULL, 0);
-}
-
-void	builtin_exit(t_shell *shell);
-// @follow-up parser needs to run before builtins in future,
-// pass in only command char **
-// need to add
-int		builtin(t_shell *shell, t_token *token)
-{
-	if (!token)
-		return (-1);
-	convert_tokens_to_string_array(shell->token);
-	char	buf[MAXPATHLEN + 1];
-
-	// printf("my builtins:\n");
-	if (!token || !token->command || !*token->command)
-		return (-1);
-	// if (!shell->owned_envp || !*(shell->owned_envp))
-	// 	return (-1);// something about env not existing
-	// if (!token->command || !*(token->command))
-	// 	return (-1);
-	if (occurs_exclusively("echo", *token->command))
-		return (echo(*token->command, token->command, shell->owned_envp));
-	if (occurs_exclusively("unset", *token->command)
-		&& token->command[1] && shell->owned_envp)
-	{
-		if (unset(token->command[0], token->command, shell->owned_envp) != 0)
-			return (-1);
-		return (0);
-	}
-	if (occurs_exclusively("export", token->command[0]))
-		return (export(shell, token));
-	if (occurs_exclusively("pwd", token->command[0]))
-	{
-		getcwd(buf, MAXPATHLEN);
-		return (printf("%s\n", buf));
-	}
-	if (occurs_exclusively("env", token->command[0]))
-		return (builtin_env(shell->owned_envp));
-	// printf("builtin not found: running exec!\n");
-	execute_commands(shell, token);
 	return (0);
 }
 
+// @follow-up could be called from a loop and destroy owned args?
+void	execute_commands(t_shell *shell, t_token *token)
+{
+	convert_tokens_to_string_array(token);
+	if (!token || !token->command || !*token->command)
+		update_exit_status(shell, -1);
+	update_exit_status(shell, token->cmd_func(shell, token));
+}

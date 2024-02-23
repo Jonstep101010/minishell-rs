@@ -1,12 +1,12 @@
-#include "../src/lexer/checks_basic.c"
-#include "../src/lexer/lexer_support.c"
-#include "../src/lexer/check_quotes.c"
-#include "../src/lexer/check_pipes.c"
-#include "../include/libft/src/string/str_cchr.c"
-#include "../src/utils/while_string_wrapper.c"
-#include "../src/utils/bool_array.c"
+#include "checks_basic.c"
+#include "lexer_support.c"
+#include "check_quotes.c"
+#include "check_pipes.c"
+#include "while_string_wrapper.c"
+#include "bool_array.c"
 #include "unity.h"
 #include <stdbool.h>
+#include "support_lib.c"
 
 void test_redir_pipes_mix()
 {
@@ -34,10 +34,29 @@ void test_works_with_quotes() {
 
 	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo \"This is a test\""));
 	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo \"Hello, World!\""));
+	TEST_ASSERT(LEXER_DOUBLE_QUOTE
+		== lexer_checks_basic("echo Hello, World!\""));
+	TEST_ASSERT(LEXER_DOUBLE_QUOTE
+		== lexer_checks_basic("echo \"Hello, World!"));
+	TEST_ASSERT(LEXER_SINGLE_QUOTE
+		== lexer_checks_basic("echo \'Hello, World!"));
+	// @audit-info no need to handle!
+	TEST_ASSERT(LEXER_SUCCESS != lexer_checks_basic("echo 'Hello, World!"));
+	TEST_ASSERT(LEXER_SUCCESS != lexer_checks_basic("'\"'"));
+	TEST_ASSERT(LEXER_SUCCESS != lexer_checks_basic("echo \"'Hello, World!\""));
+	TEST_ASSERT(LEXER_SUCCESS != lexer_checks_basic("\"'\""));
 }
 
-void test_works_with_brackets(void)
-{
+void test_trailing_leading_quote() {
+	TEST_ASSERT(lexer_checks_basic("\"Hello, World!\"") == LEXER_SUCCESS);
+	TEST_ASSERT(lexer_checks_basic("\"Hello, World!") == LEXER_DOUBLE_QUOTE);
+	TEST_ASSERT(lexer_checks_basic("\"Hello, World!") == LEXER_DOUBLE_QUOTE);
+	TEST_ASSERT(lexer_checks_basic("echo 'Hello, World!") == LEXER_SINGLE_QUOTE);
+	TEST_ASSERT(lexer_checks_basic("echo Hello, World!'") == LEXER_SINGLE_QUOTE);
+	TEST_ASSERT(lexer_checks_basic("echo \"Hello, World!'") != LEXER_SUCCESS);
+	TEST_ASSERT(lexer_checks_basic("echo Hello, World!\"") == LEXER_DOUBLE_QUOTE);
+	TEST_ASSERT(lexer_checks_basic("echo \"Hello, World!\"") == LEXER_SUCCESS);
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("'echo'"));
 	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("if (x > 5) { printf(\"x is greater than 5\"); }"));
 	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("awk '{count++} END {print count}'"));
 	TEST_ASSERT(LEXER_SUCCESS ==
@@ -48,24 +67,15 @@ void test_works_with_brackets(void)
 		lexer_checks_basic("while (i < 10) { i++; }"));
 }
 
-//@audit-info no need to handle semi-colons
-void	test_does_not_work_with_unbalanced_brackets(void)
-{
-	TEST_ASSERT(LEXER_SUCCESS != lexer_checks_basic("if (x > 5 { printf(\"x is greater than 5\"}); }"));
-	TEST_ASSERT(LEXER_SUCCESS != lexer_checks_basic("while (i < 10) { i++; "));
-	TEST_ASSERT(LEXER_SUCCESS != lexer_checks_basic("while (i < 10) i++;} "));
-}
-
-void	test_error() {
-	TEST_ASSERT(LEXER_UNBALANCED_QUOTES
-		== lexer_checks_basic("echo Hello, World!\""));
-	TEST_ASSERT(LEXER_UNBALANCED_QUOTES
-		== lexer_checks_basic("echo \"Hello, World!"));
-	TEST_ASSERT(LEXER_UNBALANCED_QUOTES
-		== lexer_checks_basic("echo \'Hello, World!"));
-	// @audit-info no need to handle!
-	TEST_ASSERT(LEXER_SUCCESS != lexer_checks_basic("echo 'Hello, World!"));
-	TEST_ASSERT(LEXER_SUCCESS != lexer_checks_basic("'\"'"));
-	TEST_ASSERT(LEXER_SUCCESS != lexer_checks_basic("echo \"'Hello, World!\""));
-	TEST_ASSERT(LEXER_SUCCESS != lexer_checks_basic("\"'\""));
+// test () {} [] each and unbalanced aquivalents
+void	test_parenthesis() {
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo (Hello, World!)"));
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo {Hello, World!}"));
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo Hello, World!}"));
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo Hello, World!)"));
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo (Hello, World!"));
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("if (x > 5 {{ printf(\"x is greater than 5\"})); }"));
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("while (i < 10) { i++; "));
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("while (i < 10) i++;} "));
+	TEST_ASSERT(LEXER_SUCCESS == lexer_checks_basic("echo {Hello, World!"));
 }

@@ -1,3 +1,4 @@
+#include "lexer.h"
 #include "struct.h"
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -8,24 +9,37 @@
 #include "minishell.h"
 #include "libft.h"
 #include <stdlib.h>
+#include "get_next_line.h"
+#include "utils.h"
+#include "commands.h"
+t_lexer lexer(t_shell *shell);
 
 void	minishell_loop(t_shell *shell)
 {
+	check_signals(&shell->p_termios);
 	while (1)
 	{
 		if (isatty(fileno(stdin)))
 		{
-			get_tokens(shell);
-			if (shell->token)
+			shell->line = readline("minishell> ");
+			if (!shell->line)
+				builtin_exit(shell, NULL);
+			if (ft_strlen(shell->line) == 0)
 			{
-				builtin(shell, shell->token);
-				destroy_all_tokens(shell);
+				free(shell->line);
+				continue ;
 			}
-			// else if (shell->exit_status == 2)
-			// 	continue;
-			// // does quitting using ctrl_d cause leaks?
-			else
-				return ;
+			shell->trimmed_line = ft_strtrim(shell->line, WHITESPACE);
+			if (!shell->trimmed_line)
+				builtin_exit(shell, NULL);
+			add_history(shell->trimmed_line);
+			if (*shell->trimmed_line == '\0' || lexer(shell) != LEXER_SUCCESS)
+			{
+				free(shell->line);
+				free(shell->trimmed_line);
+				continue ;
+			}
+			deploy_tokens(shell);
 		}
 		else
 		{
@@ -53,23 +67,19 @@ int main(int ac, char **av, const char **envp)
 	return (0);
 }
 
-t_token	*lexer(t_shell *shell);
-
-#include "utils.h"
-#include "builtins.h"
-void	get_tokens(t_shell *shell)
+void	deploy_tokens(t_shell *shell)
 {
-	shell->line = readline("minishell> ");
-	if (shell->line && *shell->line)
+	if (shell->owned_envp && *shell->owned_envp)
 	{
-		check_signals(&(shell->p_termios));
-		if (occurs_exclusively("exit", shell->line))
-			return (builtin_exit(shell, 0));
-		add_history(shell->line);
-		shell->token = lexer(shell);
-		if (!shell->token)
-			return ;// some exit code
-		// handle exit code for failed parsing/lexical errors
 		free(shell->line);
+		free(shell->trimmed_line);
+		if (shell->line && shell->trimmed_line)
+		{
+			if (shell->token && shell->owned_envp)
+			{
+				execute_commands(shell, shell->token);
+				destroy_all_tokens(shell);
+			}
+		}
 	}
 }

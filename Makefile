@@ -48,12 +48,18 @@ endif
 #                             building the program                             #
 # ---------------------------------------------------------------------------- #
 C_LIBFT:
-	cd include/libft && make ceedling
+	cd include/libft && make
 ceedling: C_LIBFT
 	ceedling release
 
 test: C_LIBFT
 	ceedling test:all
+MEMCHECK_PARAMS = ceedling release; valgrind --leak-check=full --track-origins=yes -s --log-file=valgrind.log 
+EXEC_PATH = ./build/release/$(NAME)
+memcheck:
+	$(MEMCHECK_PARAMS) $(EXEC_PATH)
+memcheck-all:
+	$(MEMCHECK_PARAMS) --show-leak-kinds=all $(EXEC_PATH)
 # bonus: all
 # all: $(NAME)
 
@@ -84,7 +90,12 @@ clean:
 fclean: clean
 	rm -rf build/*
 
-re: fclean ceedling
+re: fclean
+	rm -rf include/libft/
+	rm -rf include/libgnl/
+	rm -rf include/libutils/
+	rm -rf include/libftprintf/
+	git submodule update --init
 
 # ----------------------------- additional rules ----------------------------- #
 run: $(ceedling release)

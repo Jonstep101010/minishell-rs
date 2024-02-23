@@ -1,10 +1,29 @@
+#include "struct.h"
 #include "tokens.h"
+#include "libft.h"
 
 #ifndef TEST_TOKENS_H
 # include "libft.h"
-# include "struct.h"
 # include <stdlib.h>
+# include "arr_utils.h"
 #endif
+
+/**
+ * @brief free and set pointer to NULL
+ * @warning use address of pointer
+ * @param p address of pointer
+ */
+void	free_null(void *p)
+{
+	void	**ptr;
+
+	if (!p)
+		return ;
+	ptr = (void **)p;
+	if (*ptr)
+		free(*ptr);
+	*ptr = NULL;
+}
 
 void	destroy_all_tokens(t_shell *shell)
 {
@@ -23,25 +42,25 @@ void	destroy_all_tokens(t_shell *shell)
 			ii = 0;
 			while (token[i].cmd_args[ii].elem)
 			{
-				free(token[i].cmd_args[ii].elem);
+				free_null(&token[i].cmd_args[ii].elem);
 				ii++;
 			}
-			free(token[i].cmd_args);
+			free_null(&token[i].cmd_args);
 		}
 		if (token[i].command)
 			arr_free(token[i].command);
 		i++;
 	}
-	free(shell->token);
-	shell->token = NULL;
+	free_null(&shell->token);
 }
 
 // remove single token from shell
 void	destroy_single_token(t_shell *shell, t_token *token)
 {
-	size_t	i = 0;
+	size_t	i;
 	size_t	ii;
 
+	i = 0;
 	if (!token || !shell || !shell->token)
 		return ;
 	i = 0;
@@ -61,7 +80,6 @@ void	destroy_single_token(t_shell *shell, t_token *token)
 	}
 }
 
-#include "libft.h"
 t_token	*remove_token(t_shell *shell, t_token *token)
 {
 	size_t	i;

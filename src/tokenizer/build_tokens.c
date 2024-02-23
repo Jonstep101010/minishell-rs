@@ -1,8 +1,15 @@
 #include <stddef.h>
+#include <sys/param.h>
+#include "arr_utils.h"
 #include "libft.h"
 #include "tokens.h"
 #include "utils.h"
+#include "libutils.h"
 #include "struct.h"
+#include "builtins.h"
+#include "parser.h"
+
+void	set_cmd_func(t_token *token);
 
 t_arg	*init_cmdargs(size_t size)
 {
@@ -24,10 +31,12 @@ t_token	*init_token(size_t size)
 	token[size].cmd_args = NULL;
 	token[size].tmp_arr = NULL;
 	token[size].command = NULL;
+	token[size].split_pipes = NULL;
+	token[size].cmd_func = NULL;
 	return (token);
 }
 
-void	*do_quote_bs(const char *s, int *quote);
+
 void	add_pipe_split_as_tokens(char **pipe_split, t_shell *shell)
 {
 	size_t	i;
@@ -48,30 +57,10 @@ void	add_pipe_split_as_tokens(char **pipe_split, t_shell *shell)
 	}
 }
 
-void	builtin_info(t_token *token)
-{
-	if (ft_strncmp(token->cmd_args[0].elem, "export", 6) == 0)
-		token->builtin_info = EXPORT;
-	else if (ft_strncmp(token->cmd_args[0].elem, "echo", 4) == 0)
-		token->builtin_info = BUILTIN_ECHO;
-	else if (ft_strncmp(token->cmd_args[0].elem, "unset", 5) == 0)
-		token->builtin_info = UNSET;
-	else if (ft_strncmp(token->cmd_args[0].elem, "cd", 2) == 0)
-		token->builtin_info = CD;
-	else if (ft_strncmp(token->cmd_args[0].elem, "pwd", 3) == 0)
-		token->builtin_info = PWD;
-	else if (ft_strncmp(token->cmd_args[0].elem, "env", 3) == 0)
-		token->builtin_info = ENV;
-	else if (ft_strncmp(token->cmd_args[0].elem, "exit", 4) == 0)
-		token->builtin_info = EXIT;
-	else
-		token->builtin_info = NOT_BUILTIN;
-}
+char	*expander(const char *input, const char **envp);
 
-// @audit-info mod split_quotes to take a function pointer (for whitespace that can be space or tab)
 // take the token with command string and split it into command and arguments
 // if we find any pipes
-char	*expand_variables(const char *input, const char **envp);
 void	convert_split_token_string_array_to_tokens(t_shell *shell)
 {
 	size_t	i;
@@ -104,7 +93,7 @@ void	convert_split_token_string_array_to_tokens(t_shell *shell)
 			shell->token[i].cmd_args[ii].elem = shell->token[i].tmp_arr[ii];
 			if (!shell->token[i].cmd_args[ii].elem)
 				return ;
-			builtin_info(&shell->token[i]);
+			set_cmd_func(&shell->token[i]);
 			// @follow-up add more properties (count?), separate function?
 			if (str_cchr(shell->token[i].cmd_args[ii].elem, '\'') == 0 && str_cchr(shell->token[i].cmd_args[ii].elem, '"') == 0)
 				shell->token[i].cmd_args[ii].quote = NONE;
@@ -112,24 +101,19 @@ void	convert_split_token_string_array_to_tokens(t_shell *shell)
 				shell->token[i].cmd_args[ii].quote = DOUBLE;
 			if (str_cchr(shell->token[i].cmd_args[ii].elem, '\''))
 				shell->token[i].cmd_args[ii].quote = SINGLE;
-			while (shell->token[i].builtin_info != ENV &&
-					shell->token[i].builtin_info != EXPORT &&
-					shell->token[i].builtin_info != UNSET &&
-				str_cchr(shell->token[i].cmd_args[ii].elem, '$'))
+			tmp = expander(shell->token[i].cmd_args[ii].elem, (const char **)shell->owned_envp);
+			// fprintf(stderr, "tmp in convert: %s\n", tmp);
+			if (!tmp)
+				return ;
+			if (ft_strncmp(tmp, shell->token[i].cmd_args[ii].elem, MAX(ft_strlen(tmp), ft_strlen(shell->token[i].cmd_args[ii].elem))== 0))
 			{
-				tmp = expand_variables(shell->token[i].cmd_args[ii].elem, (const char **)shell->owned_envp);
-				if (!tmp)
-					return ;
-				if (ft_strncmp(tmp, shell->token[i].cmd_args[ii].elem, ft_strlen(tmp)) == 0)
-				{
-					// printf("recursive expansion is the same as the original, freeing\n");
-					// printf("reex: %s\n", shell->token[i].cmd_args[ii].elem);
-					free(tmp);
-					break ;
-				}
-				free(shell->token[i].cmd_args[ii].elem);
-				shell->token[i].cmd_args[ii].elem = tmp;
+				// printf("recursive expansion is the same as the original, freeing\n");
+				// printf("reex: %s\n", shell->token[i].cmd_args[ii].elem);
+				free(tmp);
+				break ;
 			}
+			free(shell->token[i].cmd_args[ii].elem);
+			shell->token[i].cmd_args[ii].elem = tmp;
 			int quote = 0;
 			if (shell->token[i].cmd_args[ii].quote != NONE)
 			{

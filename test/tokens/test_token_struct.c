@@ -15,6 +15,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "support_tokens.c"
+#include "check_key.c"
+#include "free_strjoin.c"
 
 void	test_token_struct(void)
 {

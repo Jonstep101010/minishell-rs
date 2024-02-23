@@ -1,9 +1,33 @@
+#include "tokens.h"
 #include "unity.h"
 #include "support_shell.c"
-#include "support_parser.h"
-#include "checks_basic.c"
-#include "build_tokens.c"
-#include "expand_variables.c"
+
+void	*do_quote_bs(const char *s, int *quote)
+{
+	char	*tmp;
+	size_t	len;
+	size_t	tmp_len;
+
+	len = ft_strlen(s);
+	tmp = (char *)ft_calloc(len + 1, sizeof(char));
+	if (!tmp)
+		return (NULL);
+	while (*s)
+	{
+		if (*quote == 0 && (*s == '\'' || *s == '"'))
+			*quote = *s;
+		else if (*quote != 0 && *s == *quote)
+			*quote = 0;
+		else
+		{
+			tmp_len = ft_strlen(tmp);
+			tmp[tmp_len] = *s;
+			tmp[tmp_len + 1] = '\0';
+		}
+		s++;
+	}
+	return (tmp);
+}
 
 void	test_nested_one() {
 	// "'"'"'test'"'"'"

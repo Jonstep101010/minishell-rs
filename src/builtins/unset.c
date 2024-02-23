@@ -1,53 +1,41 @@
 #include "environment.h"
 #include "libft.h"
-#include "struct.h"
+#include "tokens.h"
 #include "utils.h"
-// see if exists, remove using rm_str_arr
-// otherwise: error with not found
-// implement proper error handling @todo (set codes instead of returning null)
-int		unset(char *cmd, char **args, char **envp)
+#include "struct.h"
+
+static int	unset_internal(const char **args, char **envp)
 {
-	int		index;
-	char	*key;
+	int	index;
 
-	// key should be at args[1]
-	if (!envp)
-		return (-2);
-		// return ((void)printf("Error: environment does not exist!\n"), -2);
-	if (!args || !*args || arr_len((const char **)args) > 2)
-		return ((void)printf("Error: no variable name provided!\n"), -1);
-	if (!occurs_exclusively("unset", cmd)
-			|| ft_strncmp(cmd, args[0], ft_strlen(cmd)) != 0)
-		return ((void)printf("Error: no variable name provided!\n"), -1);
-	key = args[1];
-	if (!key || !*key)
-		return (0);
-		// return ((void)printf("Error: no variable name provided!\n"), -1);
-	index = find_key_env((const char **)envp, key, ft_strlen);
-	if (index >= 0 && envp[index])
+	while (*args)
 	{
-		// printf("removing variable: %s\n", envp[index]);
-		rm_str_arr(envp, envp[index]);
-		return (0);
+		if (!check_valid_key(*args))
+		{
+			eprint("%s: %s: %s", "unset", *args, "invalid option");
+			return (1);
+		}
+		index = find_key_env((const char **)envp, *args, ft_strlen);
+		if (index >= 0 && envp[index])
+			rm_str_arr(envp, envp[index]);
+		args++;
 	}
-	// printf("Error: varname does not exist in env!\n");
-	return (-1);
+	return (0);
 }
-// int		unset(t_shell *shell, char *key)
-// {
-// 	int	index;
 
-// 	if (!shell->owned_envp)
-// 		return ((void)printf("Error: environment does not exist!\n"), -2);
-// 	if (!key || !*key)
-// 		return ((void)printf("Error: no variable name provided!\n"), -1);
-// 	index = find_key_env((const char **)shell->owned_envp, key, ft_strlen);
-// 	if (index >= 0 && shell->owned_envp[index])
-// 	{
-// 		printf("removing variable: %s\n", shell->owned_envp[index]);
-// 		rm_str_arr(shell->owned_envp, shell->owned_envp[index]);
-// 		return (0);
-// 	}
-// 	printf("Error: varname does not exist in env!\n");
-// 	return (-1);
-// }
+/**
+ * @brief lookup varname if it is valid, remove it from envp
+ * @param args to read
+ * @param envp to modify
+ * @return 1 on invalid varname, 0 on success
+ */
+int	unset(t_shell *shell, t_token *token)
+{
+	char		**envp;
+	const char	**args = (const char **)token->command;
+
+	envp = (char **)shell->owned_envp;
+	if (!envp || !*(args + 1) || !*envp)
+		return (0);
+	return (unset_internal(args + 1, envp));
+}

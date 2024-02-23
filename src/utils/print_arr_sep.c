@@ -1,5 +1,5 @@
-#include "stddef.h"
-#include "libft.h"
+#include <stdio.h>
+#include "arr_utils.h"
 
 void	print_arr_sep(char **arr, char sep_open, char sep_close)
 {
