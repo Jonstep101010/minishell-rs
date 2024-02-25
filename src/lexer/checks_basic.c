@@ -1,13 +1,12 @@
 #include "lexer.h"
 #include <stdlib.h>
 
-// @audit-info error  "cmd "'" hello" or any other unbalanced delimiters
-// @follow-up free in caller and just get ref to struct?
 t_lexer	lexer_checks_basic(const char *s)
 {
+	struct s_lexer	input;
+
 	if (!s || !*s)
 		return (LEXER_NULL);
-	struct s_lexer	input;
 	input.lexer = LEXER_NULL;
 	count_number(s, &input);
 	if (input.singlequotes == 1)

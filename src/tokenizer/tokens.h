@@ -40,6 +40,11 @@ typedef struct s_arg
 }	t_arg;
 
 typedef struct s_shell	t_shell;
+
+void	add_pipe_split_as_tokens(char **pipe_split, t_shell *shell);
+void	convert_split_token_string_array_to_tokens(t_shell *shell);
+void	convert_tokens_to_string_array(t_token *token);
+
 struct s_token
 {
 	t_arg	*cmd_args;// keep attributes in execution (i.e. redirs), cmd_args[0] is the first token/command (not pipe)

@@ -1,8 +1,8 @@
 #ifndef LEXER_H
 # define LEXER_H
-
 # include <stddef.h>
 # include <stdbool.h>
+
 typedef enum e_lexer
 {
 	LEXER_SUCCESS,
@@ -41,7 +41,6 @@ t_lexer	check_pipes_redirection(const char *s, struct s_lexer *input);
 t_lexer	check_against_ignore(const char *s, struct s_lexer *input);
 void	count_number(const char *s, struct s_lexer *input);
 
-# include <stddef.h>
 bool	*bool_arr_zeroing(size_t len);
 void	range_ignore(const char *s, bool *ignore, unsigned char c);
 
