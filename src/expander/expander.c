@@ -39,29 +39,22 @@ static char	*expand_variables(char *input, const char **envp)
 		if (input[i] && input[i] == '$' && input[i + 1] && singlequote == 0)
 		{
 			end = i + 1;
-			// fprintf(stderr, "input: %s\n", &input[end]);
 			if (input[end] != '?')
 				while (input[end] && is_valid_key(input[end]))
 					end++;
 			else
 				end++;
 			to_expand = ft_substr(input, i, end - i);
-			// printf("to_expand: '%s'\n", to_expand);
 			if (!to_expand)
 				return (NULL);
 			expanded = expand_var(to_expand, envp);
-			// printf("expanded: '%s'\n", expanded);
 			if (!expanded)
 				return (free(to_expand), NULL);
 			before_expansion = ft_substr(input, 0, i);
 			after_expansion = ft_strdup(&input[end]);
-			// fprintf(stderr, "before_expansion: %s\n", before_expansion);
-			// fprintf(stderr, "expanded: %s\n", expanded);
 			tmp_len = ft_strlen(before_expansion) + ft_strlen(expanded) - 1;
 			free(to_expand);
 			tmp = free_strjoin(2, before_expansion, expanded);
-			// fprintf(stderr, "tmp: %s\n", tmp);
-			// fprintf(stderr, "after_expansion: %s\n", after_expansion);
 			free(input);
 			input = ft_strjoin(tmp, after_expansion);
 			free(after_expansion);
