@@ -6,6 +6,7 @@
 #include "split_outside_quotes.c"
 #include "free_strjoin.c"
 #include "expander.c"
+#include "expand_variables.c"
 #include "find_key.c"
 #include "arr_utils.c"
 #include "occurs.c"

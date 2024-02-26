@@ -28,7 +28,7 @@ void test_pipes_filter_fail()
 {
 	TEST_ASSERT(lexer_checks_basic("hello ||") != LEXER_SUCCESS);
 	TEST_ASSERT(lexer_checks_basic("hello |") != LEXER_SUCCESS);
-	TEST_ASSERT(lexer_checks_basic("hello | hello | hello |") != LEXER_SUCCESS);
+	TEST_ASSERT_EQUAL(LEXER_PIPES, lexer_checks_basic("hello | hello | hello |"));
 	TEST_ASSERT(lexer_checks_basic("     ||") != LEXER_SUCCESS);
 	TEST_ASSERT(lexer_checks_basic("           |    ") != LEXER_SUCCESS);
 	TEST_ASSERT(lexer_checks_basic("			|    ") != LEXER_SUCCESS);
@@ -63,6 +63,6 @@ void test_pipes_filter_valid()
 	TEST_ASSERT(lexer_checks_basic("ls | grep file | wc -l") == LEXER_SUCCESS);
 	// sometimes works sometimes doesn't @audit
 	TEST_ASSERT(lexer_checks_basic("hello || hello") == LEXER_SUCCESS);
-	TEST_ASSERT(lexer_checks_basic("\n") == LEXER_SUCCESS);
+	TEST_ASSERT_EQUAL(LEXER_SUCCESS, lexer_checks_basic("\n"));
 }
 

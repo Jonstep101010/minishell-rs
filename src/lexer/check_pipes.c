@@ -3,7 +3,24 @@
 #include "libft.h"
 #include "libutils.h"
 
-bool	redir_valid(const char *s, const int redircount, char c)
+static	bool	inner_loop(const char *s, int *i, int *count)
+{
+	while (s[*i])
+	{
+		if (ft_isalnum(s[*i]))
+		{
+			(*count)++;
+			(*i)++;
+			break ;
+		}
+		if (s[*i] == '>' || s[*i] == '<' || s[*i] == '|')
+			return (false);
+		(*i)++;
+	}
+	return (true);
+}
+
+static bool	redir_valid(const char *s, const int redircount, char c)
 {
 	int	i;
 	int	count;
@@ -14,20 +31,20 @@ bool	redir_valid(const char *s, const int redircount, char c)
 	{
 		while (s[i] && s[i] != c)
 			i++;
-		while (s[i++] && s[i] == c)
-			count--;
-		while (s[i])
+		if (s[i] == c)
 		{
-			if (ft_isalnum(s[i]))
-				return (count + 1 == redircount);
-			return (s[i] == '>' || s[i] == '<' || s[i] == '|');
 			i++;
+			if (s[i] == c)
+				i++;
+			count--;
 		}
+		if (!inner_loop(s, &i, &count))
+			return (false);
 	}
 	return (count == redircount);
 }
 
-bool	two_pipes_valid(const char *s, const int index)
+static bool	two_pipes_valid(const char *s, const int index)
 {
 	int	flag;
 	int	i;
@@ -48,7 +65,7 @@ bool	two_pipes_valid(const char *s, const int index)
 	return (false);
 }
 
-bool	pipes_valid(const char *s, const int pipes)
+static bool	pipes_valid(const char *s, const int pipes)
 {
 	int	i;
 	int	count;
@@ -79,10 +96,14 @@ bool	pipes_valid(const char *s, const int pipes)
 
 t_lexer	check_pipes_redirection(const char *s, struct s_lexer *input)
 {
-	input->lexer = LEXER_PIPES;
-	if (input->pipes > 0 && (pipes_valid(s, input->pipes) == false
-			|| *s == '|'))
-		return (LEXER_PIPES);
+	if (input->pipes > 0)
+	{
+		input->lexer = LEXER_PIPES;
+		if (s[0] == '|' || s[ft_strlen(s) - 1] == '|')
+			return (LEXER_PIPES);
+		if (!pipes_valid(s, input->pipes))
+			return (LEXER_PIPES);
+	}
 	input->lexer = LEXER_REDIRECTION;
 	if (input->redir_greater > 0 && !redir_valid(s, input->redir_greater, '>'))
 		return (LEXER_REDIRECTION);
