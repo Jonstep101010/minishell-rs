@@ -3,6 +3,7 @@
 #include "find_key.c"
 #include "utils.h"
 #include "expander.c"
+#include "expand_variables.c"
 #include "free_strjoin.c"
 #include "check_key.c"
 #include "support_lib.c"
