@@ -13,7 +13,8 @@ typedef struct s_splitter
 	char	*tmp;
 	char	*tmp2;
 	char	**arr;
-	char	**not_last_token;
+	char	**not_last;
+	char	*last;
 	size_t	trim;
 }	t_splitter;
 

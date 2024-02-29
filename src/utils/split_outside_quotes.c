@@ -12,13 +12,6 @@
 // check for pipes outside quotes
 // (childs will handle their own splitting)
 
-// check for spaces if no pipes, otherwise childs handle it
-static void	init_splitter(t_splitter *split, size_t to_split_len)
-{
-	ft_bzero(split, sizeof(t_splitter));
-	split->len = to_split_len;
-}
-
 // this is beyond cursed
 static	char	**return_check(char **ret)
 {
@@ -78,43 +71,47 @@ static char	**split_iterator(
 	return (return_check(split->ret));
 }
 
-char	**split_outside_quotes(const char *to_split, const char *set)
+static char	**splitter(t_splitter *split, const char *to_split, const char *set)
 {
-	t_splitter	split;
-	char		**ret;
-	char		*last_token;
-
-	if (!to_split)
-		return (NULL);
-	init_splitter(&split, ft_strlen(to_split));
 	if (is_in_set(to_split[0], set) || is_in_set(to_split[ft_strlen(to_split) - 1], set))
 	{
 		while (is_in_set(*to_split, set))
 			to_split++;
 		if (!*to_split)
 			return (arr_dup((const char *[]){"", NULL}));
-		split.tmp = ft_strdup(to_split);
-		if (!split.tmp)
+		split->tmp = ft_strdup(to_split);
+		if (!split->tmp)
 			return (NULL);
-		split.trim = ft_strlen(split.tmp);
-		while (split.trim > 0 && is_in_set(split.tmp[split.trim - 1], set))
-			split.trim--;
-		if (split.trim == 0)
+		split->trim = ft_strlen(split->tmp);
+		while (split->trim > 0 && is_in_set(split->tmp[split->trim - 1], set))
+			split->trim--;
+		if (split->trim == 0)
 			return (ft_calloc(1, sizeof(char *)));
-		split.tmp2 = ft_substr(split.tmp, 0, split.trim);
-		free(split.tmp);
-		if (!split.tmp2)
+		split->tmp2 = ft_substr(split->tmp, 0, split->trim);
+		free(split->tmp);
+		if (!split->tmp2)
 			return (NULL);
-		split.not_last_token = split_iterator(&split, split.tmp2, set);
-		free(split.tmp2);
+		split->not_last = split_iterator(split, split->tmp2, set);
+		free(split->tmp2);
 	}
 	else
-		split.not_last_token = split_iterator(&split, to_split, set);
-	if (!split.not_last_token)
-		return (arr_free(split.arr), NULL);
-	last_token = ft_substr(to_split, split.start, split.i - split.start);
-	ret = append_str_arr((const char **)split.not_last_token, last_token);
-	free(last_token);
-	arr_free(split.not_last_token);
-	return (ret);
+		split->not_last = split_iterator(split, to_split, set);
+	if (!split->not_last)
+		return (arr_free(split->arr), NULL);
+	split->last = ft_substr(to_split, split->start, split->i - split->start);
+	split->ret = append_str_arr((const char **)split->not_last, split->last);
+	free(split->last);
+	arr_free(split->not_last);
+	return (split->ret);
+}
+
+char	**split_outside_quotes(const char *to_split, const char *set)
+{
+	t_splitter	split;
+
+	if (!to_split)
+		return (NULL);
+	ft_bzero(&split, sizeof(t_splitter));
+	split.len = ft_strlen(to_split);
+	return (splitter(&split, to_split, set));
 }
