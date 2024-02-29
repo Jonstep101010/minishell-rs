@@ -36,10 +36,7 @@ t_lexer	lexer(t_shell *shell)
 		update_exit_status(shell, lex_error(code));
 		return (code);
 	}
-	shell->split_pipes = split_outside_quotes(shell->trimmed_line, "|");
-	if (!shell->split_pipes)
-		builtin_exit(shell, NULL);
-	add_pipe_split_as_tokens(shell->split_pipes, shell);
+	add_pipes_as_tokens(shell);
 	if (!shell->token->split_pipes)
 		return (arr_free(shell->split_pipes), LEXER_NULL);
 	convert_split_token_string_array_to_tokens(shell);

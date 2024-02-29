@@ -3,7 +3,7 @@
 
 # include "struct.h"
 
-void	add_pipe_split_as_tokens(char **pipe_split, t_shell *shell);
+void	add_pipes_as_tokens(t_shell *shell);
 void	convert_split_token_string_array_to_tokens(t_shell *shell);
 void	convert_tokens_to_string_array(t_token *token);
 void	destroy_all_tokens(t_shell *shell);

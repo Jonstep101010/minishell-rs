@@ -4,7 +4,7 @@
 # include <termios.h>
 # include <stdbool.h> //@follow-up
 
-bool	g_ctrl_c = false;
+// bool	g_ctrl_c = false;
 
 void	check_signals(struct termios *p_termios);
 void	ctrl_c_init(void);
