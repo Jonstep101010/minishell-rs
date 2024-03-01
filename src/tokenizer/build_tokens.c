@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <sys/param.h>
 #include "arr_utils.h"
+#include "commands.h"
 #include "libft.h"
 #include "tokens.h"
 #include "utils.h"
@@ -52,29 +53,43 @@ static void	set_arg_attributes(t_arg *cmd_arg)
 	cmd_arg->type = STRING;
 }
 
+static void	*expand_if_allowed(t_token *token, size_t ii, const char **envp)
+{
+	char	*tmp;
+
+	if (token->cmd_func != builtin_env
+		&& token->cmd_func != export
+			&& token->cmd_func != unset)
+	{
+		tmp = expander(token->cmd_args[ii].elem, envp);
+		if (!tmp)
+			return (NULL);
+		if (ft_strncmp(tmp, token->cmd_args[ii].elem, MAX(ft_strlen(tmp), ft_strlen(token->cmd_args[ii].elem))== 0))
+			free(tmp);
+		else
+		{
+			free(token->cmd_args[ii].elem);
+			token->cmd_args[ii].elem = tmp;
+			tmp = expander(token->cmd_args[ii].elem, envp);
+		}
+		free(token->cmd_args[ii].elem);
+		token->cmd_args[ii].elem = tmp;
+	}
+	return (token);
+}
+
 static void	*inner_loop(t_token *token, const char **envp)
 {
 	size_t	ii;
-	char	*tmp;
 
 	ii = 0;
 	while (token->tmp_arr[ii])
 	{
 		token->cmd_args[ii].elem = token->tmp_arr[ii];
-		if (!token->cmd_args[ii].elem)
-			return (NULL);
 		set_cmd_func(token);
-		tmp = expander(token->cmd_args[ii].elem, envp);
-		if (!tmp)
+		if (!expand_if_allowed(token, ii, envp))
 			return (NULL);
-		if (ft_strncmp(tmp, token->cmd_args[ii].elem, MAX(ft_strlen(tmp), ft_strlen(token->cmd_args[ii].elem))== 0))
-		{
-			free(tmp);
-			break ;
-		}
 		set_arg_attributes(&token->cmd_args[ii]);
-		free(token->cmd_args[ii].elem);
-		token->cmd_args[ii].elem = tmp;
 		ii++;
 	}
 	return (token);

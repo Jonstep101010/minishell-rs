@@ -22,6 +22,8 @@
 #include "ft_strncmp.c"
 #include "ft_strnstr.c"
 
+#include "ft_atoi.c"
+
 #include "str_cchr.c"
 #include "arr_len.c"
 #include "arr_free.c"

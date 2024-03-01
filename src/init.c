@@ -23,11 +23,17 @@ char	**init_env(const char **envp)
 		free_null(&PWD);
 		tmp_arr = export_var(env, tmp);
 		if (tmp_arr != env)
-			arr_free(tmp_arr);
+		{
+			arr_free(env);
+			env = tmp_arr;
+		}
 		free_null(&tmp);
 		env = export_var(tmp_arr, "OLDPWD=''");
 		if (tmp_arr != env)
+		{
 			arr_free(tmp_arr);
+			tmp_arr = env;
+		}
 	}
 	else
 		free_null(&PWD);

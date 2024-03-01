@@ -81,6 +81,7 @@ typedef struct s_shell
 	char	**owned_envp;
 	char	*line;
 	char	*expanded_line;
+	char	*trimmed_line;
 	char	*tmp;
 	char	**tmp_arr;
 	// char	**command;// not sure if we need this
@@ -148,7 +149,7 @@ void	mock_convert_split_token_string_array_to_tokens(t_shell *shell)
 		i++;
 	}
 }
-
+#include "token_utils.c"
 #include "build_tokens.c"
 t_shell	*support_test_tokens_input(char *line, char **envp)
 {
@@ -167,7 +168,7 @@ t_shell	*support_test_tokens_input(char *line, char **envp)
 	shell->owned_envp = arr_dup((const char **)envp);
 
 	// add the split tokens as tokens
-	add_pipe_split_as_tokens(shell->split_tokens, shell);
+	add_pipes_as_tokens(shell);
 
 	mock_convert_split_token_string_array_to_tokens(shell);
 	return (shell);

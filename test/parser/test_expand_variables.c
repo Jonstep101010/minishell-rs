@@ -433,3 +433,18 @@ void	test_nothing_to_do() {
 	printf("%s\n", actual);
 	free(actual);
 }
+
+void	test_recursive_expansion() {
+	char	*line = "ls -l $somedir ' ' | cat -e | wc -l";
+	char	*envp[] = {"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", NULL};
+
+	char	*expected_ret = "ls -l mypath$ ' ' | cat -e | wc -l";
+
+	char	*actual = expander(line, (const char **)envp);
+	// expand as many times as there are variables (excluding trailing $)
+	char	*actual_second = expander(actual, (const char **)envp);
+	TEST_ASSERT_EQUAL_STRING(expected_ret, actual_second);
+
+	free(actual);
+	free(actual_second);
+}

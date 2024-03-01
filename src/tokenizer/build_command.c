@@ -41,6 +41,11 @@ void	add_pipes_as_tokens(t_shell *shell)
 	shell->split_pipes = split_outside_quotes(shell->trimmed_line, "|");
 	if (!shell->split_pipes)
 		builtin_exit(shell, NULL);
+	shell->tmp_arr = arr_trim(shell->split_pipes, WHITESPACE);
+	if (!shell->tmp_arr)
+		builtin_exit(shell, NULL);
+	arr_free(shell->split_pipes);
+	shell->split_pipes = shell->tmp_arr;
 	len = arr_len((const char **)shell->split_pipes);
 	shell->token = init_token(len);
 	if (!shell->token)
