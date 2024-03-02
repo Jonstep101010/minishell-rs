@@ -34,6 +34,39 @@ char	**append_str_arr(const char **arr, const char *s)
 	return (ret);
 }
 
+// function that also frees the original array and expects a heap allocated string/array
+char	**append_str_arr_free(char **arr, char *s)
+{
+	size_t	len;
+	size_t	i;
+	char	**ret;
+
+	if (!s)
+		return (NULL);
+	len = arr_len((const char **)arr);
+	ret = (char **) ft_calloc(len + 2, sizeof(char *));
+	if (!ret)
+		return (arr_free(arr), NULL);// leave original array intact
+	i = 0;
+	while (arr && arr[i] && i <= len)
+	{
+		ret[i] = arr[i];// duplicate instead
+		if (!ret[i])
+		{
+			arr_free(ret);
+			return (NULL);
+		}
+		i++;
+	}
+	ret[i] = s;
+	if (!ret[i])
+		return (arr_free(ret), free(arr), NULL);
+	free(arr);
+	// printf("%zu(len)", len + 2);
+	// print_arr_sep(ret, '{', '}');
+	return (ret);
+}
+
 // @follow-up @audit-info this can only find the exact string, might need something that enables find and replace
 void	rm_str_arr(char **arr, const char *s)
 {

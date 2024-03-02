@@ -10,15 +10,6 @@
 // traverse to check
 // split pipes and spaces outside of quotes (in childs)
 // check for pipes outside quotes
-// (childs will handle their own splitting)
-
-// this is beyond cursed
-static	char	**return_check(char **ret)
-{
-	if (!ret)
-		return ((char **) ft_calloc(1, sizeof(char *)));
-	return (ret);
-}
 
 static int is_in_set(char c, const char *set)
 {
@@ -68,13 +59,20 @@ static char	**split_iterator(
 			split->token_end = split->i;
 		split->i++;
 	}
-	return (return_check(split->ret));
+	if (!split->ret)
+		return ((char **) ft_calloc(1, sizeof(char *)));
+	return (split->ret);
 }
+
+char	*strtrim_outside_quotes(char const *s, char const *set);
 
 static char	**splitter(t_splitter *split, const char *to_split, const char *set)
 {
+
 	if (is_in_set(to_split[0], set) || is_in_set(to_split[ft_strlen(to_split) - 1], set))
 	{
+		char	*tmp = strtrim_outside_quotes(to_split, set);
+		printf("tmp: %s\n", tmp);
 		while (is_in_set(*to_split, set))
 			to_split++;
 		if (!*to_split)
@@ -91,11 +89,16 @@ static char	**splitter(t_splitter *split, const char *to_split, const char *set)
 		free(split->tmp);
 		if (!split->tmp2)
 			return (NULL);
+		printf("tmp2: %s\n", split->tmp2);
 		split->not_last = split_iterator(split, split->tmp2, set);
 		free(split->tmp2);
 	}
 	else
+	{
+		printf("to_split: %s\n", to_split);
 		split->not_last = split_iterator(split, to_split, set);
+	}
+
 	if (!split->not_last)
 		return (arr_free(split->arr), NULL);
 	split->last = ft_substr(to_split, split->start, split->i - split->start);
