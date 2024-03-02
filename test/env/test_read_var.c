@@ -6,7 +6,6 @@
 #include "support_lib.c"
 #include "print_arr_sep.c"
 #include "export_var.c"
-#include "str_utils.c"
 #include "export.c"
 #include "check_key.c"
 #include "env.c"

@@ -4,6 +4,7 @@
 #include "environment.h"
 #include "arr_utils.h"
 #include "utils.h"
+#include "libutils.h"
 
 char	**init_env(const char **envp)
 {

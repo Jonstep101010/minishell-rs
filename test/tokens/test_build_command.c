@@ -26,7 +26,6 @@
 #include "error.c"
 #include "build_command.c"
 #include "init.c"
-#include "str_utils.c"
 
 
 #include "build_tokens.c"

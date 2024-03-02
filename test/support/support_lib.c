@@ -31,4 +31,7 @@
 
 #include "support_printf.c"
 #include "print_arr.c"
-#include "ft_isspace.c"
+#include "is_something.c"
+#include "append_str.c"
+#include "join_strings.c"
+#include "../../include/libutils/src/utils/free_mem.c"
