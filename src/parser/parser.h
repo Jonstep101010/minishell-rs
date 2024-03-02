@@ -13,6 +13,8 @@ typedef struct s_splitter
 	char	**arr;
 }	t_splitter;
 
+char	**split_outside_quotes(const char *to_split, const char *set);
+
 # include <stdbool.h>
 void	*do_quote_bs(const char *s, int *quote);
 bool	interpret_quotes(char **cmd_arr);

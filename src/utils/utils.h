@@ -3,8 +3,7 @@
 # include "arr_utils.h"
 # include "libutils.h"
 
-char	*occurs(const char *big, const char *little);
-char	*occurs_exclusively(const char *expected, const char *actual);
+char	*equal(const char *expected, const char *actual);
 
 char	**split_outside_quotes(const char *to_split, const char *set);
 void	print_arr_sep(char **arr, char sep_open, char sep_close);

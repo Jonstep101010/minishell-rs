@@ -19,7 +19,7 @@
 #include "support_lib.c"
 #include "utils.h"
 #include "arr_utils.c"
-#include "occurs.c"
+#include "str_equal.c"
 #include "token_utils.c"
 #include "support_commands.c"
 #include "destroy_tokens.c"

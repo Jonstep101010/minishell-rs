@@ -2,7 +2,7 @@
 #include "arr_utils.c"
 #include "export_var.c"
 #include "print_arr_sep.c"
-#include "occurs.c"
+#include "str_equal.c"
 #include "key.c"
 #include "free_strjoin.c"
 #include "support_lib.c"

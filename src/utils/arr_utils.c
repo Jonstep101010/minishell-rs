@@ -15,7 +15,7 @@ void	rm_str_arr(char **arr, const char *s)
 	len = arr_len((const char **)arr);
 	while (arr[i])
 	{
-		if (occurs_exclusively(arr[i], s))
+		if (equal(arr[i], s))
 		{
 			free(arr[i]);
 			while (i < len)

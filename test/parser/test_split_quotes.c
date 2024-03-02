@@ -16,7 +16,7 @@
 #include "key.c"
 #include "env_var.c"
 #include "arr_utils.c"
-#include "occurs.c"
+#include "str_equal.c"
 
 #include "split_outside_quotes.c"
 

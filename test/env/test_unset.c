@@ -4,7 +4,7 @@
 #include "key.c"
 #include "arr_utils.c"
 #include "env_var.c"
-#include "occurs.c"
+#include "str_equal.c"
 #include "free_strjoin.c"
 #include "error.c"
 

@@ -2,7 +2,7 @@
 #include "key.c"
 #include "unity.h"
 #include "arr_utils.c"
-#include "occurs.c"
+#include "str_equal.c"
 #include "support_lib.c"
 #include "print_arr_sep.c"
 #include "export_var.c"

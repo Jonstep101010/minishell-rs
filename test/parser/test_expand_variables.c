@@ -243,7 +243,7 @@ void	test_key_not_found_name() {
 }
 
 #include "print_arr_sep.c"
-#include "occurs.c"
+#include "str_equal.c"
 char	**arr_map(char **arr, void *(*f)(void *, void *), void *arg);
 
 #include "arr_utils.c"

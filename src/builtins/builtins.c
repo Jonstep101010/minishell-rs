@@ -20,7 +20,7 @@ void	update_exit_status(t_shell *shell, int status);
 int	not_builtin(t_shell *shell, t_token *token)
 {
 	pid_t test = -1;
-	if (!occurs_exclusively("exit", token->cmd_args[0].elem))
+	if (!equal("exit", token->cmd_args[0].elem))
 		test = fork();
 	if (test == 0)
 	{

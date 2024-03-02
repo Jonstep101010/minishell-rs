@@ -12,7 +12,7 @@ void	set_cmd_func(t_token *token)
 	while (g_cmds[i].name)
 	{
 		token->builtin_info = i;
-		if (occurs_exclusively(
+		if (equal(
 				token->cmd_args[0].elem, g_cmds[i].name))
 		{
 			token->cmd_func = g_cmds[i].cmd;
