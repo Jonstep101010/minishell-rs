@@ -8,14 +8,9 @@ typedef struct s_splitter
 	size_t	i;
 	size_t	start;
 	size_t	token_end;
-	size_t	len;
 	char	**ret;
 	char	*tmp;
-	char	*tmp2;
 	char	**arr;
-	char	**not_last;
-	char	*last;
-	size_t	trim;
 }	t_splitter;
 
 # include <stdbool.h>

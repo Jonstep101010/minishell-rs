@@ -10,97 +10,6 @@
 #include <unistd.h>
 #include "parser.h"
 
-int	has_static_add(int n, const int *start_nullable)
-{
-	static int	i = 0;
-	if (start_nullable)
-		i = *start_nullable;
-	i += n;
-	return (i);
-}
-
-void	test_has_static_add() {
-	int	test = -10;
-	TEST_ASSERT_EQUAL(5, has_static_add(5, NULL));
-	TEST_ASSERT_EQUAL(5, has_static_add(0, NULL));
-	TEST_ASSERT_EQUAL(10, has_static_add(5, NULL));
-	TEST_ASSERT_EQUAL(-5, has_static_add(5, &test));
-}
-
-
-static int is_in_set(char c, const char *set)
-{
-	while (*set)
-	{
-		if (c == *set)
-			return (1);
-		set++;
-	}
-	return (0);
-}
-
-char	**append_str_arr_free(char **arr, char *s);
-// do not touch unless tested changes -> this leaks like a *****
-static char	**split_iterator(const char *to_split,
-		char *trimmed, const char *set)
-{
-	t_splitter	*split;
-	char		**ret;
-	split = (t_splitter *)ft_calloc(1, sizeof(t_splitter));
-	while (trimmed[split->i] && split->start < ft_strlen(trimmed))
-	{
-		if (split->quote == 0 &&
-			(trimmed[split->i] == '\'' || trimmed[split->i] == '"'))
-				split->quote = trimmed[split->i];
-		else if (split->quote != 0 && trimmed[split->i] == split->quote)
-			split->quote = 0;
-		else if (split->quote == 0 && is_in_set(trimmed[split->i], set))
-		{
-			while (is_in_set(trimmed[split->i + 1], set))
-			{
-				split->i++;
-				if (split->i >= ft_strlen(trimmed))
-					break;
-			}
-			if (split->token_end < split->start)
-				split->token_end = split->start - 1;
-			split->tmp = ft_substr(trimmed, split->start,
-					split->token_end - split->start + 1);
-			if (!split->tmp)
-				return (arr_free(split->arr), NULL);
-			split->ret = append_str_arr((const char **)split->arr, split->tmp);
-			free(split->tmp);
-			arr_free(split->arr);
-			if (!split->ret)
-				return (arr_free(split->ret), NULL);
-			split->arr = split->ret;
-			split->start = split->i + 1;
-		}
-		else
-			split->token_end = split->i;
-		split->i++;
-	}
-	free(trimmed);
-	ret = append_str_arr_free(split->ret, ft_substr(to_split, split->start, split->i - split->start));
-	return (free(split), ret);
-}
-
-char	**split_outside_quotes(const char *to_split, const char *set)
-{
-	char		**ret;
-	char		*trimmed;
-
-	if (!to_split)
-		return (NULL);
-	while (is_in_set(*to_split, set))
-		to_split++;
-	trimmed = ft_strtrim(to_split, set);
-	if (!trimmed)
-		return (NULL);
-	ret = split_iterator(to_split, trimmed, set);
-	return (ret);
-}
-
 #include "free_strjoin.c"
 #include "expander.c"
 #include "expand_variables.c"
@@ -108,7 +17,7 @@ char	**split_outside_quotes(const char *to_split, const char *set)
 #include "arr_utils.c"
 #include "occurs.c"
 
-#include "strtrim_outside_quotes.c"
+#include "split_outside_quotes.c"
 
 void	test_find_leaks() {
 	char	*input = strdup("echo | \"nopipes |\" | echo hello");

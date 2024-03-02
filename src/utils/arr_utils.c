@@ -34,7 +34,7 @@ char	**append_str_arr(const char **arr, const char *s)
 	return (ret);
 }
 
-// function that also frees the original array and expects a heap allocated string/array
+// function that also frees all input
 char	**append_str_arr_free(char **arr, char *s)
 {
 	size_t	len;

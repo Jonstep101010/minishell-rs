@@ -4,13 +4,6 @@
 #include <unistd.h>
 #include "parser.h"
 
-// takes literal pipes not in quotes
-// splits into strings
-// split since last pipe or start of string
-// traverse to check
-// split pipes and spaces outside of quotes (in childs)
-// check for pipes outside quotes
-
 static int is_in_set(char c, const char *set)
 {
 	while (*set)
@@ -22,99 +15,67 @@ static int is_in_set(char c, const char *set)
 	return (0);
 }
 
-// do not touch unless tested changes -> this leaks like a *****
-static char	**split_iterator(
-		t_splitter *split, const char *to_split, const char *set)
+static char	**splitter(t_splitter *split, const char *trimmed, const char *set)
 {
-	while (to_split[split->i] && split->start < split->len)
+	while (is_in_set(trimmed[split->i + 1], set))
 	{
-		if (split->quote == 0 &&
-			(to_split[split->i] == '\'' || to_split[split->i] == '"'))
-				split->quote = to_split[split->i];
-		else if (split->quote != 0 && to_split[split->i] == split->quote)
+		split->i++;
+		if (split->i >= ft_strlen(trimmed))
+			break ;
+	}
+	if (split->token_end < split->start)
+		split->token_end = split->start - 1;
+	split->tmp = ft_substr(trimmed, split->start,
+			split->token_end - split->start + 1);
+	if (!split->tmp)
+		return (arr_free(split->arr), NULL);
+	split->ret = append_str_arr_free(split->arr, split->tmp);
+	if (!split->ret)
+		return (arr_free(split->ret), NULL);
+	split->arr = split->ret;
+	split->start = split->i + 1;
+	return (split->ret);
+}
+
+// do not touch unless tested changes -> this leaks like a *****
+static char	**split_iterator(const char *to_split,
+						const char *trim, const char *set)
+{
+	t_splitter	*split;
+	char		**ret;
+
+	split = (t_splitter *)ft_calloc(1, sizeof(t_splitter));
+	while (trim[split->i] && split->start < ft_strlen(trim))
+	{
+		if (!split->quote && (trim[split->i] == '\'' || trim[split->i] == '"'))
+				split->quote = trim[split->i];
+		else if (split->quote && trim[split->i] == split->quote)
 			split->quote = 0;
-		else if (split->quote == 0 && is_in_set(to_split[split->i], set))
-		{
-			while (is_in_set(to_split[split->i + 1], set))
-			{
-				split->i++;
-				if (split->i >= split->len)
-					break;
-			}
-			if (split->token_end < split->start)
-				split->token_end = split->start - 1;
-			split->tmp = ft_substr(to_split, split->start,
-					split->token_end - split->start + 1);
-			if (!split->tmp)
-				return (arr_free(split->arr), NULL);
-			split->ret = append_str_arr((const char **)split->arr, split->tmp);
-			free(split->tmp);
-			arr_free(split->arr);
-			if (!split->ret)
-				return (arr_free(split->ret), NULL);
-			split->arr = split->ret;
-			split->start = split->i + 1;
-		}
+		else if (!split->quote && is_in_set(trim[split->i], set)
+			&& !splitter(split, trim, set))
+				return (free(split), NULL);
 		else
 			split->token_end = split->i;
 		split->i++;
 	}
-	if (!split->ret)
-		return ((char **) ft_calloc(1, sizeof(char *)));
-	return (split->ret);
-}
-
-char	*strtrim_outside_quotes(char const *s, char const *set);
-
-static char	**splitter(t_splitter *split, const char *to_split, const char *set)
-{
-
-	if (is_in_set(to_split[0], set) || is_in_set(to_split[ft_strlen(to_split) - 1], set))
-	{
-		char	*tmp = strtrim_outside_quotes(to_split, set);
-		printf("tmp: %s\n", tmp);
-		while (is_in_set(*to_split, set))
-			to_split++;
-		if (!*to_split)
-			return (arr_dup((const char *[]){"", NULL}));
-		split->tmp = ft_strdup(to_split);
-		if (!split->tmp)
-			return (NULL);
-		split->trim = ft_strlen(split->tmp);
-		while (split->trim > 0 && is_in_set(split->tmp[split->trim - 1], set))
-			split->trim--;
-		if (split->trim == 0)
-			return (ft_calloc(1, sizeof(char *)));
-		split->tmp2 = ft_substr(split->tmp, 0, split->trim);
-		free(split->tmp);
-		if (!split->tmp2)
-			return (NULL);
-		printf("tmp2: %s\n", split->tmp2);
-		split->not_last = split_iterator(split, split->tmp2, set);
-		free(split->tmp2);
-	}
-	else
-	{
-		printf("to_split: %s\n", to_split);
-		split->not_last = split_iterator(split, to_split, set);
-	}
-
-	if (!split->not_last)
-		return (arr_free(split->arr), NULL);
-	split->last = ft_substr(to_split, split->start, split->i - split->start);
-	split->ret = append_str_arr((const char **)split->not_last, split->last);
-	free(split->last);
-	arr_free(split->not_last);
-	return (split->ret);
+	ret = append_str_arr_free(split->ret,
+		ft_substr(to_split, split->start, split->i - split->start));
+	return (free(split), ret);
 }
 
 char	**split_outside_quotes(const char *to_split, const char *set)
 {
-	t_splitter	split;
+	char		**ret;
+	char		*trimmed;
 
 	if (!to_split)
 		return (NULL);
-	ft_bzero(&split, sizeof(t_splitter));
-	split.len = ft_strlen(to_split);
-	return (splitter(&split, to_split, set));
+	while (is_in_set(*to_split, set))
+		to_split++;
+	trimmed = ft_strtrim(to_split, set);
+	if (!trimmed)
+		return (NULL);
+	ret = split_iterator(to_split, trimmed, set);
+	free(trimmed);
+	return (ret);
 }
