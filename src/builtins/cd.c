@@ -47,8 +47,8 @@ static int	cd(const char **cmd_args, char **envp)
 	char	*path;
 	char	*oldpwd;
 
-	path = get_env_var((const char **)envp, "HOME");
-	oldpwd = get_env_var((const char **)envp, "OLDPWD");
+	path = get_env_var(envp, "HOME");
+	oldpwd = get_env_var(envp, "OLDPWD");
 	if (!cmd_args[1] && !path)
 		return (eprint("cd: HOME not set\n"), 1);
 	if (!cmd_args[1] && path)

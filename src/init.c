@@ -14,7 +14,7 @@ char	**init_env(const char **envp)
 	char	*tmp;
 
 	env = append_str_arr(envp, "?=0");
-	PWD = get_env_var((const char **)env, "PWD");
+	PWD = get_env_var(env, "PWD");
 	if (!PWD)
 	{
 		PWD = getcwd(NULL, 0);

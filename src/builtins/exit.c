@@ -6,7 +6,7 @@
 
 void	destroy_all_tokens(t_shell *shell);
 
-int	builtin_exit(t_shell *shell, t_token *code_nullable)
+int		builtin_exit(t_shell *shell, t_token *code_nullable)
 {
 	int		exit_code;
 

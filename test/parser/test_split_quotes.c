@@ -13,7 +13,8 @@
 #include "free_strjoin.c"
 #include "expander.c"
 #include "expand_variables.c"
-#include "find_key.c"
+#include "key.c"
+#include "env_var.c"
 #include "arr_utils.c"
 #include "occurs.c"
 

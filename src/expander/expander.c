@@ -24,8 +24,8 @@ char	*expand_variables(t_expand *x, char *input, const char **envp);
  */
 char	*expander(const char *input_expander, const char **envp)
 {
-	t_expand			x;
-	char	*restrict	input;
+	t_expand	x;
+	char		*input;
 
 	if (!input_expander || !envp || !*envp || !*input_expander)
 		return (NULL);
