@@ -45,6 +45,7 @@ typedef struct s_shell	t_shell;
 void	add_pipes_as_tokens(t_shell *shell);
 void	convert_split_token_string_array_to_tokens(t_shell *shell);
 void	convert_tokens_to_string_array(t_token *token);
+void	destroy_all_tokens(t_shell *shell);
 t_arg	*init_cmdargs(size_t size);
 t_token	*init_token(size_t size);
 
