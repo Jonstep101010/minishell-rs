@@ -7,9 +7,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include "builtins.h"
-
-void	update_exit_status(t_shell *shell, int status);
 
 /**
  * @brief

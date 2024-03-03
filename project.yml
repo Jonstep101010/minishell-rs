@@ -31,7 +31,6 @@
   :source:
     - +:src/*
   :include:
-    - +:src/*
     - +:include/
   :support:
     - +:test/support
