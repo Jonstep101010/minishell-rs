@@ -1,7 +1,8 @@
 #include "expander.h"
 #include "libft.h"
-#include "environment.h"
 #include "utils.h"
+
+char	*expand_var(const char *input, const char **envp);
 
 static void	skip_chars(const char *input, size_t *i, char c)
 {

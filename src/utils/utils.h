@@ -33,4 +33,8 @@ void	eprint(const char *fmt, ...);
  * @brief fmt on stderr
  */
 void	eprint_single(const char *fmt, ...);
+# include "struct.h"
+char	**init_env(const char **envp);
+t_shell	*init_shell(const char **envp);
+void	update_exit_status(t_shell *shell, int status);
 #endif

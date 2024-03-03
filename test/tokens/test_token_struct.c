@@ -31,6 +31,7 @@
 #include "build_tokens.c"
 #include "expander.c"
 #include "expand_variables.c"
+#include "expand_var.c"
 #include "interpret_quotes.c"
 
 #define TEST_SOURCE_FILE(build_tokens)

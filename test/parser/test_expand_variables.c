@@ -5,7 +5,8 @@
 #include "expander.c"
 #include "expand_variables.c"
 #include "free_strjoin.c"
-#include "env_var.c"
+#include "get_env_var.c"
+#include "expand_var.c"
 #include "support_lib.c"
 
 void	test_expander() {

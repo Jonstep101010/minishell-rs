@@ -31,6 +31,7 @@
 #include "build_tokens.c"
 #include "expander.c"
 #include "expand_variables.c"
+#include "expand_var.c"
 #include "interpret_quotes.c"
 
 void	test_convert_string_array_to_tokens(void)

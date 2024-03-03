@@ -7,7 +7,7 @@
 # include "env.c"
 # include "cd.c"
 # include "key.c"
-# include "env_var.c"
+# include "get_env_var.c"
 # include "builtins.c"
 # include "exit.c"
 # include "export_var.c"

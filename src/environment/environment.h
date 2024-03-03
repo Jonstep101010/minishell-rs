@@ -12,6 +12,5 @@ bool	check_valid_key(const char *s);
 char	**export_var(char **arr, const char *s);
 
 char	*get_env_var(char **arr, const char *key);
-char	*expand_var(const char *input, const char **envp);
 
 #endif
