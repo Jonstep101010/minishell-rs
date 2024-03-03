@@ -58,7 +58,8 @@ static void	*expand_if_allowed(t_token *token, size_t ii, char *const *env)
 
 	if (token->cmd_func != builtin_env
 		&& token->cmd_func != builtin_export
-		&& token->cmd_func != builtin_unset)
+		&& token->cmd_func != builtin_unset
+				&& str_cchr(token->cmd_args[ii].elem, '$') != 0)
 	{
 		tmp = expander(token->cmd_args[ii].elem, env);
 		if (!tmp)

@@ -449,3 +449,29 @@ void	test_recursive_expansion() {
 	free(actual);
 	free(actual_second);
 }
+
+void	test_expansion_nested_quotes() {
+	char	*line = "echo \"'$PAGER'\"";
+	char	*envp[] = {"PAGER=true", "TEST=false", NULL};
+
+	char	*expected_ret = "echo \"'true'\"";
+
+	char	*actual = expander(line, envp);
+	TEST_ASSERT_NOT_NULL(actual);
+	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
+	printf("%s\n", actual);
+	free(actual);
+}
+
+void	test_expansion_nested_quotes_not() {
+	char	*line = "echo '\"$PAGER\"'";
+	char	*envp[] = {"PAGER=true", "TEST=false", NULL};
+
+	char	*expected_ret = "echo '\"$PAGER\"'";
+
+	char	*actual = expander(line, envp);
+	TEST_ASSERT_NOT_NULL(actual);
+	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
+	printf("%s\n", actual);
+	free(actual);
+}
