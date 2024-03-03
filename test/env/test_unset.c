@@ -1,10 +1,10 @@
 #include "support_lib.c"
 #include "unity.h"
 #include "unset.c"
-#include "find_key.c"
+#include "key.c"
 #include "arr_utils.c"
-#include "check_key.c"
-#include "occurs.c"
+#include "get_env_var.c"
+#include "str_equal.c"
 #include "free_strjoin.c"
 #include "error.c"
 

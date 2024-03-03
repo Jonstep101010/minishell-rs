@@ -1,29 +1,13 @@
 #include "struct.h"
 #include "tokens.h"
 #include "libft.h"
+#include "libutils.h"
 
 #ifndef TEST_TOKENS_H
 # include "libft.h"
 # include <stdlib.h>
 # include "arr_utils.h"
 #endif
-
-/**
- * @brief free and set pointer to NULL
- * @warning use address of pointer
- * @param p address of pointer
- */
-void	free_null(void *p)
-{
-	void	**ptr;
-
-	if (!p)
-		return ;
-	ptr = (void **)p;
-	if (*ptr)
-		free(*ptr);
-	*ptr = NULL;
-}
 
 void	destroy_all_tokens(t_shell *shell)
 {

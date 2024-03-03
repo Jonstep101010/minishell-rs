@@ -43,7 +43,7 @@ void	test_arr_free() {
 }
 
 #include "print_arr_sep.c"
-#include "occurs.c"
+#include "str_equal.c"
 #include "arr_utils.c"
 
 void	test_arr_trim_one(void)

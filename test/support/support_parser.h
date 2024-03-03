@@ -7,7 +7,7 @@
 
 # include "arr_utils.c"
 # include "print_arr_sep.c"
-# include "occurs.c"
+# include "str_equal.c"
 
 # include "lexer.c"
 # include "../src/lexer/lexer_support.c"

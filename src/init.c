@@ -4,6 +4,7 @@
 #include "environment.h"
 #include "arr_utils.h"
 #include "utils.h"
+#include "libutils.h"
 
 char	**init_env(const char **envp)
 {
@@ -13,7 +14,7 @@ char	**init_env(const char **envp)
 	char	*tmp;
 
 	env = append_str_arr(envp, "?=0");
-	PWD = get_env_var((const char **)env, "PWD");
+	PWD = get_env_var(env, "PWD");
 	if (!PWD)
 	{
 		PWD = getcwd(NULL, 0);
@@ -23,11 +24,17 @@ char	**init_env(const char **envp)
 		free_null(&PWD);
 		tmp_arr = export_var(env, tmp);
 		if (tmp_arr != env)
-			arr_free(tmp_arr);
+		{
+			arr_free(env);
+			env = tmp_arr;
+		}
 		free_null(&tmp);
 		env = export_var(tmp_arr, "OLDPWD=''");
 		if (tmp_arr != env)
+		{
 			arr_free(tmp_arr);
+			tmp_arr = env;
+		}
 	}
 	else
 		free_null(&PWD);

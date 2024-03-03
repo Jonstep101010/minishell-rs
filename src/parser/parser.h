@@ -8,14 +8,12 @@ typedef struct s_splitter
 	size_t	i;
 	size_t	start;
 	size_t	token_end;
-	size_t	len;
 	char	**ret;
 	char	*tmp;
-	char	*tmp2;
 	char	**arr;
-	char	**not_last_token;
-	size_t	trim;
 }	t_splitter;
+
+char	**split_outside_quotes(const char *to_split, const char *set);
 
 # include <stdbool.h>
 void	*do_quote_bs(const char *s, int *quote);

@@ -11,7 +11,6 @@ int		find_key_env(const char **arr, const char *s, size_t (*f)(const char *s));
 bool	check_valid_key(const char *s);
 char	**export_var(char **arr, const char *s);
 
-char	*get_env_var(const char **envp, const char *key);
-char	*expand_var(const char *input, const char **envp);
+char	*get_env_var(char **arr, const char *key);
 
 #endif

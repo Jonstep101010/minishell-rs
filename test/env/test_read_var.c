@@ -1,14 +1,14 @@
 #include "environment.h"
-#include "find_key.c"
+#include "key.c"
 #include "unity.h"
 #include "arr_utils.c"
-#include "occurs.c"
+#include "str_equal.c"
 #include "support_lib.c"
 #include "print_arr_sep.c"
 #include "export_var.c"
-#include "str_utils.c"
 #include "export.c"
-#include "check_key.c"
+#include "get_env_var.c"
+#include "expand_var.c"
 #include "env.c"
 #include "free_strjoin.c"
 #include "error.c"
@@ -16,7 +16,7 @@
 void	test_read_returns_correct() {
 	char	*env[] = {"not=looking", "maybe=?looking", "key=forsure", "notmine=(null)", NULL};
 	char	**expected = arr_dup((const char **)env);
-	char	*ret = get_env_var((const char **)expected, "key");
+	char	*ret = get_env_var(expected, "key");
 	TEST_ASSERT_EQUAL_STRING("forsure", ret);
 	arr_free(expected);
 	free(ret);

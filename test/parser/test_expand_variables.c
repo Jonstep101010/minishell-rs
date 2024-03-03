@@ -1,10 +1,12 @@
 #include "libft.h"
 #include "unity.h"
-#include "find_key.c"
+#include "key.c"
 #include "utils.h"
 #include "expander.c"
+#include "expand_variables.c"
 #include "free_strjoin.c"
-#include "check_key.c"
+#include "get_env_var.c"
+#include "expand_var.c"
 #include "support_lib.c"
 
 void	test_expander() {
@@ -242,7 +244,7 @@ void	test_key_not_found_name() {
 }
 
 #include "print_arr_sep.c"
-#include "occurs.c"
+#include "str_equal.c"
 char	**arr_map(char **arr, void *(*f)(void *, void *), void *arg);
 
 #include "arr_utils.c"
@@ -431,4 +433,19 @@ void	test_nothing_to_do() {
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
 	free(actual);
+}
+
+void	test_recursive_expansion() {
+	char	*line = "ls -l $somedir ' ' | cat -e | wc -l";
+	char	*envp[] = {"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", NULL};
+
+	char	*expected_ret = "ls -l mypath$ ' ' | cat -e | wc -l";
+
+	char	*actual = expander(line, (const char **)envp);
+	// expand as many times as there are variables (excluding trailing $)
+	char	*actual_second = expander(actual, (const char **)envp);
+	TEST_ASSERT_EQUAL_STRING(expected_ret, actual_second);
+
+	free(actual);
+	free(actual_second);
 }

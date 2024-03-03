@@ -1,97 +1,72 @@
-// #include "libft.h"
-// #include <stdbool.h>
+#include "expander.h"
+#include "libft.h"
+#include "utils.h"
 
-// typedef struct s_expander
-// {
-// 	size_t	i;
-// 	char	*ret;
-// 	char	*key;
-// 	size_t	start;
-// 	char	*val;
-// 	char	*tmp;
-// 	int		singlequote;
-// 	char	*remainder_line;
-// 	char	*line;
-// }	t_expander;
+char	*expand_var(const char *input, const char **envp);
 
-// char	*expand_variables(const char *input, const char **envp);
+static void	skip_chars(const char *input, size_t *i, char c)
+{
+	while (input[*i] && input[*i] == c && input[*i + 1] && input[*i + 1] == c)
+		(*i)++;
+}
 
-// static char *replacer(t_expander *x, const char **envp)
-// {
-// 	if (!x->ret)
-// 		return (NULL);
-// 	if (x->i <= ft_strlen(x->line))
-// 	{
-// 		x->remainder_line = ft_strdup(&x->line[x->i]);
-// 		free(x->line);
-// 		if (!x->remainder_line)
-// 			return (x->ret);
-// 		// printf("remainder: %s\n", x->remainder_line);
-// 		x->tmp = ft_strjoin(x->ret, x->remainder_line);
-// 		free(x->remainder_line);
-// 		free(x->ret);
-// 		x->ret = expand_variables(x->tmp, envp);
-// 		free(x->tmp);
-// 	}
-// 	return (x->ret);
-// }
+static void	handle_quotes(const char *input, t_expand *x)
+{
+	if (input[x->i] == '\'' && x->singlequote == 0)
+		x->singlequote = 1;
+	else if (input[x->i] == '\'' && x->singlequote == 1)
+		x->singlequote = 0;
+}
 
-// static char	*insert_value(t_expander *x, const char **envp)
-// {
-// 	x->key = ft_substr(x->line, x->start, x->i - x->start);
-// 	if (!x->key)
-// 		return (NULL);
-// 	x->val = get_env_var(envp, x->key);
-// 	free(x->key);
-// 	if (!x->val)
-// 		return (NULL);
-// 	x->tmp = ft_substr(x->line, 0, x->start - 1);
-// 	if (!x->tmp)
-// 		return (free(x->val), NULL);
-// 	x->ret = ft_strjoin(x->tmp, x->val);
-// 	free(x->tmp);
-// 	free(x->val);
-// 	return (x->ret);
-// }
+static void	set_end(const char *input, t_expand *x)
+{
+	x->end = x->i + 1;
+	if (input[x->end] != '?')
+		while (input[x->end]
+			&& (ft_isalnum(input[x->end]) || input[x->end] == '_'))
+			x->end++;
+	else
+		x->end++;
+}
 
-// static char	*check_line(t_expander *x, const char **envp)
-// {
-// 	while (x->line && x->line[x->i])
-// 	{
-// 		if (x->line[x->i] == '\'' && x->singlequote == 0)
-// 			x->singlequote = x->line[x->i];
-// 		else if (x->line[x->i] == '\'' && x->singlequote == x->line[x->i])
-// 			x->singlequote = 0;
-// 		else if (x->line[x->i] && x->line[x->i + 1] && x->line[x->i] == '$'
-// 			&& x->singlequote == 0 && (is_valid_key(x->line[x->i + 1]) || x->line[x->i + 1] == '?'))
-// 		{
-// 			x->i++;
-// 			x->start = x->i;
-// 			if (x->line[x->i] != '?')
-// 				while (x->line[x->i] && is_valid_key(x->line[x->i]))
-// 					x->i++;
-// 			else
-// 				x->i++;
-// 			if (x->start == x->i)
-// 				continue;
-// 			if (!insert_value(x, envp))
-// 				return (NULL);
-// 			return (replacer(x, envp));
-// 		}
-// 		if (x->line[x->i] == '$' && x->singlequote == 0 && x->line[x->i + 1])
-// 			x->line[x->i] = ' ';
-// 		x->i++;
-// 	}
-// 	return (x->line);
-// }
+static char	*set_values(t_expand *x, char *input, const char **envp)
+{
+	x->to_expand = ft_substr(input, x->i, x->end - x->i);
+	if (!x->to_expand)
+		return (NULL);
+	x->expanded = expand_var(x->to_expand, envp);
+	free(x->to_expand);
+	if (!x->expanded)
+		return (NULL);
+	x->before_expansion = ft_substr(input, 0, x->i);
+	x->after_expansion = ft_strdup(&input[x->end]);
+	x->tmp_len = ft_strlen(x->before_expansion) + ft_strlen(x->expanded) - 1;
+	x->tmp = free_strjoin(2, x->before_expansion, x->expanded);
+	free(input);
+	input = ft_strjoin(x->tmp, x->after_expansion);
+	free(x->after_expansion);
+	free(x->tmp);
+	if (!input)
+		return (NULL);
+	x->i = x->tmp_len + 1;
+	return (input);
+}
 
-// char	*expand_variables_old(const char *input, const char **envp)
-// {
-// 	t_expander	x;
-
-// 	x.i = 0;
-// 	x.singlequote = 0;
-// 	x.line = ft_strdup(input);
-// 	return (check_line(&x, envp));
-// }
-
+char	*expand_variables(t_expand *x, char *input, const char **envp)
+{
+	while (input && input[x->i] && input[x->i + 1])
+	{
+		skip_chars(input, &(x->i), '$');
+		handle_quotes(input, x);
+		if (!x->singlequote && input[x->i + 1] && input[x->i] == '$')
+		{
+			set_end(input, x);
+			input = set_values(x, input, envp);
+			if (!input)
+				return (NULL);
+		}
+		else
+			x->i++;
+	}
+	return (input);
+}

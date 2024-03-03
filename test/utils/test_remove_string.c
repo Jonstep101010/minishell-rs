@@ -2,7 +2,7 @@
 #include "unity.h"
 
 #include "../src/utils/arr_utils.c"
-#include "../src/utils/occurs.c"
+#include "../src/utils/str_equal.c"
 
 #include "print_arr_sep.c"
 

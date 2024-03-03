@@ -18,7 +18,7 @@ void	check_signals(struct termios *p_termios)
 
 void	ctrl_bkslash_init(void)
 {
-	struct sigaction sig;
+	struct sigaction	sig;
 
 	sig.sa_handler = SIG_IGN;
 	sig.sa_flags = SA_RESTART;
@@ -28,7 +28,7 @@ void	ctrl_bkslash_init(void)
 
 void	ctrl_c_init(void)
 {
-	struct	sigaction	sig;
+	struct sigaction	sig;
 
 	sig.sa_sigaction = ctrl_c_handler;
 	sig.sa_flags = SA_RESTART;
@@ -44,7 +44,7 @@ void	ctrl_c_handler(int sig, siginfo_t *info, void *unused)
 	{
 		write(0, "\n", 1);
 		rl_on_new_line();
-		rl_replace_line("",	0);
+		rl_replace_line("", 0);
 		rl_redisplay();
 	}
 }

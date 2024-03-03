@@ -1,7 +1,7 @@
-#include "find_key.c"
+#include "key.c"
 #include "unity.h"
 #include "arr_utils.c"
-#include "occurs.c"
+#include "str_equal.c"
 
 #include "print_arr_sep.c"
 
@@ -41,18 +41,18 @@ void	test_find_key_error() {
 	TEST_ASSERT_EQUAL(-1, index);
 }
 
-void	test_get_len_until() {
-	char	*s = "hello=world";
-	TEST_ASSERT_EQUAL(5, get_len_until(s, '='));
+// void	test_get_len_until() {
+// 	char	*s = "hello=world";
+// 	TEST_ASSERT_EQUAL(5, get_len_until(s, '='));
 
-	char	*s2 = "$key$";
-	TEST_ASSERT_EQUAL(0, get_len_until(s2, '$'));
-	TEST_ASSERT_EQUAL(3, get_len_until(&s2[1], '$'));
+// 	char	*s2 = "$key$";
+// 	TEST_ASSERT_EQUAL(0, get_len_until(s2, '$'));
+// 	TEST_ASSERT_EQUAL(3, get_len_until(&s2[1], '$'));
 
-	// int i = 1;
-	// while (s2[i] && i <= 3)
-	// {
-	// 	printf("%c\n", s2[i]);
-	// 	i++;
-	// }
-}
+// 	// int i = 1;
+// 	// while (s2[i] && i <= 3)
+// 	// {
+// 	// 	printf("%c\n", s2[i]);
+// 	// 	i++;
+// 	// }
+// }

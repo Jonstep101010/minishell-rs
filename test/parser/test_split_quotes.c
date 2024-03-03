@@ -3,12 +3,23 @@
 #include "unity.h"
 
 #include "interpret_quotes.c"
-#include "split_outside_quotes.c"
+// #include "split_outside_quotes.c"
+#include "libft.h"
+#include "utils.h"
+#include "arr_utils.h"
+#include <unistd.h>
+#include "parser.h"
+
 #include "free_strjoin.c"
 #include "expander.c"
-#include "find_key.c"
+#include "expand_variables.c"
+#include "key.c"
+#include "get_env_var.c"
+#include "expand_var.c"
 #include "arr_utils.c"
-#include "occurs.c"
+#include "str_equal.c"
+
+#include "split_outside_quotes.c"
 
 void	test_find_leaks() {
 	char	*input = strdup("echo | \"nopipes |\" | echo hello");
