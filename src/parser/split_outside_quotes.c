@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include "parser.h"
 
-static int is_in_set(char c, const char *set)
+static int	is_in_set(char c, const char *set)
 {
 	while (*set)
 	{
@@ -48,18 +48,18 @@ static char	**split_iterator(const char *to_split,
 	while (trim[split->i] && split->start < ft_strlen(trim))
 	{
 		if (!split->quote && (trim[split->i] == '\'' || trim[split->i] == '"'))
-				split->quote = trim[split->i];
+			split->quote = trim[split->i];
 		else if (split->quote && trim[split->i] == split->quote)
 			split->quote = 0;
 		else if (!split->quote && is_in_set(trim[split->i], set)
 			&& !splitter(split, trim, set))
-				return (free(split), NULL);
+			return (free(split), NULL);
 		else
 			split->token_end = split->i;
 		split->i++;
 	}
 	ret = append_str_arr_free(split->ret,
-		ft_substr(to_split, split->start, split->i - split->start));
+			ft_substr(to_split, split->start, split->i - split->start));
 	return (free(split), ret);
 }
 

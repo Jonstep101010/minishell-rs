@@ -21,7 +21,8 @@ void	convert_tokens_to_string_array(t_token *token)
 		tmp = NULL;
 		while (token[i].cmd_args[ii].elem)
 		{
-			token[i].tmp_arr = append_str_arr((const char **)tmp, token[i].cmd_args[ii].elem);
+			token[i].tmp_arr = append_str_arr((const char **)tmp,
+					token[i].cmd_args[ii].elem);
 			arr_free(tmp);
 			if (!token[i].tmp_arr)
 				return ((void)printf("something went to shit!\n"));
