@@ -21,6 +21,7 @@ char	**init_env(char *const *envp)
 		if (!PWD)
 			return (arr_free(env), NULL);
 		env = append_str_arr_free(append_str_arr_free(env, ft_strjoin("PWD=", PWD)), ft_strdup("OLDPWD=''"));
+		free_null(&PWD);
 	}
 	else
 		free_null(&PWD);

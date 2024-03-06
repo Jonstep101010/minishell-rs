@@ -7,6 +7,7 @@
 #include "utils.h"
 
 int	export_env(const char **envp);
+#include "commands.h"
 
 int	export(t_shell *shell, t_token *token)
 {
@@ -23,13 +24,13 @@ int	export(t_shell *shell, t_token *token)
 			eprint("export: '%s': not a valid identifier\n", token->command[i]);
 			return (1);
 		}
-		shell->tmp_arr = export_var(shell->owned_envp, token->command[i]);
-		if (!shell->tmp_arr)
-			return (0);
-		if (shell->owned_envp != shell->tmp_arr)
-			arr_free(shell->owned_envp);
-		shell->owned_envp = shell->tmp_arr;
-		shell->tmp_arr = NULL;
+		shell->owned_envp = export_var(shell->owned_envp, token->command[i]);
+		if (!shell->owned_envp)
+		{
+			eprint("fatal: enviroment invalidated\n");
+			shell->exit_status = 1;
+			builtin_exit(shell, NULL);
+		}
 		i++;
 	}
 	if (i > 1)
