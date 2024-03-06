@@ -9,32 +9,18 @@
 char	**init_env(char *const *envp)
 {
 	char	**env;
-	char	**tmp_arr;
+	// char	**tmp_arr;
 	char	*PWD;
-	char	*tmp;
+	// char	*tmp;
 
 	env = append_str_arr(envp, "?=0");
 	PWD = get_env_var(env, "PWD");
-	if (!PWD)
+	if (!PWD && env)
 	{
 		PWD = getcwd(NULL, 0);
 		if (!PWD)
 			return (arr_free(env), NULL);
-		tmp = ft_strjoin("PWD=", PWD);
-		free_null(&PWD);
-		tmp_arr = export_var(env, tmp);
-		if (tmp_arr != env)
-		{
-			arr_free(env);
-			env = tmp_arr;
-		}
-		free_null(&tmp);
-		env = export_var(tmp_arr, "OLDPWD=''");
-		if (tmp_arr != env)
-		{
-			arr_free(tmp_arr);
-			tmp_arr = env;
-		}
+		env = append_str_arr_free(append_str_arr_free(env, ft_strjoin("PWD=", PWD)), ft_strdup("OLDPWD=''"));
 	}
 	else
 		free_null(&PWD);
@@ -47,7 +33,7 @@ t_shell	*init_shell(char *const *envp)
 
 	shell = (t_shell *)ft_calloc(1, sizeof(t_shell));
 	if (!shell)
-		return (NULL);
+		exit(1);
 	shell->p_termios = (struct termios){0};
 	shell->owned_envp = init_env(envp);
 	if (!shell->owned_envp)

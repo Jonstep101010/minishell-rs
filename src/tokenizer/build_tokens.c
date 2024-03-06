@@ -52,7 +52,7 @@ static void	set_arg_attributes(t_arg *cmd_arg)
 	cmd_arg->type = STRING;
 }
 
-static void	*expand_if_allowed(t_token *token, size_t ii, const char **envp)
+static void	*expand_if_allowed(t_token *token, size_t ii, char *const *envp)
 {
 	char	*tmp;
 
@@ -78,7 +78,7 @@ static void	*expand_if_allowed(t_token *token, size_t ii, const char **envp)
 	return (token);
 }
 
-static void	*inner_loop(t_token *token, const char **envp)
+static void	*inner_loop(t_token *token, char *const *envp)
 {
 	size_t	ii;
 
@@ -105,7 +105,7 @@ void	convert_split_token_string_array_to_tokens(t_shell *shell)
 	while (shell->token[i].split_pipes)
 	{
 		setup_token(&shell->token[i]);
-		inner_loop(&shell->token[i], (const char **)shell->owned_envp);
+		inner_loop(&shell->token[i], shell->owned_envp);
 		free(shell->token[i].tmp_arr);
 		i++;
 	}

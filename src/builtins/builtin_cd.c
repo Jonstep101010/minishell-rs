@@ -14,7 +14,7 @@
  * @param envp environment
  * @return int
  */
-static int	changedir(const char *path, char **envp)
+static int	changedir(const char *path, t_shell *shell)
 {
 	char	*pwd;
 	char	*oldpwd;
@@ -31,9 +31,9 @@ static int	changedir(const char *path, char **envp)
 		eprint("cd: %s: %s\n", path, strerror(errno));
 		return (free(oldpwd), -1);
 	}
-	update_variable(envp, "PWD", pwd);
-	update_variable(envp, "OLDPWD", oldpwd);
-	return (free(oldpwd), free(pwd), 0);
+	export_to_shell(shell, str_join(2, "PWD=", pwd));
+	export_to_shell(shell, str_join(2, "OLDPWD=", oldpwd));
+	return (free(pwd), free(oldpwd), 0);
 }
 
 /**
@@ -42,35 +42,35 @@ static int	changedir(const char *path, char **envp)
  * @param envp environment
  * @return int exit code
  */
-static int	cd(const char **cmd_args, char **envp)
+static int	cd_internal(char *const *cmd_args, t_shell *shell)
 {
 	char	*path;
 	char	*oldpwd;
 
-	path = get_env_var(envp, "HOME");
-	oldpwd = get_env_var(envp, "OLDPWD");
+	path = get_env_var(shell->owned_envp, "HOME");
+	oldpwd = get_env_var(shell->owned_envp, "OLDPWD");
 	if (!cmd_args[1] && !path)
 		return (eprint("cd: HOME not set\n"), 1);
 	if (!cmd_args[1] && path)
-		changedir(path, envp);
+		changedir(path, shell);
 	else if (*cmd_args[1] == '~' && path)
 	{
 		path = free_first_join(path, cmd_args[1] + 1);
-		if (changedir(path, envp) == -1)
+		if (changedir(path, shell) == -1)
 			return (free(path), free(oldpwd), 1);
 	}
 	else if (*cmd_args[1] == '-' && oldpwd)
 	{
 		oldpwd = free_first_join(oldpwd, cmd_args[1] + 1);
-		if (changedir(oldpwd, envp) == -1)
+		if (changedir(oldpwd, shell) == -1)
 			return (free(path), free(oldpwd), 1);
 	}
-	else if (changedir(cmd_args[1], envp) == -1)
+	else if (changedir(cmd_args[1], shell) == -1)
 		return (free(path), free(oldpwd), 1);
 	return (free(path), free(oldpwd), 0);
 }
 
 int	builtin_cd(t_shell *shell, t_token *token)
 {
-	return (cd((const char **)token->command, shell->owned_envp));
+	return (cd_internal(token->command, shell));
 }

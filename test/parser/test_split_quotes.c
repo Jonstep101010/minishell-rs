@@ -10,7 +10,6 @@
 #include <unistd.h>
 #include "parser.h"
 
-#include "free_strjoin.c"
 #include "expander.c"
 #include "expand_variables.c"
 #include "key.c"

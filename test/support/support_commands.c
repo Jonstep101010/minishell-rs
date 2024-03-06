@@ -12,6 +12,4 @@
 # include "builtin_exit.c"
 # include "export_var.c"
 
-# include "free_strjoin.c"
-
 #endif

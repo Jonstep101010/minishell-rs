@@ -53,7 +53,7 @@ char	**arr_trim(char **arr, char const *set)
 	return (ret);
 }
 
-int	arr_ncmp(const char **arr1, const char **arr2, size_t n)
+int	arr_ncmp(char *const *arr1, char *const *arr2, size_t n)
 {
 	size_t	i;
 

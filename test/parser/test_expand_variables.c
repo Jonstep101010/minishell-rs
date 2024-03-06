@@ -1,12 +1,10 @@
-#include "libft.h"
 #include "unity.h"
-#include "key.c"
-#include "utils.h"
+#include "libutils.h"
 #include "expander.c"
 #include "expand_variables.c"
-#include "free_strjoin.c"
-#include "get_env_var.c"
 #include "expand_var.c"
+#include "get_env_var.c"
+#include "key.c"
 #include "support_lib.c"
 
 void	test_expander() {
@@ -18,7 +16,7 @@ void	test_expander() {
 	char	*expected_ret = "echo true";
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*expanded_line = expander(line, (const char **)envp);
+	char	*expanded_line = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(expanded_line);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, expanded_line);
 	free(expanded_line);
@@ -33,7 +31,7 @@ void	test_expander_mult() {
 	char	*expected_ret = "echo true | echo false";
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*expanded_line = expander(line, (const char **)envp);
+	char	*expanded_line = expander(line, envp);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, expanded_line);
 	free(expanded_line);
 }
@@ -46,7 +44,7 @@ void	test_expander_two() {
 	char	*expected_ret = "echo true | echo \"false\" | echo false | echo true";
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expander(line, (const char **)envp);
+	char	*actual = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -54,13 +52,13 @@ void	test_expander_two() {
 }
 
 
-// echo hello$PAGER -> echo helloVAL
-// echo "$PAGER" -> echo VAL
-// echo $PAGER -> echo VAL
-// echo $'PAGER'S -> echo PAGERS (remove $)
-// echo '$PAGER' -> echo $PAGER
-// echo $"PAGER"S -> echo PAGERS
-// echo $PAGER_S -> echo VAL
+// // echo hello$PAGER -> echo helloVAL
+// // echo "$PAGER" -> echo VAL
+// // echo $PAGER -> echo VAL
+// // echo $'PAGER'S -> echo PAGERS (remove $)
+// // echo '$PAGER' -> echo $PAGER
+// // echo $"PAGER"S -> echo PAGERS
+// // echo $PAGER_S -> echo VAL
 
 // @audit single quotes
 void	test_expander_ignore_in_singlequotes() {
@@ -71,7 +69,7 @@ void	test_expander_ignore_in_singlequotes() {
 	char	*expected_ret = "echo '$PAGER'";
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expander(line, (const char **)envp);
+	char	*actual = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -86,7 +84,7 @@ void	test_expander_followed() {
 	char	*expected_ret = "echo truefalse";
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expander(line, (const char **)envp);
+	char	*actual = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -101,7 +99,7 @@ void	test_expander_followed_dq() {
 	char	*expected_ret = "echo \"true\"false";
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expander(line, (const char **)envp);
+	char	*actual = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -116,7 +114,7 @@ void	test_expander_ignore_in_singlequotes_key() {
 	char	*expected_ret = "echo 'TEST'";
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expander(line, (const char **)envp);
+	char	*actual = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -131,7 +129,7 @@ void	test_expander_ignore_in_doublequotes_key() {
 	char	*expected_ret = "\"TEST\"";
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expander(line, (const char **)envp);
+	char	*actual = expander(line, envp);
 	// TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -146,7 +144,7 @@ void	test_expander_ignore_in_sq_key() {
 	char	*expected_ret = "echo 'TEST $TEST'";
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expander(line, (const char **)envp);
+	char	*actual = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -159,7 +157,7 @@ void	test_expander_ignore_in_doublequotes_key_two() {
 
 	char	*expected_ret = "echo \"true\"";
 
-	char	*actual = expander(line, (const char **)envp);
+	char	*actual = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	printf("%s\n", actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
@@ -175,7 +173,7 @@ void	test_expander_followed_sq() {
 	char	*expected_ret = "echo 'PAGER'hello";
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expander(line, (const char **)envp);
+	char	*actual = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -191,7 +189,7 @@ void	test_expander_followed_sq_var() {
 	char	*expected_ret = "echo 'PAGER'false";
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expander(line, (const char **)envp);
+	char	*actual = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -207,7 +205,7 @@ void	test_error_invalid_name() {
 	char	*expected_ret = "echo 'PA?GER'false";
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expander(line, (const char **)envp);
+	char	*actual = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -222,7 +220,7 @@ void	test_replace_key_not_found_name() {
 	char	*expected_ret = "";
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expander(line, (const char **)envp);
+	char	*actual = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	free(actual);
@@ -236,7 +234,7 @@ void	test_key_not_found_name() {
 	char	*expected_ret = "";
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
-	char	*actual = expander(line, (const char **)envp);
+	char	*actual = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -255,7 +253,7 @@ void	test_key_not_found_name() {
 // 	char	**split_tokens_trim_spaces = arr_trim(split_tokens, " ");
 // 	char	**expected = (char *[]){"ls -l $somedir ' '", "cat -e", "wc -l", NULL};
 // 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, split_tokens_trim_spaces, 4);
-// 	char	**envp = arr_dup((const char **)((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=you", NULL}));
+// 	char	**envp = arr_dup(((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=you", NULL}));
 
 // 	char	**expanded = arr_map(split_tokens_trim_spaces, (void *)expander, (void *)envp);
 // 	TEST_ASSERT_NOT_NULL(expanded);
@@ -285,7 +283,7 @@ char	**arr_map(char **arr, void *(*f)(void *, void *), void *arg)
 	}
 	return (ret);
 }
-
+char	**arr_trim(char **arr, char const *set);
 void	test_expansion_space_follows_non_null() {
 	char	**split_tokens = arr_dup((char *[]){"ls -l $somedir ' '", "cat -e", "wc -l", NULL});
 
@@ -322,7 +320,7 @@ void	test_expansion_followed_dollarsign() {
 	char	*tmp;
 	while (str_cchr(split_tokens_trim_spaces[0], '$') != 0)
 	{
-		tmp = expander(split_tokens_trim_spaces[0], (const char **)envp);
+		tmp = expander(split_tokens_trim_spaces[0], envp);
 		TEST_ASSERT_NOT_NULL(tmp);
 		if (ft_strncmp(tmp, split_tokens_trim_spaces[0], ft_strlen(tmp)) == 0)
 		{
@@ -348,7 +346,7 @@ void	test_input_prefix_dollar() {
 
 	char	*expected_ret = "$true";
 
-	char	*actual = expander(line, (const char **)envp);
+	char	*actual = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -362,7 +360,7 @@ void	test_input_prefix_dollar_two() {
 
 	char	*expected_ret = "$true";
 
-	char	*actual = expander(line, (const char **)envp);
+	char	*actual = expander(line, envp);
 
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	free(actual);
@@ -375,7 +373,7 @@ void	test_get_exit_status() {
 
 	char	*expected_ret = "echo 0";
 
-	char	*actual = expander(line, (const char **)envp);
+	char	*actual = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -389,7 +387,7 @@ void	test_get_exit_status_other() {
 
 	char	*expected_ret = "echo 1thing";
 
-	char	*actual = expander(line, (const char **)envp);
+	char	*actual = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -403,7 +401,7 @@ void	test_get_exit_status_single() {
 
 	char	*expected_ret = "1";
 
-	char	*actual = expander(line, (const char **)envp);
+	char	*actual = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -417,7 +415,7 @@ void	test_get_exit_status_mult() {
 
 	char	*expected_ret = "1$11$$$echo?$";
 
-	char	*actual = expander(line, (const char **)envp);
+	char	*actual = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -430,7 +428,7 @@ void	test_nothing_to_do() {
 
 	char	*expected_ret = "something";
 
-	char	*actual = expander(line, (const char **)envp);
+	char	*actual = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(actual);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
@@ -443,9 +441,9 @@ void	test_recursive_expansion() {
 
 	char	*expected_ret = "ls -l mypath$ ' ' | cat -e | wc -l";
 
-	char	*actual = expander(line, (const char **)envp);
+	char	*actual = expander(line, envp);
 	// expand as many times as there are variables (excluding trailing $)
-	char	*actual_second = expander(actual, (const char **)envp);
+	char	*actual_second = expander(actual, envp);
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual_second);
 
 	free(actual);

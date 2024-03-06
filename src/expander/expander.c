@@ -6,7 +6,7 @@
 # include "expander.h"
 #endif
 
-char	*expand_variables(t_expand *x, char *input, const char **envp);
+char    *expand_variables(t_expand *x, char *input, char *const *env);
 
 /**
  * @brief iterate over to find key
@@ -19,19 +19,19 @@ char	*expand_variables(t_expand *x, char *input, const char **envp);
  * \details $invalid$key$keytwo -> valuevaluetwo (invalid empty)
  * @example input: $$USER -> $username
  * @param input_expander
- * @param envp
+ * @param env
  * @return char*
  */
-char	*expander(const char *input_expander, const char **envp)
+char	*expander(char const *input_expander, char *const *env)
 {
 	t_expand	x;
 	char		*input;
 
-	if (!input_expander || !envp || !*envp || !*input_expander)
+	if (!input_expander || !env || !*env || !*input_expander)
 		return (NULL);
 	input = ft_strdup(input_expander);
 	if (!input)
 		return (NULL);
 	ft_bzero(&x, sizeof(t_expand));
-	return (expand_variables(&x, input, envp));
+	return (expand_variables(&x, input, env));
 }

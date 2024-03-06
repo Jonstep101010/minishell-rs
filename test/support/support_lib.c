@@ -35,3 +35,5 @@
 #include "append_str.c"
 #include "join_strings.c"
 #include "../../include/libutils/src/utils/free_mem.c"
+#include "free_strjoin.c"
+#include "free_strjoin_utils.c"

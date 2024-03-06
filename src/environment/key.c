@@ -15,21 +15,21 @@ size_t	get_key_len(const char *s)
 	return (-1);
 }
 
-int	find_key_env(const char **arr, const char *s, size_t (*f)(const char *s))
+int	find_key_env(char *const *env, char const *s, size_t (*f)(char const *s))
 {
 	size_t	i;
 	size_t	key_len;
 
-	if (!arr || !s)
+	if (!env || !s)
 		return (-1);
 	i = 0;
 	key_len = f(s);
 	if (key_len < 0)
 		return (-1);
-	while (arr[i])
+	while (env[i])
 	{
-		if (ft_strncmp(arr[i], s, key_len) == 0
-			&& arr[i][key_len] && arr[i][key_len] == '=')
+		if (ft_strncmp(env[i], s, key_len) == 0
+			&& env[i][key_len] && env[i][key_len] == '=')
 				return (i);
 		i++;
 	}

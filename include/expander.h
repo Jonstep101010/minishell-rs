@@ -15,6 +15,6 @@ typedef struct s_expand
 	int		singlequote;
 }	t_expand;
 
-char	*expander(const char *input_expander, const char **envp);
+char	*expander(char const *input_expander, char *const *env);
 
 #endif

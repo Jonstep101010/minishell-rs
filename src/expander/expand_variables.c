@@ -2,7 +2,7 @@
 #include "libft.h"
 #include "utils.h"
 
-char	*expand_var(const char *input, const char **envp);
+char	*expand_var(const char *input, char *const *env);
 
 static void	skip_chars(const char *input, size_t *i, char c)
 {
@@ -29,7 +29,7 @@ static void	set_end(const char *input, t_expand *x)
 		x->end++;
 }
 
-static char	*set_values(t_expand *x, char *input, const char **envp)
+static char	*set_values(t_expand *x, char *input, char *const *envp)
 {
 	x->to_expand = ft_substr(input, x->i, x->end - x->i);
 	if (!x->to_expand)
@@ -41,7 +41,7 @@ static char	*set_values(t_expand *x, char *input, const char **envp)
 	x->before_expansion = ft_substr(input, 0, x->i);
 	x->after_expansion = ft_strdup(&input[x->end]);
 	x->tmp_len = ft_strlen(x->before_expansion) + ft_strlen(x->expanded) - 1;
-	x->tmp = free_strjoin(2, x->before_expansion, x->expanded);
+	x->tmp = free_both_join(x->before_expansion, x->expanded);
 	free(input);
 	input = ft_strjoin(x->tmp, x->after_expansion);
 	free(x->after_expansion);
@@ -52,7 +52,7 @@ static char	*set_values(t_expand *x, char *input, const char **envp)
 	return (input);
 }
 
-char	*expand_variables(t_expand *x, char *input, const char **envp)
+char	*expand_variables(t_expand *x, char *input, char *const *envp)
 {
 	while (input && input[x->i] && input[x->i + 1])
 	{

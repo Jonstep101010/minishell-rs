@@ -5,7 +5,6 @@
 #include "arr_utils.c"
 #include "get_env_var.c"
 #include "str_equal.c"
-#include "free_strjoin.c"
 #include "error.c"
 
 void	test_remove_key_value() {

@@ -4,8 +4,6 @@
 #include "str_equal.c"
 
 #include "print_arr_sep.c"
-
-#include "free_strjoin.c"
 #include "support_lib.c"
 
 void	test_get_key_len() {
@@ -30,14 +28,14 @@ void	test_get_key_error_two() {
 void	test_find_key() {
 	TEST_ASSERT_EQUAL(3, get_key_len("bye=yes"));
 	char	*arr[] = {"hello=wrong", "bye=yes", "night=wrong", NULL};
-	int	index = find_key_env((const char **)arr, "bye=no", get_key_len);
+	int	index = find_key_env(arr, "bye=no", get_key_len);
 	TEST_ASSERT_EQUAL(1, index);
 }
 
 void	test_find_key_error() {
 	TEST_ASSERT_EQUAL(4, get_key_len("byes=wrong"));
 	char	*arr[] = {"hello=wrong", "byes=wrong", "night=wrong", NULL};
-	int	index = find_key_env((const char **)arr, "bye=no", get_key_len);
+	int	index = find_key_env(arr, "bye=no", get_key_len);
 	TEST_ASSERT_EQUAL(-1, index);
 }
 

@@ -27,14 +27,12 @@
 #include "build_command.c"
 #include "init.c"
 
-
+// environment
 #include "build_tokens.c"
 #include "expander.c"
 #include "expand_variables.c"
 #include "expand_var.c"
 #include "interpret_quotes.c"
-
-#define TEST_SOURCE_FILE(build_tokens)
 void	test_token_struct(void)
 {
 	t_shell	*shell;
@@ -115,7 +113,7 @@ void	test_add_string_array_as_tokens()
 	free(shell);
 }
 
-t_shell	*support_test_tokens(const char *line, char *envp[])
+t_shell	*support_test_tokens(char const *line, char *envp[])
 {
 	t_shell	*shell;
 	shell = init_shell(envp);
@@ -127,6 +125,22 @@ t_shell	*support_test_tokens(const char *line, char *envp[])
 	return (shell);
 }
 
+void	test_support_test_tokens(void)
+{
+	t_shell	*shell;
+	shell = (t_shell *) support_test_tokens("ls -l $somedir ' ' | cat -e | wc -l", (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=you", NULL});
+	(void)shell;
+	add_pipes_as_tokens(shell);
+	TEST_ASSERT_EQUAL_STRING("ls -l $somedir ' '", shell->token[0].split_pipes);
+	TEST_ASSERT_EQUAL_STRING("cat -e", shell->token[1].split_pipes);
+	TEST_ASSERT_EQUAL_STRING("wc -l", shell->token[2].split_pipes);
+	free(shell->token);
+	arr_free(shell->split_pipes);
+	arr_free(shell->owned_envp);
+	free(shell->trimmed_line);
+	free(shell);
+}
+
 void	cleanup_support_test_token(t_shell *shell)
 {
 	destroy_all_tokens(shell);
@@ -136,7 +150,7 @@ void	cleanup_support_test_token(t_shell *shell)
 	free_null(&shell);
 }
 
-void test_support_test_tokens(void)
+void test_support_test_tokens_cleanup(void)
 {
 	t_shell	*shell = support_test_tokens(" ls -l $somedir ' ' | cat -e | wc -l", (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=you", NULL});
 

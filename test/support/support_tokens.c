@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 #include "arr_utils.c"
-#include "find_key.c"
+#include "key.c"
 #include "print_arr_sep.c"
 #include "str_equal.c"
 #include "expander.c"
