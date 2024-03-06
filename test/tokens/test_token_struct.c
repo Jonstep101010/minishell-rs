@@ -118,7 +118,7 @@ void	test_add_string_array_as_tokens()
 t_shell	*support_test_tokens(const char *line, char *envp[])
 {
 	t_shell	*shell;
-	shell = init_shell((const char **)envp);
+	shell = init_shell(envp);
 	shell->exit_status = 0;
 	shell->line = ft_strdup(line);
 	shell->trimmed_line = ft_strtrim(shell->line, WHITESPACE);

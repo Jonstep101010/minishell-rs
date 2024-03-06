@@ -12,7 +12,7 @@ void	rm_str_arr(char **arr, const char *s)
 	if (!arr || !s)
 		return ;
 	i = 0;
-	len = arr_len((const char **)arr);
+	len = arr_len(arr);
 	while (arr[i])
 	{
 		if (equal(arr[i], s))
@@ -40,7 +40,7 @@ char	**arr_trim(char **arr, char const *set)
 	if (!set)
 		return (arr);
 	i = 0;
-	len = arr_len((const char **)arr);
+	len = arr_len(arr);
 	ret = malloc(sizeof(char *) * (len + 1));
 	if (!ret)
 		return (NULL);

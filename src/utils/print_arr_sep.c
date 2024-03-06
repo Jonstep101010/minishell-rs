@@ -9,7 +9,7 @@ void	print_arr_sep(char **arr, char sep_open, char sep_close)
 	i = 0;
 	if (!arr)
 		return;
-	len = arr_len((const char **)arr);
+	len = arr_len(arr);
 	if (!arr)
 		return ;
 	while (i <= len)

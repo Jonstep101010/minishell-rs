@@ -19,7 +19,7 @@ static void	*setup_token(t_token *token)
 	token->tmp_arr = split_outside_quotes(token->split_pipes, WHITESPACE);
 	if (!token->tmp_arr)
 		return (NULL);
-	len = arr_len((const char **)token->tmp_arr);
+	len = arr_len(token->tmp_arr);
 	if (len == 0)
 		return (NULL);
 	token->cmd_args = init_cmdargs(len);

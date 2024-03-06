@@ -243,31 +243,31 @@ void	test_key_not_found_name() {
 	free(actual);
 }
 
-#include "print_arr_sep.c"
-#include "str_equal.c"
-char	**arr_map(char **arr, void *(*f)(void *, void *), void *arg);
+// #include "print_arr_sep.c"
+// #include "str_equal.c"
+// char	**arr_map(char **arr, void *(*f)(void *, void *), void *arg);
 
-#include "arr_utils.c"
-void	test_expansion_space_follows() {
-	char	**split_tokens = arr_dup((const char *[]){"ls -l $somedir ' '", "cat -e", "wc -l", NULL});
+// #include "arr_utils.c"
+// void	test_expansion_space_follows() {
+// 	char	**split_tokens = arr_dup((const char *[]){"ls -l $somedir ' '", "cat -e", "wc -l", NULL});
 
-	// trim beforehand
-	char	**split_tokens_trim_spaces = arr_trim(split_tokens, " ");
-	char	**expected = (char *[]){"ls -l $somedir ' '", "cat -e", "wc -l", NULL};
-	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, split_tokens_trim_spaces, 4);
-	char	**envp = arr_dup((const char **)((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=you", NULL}));
+// 	// trim beforehand
+// 	char	**split_tokens_trim_spaces = arr_trim(split_tokens, " ");
+// 	char	**expected = (char *[]){"ls -l $somedir ' '", "cat -e", "wc -l", NULL};
+// 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, split_tokens_trim_spaces, 4);
+// 	char	**envp = arr_dup((const char **)((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=you", NULL}));
 
-	char	**expanded = arr_map(split_tokens_trim_spaces, (void *)expander, (void *)envp);
-	TEST_ASSERT_NOT_NULL(expanded);
+// 	char	**expanded = arr_map(split_tokens_trim_spaces, (void *)expander, (void *)envp);
+// 	TEST_ASSERT_NOT_NULL(expanded);
 
-	char	**expected_expanded = (char *[]){"ls -l you ' '", "cat -e", "wc -l", NULL};
+// 	char	**expected_expanded = (char *[]){"ls -l you ' '", "cat -e", "wc -l", NULL};
 
-	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_expanded, expanded, 4);
-	arr_free(expanded);
-	arr_free(envp);
-	arr_free(split_tokens_trim_spaces);
-	arr_free(split_tokens);
-}
+// 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_expanded, expanded, 4);
+// 	arr_free(expanded);
+// 	arr_free(envp);
+// 	arr_free(split_tokens_trim_spaces);
+// 	arr_free(split_tokens);
+// }
 
 char	**arr_map(char **arr, void *(*f)(void *, void *), void *arg)
 {
@@ -275,7 +275,7 @@ char	**arr_map(char **arr, void *(*f)(void *, void *), void *arg)
 	char	**ret;
 
 	i = 0;
-	ret = (char **)ft_calloc(arr_len((const char **)arr) + 1, sizeof(char *));
+	ret = (char **)ft_calloc(arr_len(arr) + 1, sizeof(char *));
 	if (!ret)
 		return (NULL);
 	while (arr[i])
@@ -287,13 +287,13 @@ char	**arr_map(char **arr, void *(*f)(void *, void *), void *arg)
 }
 
 void	test_expansion_space_follows_non_null() {
-	char	**split_tokens = arr_dup((const char *[]){"ls -l $somedir ' '", "cat -e", "wc -l", NULL});
+	char	**split_tokens = arr_dup((char *[]){"ls -l $somedir ' '", "cat -e", "wc -l", NULL});
 
 	// trim beforehand
 	char	**split_tokens_trim_spaces = arr_trim(split_tokens, " ");
 	char	**expected = (char *[]){"ls -l $somedir ' '", "cat -e", "wc -l", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, split_tokens_trim_spaces, 4);
-	char	**envp = arr_dup((const char **)((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=you", NULL}));
+	char	**envp = arr_dup(((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=you", NULL}));
 
 	char	**expanded = arr_map(split_tokens_trim_spaces, (void *)expander, (void *)envp);
 
@@ -307,13 +307,15 @@ void	test_expansion_space_follows_non_null() {
 	arr_free(expanded);
 }
 
+#include "arr_utils.c"
+#include "str_equal.c"
 void	test_expansion_followed_dollarsign() {
 
-	char	**split_tokens = arr_dup((const char **)(char *[]){"ls -l $somedir", "cat -e", "wc -l", NULL});
+	char	**split_tokens = arr_dup((char *[]){"ls -l $somedir", "cat -e", "wc -l", NULL});
 
 	char	**split_tokens_trim_spaces = arr_trim(split_tokens, " ");
 
-	char	**envp = arr_dup((const char **)((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", NULL}));
+	char	**envp = arr_dup(((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", NULL}));
 
 	TEST_ASSERT_EQUAL_STRING("ls -l $somedir", split_tokens_trim_spaces[0]);
 

@@ -21,7 +21,7 @@ void	convert_tokens_to_string_array(t_token *token)
 		tmp = NULL;
 		while (token[i].cmd_args[ii].elem)
 		{
-			token[i].tmp_arr = append_str_arr((const char **)tmp,
+			token[i].tmp_arr = append_str_arr(tmp,
 					token[i].cmd_args[ii].elem);
 			arr_free(tmp);
 			if (!token[i].tmp_arr)
@@ -47,7 +47,7 @@ void	add_pipes_as_tokens(t_shell *shell)
 		builtin_exit(shell, NULL);
 	arr_free(shell->split_pipes);
 	shell->split_pipes = shell->tmp_arr;
-	len = arr_len((const char **)shell->split_pipes);
+	len = arr_len(shell->split_pipes);
 	shell->token = init_token(len);
 	if (!shell->token)
 		builtin_exit(shell, NULL);

@@ -1,15 +1,15 @@
 #ifndef SUPPORT_COMMANDS_H
 # define SUPPORT_COMMANDS_H
-# include "echo.c"
-# include "export.c"
-# include "unset.c"
-# include "pwd.c"
-# include "env.c"
-# include "cd.c"
+# include "builtin_pwd.c"
+# include "builtin_env.c"
+# include "builtin_cd.c"
+# include "builtin_unset.c"
+# include "builtin_export.c"
+# include "builtin_echo.c"
 # include "key.c"
 # include "get_env_var.c"
-# include "builtins.c"
-# include "exit.c"
+# include "execute_commands.c"
+# include "builtin_exit.c"
 # include "export_var.c"
 
 # include "free_strjoin.c"

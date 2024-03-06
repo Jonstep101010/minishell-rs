@@ -6,7 +6,7 @@
 #include "utils.h"
 #include "libutils.h"
 
-char	**init_env(const char **envp)
+char	**init_env(char *const *envp)
 {
 	char	**env;
 	char	**tmp_arr;
@@ -41,7 +41,7 @@ char	**init_env(const char **envp)
 	return (env);
 }
 
-t_shell	*init_shell(const char **envp)
+t_shell	*init_shell(char *const *envp)
 {
 	t_shell	*shell;
 

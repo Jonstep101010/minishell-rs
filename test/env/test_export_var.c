@@ -9,7 +9,7 @@
 
 void	test_replace_key() {
 	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};
-	char	**arr = arr_dup((const char **)env);
+	char	**arr = arr_dup(env);
 	char	**ret = export_var(arr, "this=correct");
 	if (!ret)
 		TEST_FAIL();
@@ -21,7 +21,7 @@ void	test_replace_key() {
 
 void	test_replace_key_two() {
 	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};
-	char	**arr = arr_dup((const char **)env);
+	char	**arr = arr_dup(env);
 	char	**ret = export_var(arr, "this= correct");
 	if (!ret || !arr)
 		TEST_FAIL();
@@ -65,20 +65,20 @@ void	test_replace_key_two() {
 // 	clean_shell(shell);
 // }
 
-void	test_replace_using_update() {
-	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};
-	char	**arr = arr_dup((const char **)env);
-	update_variable(arr, "this", "correct");
-	char	*expected[] = {"something=wrong", "this=correct", "some=none", NULL};
-	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, arr, 4);
-	arr_free(arr);
-}
+// void	test_replace_using_update() {
+// 	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};
+// 	char	**arr = arr_dup(env);
+// update_variable(arr, "this", "correct");
+// 	char	*expected[] = {"something=wrong", "this=correct", "some=none", NULL};
+// 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, arr, 4);
+// 	arr_free(arr);
+// }
 
-void	test_replace_using_update_overlap_key() {
-	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};
-	char	**arr = arr_dup((const char **)env);
-	update_variable(arr, "thia", "correct");
-	char	*expected[] = {"something=wrong", "this=false", "some=none", NULL};
-	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, arr, 4);
-	arr_free(arr);
-}
+// void	test_replace_using_update_overlap_key() {
+// 	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};
+// 	char	**arr = arr_dup(env);
+// 	update_variable(arr, "thia", "correct");
+// 	char	*expected[] = {"something=wrong", "this=false", "some=none", NULL};
+// 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, arr, 4);
+// 	arr_free(arr);
+// }

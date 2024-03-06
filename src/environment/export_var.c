@@ -43,7 +43,7 @@ char	**export_var(char **arr, const char *s)
 		return (NULL);
 	if (index == -1)
 	{
-		tmp = append_str_arr((const char **)arr, s);
+		tmp = append_str_arr(arr, s);
 		if (!tmp)
 			return (NULL);
 		return (tmp);
