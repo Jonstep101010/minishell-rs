@@ -5,9 +5,17 @@
 #include "tokens.h"
 #include "libutils.h"
 #include "utils.h"
-
-int	export_env(const char **envp);
 #include "commands.h"
+
+static int	declare_x_env_var(char *const *env)
+{
+	while (*env)
+	{
+		printf("declare -x %s\n", *env);
+		env++;
+	}
+	return (0);
+}
 
 int	export(t_shell *shell, t_token *token)
 {
@@ -15,7 +23,7 @@ int	export(t_shell *shell, t_token *token)
 
 	i = 1;
 	if (!token->command[i])
-		return (export_env((const char **)shell->owned_envp));
+		return (declare_x_env_var(shell->owned_envp));
 	while (token->command[i])
 	{
 		if (!check_valid_key(token->command[i])

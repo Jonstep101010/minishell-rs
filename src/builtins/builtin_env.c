@@ -2,25 +2,18 @@
 #include "tokens.h"
 #include <stdio.h>
 
-int	export_env(const char **envp)
-{
-	while (*envp)
-	{
-		printf("declare -x %s\n", *envp);
-		envp++;
-	}
-	return (0);
-}
-
+/**
+ * @brief print all environment variables
+ */
 int	builtin_env(t_shell *shell, t_token *token)
 {
-	const char	**envp = (const char **)shell->owned_envp;
+	const char *const *env = (const char *const *)shell->owned_envp;
 
 	(void)token;
-	while (*envp)
+	while (*env)
 	{
-		printf("%s\n", *envp);
-		envp++;
+		printf("%s\n", *env);
+		env++;
 	}
 	return (0);
 }

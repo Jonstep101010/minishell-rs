@@ -9,7 +9,7 @@ int		builtin_exit(t_shell *shell, t_token *code_nullable)
 	int		exit_code;
 
 	exit_code = shell->exit_status;
-	if (code_nullable)
+	if (code_nullable && code_nullable->command)
 	{
 		if (code_nullable->command[1] && code_nullable->command[2])
 		{
@@ -24,10 +24,10 @@ int		builtin_exit(t_shell *shell, t_token *code_nullable)
 				exit_code += 256;
 		}
 		eprint_single("exit\n", 2);
-		if (shell->owned_envp)
-			arr_free(shell->owned_envp);
-		destroy_all_tokens(shell);
-		free(shell);
 	}
+	if (shell->owned_envp)
+		arr_free(shell->owned_envp);
+	destroy_all_tokens(shell);
+	free(shell);
 	exit(exit_code);
 }
