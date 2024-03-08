@@ -5,8 +5,17 @@
 #include "tokens.h"
 #include "libutils.h"
 #include "utils.h"
+#include "commands.h"
 
-int	export_env(const char **envp);
+static int	declare_x_env_var(char *const *env)
+{
+	while (*env)
+	{
+		printf("declare -x %s\n", *env);
+		env++;
+	}
+	return (0);
+}
 
 int	export(t_shell *shell, t_token *token)
 {
@@ -14,7 +23,7 @@ int	export(t_shell *shell, t_token *token)
 
 	i = 1;
 	if (!token->command[i])
-		return (export_env((const char **)shell->owned_envp));
+		return (declare_x_env_var(shell->owned_envp));
 	while (token->command[i])
 	{
 		if (!check_valid_key(token->command[i])
@@ -23,13 +32,13 @@ int	export(t_shell *shell, t_token *token)
 			eprint("export: '%s': not a valid identifier\n", token->command[i]);
 			return (1);
 		}
-		shell->tmp_arr = export_var(shell->owned_envp, token->command[i]);
-		if (!shell->tmp_arr)
-			return (0);
-		if (shell->owned_envp != shell->tmp_arr)
-			arr_free(shell->owned_envp);
-		shell->owned_envp = shell->tmp_arr;
-		shell->tmp_arr = NULL;
+		shell->owned_envp = export_var(shell->owned_envp, token->command[i]);
+		if (!shell->owned_envp)
+		{
+			eprint("fatal: enviroment invalidated\n");
+			shell->exit_status = 1;
+			builtin_exit(shell, NULL);
+		}
 		i++;
 	}
 	if (i > 1)

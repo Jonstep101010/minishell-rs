@@ -10,7 +10,6 @@
 #include <unistd.h>
 #include "parser.h"
 
-#include "free_strjoin.c"
 #include "expander.c"
 #include "expand_variables.c"
 #include "key.c"
@@ -48,7 +47,7 @@ void	test_find_leaks_two() {
 	char	*expected[] =
 		{"echo", NULL, NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 2);
-	TEST_ASSERT_EQUAL(arr_len((const char **)tokens), arr_len((const char **)expected));
+	TEST_ASSERT_EQUAL(arr_len(tokens), arr_len(expected));
 	arr_free(tokens);
 }
 
@@ -65,7 +64,7 @@ void	test_only_expand() {
 	char	*expected[] =
 		{"$somedir ", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 2);
-	TEST_ASSERT_EQUAL(arr_len((const char **)tokens), arr_len((const char **)expected));
+	TEST_ASSERT_EQUAL(arr_len(tokens), arr_len(expected));
 	arr_free(tokens);
 }
 
@@ -80,7 +79,7 @@ void	test_leading_trailing_char() {
 	char	*expected[] =
 		{"echo $somedir", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 2);
-	TEST_ASSERT_EQUAL(arr_len((const char **)tokens), arr_len((const char **)expected));
+	TEST_ASSERT_EQUAL(arr_len(tokens), arr_len(expected));
 	arr_free(tokens);
 	free(input);
 }
@@ -96,7 +95,7 @@ void	test_leading_trailing_and_split() {
 	char	*expected[] =
 		{"echo", "$somedir' '", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 3);
-	TEST_ASSERT_EQUAL(arr_len((const char **)tokens), arr_len((const char **)expected));
+	TEST_ASSERT_EQUAL(arr_len(tokens), arr_len(expected));
 	arr_free(tokens);
 	free(input);
 }
@@ -112,7 +111,7 @@ void	test_only_trim() {
 	char	*expected[] =
 		{"", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 2);
-	TEST_ASSERT_EQUAL(arr_len((const char **)tokens), arr_len((const char **)expected));
+	TEST_ASSERT_EQUAL(arr_len(tokens), arr_len(expected));
 	arr_free(tokens);
 	free(input);
 }
@@ -128,7 +127,7 @@ void	test_only_trim_single() {
 	char	*expected[] =
 		{"h", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 2);
-	TEST_ASSERT_EQUAL(arr_len((const char **)tokens), arr_len((const char **)expected));
+	TEST_ASSERT_EQUAL(arr_len(tokens), arr_len(expected));
 	arr_free(tokens);
 	free(input);
 }
@@ -144,7 +143,7 @@ void	test_only_trim_single_quotes() {
 	char	*expected[] =
 		{"'", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 2);
-	TEST_ASSERT_EQUAL(arr_len((const char **)tokens), arr_len((const char **)expected));
+	TEST_ASSERT_EQUAL(arr_len(tokens), arr_len(expected));
 	arr_free(tokens);
 	free(input);
 }
@@ -160,7 +159,7 @@ void	test_only_trim_single_quotes2() {
 	char	*expected[] =
 		{"'h'", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 2);
-	TEST_ASSERT_EQUAL(arr_len((const char **)tokens), arr_len((const char **)expected));
+	TEST_ASSERT_EQUAL(arr_len(tokens), arr_len(expected));
 	arr_free(tokens);
 	free(input);
 }
@@ -176,7 +175,7 @@ void	test_set_of_chars_isspace() {
 	char	*expected[] =
 		{"h", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 2);
-	TEST_ASSERT_EQUAL(arr_len((const char **)tokens), arr_len((const char **)expected));
+	TEST_ASSERT_EQUAL(arr_len(tokens), arr_len(expected));
 	arr_free(tokens);
 	free(input);
 }
@@ -192,7 +191,7 @@ void	test_set_of_chars_isspace_error() {
 	char	*expected[] =
 		{"h", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 2);
-	TEST_ASSERT_EQUAL(arr_len((const char **)tokens), arr_len((const char **)expected));
+	TEST_ASSERT_EQUAL(arr_len(tokens), arr_len(expected));
 	arr_free(tokens);
 	free(input);
 }

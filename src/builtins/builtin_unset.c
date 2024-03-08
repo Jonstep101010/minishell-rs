@@ -15,7 +15,7 @@ static int	unset_internal(const char **args, char **envp)
 			eprint("%s: %s: %s", "unset", *args, "invalid option");
 			return (1);
 		}
-		index = find_key_env((const char **)envp, *args, ft_strlen);
+		index = find_key_env(envp, *args, ft_strlen);
 		if (index >= 0 && envp[index])
 			rm_str_arr(envp, envp[index]);
 		args++;

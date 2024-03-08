@@ -84,3 +84,10 @@ fclean: clean
 re: fclean
 	git submodule update --init
 	$(MAKE)
+
+memtest:
+	rm -rf build
+	ceedling test:$(TEST)
+	valgrind --leak-check=full --track-origins=yes -s --log-file=valgrind.log ./build/test/out/test_$(TEST).out
+
+.PHONY: memtest

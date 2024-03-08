@@ -52,7 +52,7 @@ void	minishell_loop(t_shell *shell)
 }
 
 
-int main(int ac, char **av, const char **envp)
+int main(int ac, char **av, char **envp)
 {
 	t_shell		*shell;
 

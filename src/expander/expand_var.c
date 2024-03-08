@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "libft.h"
 
-char	*get_env_var(char **arr, const char *key);
+char	*get_env_var(char *const *env, const char *key);
 
 static size_t	get_len_until(const char *s, char c)
 {
@@ -25,7 +25,7 @@ char	*free_both_join(char *s1, char *s2);
  * @param envp {"KEY=VALUE", NULL}
  * @return char* VALUEsomething
  */
-char	*expand_var(const char *input, const char **envp)
+char	*expand_var(char const *input, char *const *envp)
 {
 	size_t	i;
 	char	*tmp;

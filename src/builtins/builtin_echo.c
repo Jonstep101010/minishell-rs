@@ -1,7 +1,7 @@
 #include "libft.h"
 #include "tokens.h"
 
-static int	is_n_arg(const char *arg)
+static int	is_n_arg(char const *arg)
 {
 	if (*arg == '-')
 	{
@@ -19,7 +19,7 @@ static int	is_n_arg(const char *arg)
 // 0 is case of -n flag running and a string with -nsomething -> "\n"
 // 1 is case of normal -n flag -> no newline
 // 2 is case of no -n flag -> "\n"
-static void	echo_default(const char **cmd_args)
+static void	echo_default(const char *const *cmd_args)
 {
 	int		i;
 	int		flag;
@@ -47,7 +47,7 @@ static void	echo_default(const char **cmd_args)
 
 int	echo(t_shell *nullable, t_token *token)
 {
-	const char	**args = (const char **)token->command;
+	const char *const	*args = (const char *const *)token->command;
 
 	(void)nullable;
 	if (!args || !*args)

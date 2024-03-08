@@ -26,8 +26,6 @@
 #include "error.c"
 #include "build_command.c"
 #include "init.c"
-
-
 #include "build_tokens.c"
 #include "expander.c"
 #include "expand_variables.c"
@@ -39,7 +37,7 @@ void	test_convert_string_array_to_tokens(void)
 	t_shell	*shell;
 
 	// input like "ls -l somedir | cat -e | wc -l";
-	shell = init_shell((const char **)((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=you", NULL}));
+	shell = init_shell((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=you", NULL});
 	shell->line = ft_strdup(" ls -l $somedir ' ' | cat -e | wc -l");
 	shell->trimmed_line = ft_strtrim(shell->line, WHITESPACE);
 	free(shell->line);

@@ -12,7 +12,7 @@ void	rm_str_arr(char **arr, const char *s)
 	if (!arr || !s)
 		return ;
 	i = 0;
-	len = arr_len((const char **)arr);
+	len = arr_len(arr);
 	while (arr[i])
 	{
 		if (equal(arr[i], s))
@@ -40,7 +40,7 @@ char	**arr_trim(char **arr, char const *set)
 	if (!set)
 		return (arr);
 	i = 0;
-	len = arr_len((const char **)arr);
+	len = arr_len(arr);
 	ret = malloc(sizeof(char *) * (len + 1));
 	if (!ret)
 		return (NULL);
@@ -53,7 +53,7 @@ char	**arr_trim(char **arr, char const *set)
 	return (ret);
 }
 
-int	arr_ncmp(const char **arr1, const char **arr2, size_t n)
+int	arr_ncmp(char *const *arr1, char *const *arr2, size_t n)
 {
 	size_t	i;
 
