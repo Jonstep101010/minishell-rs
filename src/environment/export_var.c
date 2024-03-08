@@ -17,21 +17,6 @@ static void	update_var(char **env, char *key_val)
 	*env = key_val;
 }
 
-// need to assign always
-// input like key=val -> heap allocated!
-char	**export_var(char **env, const char *key_val)
-{
-	int		index;
-
-	if (!env || !key_val || !*key_val)
-		return (NULL);
-	index = find_key_env(env, key_val, get_key_len);
-	if (index == -1)
-		return (append_str_arr_free(env, ft_strdup(key_val)));
-	update_var(&env[index], ft_strdup(key_val));
-	return (env);
-}
-
 #include "commands.h"
 
 /**
@@ -45,7 +30,7 @@ void	export_to_shell(t_shell *shell, char *key_val)
 	int	index;
 
 	if (!key_val || !*key_val)
-		return ;// @follow-up handle error?
+		return ((void)eprint("export: malloc fail creating key_val\n"));
 	if (!shell || !shell->owned_envp || !*shell->owned_envp
 		|| !**(shell->owned_envp))
 	{
@@ -61,10 +46,15 @@ void	export_to_shell(t_shell *shell, char *key_val)
 		update_var(&shell->owned_envp[index], key_val);
 	if (!shell->owned_envp)
 	{
-		free(key_val);
 		shell->exit_status = 1;
 		eprint("fatal: environment invalidated\n");
 		builtin_exit(shell, NULL);
 	}
 }
 
+void	update_exit_status(t_shell *shell, int status)
+{
+	export_to_shell(shell,
+		free_second_join("?=", ft_itoa(status)));
+	shell->exit_status = status;
+}

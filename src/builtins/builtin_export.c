@@ -6,6 +6,7 @@
 #include "libutils.h"
 #include "utils.h"
 #include "commands.h"
+#include "libft.h"
 
 static int	declare_x_env_var(char *const *env)
 {
@@ -22,7 +23,7 @@ int	export(t_shell *shell, t_token *token)
 	size_t	i;
 
 	i = 1;
-	if (!token->command[i])
+	if (!token->command || !token->command[i])
 		return (declare_x_env_var(shell->owned_envp));
 	while (token->command[i])
 	{
@@ -32,13 +33,7 @@ int	export(t_shell *shell, t_token *token)
 			eprint("export: '%s': not a valid identifier\n", token->command[i]);
 			return (1);
 		}
-		shell->owned_envp = export_var(shell->owned_envp, token->command[i]);
-		if (!shell->owned_envp)
-		{
-			eprint("fatal: enviroment invalidated\n");
-			shell->exit_status = 1;
-			builtin_exit(shell, NULL);
-		}
+		export_to_shell(shell, ft_strdup(token->command[i]));
 		i++;
 	}
 	if (i > 1)
