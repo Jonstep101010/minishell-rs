@@ -24,7 +24,7 @@ int	export(t_shell *shell, t_token *token)
 
 	i = 1;
 	if (!token->command || !token->command[i])
-		return (declare_x_env_var(shell->owned_envp));
+		return (declare_x_env_var(shell->env));
 	while (token->command[i])
 	{
 		if (!check_valid_key(token->command[i])

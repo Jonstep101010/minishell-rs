@@ -36,8 +36,8 @@ t_shell	*init_shell(char *const *envp)
 	if (!shell)
 		exit(1);
 	shell->p_termios = (struct termios){0};
-	shell->owned_envp = init_env(envp);
-	if (!shell->owned_envp)
+	shell->env = init_env(envp);
+	if (!shell->env)
 	{
 		free(shell);
 		return (NULL);

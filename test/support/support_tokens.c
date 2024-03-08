@@ -78,7 +78,7 @@ typedef struct s_shell
 	char	**split_tokens;
 	char	**split_pipes;
 	int		exit_status;
-	char	**owned_envp;
+	char	**env;
 	char	*line;
 	char	*expanded_line;
 	char	*trimmed_line;
@@ -129,7 +129,7 @@ void	mock_convert_split_token_string_array_to_tokens(t_shell *shell)
 				shell->token[i].cmd_args[ii].quote = SINGLE;
 			while (str_cchr(shell->token[i].cmd_args[ii].elem, '$'))
 			{
-				tmp = expander(shell->token[i].cmd_args[ii].elem, (const char **)shell->owned_envp);
+				tmp = expander(shell->token[i].cmd_args[ii].elem, (const char **)shell->env);
 				if (!tmp)
 					return ;
 				if (ft_strncmp(tmp, shell->token[i].cmd_args[ii].elem, ft_strlen(tmp)) == 0)
@@ -165,7 +165,7 @@ t_shell	*support_test_tokens_input(char *line, char **envp)
 	// trim beforehand
 	shell->split_tokens = arr_trim(shell->split_pipes, WHITESPACE);
 	arr_free(shell->split_pipes);
-	shell->owned_envp = arr_dup((const char **)envp);
+	shell->env = arr_dup((const char **)envp);
 
 	// add the split tokens as tokens
 	add_pipes_as_tokens(shell);

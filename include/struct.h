@@ -11,7 +11,7 @@ typedef struct s_shell
 	char			**split_tokens;
 	char			**split_pipes;
 	int				exit_status;
-	char			**owned_envp;
+	char			**env;
 	char			*line;
 	char			*trimmed_line;
 	char			*expanded_line;

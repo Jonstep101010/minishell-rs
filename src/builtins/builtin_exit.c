@@ -25,8 +25,8 @@ int		builtin_exit(t_shell *shell, t_token *code_nullable)
 		}
 		eprint_single("exit\n", 2);
 	}
-	if (shell->owned_envp)
-		arr_free(shell->owned_envp);
+	if (shell->env)
+		arr_free(shell->env);
 	destroy_all_tokens(shell);
 	free(shell);
 	exit(exit_code);

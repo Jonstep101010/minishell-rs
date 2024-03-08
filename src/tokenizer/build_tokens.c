@@ -105,7 +105,7 @@ void	convert_split_token_string_array_to_tokens(t_shell *shell)
 	while (shell->token[i].split_pipes)
 	{
 		setup_token(&shell->token[i]);
-		inner_loop(&shell->token[i], shell->owned_envp);
+		inner_loop(&shell->token[i], shell->env);
 		free(shell->token[i].tmp_arr);
 		i++;
 	}

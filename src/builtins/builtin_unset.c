@@ -34,7 +34,7 @@ int	unset(t_shell *shell, t_token *token)
 	char		**envp;
 	const char	**args = (const char **)token->command;
 
-	envp = (char **)shell->owned_envp;
+	envp = (char **)shell->env;
 	if (!envp || !*(args + 1) || !*envp)
 		return (0);
 	return (unset_internal(args + 1, envp));

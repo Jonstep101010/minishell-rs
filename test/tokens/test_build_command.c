@@ -51,7 +51,7 @@ void	test_convert_string_array_to_tokens(void)
 	TEST_ASSERT_EQUAL_STRING("wc -l", shell->token[2].split_pipes);
 
 	destroy_all_tokens(shell);
-	arr_free(shell->owned_envp);
+	arr_free(shell->env);
 	free_null(&shell->trimmed_line);
 	arr_free(shell->split_pipes);
 	free_null(&shell);

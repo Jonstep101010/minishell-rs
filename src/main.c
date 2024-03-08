@@ -69,13 +69,13 @@ int main(int ac, char **av, char **envp)
 
 void	deploy_tokens(t_shell *shell)
 {
-	if (shell->owned_envp && *shell->owned_envp)
+	if (shell->env && *shell->env)
 	{
 		free(shell->line);
 		free(shell->trimmed_line);
 		if (shell->line && shell->trimmed_line)
 		{
-			if (shell->token && shell->owned_envp)
+			if (shell->token && shell->env)
 			{
 				execute_commands(shell, shell->token);
 				destroy_all_tokens(shell);

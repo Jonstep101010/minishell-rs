@@ -31,20 +31,20 @@ void	export_to_shell(t_shell *shell, char *key_val)
 
 	if (!key_val || !*key_val)
 		return ((void)eprint("export: malloc fail creating key_val\n"));
-	if (!shell || !shell->owned_envp || !*shell->owned_envp
-		|| !**(shell->owned_envp))
+	if (!shell || !shell->env || !*shell->env
+		|| !**(shell->env))
 	{
 		free(key_val);
 		shell->exit_status = 1;
 		eprint("fatal: invalid memory!\n");
 		builtin_exit(shell, NULL);
 	}
-	index = find_key_env(shell->owned_envp, key_val, get_key_len);
+	index = find_key_env(shell->env, key_val, get_key_len);
 	if (index == -1)
-		shell->owned_envp = append_str_arr_free(shell->owned_envp, key_val);
+		shell->env = append_str_arr_free(shell->env, key_val);
 	else
-		update_var(&shell->owned_envp[index], key_val);
-	if (!shell->owned_envp)
+		update_var(&shell->env[index], key_val);
+	if (!shell->env)
 	{
 		shell->exit_status = 1;
 		eprint("fatal: environment invalidated\n");

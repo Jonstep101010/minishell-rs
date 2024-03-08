@@ -38,7 +38,7 @@ void	test_token_struct(void)
 	t_shell	*shell;
 	shell = (t_shell *) calloc(1, sizeof(t_shell));
 	shell->line = "ls \n-l\r \tsomedir | cat -e | wc -l";
-	shell->owned_envp = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL};
+	shell->env = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL};
 	shell->token = init_token(3);// should have space for 3 tokens (shell->line)
 	TEST_ASSERT_NOT_NULL(shell->token);
 	char	**expected = (char *[]){"ls \n-l\r \tsomedir ", " cat -e ", " wc -l", NULL};
@@ -102,7 +102,7 @@ void	test_add_string_array_as_tokens()
 	shell = (t_shell *) calloc(1, sizeof(t_shell));
 	shell->exit_status = 0;
 	shell->trimmed_line = "ls -l somedir | cat -e | wc -l";
-	shell->owned_envp = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL};
+	shell->env = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL};
 	add_pipes_as_tokens(shell);
 	TEST_ASSERT_NOT_NULL(shell->token);
 	TEST_ASSERT_EQUAL_STRING("ls -l somedir", shell->token[0].split_pipes);
@@ -136,7 +136,7 @@ void	test_support_test_tokens(void)
 	TEST_ASSERT_EQUAL_STRING("wc -l", shell->token[2].split_pipes);
 	free(shell->token);
 	arr_free(shell->split_pipes);
-	arr_free(shell->owned_envp);
+	arr_free(shell->env);
 	free(shell->trimmed_line);
 	free(shell);
 }
@@ -144,7 +144,7 @@ void	test_support_test_tokens(void)
 void	cleanup_support_test_token(t_shell *shell)
 {
 	destroy_all_tokens(shell);
-	arr_free(shell->owned_envp);
+	arr_free(shell->env);
 	free_null(&shell->trimmed_line);
 	arr_free(shell->split_pipes);
 	free_null(&shell);
@@ -219,7 +219,7 @@ void	test_export_to_shell() {
 
 	export_to_shell(shell, ft_strdup("true=false"));
 	char	**expected = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", "true=false", NULL};
-	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, shell->owned_envp, 6);
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, shell->env, 6);
 	add_pipes_as_tokens(shell);
 	TEST_ASSERT_EQUAL_STRING("unset true", shell->token[0].split_pipes);
 	convert_split_token_string_array_to_tokens(shell);
@@ -228,6 +228,6 @@ void	test_export_to_shell() {
 	TEST_ASSERT_EQUAL_STRING("true", shell->token[0].cmd_args[1].elem);
 	unset(shell, shell->token);
 	// @audit should possibly return empty string instead of null
-	TEST_ASSERT_NULL(get_env_var(shell->owned_envp, "true"));
+	TEST_ASSERT_NULL(get_env_var(shell->env, "true"));
 	cleanup_support_test_token(shell);
 }

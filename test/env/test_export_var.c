@@ -47,7 +47,7 @@ void	test_replace_key_two() {
 // 	t_shell	*shell = setup_shell(NULL);
 // 	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};
 // 	char	**arr = arr_dup((const char **)env);
-// 	shell->owned_envp = arr;
+// 	shell->env = arr;
 // 	char	*tmp[] = {"export", "th@is=", "correct", NULL};
 // 	char	**command;
 // 	command = arr_dup((const char **)tmp);
@@ -64,13 +64,13 @@ void	test_replace_key_two() {
 // 	t_shell	*shell = setup_shell(NULL);
 // 	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};
 // 	char	**arr = arr_dup((const char **)env);
-// 	shell->owned_envp = arr;
+// 	shell->env = arr;
 // 	char	*tmp[] = {"export", "this=correct", NULL};
 // 	command = arr_dup((const char **)tmp);
 // 	export(shell);
 // 	char	*expected[] = {"something=wrong", "this=correct", "some=none", NULL};
-// 	TEST_ASSERT_NOT_NULL(shell->owned_envp);
-// 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, shell->owned_envp, 3);
+// 	TEST_ASSERT_NOT_NULL(shell->env);
+// 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, shell->env, 3);
 // 	arr_free(arr);
 // 	arr_free(command);
 // 	clean_shell(shell);
