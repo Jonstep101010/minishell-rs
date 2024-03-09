@@ -9,7 +9,7 @@ void	test_builtin_unset_one() {
 	add_pipes_as_tokens(shell);
 	convert_split_token_string_array_to_tokens(shell);
 	convert_tokens_to_string_array(shell->token);
-	TEST_ASSERT_EQUAL(0, unset(shell, shell->token));
+	TEST_ASSERT_EQUAL(0, builtin_unset(shell, shell->token));
 	TEST_ASSERT_EQUAL_STRING("USER=vscode", shell->env[0]);
 	TEST_ASSERT_EQUAL_STRING("?=0", shell->env[1]);
 	TEST_ASSERT_EQUAL(-1, get_index_env(shell->env, "val"));
@@ -24,7 +24,7 @@ void	test_builtin_unset_two() {
 	convert_split_token_string_array_to_tokens(shell);
 	convert_tokens_to_string_array(shell->token);
 	char	**expected = arr_dup(shell->env);
-	TEST_ASSERT_EQUAL(1, unset(shell, shell->token));
+	TEST_ASSERT_EQUAL(1, builtin_unset(shell, shell->token));
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, shell->env, arr_len(shell->env));
 	TEST_ASSERT_EQUAL(1, get_index_env(shell->env, "val"));
 	arr_free(expected);

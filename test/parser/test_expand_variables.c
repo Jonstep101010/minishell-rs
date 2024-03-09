@@ -4,7 +4,7 @@
 #include "expand_variables.c"
 #include "expand_var.c"
 #include "get_env.c"
-#include "key.c"
+#include "get_index.c"
 #include "support_lib.c"
 
 void	test_expander() {

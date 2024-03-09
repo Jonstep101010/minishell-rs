@@ -24,7 +24,7 @@ static void	update_var(char **env, char *key_val)
  * @param shell
  * @param key_val
  */
-void	export_to_shell(t_shell *shell, char *key_val)
+void	export_env(t_shell *shell, char *key_val)
 {
 	int	index;
 
@@ -53,7 +53,7 @@ void	export_to_shell(t_shell *shell, char *key_val)
 
 void	update_exit_status(t_shell *shell, int status)
 {
-	export_to_shell(shell,
+	export_env(shell,
 		free_second_join("?=", ft_itoa(status)));
 	shell->exit_status = status;
 }

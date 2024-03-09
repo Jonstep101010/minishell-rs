@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "tokens.h"
-#include "libutils.h"
+#include "str_utils.h"
 #include "utils.h"
 #include "commands.h"
 #include "libft.h"
@@ -18,7 +18,7 @@ static int	declare_x_env_var(char *const *env)
 	return (0);
 }
 
-int	export(t_shell *shell, t_token *token)
+int	builtin_export(t_shell *shell, t_token *token)
 {
 	size_t	i;
 
@@ -33,7 +33,7 @@ int	export(t_shell *shell, t_token *token)
 			eprint("export: '%s': not a valid identifier\n", token->command[i]);
 			return (1);
 		}
-		export_to_shell(shell, ft_strdup(token->command[i]));
+		export_env(shell, ft_strdup(token->command[i]));
 		i++;
 	}
 	if (i > 1)

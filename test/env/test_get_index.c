@@ -1,4 +1,4 @@
-#include "key.c"
+#include "get_index.c"
 #include "unity.h"
 #include "arr_utils.c"
 #include "str_equal.c"

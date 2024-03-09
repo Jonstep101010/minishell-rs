@@ -7,7 +7,7 @@
 
 void	test_replace_key() {
 	t_shell	*shell = support_test_tokens("", (char *[]){"something=wrong", "this=false", "some=none", NULL});
-	export_to_shell(shell, ft_strdup("this=correct"));
+	export_env(shell, ft_strdup("this=correct"));
 	char	*expected = "this=correct";
 	TEST_ASSERT_EQUAL_STRING(expected, shell->env[1]);
 	cleanup_support_test_token(shell);
@@ -21,7 +21,7 @@ void	test_replace_key_two() {
 	TEST_ASSERT_EQUAL_STRING("export", shell->token[0].cmd_args[0].elem);
 	TEST_ASSERT_EQUAL_STRING("this=", shell->token[0].cmd_args[1].elem);
 	TEST_ASSERT_EQUAL_STRING("correct", shell->token[0].cmd_args[2].elem);
-	TEST_ASSERT_EQUAL_INT(1, export(shell, shell->token));
+	TEST_ASSERT_EQUAL_INT(1, builtin_export(shell, shell->token));
 	TEST_ASSERT_EQUAL_STRING("this=", shell->env[1]);
 	cleanup_support_test_token(shell);
 }
@@ -34,7 +34,7 @@ void	test_export_invalid_name_one() {
 	TEST_ASSERT_EQUAL_STRING("export", shell->token[0].cmd_args[0].elem);
 	TEST_ASSERT_EQUAL_STRING("th@is=", shell->token[0].cmd_args[1].elem);
 	TEST_ASSERT_EQUAL_STRING("correct", shell->token[0].cmd_args[2].elem);
-	TEST_ASSERT_EQUAL_INT(1, export(shell, shell->token));
+	TEST_ASSERT_EQUAL_INT(1, builtin_export(shell, shell->token));
 	TEST_ASSERT_EQUAL_STRING("this=false", shell->env[1]);
 	cleanup_support_test_token(shell);
 }
@@ -45,7 +45,7 @@ void	test_export_invalid_name_two() {
 	convert_split_token_string_array_to_tokens(shell);
 	convert_tokens_to_string_array(shell->token);
 	TEST_ASSERT_EQUAL_STRING("this==correct", shell->token[0].cmd_args[1].elem);
-	TEST_ASSERT_EQUAL_INT(1, export(shell, shell->token));
+	TEST_ASSERT_EQUAL_INT(1, builtin_export(shell, shell->token));
 	TEST_ASSERT_EQUAL_STRING("this=false", shell->env[1]);
 	cleanup_support_test_token(shell);
 }
@@ -57,8 +57,8 @@ void	test_export_valid_name() {
 	convert_tokens_to_string_array(shell->token);
 	TEST_ASSERT_EQUAL_STRING("this=correct", shell->token[0].cmd_args[1].elem);
 	TEST_ASSERT_EQUAL_STRING("that=false", shell->token[0].cmd_args[2].elem);
-	export(shell, shell->token);
-	TEST_ASSERT_EQUAL_INT(0, export(shell, shell->token));
+	builtin_export(shell, shell->token);
+	TEST_ASSERT_EQUAL_INT(0, builtin_export(shell, shell->token));
 	TEST_ASSERT_EQUAL_STRING("this=correct", shell->env[1]);
 	TEST_ASSERT_EQUAL_STRING("that=false", shell->env[6]);
 	cleanup_support_test_token(shell);

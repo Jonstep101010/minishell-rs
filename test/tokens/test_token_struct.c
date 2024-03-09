@@ -132,10 +132,10 @@ void	test_recursive_expansion() {
 	cleanup_support_test_token(shell);
 }
 
-void	test_export_to_shell() {
+void	test_export_env() {
 	t_shell	*shell = support_test_tokens("unset true", ((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", "true=true", NULL}));
 
-	export_to_shell(shell, ft_strdup("true=false"));
+	export_env(shell, ft_strdup("true=false"));
 	char	**expected = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", "true=false", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, shell->env, 6);
 	add_pipes_as_tokens(shell);
@@ -144,7 +144,7 @@ void	test_export_to_shell() {
 	convert_tokens_to_string_array(shell->token);
 	TEST_ASSERT_EQUAL_STRING("unset", shell->token[0].cmd_args[0].elem);
 	TEST_ASSERT_EQUAL_STRING("true", shell->token[0].cmd_args[1].elem);
-	unset(shell, shell->token);
+	builtin_unset(shell, shell->token);
 	// @audit should possibly return empty string instead of null
 	TEST_ASSERT_NULL(get_env(shell->env, "true"));
 	cleanup_support_test_token(shell);

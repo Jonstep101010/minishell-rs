@@ -25,7 +25,7 @@ static int	unset_internal(const char *const *args, char **env)
 	return (0);
 }
 
-int	unset(t_shell *shell, t_token *token)
+int	builtin_unset(t_shell *shell, t_token *token)
 {
 	const char *const	*args = (const char *const *)token->command;
 
