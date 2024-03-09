@@ -1,95 +1,117 @@
 // @audit fix these before merge into dev
-
 #include "unity.h"
-#include "print_arr_sep.c"
-#include "str_equal.c"
-#include "support_lib.c"
+
+#include "support_tokens.c"
 #include "support_commands.c"
-#include "error.c"
-#include "../src/utils/arr_utils.c"
-#include "destroy_tokens.c"
-#include "build_tokens.c"
-#include "build_command.c"
-#include "token_utils.c"
-#include "init.c"
-#include "split_outside_quotes.c"
-#include "interpret_quotes.c"
-#include "expander.c"
-#include "expand_variables.c"
-#include "expand_var.c"
+#include "support_msh.c"
 
 void	test_replace_key() {
-	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};
-	char	**arr = arr_dup(env);
-	char	**ret = export_var(arr, "this=correct");
-	if (!ret)
-		TEST_FAIL();
-	char	*expected[] = {"something=wrong", "this=correct", "some=none", NULL};
-	printf("%s\n", arr[1]);
-	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, ret, 3);
-	arr_free(ret);
+	t_shell	*shell = support_test_tokens("", (char *[]){"something=wrong", "this=false", "some=none", NULL});
+	export_to_shell(shell, ft_strdup("this=correct"));
+	char	*expected = "this=correct";
+	TEST_ASSERT_EQUAL_STRING(expected, shell->env[1]);
+	cleanup_support_test_token(shell);
 }
 
 void	test_replace_key_two() {
-	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};
-	char	**arr = arr_dup(env);
-	char	**ret = export_var(arr, "this= correct");
-	if (!ret || !arr)
-		TEST_FAIL();
-	char	*expected[] = {"something=wrong", "this= correct", "some=none", NULL};
-	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, ret, 4);
-	arr_free(ret);
+	t_shell	*shell = support_test_tokens("export this= correct", (char *[]){"something=wrong", "this=false", "some=none", NULL});
+	add_pipes_as_tokens(shell);
+	convert_split_token_string_array_to_tokens(shell);
+	convert_tokens_to_string_array(shell->token);
+	TEST_ASSERT_EQUAL_STRING("export", shell->token[0].cmd_args[0].elem);
+	TEST_ASSERT_EQUAL_STRING("this=", shell->token[0].cmd_args[1].elem);
+	TEST_ASSERT_EQUAL_STRING("correct", shell->token[0].cmd_args[2].elem);
+	TEST_ASSERT_EQUAL_INT(1, export(shell, shell->token));
+	TEST_ASSERT_EQUAL_STRING("this=", shell->env[1]);
+	cleanup_support_test_token(shell);
 }
 
-// #include "support_shell.c"
+void	test_export_invalid_name_one() {
+	t_shell	*shell = support_test_tokens("export th@is= correct", (char *[]){"something=wrong", "this=false", "some=none", NULL});
+	add_pipes_as_tokens(shell);
+	convert_split_token_string_array_to_tokens(shell);
+	convert_tokens_to_string_array(shell->token);
+	TEST_ASSERT_EQUAL_STRING("export", shell->token[0].cmd_args[0].elem);
+	TEST_ASSERT_EQUAL_STRING("th@is=", shell->token[0].cmd_args[1].elem);
+	TEST_ASSERT_EQUAL_STRING("correct", shell->token[0].cmd_args[2].elem);
+	TEST_ASSERT_EQUAL_INT(1, export(shell, shell->token));
+	TEST_ASSERT_EQUAL_STRING("this=false", shell->env[1]);
+	cleanup_support_test_token(shell);
+}
 
-// void	test_export_invalid_name() {
-// 	t_shell	*shell = setup_shell(NULL);
-// 	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};
-// 	char	**arr = arr_dup((const char **)env);
-// 	shell->env = arr;
-// 	char	*tmp[] = {"export", "th@is=", "correct", NULL};
-// 	char	**command;
-// 	command = arr_dup((const char **)tmp);
+void	test_export_invalid_name_two() {
+	t_shell	*shell = support_test_tokens("export this==correct", (char *[]){"something=wrong", "this=false", "some=none", NULL});
+	add_pipes_as_tokens(shell);
+	convert_split_token_string_array_to_tokens(shell);
+	convert_tokens_to_string_array(shell->token);
+	TEST_ASSERT_EQUAL_STRING("this==correct", shell->token[0].cmd_args[1].elem);
+	TEST_ASSERT_EQUAL_INT(1, export(shell, shell->token));
+	TEST_ASSERT_EQUAL_STRING("this=false", shell->env[1]);
+	cleanup_support_test_token(shell);
+}
 
-// 	export(shell);
-// 	char	*expected[] = {"something=wrong", "this=false", "some=none", NULL};
-// 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, arr, 4);
-// 	arr_free(arr);
-// 	arr_free(command);
-// 	clean_shell(shell);
-// }
+void	test_export_valid_name() {
+	t_shell	*shell = support_test_tokens("export this=correct that=false", (char *[]){"something=wrong", "this=false", "some=none", NULL});
+	add_pipes_as_tokens(shell);
+	convert_split_token_string_array_to_tokens(shell);
+	convert_tokens_to_string_array(shell->token);
+	TEST_ASSERT_EQUAL_STRING("this=correct", shell->token[0].cmd_args[1].elem);
+	TEST_ASSERT_EQUAL_STRING("that=false", shell->token[0].cmd_args[2].elem);
+	export(shell, shell->token);
+	TEST_ASSERT_EQUAL_INT(0, export(shell, shell->token));
+	TEST_ASSERT_EQUAL_STRING("this=correct", shell->env[1]);
+	TEST_ASSERT_EQUAL_STRING("that=false", shell->env[6]);
+	cleanup_support_test_token(shell);
+}
 
-// void	test_export_valid_name() {
-// 	t_shell	*shell = setup_shell(NULL);
-// 	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};
-// 	char	**arr = arr_dup((const char **)env);
-// 	shell->env = arr;
-// 	char	*tmp[] = {"export", "this=correct", NULL};
-// 	command = arr_dup((const char **)tmp);
-// 	export(shell);
-// 	char	*expected[] = {"something=wrong", "this=correct", "some=none", NULL};
-// 	TEST_ASSERT_NOT_NULL(shell->env);
-// 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, shell->env, 3);
-// 	arr_free(arr);
-// 	arr_free(command);
-// 	clean_shell(shell);
-// }
+void	test_replace_using_update_ez() {
+	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};
+	char	**arr = arr_dup(env);
+	update_var(arr, ft_strdup("something=correct"));
+	char	*expected[] = {"something=correct", "this=false", "some=none", NULL};
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, arr, 4);
+	arr_free(arr);
+}
 
-// void	test_replace_using_update() {
-// 	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};
-// 	char	**arr = arr_dup(env);
-// update_variable(arr, "this", "correct");
-// 	char	*expected[] = {"something=wrong", "this=correct", "some=none", NULL};
-// 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, arr, 4);
-// 	arr_free(arr);
-// }
+void	test_replace_using_update_mid() {
+	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};
+	char	**arr = arr_dup(env);
+	update_var(&arr[1], ft_strdup("this=correct"));
+	char	*expected[] = {"something=wrong", "this=correct", "some=none", NULL};
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, arr, 4);
+	arr_free(arr);
+}
 
-// void	test_replace_using_update_overlap_key() {
-// 	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};
-// 	char	**arr = arr_dup(env);
-// 	update_variable(arr, "thia", "correct");
-// 	char	*expected[] = {"something=wrong", "this=false", "some=none", NULL};
-// 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, arr, 4);
-// 	arr_free(arr);
+void	test_replace_using_update_end() {
+	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};
+	char	**arr = arr_dup(env);
+	update_var(&arr[2], ft_strdup("some=something"));
+	char	*expected[] = {"something=wrong", "this=false", "some=something", NULL};
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, arr, 4);
+	arr_free(arr);
+}
+
+void	test_replace_using_update_null() {
+	char	*env[] = {"something=wrong", "this=false", "some=none", NULL};
+	char	**arr = arr_dup(env);
+	char	*new = ft_strdup("some=something");
+	update_var(&arr[3], new);
+	char	*expected[] = {"something=wrong", "this=false", "some=none", NULL};
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, arr, 4);
+	arr_free(arr);
+	free(new);
+}
+
+// we can only see if the printing from the function is correct:
+// minishell: fatal: invalid memory!
+// void	test_export_with_invalid_env() {
+// 	t_shell	*shell = support_test_tokens("export this=correct that=false", (char *[]){"something=wrong", "this=false", "some=none", NULL});
+// 	add_pipes_as_tokens(shell);
+// 	convert_split_token_string_array_to_tokens(shell);
+// 	convert_tokens_to_string_array(shell->token);
+// 	TEST_ASSERT_EQUAL_STRING("this=correct", shell->token[0].cmd_args[1].elem);
+// 	TEST_ASSERT_EQUAL_STRING("that=false", shell->token[0].cmd_args[2].elem);
+// 	arr_free(shell->env);
+// 	shell->env = NULL;
+// 	export(shell, shell->token);
 // }

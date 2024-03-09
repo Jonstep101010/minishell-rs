@@ -4,22 +4,9 @@
 #include "struct.h"
 #include <stdlib.h>
 
-#include "split_outside_quotes.c"
-#include "support_lib.c"
-#include "utils.h"
-#include "arr_utils.c"
-#include "str_equal.c"
-#include "token_utils.c"
+#include "support_tokens.c"
 #include "support_commands.c"
-#include "destroy_tokens.c"
-#include "error.c"
-#include "build_command.c"
-#include "init.c"
-#include "build_tokens.c"
-#include "expander.c"
-#include "expand_variables.c"
-#include "expand_var.c"
-#include "interpret_quotes.c"
+#include "support_msh.c"
 
 void	test_convert_string_array_to_tokens(void)
 {

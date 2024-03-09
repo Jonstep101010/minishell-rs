@@ -7,13 +7,6 @@
 #include "utils.h"
 #include "arr_utils.c"
 #include "str_equal.c"
-#include "token_utils.c"
-#include "support_commands.c"
-#include "destroy_tokens.c"
-#include "error.c"
-#include "build_command.c"
-// environment
-#include "build_tokens.c"
 #include "expander.c"
 #include "expand_variables.c"
 #include "expand_var.c"

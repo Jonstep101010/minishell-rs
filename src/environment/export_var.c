@@ -12,7 +12,7 @@
 // pass in address of string in env
 static void	update_var(char **env, char *key_val)
 {
-	if (!key_val)
+	if (!key_val || !env || !*env || !*key_val)
 		return ;
 	free(*env);
 	*env = key_val;

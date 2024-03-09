@@ -11,5 +11,5 @@
 # include "execute_commands.c"
 # include "builtin_exit.c"
 # include "export_var.c"
-
+# include "error.c"
 #endif
