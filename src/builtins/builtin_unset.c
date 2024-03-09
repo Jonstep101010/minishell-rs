@@ -1,5 +1,4 @@
 #include "environment.h"
-#include "libft.h"
 #include "tokens.h"
 #include "utils.h"
 #include "struct.h"
@@ -15,9 +14,12 @@ static int	unset_internal(const char *const *args, char **env)
 			eprint("unset: %s: invalid option", *args);
 			return (1);
 		}
-		index = get_index_env(env, *args);
-		if (index >= 0 && env[index])
-			rm_str_arr(env, env[index]);
+		if (str_cchr(*args, '=') == 0)
+		{
+			index = get_index_env(env, *args);
+			if (index >= 0 && env[index])
+				rm_str_arr(env, env[index]);
+		}
 		args++;
 	}
 	return (0);
