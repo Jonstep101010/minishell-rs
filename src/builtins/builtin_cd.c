@@ -11,7 +11,7 @@
 /**
  * @brief change directory to path, update PWD and OLDPWD
  * @param path if no path is given, change to home
- * @param envp environment
+ * @param shell to update env/exit for exporting
  * @return int
  */
 static int	changedir(const char *path, t_shell *shell)
@@ -39,7 +39,7 @@ static int	changedir(const char *path, t_shell *shell)
 /**
  * @brief change directory
  * @param cmd_args dir to change to
- * @param envp environment
+ * @param shell to update env
  * @return int exit code
  */
 static int	cd_internal(char *const *cmd_args, t_shell *shell)

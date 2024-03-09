@@ -23,12 +23,6 @@ static int	unset_internal(const char *const *args, char **env)
 	return (0);
 }
 
-/**
- * @brief lookup varname if it is valid, remove it from envp
- * @param args to read
- * @param envp to modify
- * @return 1 on invalid varname, 0 on success
- */
 int	unset(t_shell *shell, t_token *token)
 {
 	const char *const	*args = (const char *const *)token->command;

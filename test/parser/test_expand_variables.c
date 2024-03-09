@@ -3,7 +3,7 @@
 #include "expander.c"
 #include "expand_variables.c"
 #include "expand_var.c"
-#include "get_env_var.c"
+#include "get_env.c"
 #include "key.c"
 #include "support_lib.c"
 

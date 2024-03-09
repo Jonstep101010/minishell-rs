@@ -7,7 +7,7 @@
 # include "builtin_export.c"
 # include "builtin_echo.c"
 # include "key.c"
-# include "get_env_var.c"
+# include "get_env.c"
 # include "execute_commands.c"
 # include "builtin_exit.c"
 # include "export_var.c"

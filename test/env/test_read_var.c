@@ -6,7 +6,7 @@
 #include "support_lib.c"
 #include "print_arr_sep.c"
 #include "export_var.c"
-#include "get_env_var.c"
+#include "get_env.c"
 #include "expand_var.c"
 #include "builtin_exit.c"
 #include "destroy_tokens.c"

@@ -3,7 +3,7 @@
 #include "builtin_unset.c"
 #include "key.c"
 #include "arr_utils.c"
-#include "get_env_var.c"
+#include "get_env.c"
 #include "str_equal.c"
 #include "error.c"
 
