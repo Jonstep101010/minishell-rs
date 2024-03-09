@@ -15,11 +15,6 @@ void	test_get_key_len_two() {
 	TEST_ASSERT_EQUAL(1, get_key_len(s));
 }
 
-void	test_get_key_error() {
-	char	*s = "KEYval";
-	TEST_ASSERT_EQUAL(-1, get_key_len(s));
-}
-
 void	test_get_key_error_two() {
 	char	*s = "=Vval";
 	TEST_ASSERT_EQUAL(-1, get_key_len(s));
@@ -28,29 +23,47 @@ void	test_get_key_error_two() {
 void	test_find_key() {
 	TEST_ASSERT_EQUAL(3, get_key_len("bye=yes"));
 	char	*arr[] = {"hello=wrong", "bye=yes", "night=wrong", NULL};
-	int	index = find_key_env(arr, "bye=no", get_key_len);
+	int	index = get_index_env(arr, "bye=no");
 	TEST_ASSERT_EQUAL(1, index);
 }
 
 void	test_find_key_error() {
 	TEST_ASSERT_EQUAL(4, get_key_len("byes=wrong"));
 	char	*arr[] = {"hello=wrong", "byes=wrong", "night=wrong", NULL};
-	int	index = find_key_env(arr, "bye=no", get_key_len);
+	int	index = get_index_env(arr, "bye=no");
 	TEST_ASSERT_EQUAL(-1, index);
 }
 
-// void	test_get_len_until() {
-// 	char	*s = "hello=world";
-// 	TEST_ASSERT_EQUAL(5, get_len_until(s, '='));
+void	test_find_key_one() {
+	// get_index_env(char *const *env, const char *s)
 
-// 	char	*s2 = "$key$";
-// 	TEST_ASSERT_EQUAL(0, get_len_until(s2, '$'));
-// 	TEST_ASSERT_EQUAL(3, get_len_until(&s2[1], '$'));
+	char	*env[] = {"hello=world", "bye=yes", "night=wrong", NULL};
 
-// 	// int i = 1;
-// 	// while (s2[i] && i <= 3)
-// 	// {
-// 	// 	printf("%c\n", s2[i]);
-// 	// 	i++;
-// 	// }
-// }
+	int	index = get_index_env(env, "bye=no");
+
+	TEST_ASSERT_EQUAL(1, index);
+
+	index = get_index_env(env, "bye=yes");
+	TEST_ASSERT_EQUAL(1, index);
+
+	index = get_index_env(env, "not_found=yes");
+	TEST_ASSERT_EQUAL(-1, index);
+
+	// to read
+
+	index = get_index_env(env, "bye");
+	TEST_ASSERT_EQUAL(1, index);
+	index = get_index_env(env, "not_found");
+	TEST_ASSERT_EQUAL(-1, index);
+	// key should not be found as it is not valid if using ft_strlen
+	index = get_index_env(env, "bye=");
+	TEST_ASSERT_EQUAL(1, index);
+}
+
+void	test_gkl() {
+	int	key_len = get_key_len("bye");
+	TEST_ASSERT_EQUAL(3, key_len);
+	key_len = get_key_len("bye=");
+	// int	index = get_index_env(env, "bye=no");
+	TEST_ASSERT_EQUAL(3, key_len);
+}

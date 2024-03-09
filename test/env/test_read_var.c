@@ -17,7 +17,7 @@
 void	test_read_returns_correct() {
 	char	*env[] = {"not=looking", "maybe=?looking", "key=forsure", "notmine=(null)", NULL};
 	char	**expected = arr_dup(env);
-	char	*ret = get_env_var(expected, "key");
+	char	*ret = get_env(expected, "key");
 	TEST_ASSERT_EQUAL_STRING("forsure", ret);
 	arr_free(expected);
 	free(ret);

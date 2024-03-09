@@ -4,7 +4,7 @@
 #include "utils.h"
 #include "struct.h"
 
-static int	unset_internal(const char **args, char **envp)
+static int	unset_internal(const char *const *args, char **env)
 {
 	int	index;
 
@@ -12,12 +12,12 @@ static int	unset_internal(const char **args, char **envp)
 	{
 		if (!check_valid_key(*args))
 		{
-			eprint("%s: %s: %s", "unset", *args, "invalid option");
+			eprint("unset: %s: invalid option", *args);
 			return (1);
 		}
-		index = find_key_env(envp, *args, ft_strlen);
-		if (index >= 0 && envp[index])
-			rm_str_arr(envp, envp[index]);
+		index = get_index_env(env, *args);
+		if (index >= 0 && env[index])
+			rm_str_arr(env, env[index]);
 		args++;
 	}
 	return (0);
@@ -31,11 +31,9 @@ static int	unset_internal(const char **args, char **envp)
  */
 int	unset(t_shell *shell, t_token *token)
 {
-	char		**envp;
-	const char	**args = (const char **)token->command;
+	const char *const	*args = (const char *const *)token->command;
 
-	envp = (char **)shell->env;
-	if (!envp || !*(args + 1) || !*envp)
+	if (!shell->env || !*(args + 1) || !*shell->env)
 		return (0);
-	return (unset_internal(args + 1, envp));
+	return (unset_internal(args + 1, shell->env));
 }

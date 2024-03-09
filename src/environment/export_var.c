@@ -1,13 +1,14 @@
 #include "libft.h"
 #include "environment.h"
 #include <stdbool.h>
+#include "utils.h"
+#include "commands.h"
 
 // export VARNAME="value"
 // export VARNAME='value'
 // export VARNAME=value
 // guaranteed to not have unbalanced quotes at this point
 
-#include "utils.h"
 // pass in address of string in env
 static void	update_var(char **env, char *key_val)
 {
@@ -16,8 +17,6 @@ static void	update_var(char **env, char *key_val)
 	free(*env);
 	*env = key_val;
 }
-
-#include "commands.h"
 
 /**
  * @brief directly replaces strings, key_val needs to be heap allocated
@@ -39,7 +38,7 @@ void	export_to_shell(t_shell *shell, char *key_val)
 		eprint("fatal: invalid memory!\n");
 		builtin_exit(shell, NULL);
 	}
-	index = find_key_env(shell->env, key_val, get_key_len);
+	index = get_index_env(shell->env, key_val);
 	if (index == -1)
 		shell->env = append_str_arr_free(shell->env, key_val);
 	else

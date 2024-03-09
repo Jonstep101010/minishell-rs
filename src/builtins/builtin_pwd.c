@@ -11,7 +11,7 @@ int	builtin_pwd(t_shell *shell, t_token *token_nullable)
 
 	(void)token_nullable;
 	tmp = getcwd(NULL, 0);
-	env_pwd = get_env_var(shell->env, "PWD");
+	env_pwd = get_env(shell->env, "PWD");
 	if (!env_pwd)
 		printf("%s\n", tmp);
 	else

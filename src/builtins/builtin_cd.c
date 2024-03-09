@@ -47,8 +47,8 @@ static int	cd_internal(char *const *cmd_args, t_shell *shell)
 	char	*path;
 	char	*oldpwd;
 
-	path = get_env_var(shell->env, "HOME");
-	oldpwd = get_env_var(shell->env, "OLDPWD");
+	path = get_env(shell->env, "HOME");
+	oldpwd = get_env(shell->env, "OLDPWD");
 	if (!cmd_args[1] && !path)
 		return (eprint("cd: HOME not set\n"), 1);
 	if (!cmd_args[1] && path)

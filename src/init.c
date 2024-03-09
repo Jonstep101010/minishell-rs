@@ -6,25 +6,24 @@
 #include "utils.h"
 #include "libutils.h"
 
-char	**init_env(char *const *envp)
+static char	**init_env(char *const *envp)
 {
 	char	**env;
-	// char	**tmp_arr;
-	char	*PWD;
-	// char	*tmp;
+	char	*pwd;
 
 	env = append_str_arr(envp, "?=0");
-	PWD = get_env_var(env, "PWD");
-	if (!PWD && env)
+	pwd = get_env(env, "PWD");
+	if (!pwd && env)
 	{
-		PWD = getcwd(NULL, 0);
-		if (!PWD)
+		pwd = getcwd(NULL, 0);
+		if (!pwd)
 			return (arr_free(env), NULL);
-		env = append_str_arr_free(append_str_arr_free(env, ft_strjoin("PWD=", PWD)), ft_strdup("OLDPWD=''"));
-		free_null(&PWD);
+		env = append_str_arr_free(
+				append_str_arr_free(env,
+					free_second_join("PWD=", pwd)), ft_strdup("OLDPWD=''"));
 	}
 	else
-		free_null(&PWD);
+		free_null(&pwd);
 	return (env);
 }
 

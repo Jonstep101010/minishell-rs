@@ -228,6 +228,6 @@ void	test_export_to_shell() {
 	TEST_ASSERT_EQUAL_STRING("true", shell->token[0].cmd_args[1].elem);
 	unset(shell, shell->token);
 	// @audit should possibly return empty string instead of null
-	TEST_ASSERT_NULL(get_env_var(shell->env, "true"));
+	TEST_ASSERT_NULL(get_env(shell->env, "true"));
 	cleanup_support_test_token(shell);
 }
