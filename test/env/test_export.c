@@ -186,6 +186,22 @@ void	test_export_expanded_req_expansion() {
 	cleanup_support_test_token(shell);
 }
 
+// export $?=123
+void	test_export_expanded_req_expansion_fail() {
+	t_shell	*shell = support_clean_env("export $?=123", (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL});
+	shell->env = append_str_arr_free(shell->env, ft_strdup("?=1"));
+	char	**expected_env_start = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "?=1", NULL};
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_env_start, shell->env, arr_len(expected_env_start));
+	char	**expected_env = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "?=1", NULL};
+	// this is not working yet because of the expansion not working correctly
+	export_run(shell);
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_env, shell->env, arr_len(expected_env));
+	// should print: minishell: export: `1=123': not a valid identifier
+	TEST_ASSERT_EQUAL(1, export_run(shell));
+	cleanup_support_test_token(shell);
+}
+
+
 // export ________=123
 void	test_export_beginswith_underscore() {
 	t_shell	*shell = support_clean_env("export ________=123", (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL});
