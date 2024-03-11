@@ -60,3 +60,10 @@ void test_support_test_tokens_cleanup(void)
 
 	cleanup_support_test_token(shell);
 }
+
+void test_can_create_empty_env(void) {
+	t_shell	*shell = support_clean_env("", (char *[]){"", NULL});
+	TEST_ASSERT_EQUAL_STRING("", shell->env[0]);
+	TEST_ASSERT_NULL(shell->env[1]);
+	cleanup_support_test_token(shell);
+}

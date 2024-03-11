@@ -30,3 +30,20 @@ void	cleanup_support_test_token(t_shell *shell)
 	arr_free(shell->split_pipes);
 	free_null(&shell);
 }
+
+t_shell	*support_clean_env(char *line, char *envp[])
+{
+	t_shell	*shell = support_test_tokens(line, envp);
+	int	index;
+	index = get_index_env(shell->env, "?");
+	if (index >= 0 && shell->env[index])
+		rm_str_arr(shell->env, shell->env[index]);
+	index = get_index_env(shell->env, "PWD");
+	if (index >= 0 && shell->env[index])
+		rm_str_arr(shell->env, shell->env[index]);
+	index = get_index_env(shell->env, "OLDPWD");
+	if (index >= 0 && shell->env[index])
+		rm_str_arr(shell->env, shell->env[index]);
+	TEST_ASSERT_EQUAL_STRING_ARRAY(envp, shell->env, arr_len(envp));
+	return (shell);
+}
