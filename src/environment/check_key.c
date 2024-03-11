@@ -6,7 +6,7 @@ bool	check_valid_key(const char *s)
 	int	i;
 
 	i = 0;
-	if (*s == '=')
+	if (*s == '=' || !(ft_isalpha(*s) || *s == '_'))
 		return (false);
 	while (s[i] && s[i] != '=')
 	{
