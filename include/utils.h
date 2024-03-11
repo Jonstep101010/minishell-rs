@@ -37,7 +37,6 @@ void	eprint(const char *fmt, ...);
  */
 void	eprint_single(const char *fmt, ...);
 # include "struct.h"
-char	**init_env(char *const *envp);
 t_shell	*init_shell(char *const *envp);
 void	update_exit_status(t_shell *shell, int status);
 

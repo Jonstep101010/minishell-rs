@@ -62,7 +62,7 @@ static const t_builtin builtins[] = {{"echo", (t_builtin_func)echo}, {NULL, NULL
 typedef struct s_shell
 {
 	int		exit_status;
-	char	**owned_envp;
+	char	**env;
 	char	*line;
 	char	*expanded_line;
 	char	*tmp;

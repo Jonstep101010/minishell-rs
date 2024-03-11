@@ -1,36 +1,12 @@
 #include "unity.h"
-// #include "struct.h"
-// #include "tokens.h"
-// #include "init.c"
-// #include "support_lib.c"
-// #include "destroy_tokens.c"
-// #include "arr_utils.c"
-// #include "support_commands.c"
-// #include "utils.h"
-// #include "str_equal.c"
-// #include "error.c"
-// #include "free_strjoin.c"
 
 #include "tokens.h"
 #include "struct.h"
 #include <stdlib.h>
 
-#include "split_outside_quotes.c"
-#include "support_lib.c"
-#include "utils.h"
-#include "arr_utils.c"
-#include "str_equal.c"
-#include "token_utils.c"
+#include "support_tokens.c"
 #include "support_commands.c"
-#include "destroy_tokens.c"
-#include "error.c"
-#include "build_command.c"
-#include "init.c"
-#include "build_tokens.c"
-#include "expander.c"
-#include "expand_variables.c"
-#include "expand_var.c"
-#include "interpret_quotes.c"
+#include "support_msh.c"
 
 void	test_convert_string_array_to_tokens(void)
 {
@@ -51,7 +27,7 @@ void	test_convert_string_array_to_tokens(void)
 	TEST_ASSERT_EQUAL_STRING("wc -l", shell->token[2].split_pipes);
 
 	destroy_all_tokens(shell);
-	arr_free(shell->owned_envp);
+	arr_free(shell->env);
 	free_null(&shell->trimmed_line);
 	arr_free(shell->split_pipes);
 	free_null(&shell);

@@ -12,8 +12,8 @@
 
 #include "expander.c"
 #include "expand_variables.c"
-#include "key.c"
-#include "get_env_var.c"
+#include "get_index.c"
+#include "get_env.c"
 #include "expand_var.c"
 #include "arr_utils.c"
 #include "str_equal.c"

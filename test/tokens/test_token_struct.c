@@ -11,34 +11,20 @@
 // ls -l "$somedir" | cat -e | wc -l
 // echo "$something"significant | cat -e | wc -l
 // echo 'something'significant | cat -e | wc -l -> the single quoted part must be stored as a single argument?
-#include "tokens.h"
-#include "struct.h"
-#include <stdlib.h>
 
-#include "split_outside_quotes.c"
-#include "support_lib.c"
-#include "utils.h"
-#include "arr_utils.c"
-#include "str_equal.c"
-#include "token_utils.c"
 #include "support_commands.c"
-#include "destroy_tokens.c"
-#include "error.c"
-#include "build_command.c"
-#include "init.c"
-
 // environment
-#include "build_tokens.c"
-#include "expander.c"
-#include "expand_variables.c"
-#include "expand_var.c"
-#include "interpret_quotes.c"
+#include "support_msh.c"
+
+// get module support
+#include "support_tokens.c"
+
 void	test_token_struct(void)
 {
 	t_shell	*shell;
 	shell = (t_shell *) calloc(1, sizeof(t_shell));
 	shell->line = "ls \n-l\r \tsomedir | cat -e | wc -l";
-	shell->owned_envp = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL};
+	shell->env = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL};
 	shell->token = init_token(3);// should have space for 3 tokens (shell->line)
 	TEST_ASSERT_NOT_NULL(shell->token);
 	char	**expected = (char *[]){"ls \n-l\r \tsomedir ", " cat -e ", " wc -l", NULL};
@@ -102,7 +88,7 @@ void	test_add_string_array_as_tokens()
 	shell = (t_shell *) calloc(1, sizeof(t_shell));
 	shell->exit_status = 0;
 	shell->trimmed_line = "ls -l somedir | cat -e | wc -l";
-	shell->owned_envp = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL};
+	shell->env = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL};
 	add_pipes_as_tokens(shell);
 	TEST_ASSERT_NOT_NULL(shell->token);
 	TEST_ASSERT_EQUAL_STRING("ls -l somedir", shell->token[0].split_pipes);
@@ -111,74 +97,6 @@ void	test_add_string_array_as_tokens()
 	free(shell->token);
 	arr_free(shell->split_pipes);
 	free(shell);
-}
-
-t_shell	*support_test_tokens(char const *line, char *envp[])
-{
-	t_shell	*shell;
-	shell = init_shell(envp);
-	shell->exit_status = 0;
-	shell->line = ft_strdup(line);
-	shell->trimmed_line = ft_strtrim(shell->line, WHITESPACE);
-	TEST_ASSERT_NOT_NULL(shell->trimmed_line);
-	free(shell->line);
-	return (shell);
-}
-
-void	test_support_test_tokens(void)
-{
-	t_shell	*shell;
-	shell = (t_shell *) support_test_tokens("ls -l $somedir ' ' | cat -e | wc -l", (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=you", NULL});
-	(void)shell;
-	add_pipes_as_tokens(shell);
-	TEST_ASSERT_EQUAL_STRING("ls -l $somedir ' '", shell->token[0].split_pipes);
-	TEST_ASSERT_EQUAL_STRING("cat -e", shell->token[1].split_pipes);
-	TEST_ASSERT_EQUAL_STRING("wc -l", shell->token[2].split_pipes);
-	free(shell->token);
-	arr_free(shell->split_pipes);
-	arr_free(shell->owned_envp);
-	free(shell->trimmed_line);
-	free(shell);
-}
-
-void	cleanup_support_test_token(t_shell *shell)
-{
-	destroy_all_tokens(shell);
-	arr_free(shell->owned_envp);
-	free_null(&shell->trimmed_line);
-	arr_free(shell->split_pipes);
-	free_null(&shell);
-}
-
-void test_support_test_tokens_cleanup(void)
-{
-	t_shell	*shell = support_test_tokens(" ls -l $somedir ' ' | cat -e | wc -l", (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=you", NULL});
-
-	add_pipes_as_tokens(shell);
-
-	TEST_ASSERT_EQUAL_STRING("ls -l $somedir ' '", shell->token[0].split_pipes);
-	TEST_ASSERT_EQUAL_STRING("cat -e", shell->token[1].split_pipes);
-	TEST_ASSERT_EQUAL_STRING("wc -l", shell->token[2].split_pipes);
-
-	convert_split_token_string_array_to_tokens(shell);
-	TEST_ASSERT_NOT_NULL(shell->token->cmd_args);
-
-	TEST_ASSERT_EQUAL_STRING("ls", shell->token[0].cmd_args[0].elem);
-	TEST_ASSERT_EQUAL_STRING("-l", shell->token[0].cmd_args[1].elem);
-	TEST_ASSERT_EQUAL_STRING("you", shell->token[0].cmd_args[2].elem);
-	TEST_ASSERT_EQUAL_STRING(" ", shell->token[0].cmd_args[3].elem);
-
-	TEST_ASSERT_EQUAL_STRING("cat", shell->token[1].cmd_args[0].elem);
-	TEST_ASSERT_EQUAL_STRING("-e", shell->token[1].cmd_args[1].elem);
-
-	TEST_ASSERT_EQUAL_STRING("wc", shell->token[2].cmd_args[0].elem);
-	TEST_ASSERT_EQUAL_STRING("-l", shell->token[2].cmd_args[1].elem);
-
-	TEST_ASSERT_EQUAL_INT(SINGLE, shell->token[0].cmd_args[3].quote);
-	TEST_ASSERT_EQUAL_INT(STRING, shell->token[0].cmd_args[2].type);
-	TEST_ASSERT_EQUAL_INT(NONE, shell->token[0].cmd_args[2].quote);
-
-	cleanup_support_test_token(shell);
 }
 
 void	test_destroy_null() {
@@ -214,20 +132,20 @@ void	test_recursive_expansion() {
 	cleanup_support_test_token(shell);
 }
 
-void	test_export_to_shell() {
+void	test_export_env() {
 	t_shell	*shell = support_test_tokens("unset true", ((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", "true=true", NULL}));
 
-	export_to_shell(shell, ft_strdup("true=false"));
+	export_env(shell, ft_strdup("true=false"));
 	char	**expected = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", "true=false", NULL};
-	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, shell->owned_envp, 6);
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, shell->env, 6);
 	add_pipes_as_tokens(shell);
 	TEST_ASSERT_EQUAL_STRING("unset true", shell->token[0].split_pipes);
 	convert_split_token_string_array_to_tokens(shell);
 	convert_tokens_to_string_array(shell->token);
 	TEST_ASSERT_EQUAL_STRING("unset", shell->token[0].cmd_args[0].elem);
 	TEST_ASSERT_EQUAL_STRING("true", shell->token[0].cmd_args[1].elem);
-	unset(shell, shell->token);
+	builtin_unset(shell, shell->token);
 	// @audit should possibly return empty string instead of null
-	TEST_ASSERT_NULL(get_env_var(shell->owned_envp, "true"));
+	TEST_ASSERT_NULL(get_env(shell->env, "true"));
 	cleanup_support_test_token(shell);
 }

@@ -57,8 +57,8 @@ static void	*expand_if_allowed(t_token *token, size_t ii, char *const *envp)
 	char	*tmp;
 
 	if (token->cmd_func != builtin_env
-		&& token->cmd_func != export
-		&& token->cmd_func != unset)
+		&& token->cmd_func != builtin_export
+		&& token->cmd_func != builtin_unset)
 	{
 		tmp = expander(token->cmd_args[ii].elem, envp);
 		if (!tmp)
@@ -105,7 +105,7 @@ void	convert_split_token_string_array_to_tokens(t_shell *shell)
 	while (shell->token[i].split_pipes)
 	{
 		setup_token(&shell->token[i]);
-		inner_loop(&shell->token[i], shell->owned_envp);
+		inner_loop(&shell->token[i], shell->env);
 		free(shell->token[i].tmp_arr);
 		i++;
 	}

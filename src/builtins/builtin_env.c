@@ -7,7 +7,7 @@
  */
 int	builtin_env(t_shell *shell, t_token *token)
 {
-	const char *const *env = (const char *const *)shell->owned_envp;
+	const char *const *env = (const char *const *)shell->env;
 
 	(void)token;
 	while (*env)

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "libft.h"
 
-char	*get_env_var(char *const *env, const char *key);
+char	*get_env(char *const *env, const char *key);
 
 static size_t	get_len_until(const char *s, char c)
 {
@@ -22,17 +22,17 @@ char	*free_both_join(char *s1, char *s2);
  * @details check for valid key & null before calling, do not hand in without single $ at beginning, key does not have to exist, only single variable will be expanded
  *
  * @param input $KEYsomething
- * @param envp {"KEY=VALUE", NULL}
+ * @param env {"KEY=VALUE", NULL}
  * @return char* VALUEsomething
  */
-char	*expand_var(char const *input, char *const *envp)
+char	*expand_var(char const *input, char *const *env)
 {
 	size_t	i;
 	char	*tmp;
 	char	*remainder;
 	char	*val;
 
-	if (!input || !envp || !*envp)
+	if (!input || !env || !*env)
 		return (NULL);
 	if (*input != '$')
 		return (ft_strdup(input));
@@ -40,7 +40,7 @@ char	*expand_var(char const *input, char *const *envp)
 	while (i > 2 && --i)
 	{
 		tmp = ft_substr(input, 1, i - 1);
-		val = get_env_var((char **)envp, tmp);
+		val = get_env(env, tmp);
 		free(tmp);
 		if (val)
 		{

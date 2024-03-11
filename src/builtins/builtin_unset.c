@@ -1,10 +1,9 @@
 #include "environment.h"
-#include "libft.h"
 #include "tokens.h"
 #include "utils.h"
 #include "struct.h"
 
-static int	unset_internal(const char **args, char **envp)
+static int	unset_internal(const char *const *args, char **env)
 {
 	int	index;
 
@@ -12,30 +11,25 @@ static int	unset_internal(const char **args, char **envp)
 	{
 		if (!check_valid_key(*args))
 		{
-			eprint("%s: %s: %s", "unset", *args, "invalid option");
+			eprint("unset: %s: invalid option", *args);
 			return (1);
 		}
-		index = find_key_env(envp, *args, ft_strlen);
-		if (index >= 0 && envp[index])
-			rm_str_arr(envp, envp[index]);
+		if (str_cchr(*args, '=') == 0)
+		{
+			index = get_index_env(env, *args);
+			if (index >= 0 && env[index])
+				rm_str_arr(env, env[index]);
+		}
 		args++;
 	}
 	return (0);
 }
 
-/**
- * @brief lookup varname if it is valid, remove it from envp
- * @param args to read
- * @param envp to modify
- * @return 1 on invalid varname, 0 on success
- */
-int	unset(t_shell *shell, t_token *token)
+int	builtin_unset(t_shell *shell, t_token *token)
 {
-	char		**envp;
-	const char	**args = (const char **)token->command;
+	const char *const	*args = (const char *const *)token->command;
 
-	envp = (char **)shell->owned_envp;
-	if (!envp || !*(args + 1) || !*envp)
+	if (!shell->env || !*(args + 1) || !*shell->env)
 		return (0);
-	return (unset_internal(args + 1, envp));
+	return (unset_internal(args + 1, shell->env));
 }

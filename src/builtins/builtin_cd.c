@@ -11,7 +11,7 @@
 /**
  * @brief change directory to path, update PWD and OLDPWD
  * @param path if no path is given, change to home
- * @param envp environment
+ * @param shell to update env/exit for exporting
  * @return int
  */
 static int	changedir(const char *path, t_shell *shell)
@@ -31,15 +31,15 @@ static int	changedir(const char *path, t_shell *shell)
 		eprint("cd: %s: %s\n", path, strerror(errno));
 		return (free(oldpwd), -1);
 	}
-	export_to_shell(shell, str_join(2, "PWD=", pwd));
-	export_to_shell(shell, str_join(2, "OLDPWD=", oldpwd));
+	export_env(shell, str_join(2, "PWD=", pwd));
+	export_env(shell, str_join(2, "OLDPWD=", oldpwd));
 	return (free(pwd), free(oldpwd), 0);
 }
 
 /**
  * @brief change directory
  * @param cmd_args dir to change to
- * @param envp environment
+ * @param shell to update env
  * @return int exit code
  */
 static int	cd_internal(char *const *cmd_args, t_shell *shell)
@@ -47,8 +47,8 @@ static int	cd_internal(char *const *cmd_args, t_shell *shell)
 	char	*path;
 	char	*oldpwd;
 
-	path = get_env_var(shell->owned_envp, "HOME");
-	oldpwd = get_env_var(shell->owned_envp, "OLDPWD");
+	path = get_env(shell->env, "HOME");
+	oldpwd = get_env(shell->env, "OLDPWD");
 	if (!cmd_args[1] && !path)
 		return (eprint("cd: HOME not set\n"), 1);
 	if (!cmd_args[1] && path)
