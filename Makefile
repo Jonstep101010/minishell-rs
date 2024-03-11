@@ -86,7 +86,7 @@ re: fclean
 	$(MAKE)
 
 memtest:
-	rm -rf build
+	rm -rf build; rm -rf valgrind.log
 	ceedling test:$(TEST)
 	valgrind --leak-check=full --track-origins=yes -s --log-file=valgrind.log ./build/test/out/test_$(TEST).out
 
