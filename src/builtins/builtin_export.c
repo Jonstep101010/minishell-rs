@@ -29,7 +29,7 @@ int	builtin_export(t_shell *shell, t_token *token)
 	{
 		if (!check_valid_key(token->command[i]))
 		{
-			eprint("export: `%s': not a valid identifier\n", token->command[i]);
+			eprint("export: `%s': not a valid identifier", token->command[i]);
 			return (1);
 		}
 		if (str_cchr(token->command[i], '=') >= 1)

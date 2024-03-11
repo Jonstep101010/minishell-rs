@@ -100,6 +100,15 @@ void	test_export_keyword() {
 	cleanup_support_test_token(shell);
 }
 
+void	test_export_invalid() {
+	t_shell	*shell = support_clean_env("export TES\\~T=123", (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL});
+	char	**expected_env = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL};
+	TEST_ASSERT_EQUAL(1, export_run(shell));
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_env, shell->env, arr_len(shell->env));
+	cleanup_support_test_token(shell);
+
+}
+
 // export =============123
 void	test_export_equals() {
 	t_shell	*shell = support_clean_env("export =============123", (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL});
