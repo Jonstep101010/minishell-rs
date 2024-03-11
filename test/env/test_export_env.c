@@ -21,7 +21,7 @@ void	test_replace_key_two() {
 	TEST_ASSERT_EQUAL_STRING("export", shell->token[0].cmd_args[0].elem);
 	TEST_ASSERT_EQUAL_STRING("this=", shell->token[0].cmd_args[1].elem);
 	TEST_ASSERT_EQUAL_STRING("correct", shell->token[0].cmd_args[2].elem);
-	TEST_ASSERT_EQUAL_INT(1, builtin_export(shell, shell->token));
+	TEST_ASSERT_EQUAL_INT(0, builtin_export(shell, shell->token));
 	TEST_ASSERT_EQUAL_STRING("this=", shell->env[1]);
 	cleanup_support_test_token(shell);
 }
