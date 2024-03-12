@@ -52,7 +52,7 @@ static void	set_arg_attributes(t_arg *cmd_arg)
 	cmd_arg->type = STRING;
 }
 
-static void	*expand_if_allowed(t_token *token, size_t ii, char *const *envp)
+static void	*expand_if_allowed(t_token *token, size_t ii, char *const *env)
 {
 	char	*tmp;
 
@@ -60,7 +60,7 @@ static void	*expand_if_allowed(t_token *token, size_t ii, char *const *envp)
 		&& token->cmd_func != builtin_export
 		&& token->cmd_func != builtin_unset)
 	{
-		tmp = expander(token->cmd_args[ii].elem, envp);
+		tmp = expander(token->cmd_args[ii].elem, env);
 		if (!tmp)
 			return (NULL);
 		if (ft_strncmp(tmp, token->cmd_args[ii].elem, MAX(ft_strlen(tmp),
@@ -70,7 +70,7 @@ static void	*expand_if_allowed(t_token *token, size_t ii, char *const *envp)
 		{
 			free(token->cmd_args[ii].elem);
 			token->cmd_args[ii].elem = tmp;
-			tmp = expander(token->cmd_args[ii].elem, envp);
+			tmp = expander(token->cmd_args[ii].elem, env);
 		}
 		free(token->cmd_args[ii].elem);
 		token->cmd_args[ii].elem = tmp;
@@ -78,7 +78,7 @@ static void	*expand_if_allowed(t_token *token, size_t ii, char *const *envp)
 	return (token);
 }
 
-static void	*inner_loop(t_token *token, char *const *envp)
+static void	*inner_loop(t_token *token, char *const *env)
 {
 	size_t	ii;
 
@@ -87,7 +87,7 @@ static void	*inner_loop(t_token *token, char *const *envp)
 	{
 		token->cmd_args[ii].elem = token->tmp_arr[ii];
 		set_cmd_func(token);
-		if (!expand_if_allowed(token, ii, envp))
+		if (!expand_if_allowed(token, ii, env))
 			return (NULL);
 		set_arg_attributes(&token->cmd_args[ii]);
 		ii++;
