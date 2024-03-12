@@ -51,7 +51,7 @@ all: $(TARGET) $(LIBS)
 ceedling:
 	ceedling release
 
-MEMCHECK_PARAMS = valgrind --leak-check=full --track-origins=yes -s --log-file=valgrind.log 
+MEMCHECK_PARAMS = rm -f valgrind.log; valgrind --leak-check=full --track-origins=yes -s --log-file=valgrind.log 
 EXEC_PATH = ./build/release/$(NAME)
 
 memcheck: ceedling
@@ -88,6 +88,6 @@ re: fclean
 memtest:
 	rm -rf build
 	ceedling test:$(TEST)
-	valgrind --leak-check=full --track-origins=yes -s --log-file=valgrind.log ./build/test/out/test_$(TEST).out
+	$(MEMCHECK_PARAMS) ./build/test/out/test_$(TEST).out
 
 .PHONY: memtest
