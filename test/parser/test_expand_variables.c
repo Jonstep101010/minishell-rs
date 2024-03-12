@@ -1,11 +1,14 @@
 #include "unity.h"
 #include "libutils.h"
 #include "expander.c"
-#include "expand_variables.c"
+#include "append_char.c"
+#include "secure_strlen.c"
+#include "expand.c"
 #include "expand_var.c"
 #include "get_env.c"
 #include "get_index.c"
 #include "support_lib.c"
+#include "error.c"
 
 void	test_expander() {
 	char	*line = "echo $PAGER";
@@ -107,11 +110,11 @@ void	test_expander_followed_dq() {
 }
 
 void	test_expander_ignore_in_singlequotes_key() {
-	char	*line = "echo $'TEST'";
+	char	*line = "$'TEST'";
 	char	*envp[] = {"PAGER=true", "TEST=false", NULL};
 	TEST_ASSERT_NOT_NULL(envp);
 
-	char	*expected_ret = "echo 'TEST'";
+	char	*expected_ret = "$'TEST'";
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
 	char	*actual = expander(line, envp);
@@ -126,7 +129,7 @@ void	test_expander_ignore_in_doublequotes_key() {
 	char	*envp[] = {"PAGER=true", "TEST=false", NULL};
 	TEST_ASSERT_NOT_NULL(envp);
 
-	char	*expected_ret = "\"TEST\"";
+	char	*expected_ret = "$\"TEST\"";
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
 	char	*actual = expander(line, envp);
@@ -141,7 +144,7 @@ void	test_expander_ignore_in_sq_key() {
 	char	*envp[] = {"PAGER=true", "TEST=false", NULL};
 	TEST_ASSERT_NOT_NULL(envp);
 
-	char	*expected_ret = "echo 'TEST $TEST'";
+	char	*expected_ret = "echo $'TEST $TEST'";
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
 	char	*actual = expander(line, envp);
@@ -170,7 +173,7 @@ void	test_expander_followed_sq() {
 	char	*envp[] = {"PAGER=true", "TEST=false", NULL};
 	TEST_ASSERT_NOT_NULL(envp);
 
-	char	*expected_ret = "echo 'PAGER'hello";
+	char	*expected_ret = "echo $'PAGER'hello";
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
 	char	*actual = expander(line, envp);
@@ -186,7 +189,7 @@ void	test_expander_followed_sq_var() {
 	char	*envp[] = {"PAGER=true", "TEST=false", NULL};
 	TEST_ASSERT_NOT_NULL(envp);
 
-	char	*expected_ret = "echo 'PAGER'false";
+	char	*expected_ret = "echo $'PAGER'false";
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
 	char	*actual = expander(line, envp);
@@ -202,7 +205,7 @@ void	test_error_invalid_name() {
 	char	*envp[] = {"PA?GER=true", "test=false", NULL};
 	TEST_ASSERT_NOT_NULL(envp);
 
-	char	*expected_ret = "echo 'PA?GER'false";
+	char	*expected_ret = "echo $'PA?GER'false";
 	TEST_ASSERT_NOT_NULL(expected_ret);
 
 	char	*actual = expander(line, envp);
@@ -381,11 +384,11 @@ void	test_get_exit_status() {
 }
 
 void	test_get_exit_status_other() {
-	char	*line = "$hello $?$none$some";
+	char	*line = "$?$none$some";
 	char	*envp[] = {"PAGER=true", "TEST=false", "?=1", "hello=echo", "some=thing", NULL};
 	TEST_ASSERT_NOT_NULL(envp);
 
-	char	*expected_ret = "echo 1thing";
+	char	*expected_ret = "1thing";
 
 	char	*actual = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(actual);
@@ -413,7 +416,7 @@ void	test_get_exit_status_mult() {
 	char	*envp[] = {"PAGER=true", "TEST=false", "?=1", "hello=echo", "some=thing", NULL};
 	TEST_ASSERT_NOT_NULL(envp);
 
-	char	*expected_ret = "1$11$$$echo?$";
+	char	*expected_ret = "1$11$$$$";
 
 	char	*actual = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(actual);
@@ -450,6 +453,7 @@ void	test_recursive_expansion() {
 	free(actual_second);
 }
 
+// echo "'$USER'" should expand to 'username' (currently '$USER')
 void	test_expansion_nested_quotes() {
 	char	*line = "echo \"'$PAGER'\"";
 	char	*envp[] = {"PAGER=true", "TEST=false", NULL};
@@ -471,6 +475,138 @@ void	test_expansion_nested_quotes_not() {
 
 	char	*actual = expander(line, envp);
 	TEST_ASSERT_NOT_NULL(actual);
+	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
+	printf("%s\n", actual);
+	free(actual);
+}
+// echo  $KEYsomething should result in empty string
+void	test_bug_one() {
+	char	*line = "$USERsomething";
+	char	*envp[] = {"USER=username", "TEST=true", NULL};
+
+	char	*expected_ret = "";
+
+	char	*actual = expander(line, envp);
+	TEST_ASSERT_NOT_NULL(actual);
+	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
+	printf("%s\n", actual);
+	free(actual);
+}
+// echo "'$KEYsomething'" should result in empty inside single quotes ''
+void	test_expansion_nested_quotes_two() {
+	char	*line = "echo \"'$PAGERsomething'\"";
+	char	*envp[] = {"PAGER=true", "TEST=false", NULL};
+
+	char	*expected_ret = "echo \"''\"";
+
+	char	*actual = expander(line, envp);
+	TEST_ASSERT_NOT_NULL(actual);
+	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
+	printf("%s\n", actual);
+	free(actual);
+}
+
+// echo $$KEY should result in $val (beginning and end)
+void	test_expansion_prefix_one() {
+	char	*line = "echo $$PAGER";
+	char	*envp[] = {"PAGER=true", "TEST=false", NULL};
+
+	char	*expected_ret = "echo $true";
+
+	char	*actual = expander(line, envp);
+	TEST_ASSERT_NOT_NULL(actual);
+	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
+	printf("%s\n", actual);
+	free(actual);
+}
+
+// echo "'"'$USER'"'" -> '$USER'
+void	test_expansion_nested_quotes_three() {
+	char	*line = "echo \"'\"'$PAGER'\"'\"";
+	char	*envp[] = {"PAGER=true", "TEST=false", NULL};
+
+	char	*expected_ret = "echo \"'\"'$PAGER'\"'\"";
+
+	char	*actual = expander(line, envp);
+	TEST_ASSERT_NOT_NULL(actual);
+	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
+	printf("%s\n", actual);
+	free(actual);
+}
+
+// echo $"42$" -> $42$
+void	test_expansion_prefix_two() {
+	char	*line = "echo $\"42$\"";
+	char	*envp[] = {"PAGER=true", "TEST=false", NULL};
+
+	char	*expected_ret = "echo $\"42$\"";
+	char	*actual = expander(line, envp);
+
+	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
+	printf("%s\n", actual);
+	free(actual);
+}
+
+// echo "$ " -> $
+void	test_expansion_prefix_three() {
+	char	*line = "echo \"$ \"";
+	char	*envp[] = {"PAGER=true", "TEST=false", NULL};
+
+	char	*expected_ret = "echo \"$ \"";
+	char	*actual = expander(line, envp);
+
+	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
+	printf("%s\n", actual);
+	free(actual);
+}
+
+// echo $$TEST$ -> $TEST$
+void	test_expansion_prefix_trailing_leading() {
+	char	*line = "echo $$TEST$";
+	char	*envp[] = {"PAGER=true", "TEST=false", NULL};
+
+	char	*expected_ret = "echo $false$";
+	char	*actual = expander(line, envp);
+
+	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
+	printf("%s\n", actual);
+	free(actual);
+}
+
+// echo "$TEST something"  -> echo "$TEST something"
+void	test_expansion_followed_other() {
+	char	*line = "echo \"$TEST something\"";
+	char	*envp[] = {"PAGER=true", "TEST=false", NULL};
+
+	char	*expected_ret = "echo \"false something\"";
+	char	*actual = expander(line, envp);
+
+	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
+	printf("%s\n", actual);
+	free(actual);
+}
+
+// echo $TEST something  -> $TEST something
+void	test_expansion_followed_other_two() {
+	char	*line = "echo $TEST something";
+	char	*envp[] = {"PAGER=true", "TEST=false", NULL};
+
+	char	*expected_ret = "echo false something";
+	char	*actual = expander(line, envp);
+
+	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
+	printf("%s\n", actual);
+	free(actual);
+}
+
+// echo $TEST$something  -> echo false
+void	test_expansion_followed_other_three() {
+	char	*line = "echo $TEST$something";
+	char	*envp[] = {"PAGER=true", "TEST=false", NULL};
+
+	char	*expected_ret = "echo false";
+	char	*actual = expander(line, envp);
+
 	TEST_ASSERT_EQUAL_STRING(expected_ret, actual);
 	printf("%s\n", actual);
 	free(actual);

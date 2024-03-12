@@ -6,7 +6,8 @@
 # include "expander.h"
 #endif
 
-char    *expand_variables(t_expand *x, char *input, char *const *env);
+// char    *expand_variables(t_expand *x, char *input, char *const *env);
+char	*expand(char const *input, char *const *env);
 
 /**
  * @brief iterate over to find key
@@ -25,13 +26,11 @@ char    *expand_variables(t_expand *x, char *input, char *const *env);
 char	*expander(char const *input_expander, char *const *env)
 {
 	t_expand	x;
-	char		*input;
 
 	if (!input_expander || !env || !*env || !*input_expander)
 		return (NULL);
-	input = ft_strdup(input_expander);
-	if (!input)
-		return (NULL);
+	if (ft_strchr(input_expander, '$') == NULL)
+		return (ft_strdup(input_expander));
 	ft_bzero(&x, sizeof(t_expand));
-	return (expand_variables(&x, input, env));
+	return (expand(input_expander, env));
 }
