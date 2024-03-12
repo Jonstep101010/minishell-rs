@@ -38,15 +38,16 @@ void	add_pipes_as_tokens(t_shell *shell)
 {
 	size_t	i;
 	size_t	len;
+	char	**tmp_arr;
 
 	shell->split_pipes = split_outside_quotes(shell->trimmed_line, "|");
 	if (!shell->split_pipes)
 		builtin_exit(shell, NULL);
-	shell->tmp_arr = arr_trim(shell->split_pipes, WHITESPACE);
-	if (!shell->tmp_arr)
+	tmp_arr = arr_trim(shell->split_pipes, WHITESPACE);
+	if (!tmp_arr)
 		builtin_exit(shell, NULL);
 	arr_free(shell->split_pipes);
-	shell->split_pipes = shell->tmp_arr;
+	shell->split_pipes = tmp_arr;
 	len = arr_len(shell->split_pipes);
 	shell->token = init_token(len);
 	if (!shell->token)

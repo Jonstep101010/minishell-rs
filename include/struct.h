@@ -16,7 +16,7 @@ typedef struct s_shell
 	char			*trimmed_line;
 	char			*expanded_line;
 	char			*tmp;
-	char			**tmp_arr;
+	// char			**tmp_arr;
 	// char			**command;// not sure if we need this
 	t_token			*token;
 	struct termios	p_termios;

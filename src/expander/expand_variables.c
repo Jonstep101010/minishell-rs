@@ -29,12 +29,12 @@ static void	set_end(const char *input, t_expand *x)
 		x->end++;
 }
 
-static char	*set_values(t_expand *x, char *input, char *const *envp)
+static char	*set_values(t_expand *x, char *input, char *const *env)
 {
 	x->to_expand = ft_substr(input, x->i, x->end - x->i);
 	if (!x->to_expand)
 		return (NULL);
-	x->expanded = expand_var(x->to_expand, envp);
+	x->expanded = expand_var(x->to_expand, env);
 	free(x->to_expand);
 	if (!x->expanded)
 		return (NULL);
@@ -52,7 +52,7 @@ static char	*set_values(t_expand *x, char *input, char *const *envp)
 	return (input);
 }
 
-char	*expand_variables(t_expand *x, char *input, char *const *envp)
+char	*expand_variables(t_expand *x, char *input, char *const *env)
 {
 	while (input && input[x->i] && input[x->i + 1])
 	{
@@ -61,7 +61,7 @@ char	*expand_variables(t_expand *x, char *input, char *const *envp)
 		if (!x->singlequote && input[x->i + 1] && input[x->i] == '$')
 		{
 			set_end(input, x);
-			input = set_values(x, input, envp);
+			input = set_values(x, input, env);
 			if (!input)
 				return (NULL);
 		}
