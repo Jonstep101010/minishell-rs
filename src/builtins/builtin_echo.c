@@ -23,6 +23,7 @@ static void	echo_default(const char *const *cmd_args)
 {
 	int		i;
 	int		flag;
+	int		n_pos;
 
 	i = 0;
 	flag = 0;
@@ -32,9 +33,11 @@ static void	echo_default(const char *const *cmd_args)
 		flag = 2;
 	if (i > 0)
 		flag = 1;
+	n_pos = i;
 	while (cmd_args[i])
 	{
-		if (flag == 1 && ft_strncmp(cmd_args[i], "-n", 2) == 0)
+		if (flag == 1 && ft_strncmp(cmd_args[i], "-n", 2) == 0
+			&& cmd_args[i][2] != '\0' && i != n_pos + 1)
 			flag = 0;
 		printf("%s", cmd_args[i]);
 		if (cmd_args[i + 1])
