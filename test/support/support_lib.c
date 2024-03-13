@@ -37,3 +37,5 @@
 #include "../../include/libutils/src/utils/free_mem.c"
 #include "free_strjoin.c"
 #include "free_strjoin_utils.c"
+#include "append_char.c"
+#include "secure_strlen.c"

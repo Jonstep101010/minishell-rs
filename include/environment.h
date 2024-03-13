@@ -12,4 +12,6 @@ void	export_env(t_shell *shell, char *key_val);
 
 void	update_exit_status(t_shell *shell, int status);
 
+char	*expander(char const *input_expander, char *const *env);
+
 #endif
