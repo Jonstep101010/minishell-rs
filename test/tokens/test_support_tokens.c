@@ -7,7 +7,6 @@
 #include "utils.h"
 #include "arr_utils.c"
 #include "str_equal.c"
-#include "expander.c"
 #include "expand.c"
 #include "interpret_quotes.c"
 

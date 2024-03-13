@@ -1,6 +1,5 @@
 #include "unity.h"
 #include "libutils.h"
-#include "expander.c"
 #include "expand.c"
 #include "get_env.c"
 #include "get_index.c"

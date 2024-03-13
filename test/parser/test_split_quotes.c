@@ -10,7 +10,6 @@
 #include <unistd.h>
 #include "parser.h"
 
-#include "expander.c"
 #include "expand.c"
 #include "get_index.c"
 #include "get_env.c"
