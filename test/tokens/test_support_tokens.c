@@ -7,7 +7,7 @@
 #include "utils.h"
 #include "arr_utils.c"
 #include "str_equal.c"
-#include "expand.c"
+#include "expander.c"
 #include "interpret_quotes.c"
 
 // get module support
