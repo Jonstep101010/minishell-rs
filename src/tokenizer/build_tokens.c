@@ -6,9 +6,9 @@
 #include "tokens.h"
 #include "utils.h"
 #include "libutils.h"
+#include "environment.h"
 #include "struct.h"
 #include "parser.h"
-#include "expander.h"
 
 static void	*setup_token(t_token *token)
 {
@@ -57,8 +57,6 @@ static void	*expand_if_allowed(t_token *token, size_t ii, char *const *env)
 	char	*tmp;
 
 	if (token->cmd_func != builtin_env
-		&& token->cmd_func != builtin_export
-		&& token->cmd_func != builtin_unset
 				&& str_cchr(token->cmd_args[ii].elem, '$') != 0)
 	{
 		tmp = expander(token->cmd_args[ii].elem, env);
@@ -71,10 +69,7 @@ static void	*expand_if_allowed(t_token *token, size_t ii, char *const *env)
 		{
 			free(token->cmd_args[ii].elem);
 			token->cmd_args[ii].elem = tmp;
-			tmp = expander(token->cmd_args[ii].elem, env);
 		}
-		free(token->cmd_args[ii].elem);
-		token->cmd_args[ii].elem = tmp;
 	}
 	return (token);
 }

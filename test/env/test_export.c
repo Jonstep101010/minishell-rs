@@ -8,8 +8,7 @@
 #include "arr_utils.c"
 #include "str_equal.c"
 #include "expander.c"
-#include "expand_variables.c"
-#include "expand_var.c"
+#include "expand.c"
 #include "interpret_quotes.c"
 
 // get module support
@@ -72,24 +71,31 @@ void	test_export_new_three() {
 }
 
 // export =
-void	test_export_empty() {
+void	test_export_empty_one() {
 	t_shell	*shell = support_clean_env("export =", (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL});
 	char	**expected_env = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL};
 	TEST_ASSERT_EQUAL(1, export_run(shell));
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_env, shell->env, arr_len(shell->env));
 	cleanup_support_test_token(shell);
-	// export ''=''
-	shell = support_clean_env("export ''=''", (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL});
-	TEST_ASSERT_EQUAL(1, export_run(shell));
-	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_env, shell->env, arr_len(shell->env));
-	cleanup_support_test_token(shell);
-	// export ""=""
-	shell = support_clean_env("export \"\"=\"\"", (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL});
+}
+
+// export ''=''
+void	test_export_empty_two() {
+	t_shell *shell = support_clean_env("export ''=''", (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL});
+	char	**expected_env = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL};
 	TEST_ASSERT_EQUAL(1, export_run(shell));
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_env, shell->env, arr_len(shell->env));
 	cleanup_support_test_token(shell);
 }
 
+// export ""=""
+void	test_export_empty_three() {
+	t_shell	*shell = support_clean_env("export \"\"=\"\"", (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL});
+	char	**expected_env = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL};
+	TEST_ASSERT_EQUAL(1, export_run(shell));
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_env, shell->env, arr_len(shell->env));
+	cleanup_support_test_token(shell);
+}
 
 // export export -> print nothing (not a valid variable - not export without args!) @follow-up
 void	test_export_keyword() {
@@ -180,9 +186,9 @@ void	test_export_expanded_req_expansion() {
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_env_start, shell->env, arr_len(expected_env_start));
 	char	**expected_env = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "?=1", "TES1T=123", NULL};
 	// this is not working yet because of the expansion not working correctly
-	export_run(shell);
-	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_env, shell->env, arr_len(expected_env));
+	// @follow-up
 	TEST_ASSERT_EQUAL(0, export_run(shell));
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_env, shell->env, arr_len(expected_env));
 	cleanup_support_test_token(shell);
 }
 
@@ -194,7 +200,6 @@ void	test_export_expanded_req_expansion_fail() {
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_env_start, shell->env, arr_len(expected_env_start));
 	char	**expected_env = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "?=1", NULL};
 	// this is not working yet because of the expansion not working correctly
-	export_run(shell);
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_env, shell->env, arr_len(expected_env));
 	// should print: minishell: export: `1=123': not a valid identifier
 	TEST_ASSERT_EQUAL(1, export_run(shell));

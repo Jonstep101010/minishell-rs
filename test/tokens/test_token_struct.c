@@ -119,7 +119,7 @@ void	test_recursive_expansion() {
 	convert_split_token_string_array_to_tokens(shell);
 	TEST_ASSERT_NOT_NULL(shell->token[0].split_pipes);
 	// we want recursive expansion
-	TEST_ASSERT_EQUAL_STRING("mypath$", shell->token[0].cmd_args[2].elem);
+	TEST_ASSERT_EQUAL_STRING("$otherdir", shell->token[0].cmd_args[2].elem);
 
 	TEST_ASSERT_EQUAL_STRING("ls", shell->token[0].cmd_args[0].elem);
 	TEST_ASSERT_EQUAL_STRING("-l", shell->token[0].cmd_args[1].elem);

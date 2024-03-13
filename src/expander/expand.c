@@ -1,7 +1,5 @@
-#include "expander.h"
 #include "libft.h"
 #include "utils.h"
-#include "libutils.h"
 #include "environment.h"
 
 static int	check_index_advance(const char *s, int i)
@@ -20,26 +18,30 @@ static int	check_index_advance(const char *s, int i)
 static char *expand_inside(char *key, char *const *env, int *i)
 {
 	const size_t	len = ft_strlen(key);
-	char			*save;
+	char			*ret;
 
-	save = NULL;
+	ret = NULL;
 	if (!*key)
 	{
-		save = append_char_str(NULL, '$');// handle echo "$ ", echo $"42$"
-		if (!save)
+		ret = append_char_str(NULL, '$');
+		if (!ret)
 			return (free(key), NULL);
 	}
-	else if (get_index_env(env, key) != -1)
-		save = get_env(env, key);
-	if (!save)
-		save = ft_strdup("");
+	else
+		ret = get_env(env, key);
+	if (!ret)
+		ret = ft_strdup("");
 	free(key);
-	if (!save)
+	if (!ret)
 		return (NULL);
 	*i += len;
-	return (save);
+	return (ret);
 }
 
+/**
+ * @brief checks status of quotes at current position
+ * @param expand true if allowed to expand
+ */
 static void	check_quotes(const char *s, bool *expand, int *double_quote)
 {
 	if (*s == '"' && *double_quote == 0)
@@ -51,10 +53,14 @@ static void	check_quotes(const char *s, bool *expand, int *double_quote)
 		*expand = !*expand;
 }
 
-// this gets passed an individual element of the input string
-// (already split by pipes and whitespace)
-// this runs until the end of the string, expanding variables as it goes
-// account for edge cases such as "'$VAR'" ('VAL') "'"'$VAR'"'" ('$VAR')
+/**
+ * @brief expands variables in string
+ * @details accounts for edge cases such as
+ * \details "'$VAR'" ('VAL') "'"'$VAR'"'" ('$VAR')
+ * @param s
+ * @param env
+ * @return char*
+ */
 char	*expand(char const *s, char *const *env)
 {
 	int		i;
