@@ -6,7 +6,7 @@
 /*   By: apeposhi <apeposhi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 10:07:19 by apeposhi          #+#    #+#             */
-/*   Updated: 2024/03/14 16:48:06 by apeposhi         ###   ########.fr       */
+/*   Updated: 2024/03/14 16:52:36 by apeposhi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@ typedef struct s_shell
 	char	**owned_envp;
 	int		input_redirect;
 	int		output_redirect;
-	int		error_redirect;
 	int		type;
 }	t_shell;
 
