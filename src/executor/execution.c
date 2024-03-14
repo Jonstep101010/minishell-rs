@@ -6,7 +6,7 @@
 /*   By: apeposhi <apeposhi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 10:07:19 by apeposhi          #+#    #+#             */
-/*   Updated: 2024/03/14 14:03:10 by apeposhi         ###   ########.fr       */
+/*   Updated: 2024/03/14 16:48:06 by apeposhi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,11 +26,8 @@ typedef struct s_shell
 	char	**command;
 	char	**owned_envp;
 	int		input_redirect;
-	char	*input_file;
 	int		output_redirect;
-	char	*output_file;
 	int		error_redirect;
-	char	*error_file;
 	int		type;
 }	t_shell;
 
@@ -184,68 +181,20 @@ char	*ft_getpath(char **env, char *f_cmd)
 /////////////////////////////////////////////////////////////////////////////////
 
 // HANDLING REDIRECTIONS |||| WIP
-
-// void execute(t_shell *shell, int tmp)
-// {
-// 	char	*path;
-
-// 	path = ft_getpath(shell->owned_envp, shell->command[0]);
-// 	dup2(tmp, STDIN_FILENO);
-// 	close(tmp);
-// 	// add dup2 stdin
-// 	// add dup2 stdout
-// 	execve(path, shell->command, shell->owned_envp);
-// 	// init exitstatus
-// 	// print error
-// }
+// for parsing:
+// default value is -1 for in and out redirect (named as redir_greater or redir_smaller)
 
 void execute(t_shell *shell, int tmp)
 {
-    char *path;
+	char	*path;
 
-    path = ft_getpath(shell->owned_envp, shell->command[0]);
-    
-	if (shell->input_redirect)
-	{
-		int input_fd;
-
-		input_fd = open(shell->input_file, O_RDONLY);
-		if (input_fd < 0)
-		{
-			perror("Failed to open input file for redirection.");
-			exit(EXIT_FAILURE);
-		}
-		dup2(input_fd, STDIN_FILENO);
-		close(input_fd);
-	}
-	else
-		dup2(tmp, STDIN_FILENO);
-	if (shell->output_redirect) {
-		int	output_fd;
-
-		output_fd = open(shell->output_file, O_WRONLY | O_CREAT | O_TRUNC, 0666);
-		if (output_fd < 0)
-		{
-			perror("Failed to open output file for redirection");
-			exit(EXIT_FAILURE);
-		}
-		dup2(output_fd, STDOUT_FILENO);
-		close(output_fd);
-	}
-	if (shell->error_redirect)
-	{
-		int	error_fd;
-
-		error_fd = open(shell->error_file, O_WRONLY | O_CREAT | O_TRUNC, 0666);
-		if (error_fd < 0)
-		{
-			perror("Failed to open error file for redirection.");
-			exit(EXIT_FAILURE);
-		}
-		dup2(error_fd, STDERR_FILENO);
-		close(error_fd);
-	}
+	path = ft_getpath(shell->owned_envp, shell->command[0]);
+	dup2(tmp, STDIN_FILENO);
 	close(tmp);
+	if (shell->input_redirect != -1)
+		dup2(shell->input_redirect, STDIN_FILENO);
+	if (shell->output_redirect != -1)
+		dup2(shell->output_redirect, STDOUT_FILENO);
 	execve(path, shell->command, shell->owned_envp);
 	perror("execve failed");
 	exit(EXIT_FAILURE);
@@ -264,7 +213,7 @@ int	exec(t_shell *shell, char **env)
 		{
 			if (fork() == 0) {
 				execute(shell, tmp);
-			// eprint("Something went wrong in execution"); //need review on this
+			// perror("Something went wrong in execution"); //need review on this
 			}
 			close(tmp);
 			while (waitpid(-1, NULL, WUNTRACED) != -1);
@@ -278,7 +227,7 @@ int	exec(t_shell *shell, char **env)
 				dup2(fd[1], STDOUT_FILENO);
 				close(fd[1]);
 				execute(shell, tmp);
-				// eprint("Something went wrong in execution"); //need review on this
+				// perror("Something went wrong in execution"); //need review on this
 			}
 			close(fd[1]);
 			close(tmp);
