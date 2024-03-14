@@ -46,7 +46,7 @@ int		builtin_exit(t_shell *shell, t_token *code_nullable)
 	uint8_t		exit_code;
 
 	exit_code = shell->exit_status;
-	if (code_nullable && code_nullable->command)
+	if (code_nullable && code_nullable->command[1])
 	{
 		if (!check_exit_code(code_nullable))
 			return (1);
