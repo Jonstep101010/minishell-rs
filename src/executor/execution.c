@@ -6,7 +6,7 @@
 /*   By: apeposhi <apeposhi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 10:07:19 by apeposhi          #+#    #+#             */
-/*   Updated: 2024/03/14 13:25:40 by apeposhi         ###   ########.fr       */
+/*   Updated: 2024/03/14 14:03:10 by apeposhi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,19 +183,7 @@ char	*ft_getpath(char **env, char *f_cmd)
 
 /////////////////////////////////////////////////////////////////////////////////
 
-
-// Handling redirections || WIP
-
-void	handle_redirections(t_shell	*shell)
-{
-	int	in_fd;
-	int	out_fd;
-
-	if (shell->input_redirect != NULL)
-	{
-		in_fd = open(shell->input_redirect, O_RDONLY);
-	}
-}
+// HANDLING REDIRECTIONS |||| WIP
 
 // void execute(t_shell *shell, int tmp)
 // {
@@ -248,7 +236,7 @@ void execute(t_shell *shell, int tmp)
 	{
 		int	error_fd;
 
-		error_fd = open(shell->error_file, O_WRONLY, | O_CREAT | O_TRUNC, 0666);
+		error_fd = open(shell->error_file, O_WRONLY | O_CREAT | O_TRUNC, 0666);
 		if (error_fd < 0)
 		{
 			perror("Failed to open error file for redirection.");
