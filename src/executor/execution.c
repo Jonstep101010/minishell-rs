@@ -6,7 +6,7 @@
 /*   By: apeposhi <apeposhi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 10:07:19 by apeposhi          #+#    #+#             */
-/*   Updated: 2024/03/14 16:52:36 by apeposhi         ###   ########.fr       */
+/*   Updated: 2024/03/14 18:07:30 by apeposhi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@ typedef struct s_shell
 	char	**owned_envp;
 	int		input_redirect;
 	int		output_redirect;
-	int		type;
 }	t_shell;
 
 size_t	ft_strlen(const char *str)
@@ -178,7 +177,6 @@ char	*ft_getpath(char **env, char *f_cmd)
 }
 
 /////////////////////////////////////////////////////////////////////////////////
-
 // HANDLING REDIRECTIONS |||| WIP
 // for parsing:
 // default value is -1 for in and out redirect (named as redir_greater or redir_smaller)
@@ -190,65 +188,79 @@ void execute(t_shell *shell, int tmp)
 	path = ft_getpath(shell->owned_envp, shell->command[0]);
 	dup2(tmp, STDIN_FILENO);
 	close(tmp);
+dprintf(2, ">%s<\n", shell->command[0]);
 	if (shell->input_redirect != -1)
 		dup2(shell->input_redirect, STDIN_FILENO);
 	if (shell->output_redirect != -1)
 		dup2(shell->output_redirect, STDOUT_FILENO);
 	execve(path, shell->command, shell->owned_envp);
-	perror("execve failed");
+	perror("Execve failed");
 	exit(EXIT_FAILURE);
 }
 
 // commands, path, environment
-int	exec(t_shell *shell, char **env)
+int	exec(t_shell **shell, int num_pipe)
 {
 	int	tmp;
 	int	fd[2];
+	int	i;
 
 	tmp = dup(STDIN_FILENO);
-	// while (1)
-	// {
-		if (!shell->type)
+	i = -1;
+	while (i++ < num_pipe)
+	{
+		if (i == num_pipe)
 		{
 			if (fork() == 0) {
-				execute(shell, tmp);
-			// perror("Something went wrong in execution"); //need review on this
+				execute(shell[i], tmp);
+			perror("Something went wrong in execution"); //need review on this
 			}
 			close(tmp);
 			while (waitpid(-1, NULL, WUNTRACED) != -1);
 			tmp = dup(STDIN_FILENO);
 		}
-		else if (shell->type)
+		else if (i != num_pipe)
 		{
 			pipe(fd);
 			if (fork() == 0) {
 				close(fd[0]);
 				dup2(fd[1], STDOUT_FILENO);
 				close(fd[1]);
-				execute(shell, tmp);
-				// perror("Something went wrong in execution"); //need review on this
+				execute(shell[i], tmp);
+				perror("Something went wrong in execution"); //need review on this
 			}
 			close(fd[1]);
 			close(tmp);
 			tmp = fd[0];
 		}
-	// }
+	}
 	close(tmp);
 	return (0);
 }
 
 int main(int argc, char **argv, char **envp)
 {
-	t_shell shell;
+	t_shell *shell;
+	shell = malloc(2 * sizeof(t_shell));
 // dprintf(2, "test\n");
-	shell.owned_envp = arrdup(envp);
-	shell.command = malloc(3 * sizeof(char *));
-	shell.command[0] = strdup("ls");
-	shell.command[1] = strdup("-l");
-	shell.command[2] = NULL;
+	shell[0].owned_envp = arrdup(envp);
+	shell[0].command = malloc(3 * sizeof(char *));
+	shell[0].command[0] = strdup("ls");
+	shell[0].command[1] = strdup("-l");
+	shell[0].command[2] = NULL;
+	shell[0].input_redirect = -1;
+	shell[0].output_redirect = -1;
+
 	
-	shell.type = 0;
-	
-	exec(&shell, envp);
+	shell[1].owned_envp = arrdup(envp);
+	shell[1].command = malloc(3 * sizeof(char *));
+	shell[1].command[0] = strdup("wc");
+	shell[1].command[1] = strdup("-l");
+	shell[1].command[2] = NULL;
+	shell[1].input_redirect = -1;
+	shell[1].output_redirect = -1;
+// dprintf(2, "%s\n", shell[1].command[0]);
+
+	exec(&shell, 1);
 	return 0;
 }
