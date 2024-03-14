@@ -6,7 +6,7 @@
 /*   By: apeposhi <apeposhi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 10:07:19 by apeposhi          #+#    #+#             */
-/*   Updated: 2024/03/13 20:57:34 by apeposhi         ###   ########.fr       */
+/*   Updated: 2024/03/14 13:25:40 by apeposhi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,19 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <stdio.h>
+#include <fcntl.h>
 
 typedef struct s_shell
 {
-	char **command;
-	char **owned_envp;
-	int type;
+	char	**command;
+	char	**owned_envp;
+	int		input_redirect;
+	char	*input_file;
+	int		output_redirect;
+	char	*output_file;
+	int		error_redirect;
+	char	*error_file;
+	int		type;
 }	t_shell;
 
 size_t	ft_strlen(const char *str)
@@ -176,18 +183,84 @@ char	*ft_getpath(char **env, char *f_cmd)
 
 /////////////////////////////////////////////////////////////////////////////////
 
+
+// Handling redirections || WIP
+
+void	handle_redirections(t_shell	*shell)
+{
+	int	in_fd;
+	int	out_fd;
+
+	if (shell->input_redirect != NULL)
+	{
+		in_fd = open(shell->input_redirect, O_RDONLY);
+	}
+}
+
+// void execute(t_shell *shell, int tmp)
+// {
+// 	char	*path;
+
+// 	path = ft_getpath(shell->owned_envp, shell->command[0]);
+// 	dup2(tmp, STDIN_FILENO);
+// 	close(tmp);
+// 	// add dup2 stdin
+// 	// add dup2 stdout
+// 	execve(path, shell->command, shell->owned_envp);
+// 	// init exitstatus
+// 	// print error
+// }
+
 void execute(t_shell *shell, int tmp)
 {
-	char	*path;
+    char *path;
 
-	path = ft_getpath(shell->owned_envp, shell->command[0]);
-	dup2(tmp, STDIN_FILENO);
+    path = ft_getpath(shell->owned_envp, shell->command[0]);
+    
+	if (shell->input_redirect)
+	{
+		int input_fd;
+
+		input_fd = open(shell->input_file, O_RDONLY);
+		if (input_fd < 0)
+		{
+			perror("Failed to open input file for redirection.");
+			exit(EXIT_FAILURE);
+		}
+		dup2(input_fd, STDIN_FILENO);
+		close(input_fd);
+	}
+	else
+		dup2(tmp, STDIN_FILENO);
+	if (shell->output_redirect) {
+		int	output_fd;
+
+		output_fd = open(shell->output_file, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+		if (output_fd < 0)
+		{
+			perror("Failed to open output file for redirection");
+			exit(EXIT_FAILURE);
+		}
+		dup2(output_fd, STDOUT_FILENO);
+		close(output_fd);
+	}
+	if (shell->error_redirect)
+	{
+		int	error_fd;
+
+		error_fd = open(shell->error_file, O_WRONLY, | O_CREAT | O_TRUNC, 0666);
+		if (error_fd < 0)
+		{
+			perror("Failed to open error file for redirection.");
+			exit(EXIT_FAILURE);
+		}
+		dup2(error_fd, STDERR_FILENO);
+		close(error_fd);
+	}
 	close(tmp);
-	// add dup2 stdin
-	// add dup2 stdout
 	execve(path, shell->command, shell->owned_envp);
-	// init exitstatus
-	// print error
+	perror("execve failed");
+	exit(EXIT_FAILURE);
 }
 
 // commands, path, environment
