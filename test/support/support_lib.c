@@ -22,7 +22,7 @@
 #include "ft_strncmp.c"
 #include "ft_strnstr.c"
 
-#include "ft_atoi.c"
+#include "ft_atol.c"
 
 #include "str_cchr.c"
 #include "arr_len.c"
