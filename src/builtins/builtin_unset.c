@@ -2,6 +2,18 @@
 #include "tokens.h"
 #include "utils.h"
 #include "struct.h"
+#include "libft.h"
+
+static bool	check_illegal_char(const char *str)
+{
+	while (*str)
+	{
+		if (ft_strchr("?=;$.:><[]()/+-{}*#@!^", *str))
+			return (true);
+		str++;
+	}
+	return (false);
+}
 
 static int	unset_internal(const char *const *args, char **env)
 {
@@ -9,17 +21,14 @@ static int	unset_internal(const char *const *args, char **env)
 
 	while (*args)
 	{
-		if (!check_valid_key(*args))
+		if (!check_valid_key(*args) || check_illegal_char(*args))
 		{
 			eprint("unset: %s: invalid option", *args);
 			return (1);
 		}
-		if (str_cchr(*args, '=') == 0)
-		{
-			index = get_index_env(env, *args);
-			if (index >= 0 && env[index])
-				rm_str_arr(env, env[index]);
-		}
+		index = get_index_env(env, *args);
+		if (index >= 0 && env[index])
+			rm_str_arr(env, env[index]);
 		args++;
 	}
 	return (0);
