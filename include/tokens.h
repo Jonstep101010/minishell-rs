@@ -21,18 +21,6 @@ enum e_quote
 	NONE,
 };
 
-enum e_builtin
-{
-	BUILTIN_ECHO,
-	CD,
-	PWD,
-	EXPORT,
-	UNSET,
-	ENV,
-	EXIT,
-	NOT_BUILTIN,
-};
-
 typedef struct s_arg
 {
 	char	*elem;
@@ -41,6 +29,17 @@ typedef struct s_arg
 }	t_arg;
 
 typedef struct s_shell	t_shell;
+struct s_token
+{
+	t_arg	*cmd_args;// keep attributes in execution (i.e. redirs), cmd_args[0] is the first token/command (not pipe)
+	char	*split_pipes;
+	char	**tmp_arr;
+	char	**command;// for execution (each token has the command)
+	// char	*bin;// for finding path/to/bin?
+	int		(*cmd_func)(t_shell *, t_token *);
+};
+
+void	set_cmd_func(t_token *token);
 
 t_token	*get_tokens(char const *trimmed_line);
 void	*tokenize(t_shell *shell, char const *trimmed_line);
@@ -48,17 +47,4 @@ void	convert_tokens_to_string_array(t_token *token);
 void	destroy_all_tokens(t_shell *shell);
 t_arg	*init_cmdargs(size_t size);
 t_token	*init_token(size_t size);
-
-void	set_cmd_func(t_token *token);
-
-struct s_token
-{
-	t_arg	*cmd_args;// keep attributes in execution (i.e. redirs), cmd_args[0] is the first token/command (not pipe)
-	char	*split_pipes;
-	char	**tmp_arr;
-	char	**command;// for execution (each token has the command)
-	enum	e_builtin	builtin_info;
-	// char	*bin;// for finding path/to/bin?
-	int		(*cmd_func)(t_shell *, t_token *);
-};
 # endif

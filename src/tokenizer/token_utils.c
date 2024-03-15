@@ -11,7 +11,6 @@ void	set_cmd_func(t_token *token)
 	i = 0;
 	while (g_cmds[i].name)
 	{
-		token->builtin_info = i;
 		if (equal(
 				token->cmd_args[0].elem, g_cmds[i].name))
 		{
@@ -21,7 +20,6 @@ void	set_cmd_func(t_token *token)
 		i++;
 	}
 	token->cmd_func = not_builtin;
-	token->builtin_info = NOT_BUILTIN;
 }
 
 t_arg	*init_cmdargs(size_t size)
