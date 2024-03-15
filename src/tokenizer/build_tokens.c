@@ -92,13 +92,15 @@ static void	*inner_loop(t_token *token, char *const *env)
 	return (token);
 }
 
-void	convert_split_token_string_array_to_tokens(t_shell *shell)
+void	*tokenize(t_shell *shell, char const *trimmed_line)
 {
 	size_t	i;
 
 	i = 0;
-	if (!shell->token || !shell->token[i].split_pipes)
-		return ;
+	shell->token = get_tokens(trimmed_line);
+	if (!shell->token || !shell->token->split_pipes
+			|| !shell->token->split_pipes[0])
+		return (eprint("alloc fail"), NULL);
 	while (shell->token[i].split_pipes)
 	{
 		setup_token(&shell->token[i]);
@@ -106,4 +108,5 @@ void	convert_split_token_string_array_to_tokens(t_shell *shell)
 		free(shell->token[i].tmp_arr);
 		i++;
 	}
+	return (shell->token);
 }

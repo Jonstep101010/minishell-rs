@@ -42,8 +42,8 @@ typedef struct s_arg
 
 typedef struct s_shell	t_shell;
 
-void	add_pipes_as_tokens(t_shell *shell);
-void	convert_split_token_string_array_to_tokens(t_shell *shell);
+t_token	*get_tokens(char const *trimmed_line);
+void	*tokenize(t_shell *shell, char const *trimmed_line);
 void	convert_tokens_to_string_array(t_token *token);
 void	destroy_all_tokens(t_shell *shell);
 t_arg	*init_cmdargs(size_t size);
@@ -55,12 +55,10 @@ struct s_token
 {
 	t_arg	*cmd_args;// keep attributes in execution (i.e. redirs), cmd_args[0] is the first token/command (not pipe)
 	char	*split_pipes;
-	// char	**args;
 	char	**tmp_arr;
 	char	**command;// for execution (each token has the command)
 	enum	e_builtin	builtin_info;
-	// size_t	status;// for usage with the pipes?
 	// char	*bin;// for finding path/to/bin?
-	int		(*cmd_func)(t_shell *, t_token *);// not sure if this is necessary
+	int		(*cmd_func)(t_shell *, t_token *);
 };
 # endif

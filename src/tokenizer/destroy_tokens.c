@@ -15,7 +15,7 @@ void	destroy_all_tokens(t_shell *shell)
 	size_t	i;
 	size_t	ii;
 
-	if (!shell->token)
+	if (!shell->token || !(shell->token->split_pipes))
 		return ;
 	token = shell->token;
 	i = 0;
@@ -33,6 +33,7 @@ void	destroy_all_tokens(t_shell *shell)
 		}
 		if (token[i].command)
 			arr_free(token[i].command);
+		free_null(&(token[i].split_pipes));
 		i++;
 	}
 	free_null(&shell->token);
