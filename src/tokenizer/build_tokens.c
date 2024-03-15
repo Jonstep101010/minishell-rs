@@ -85,6 +85,7 @@ static void	*inner_loop(t_token *token, char *const *env)
 		set_cmd_func(token);
 		if (!expand_if_allowed(token, ii, env))
 			return (NULL);
+		set_cmd_func(token);
 		set_arg_attributes(&token->cmd_args[ii]);
 		ii++;
 	}
