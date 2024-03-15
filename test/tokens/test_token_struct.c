@@ -23,12 +23,12 @@ void	test_token_struct(void)
 {
 	t_shell	*shell;
 	shell = (t_shell *) calloc(1, sizeof(t_shell));
-	shell->line = "ls \n-l\r \tsomedir | cat -e | wc -l";
+	char	*line = "ls \n-l\r \tsomedir | cat -e | wc -l";
 	shell->env = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL};
 	shell->token = init_token(3);// should have space for 3 tokens (shell->line)
 	TEST_ASSERT_NOT_NULL(shell->token);
 	char	**expected = (char *[]){"ls \n-l\r \tsomedir ", " cat -e ", " wc -l", NULL};
-	char	**split_tokens = split_outside_quotes(shell->line, "|");
+	char	**split_tokens = split_outside_quotes(line, "|");
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, split_tokens, 4);
 
 	// do string trim on all spaces inside the split tokens
@@ -87,23 +87,22 @@ void	test_add_string_array_as_tokens()
 	t_shell	*shell;
 	shell = (t_shell *) calloc(1, sizeof(t_shell));
 	shell->exit_status = 0;
-	shell->trimmed_line = "ls -l somedir | cat -e | wc -l";
+	char	*trimmed_line = "ls -l somedir | cat -e | wc -l";
 	shell->env = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL};
-	add_pipes_as_tokens(shell);
+	tokenize(shell, trimmed_line);
 	TEST_ASSERT_NOT_NULL(shell->token);
 	TEST_ASSERT_EQUAL_STRING("ls -l somedir", shell->token[0].split_pipes);
 	TEST_ASSERT_EQUAL_STRING("cat -e", shell->token[1].split_pipes);
 	TEST_ASSERT_EQUAL_STRING("wc -l", shell->token[2].split_pipes);
+	destroy_all_tokens(shell);
 	free(shell->token);
-	arr_free(shell->split_pipes);
 	free(shell);
 }
 
 void	test_destroy_null() {
-	t_shell	*shell = support_test_tokens("ls -l you | wc -l", (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL});
+	t_shell	*shell = support_test_tokens((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL});
 	remove_token(shell, NULL);
-	add_pipes_as_tokens(shell);
-	convert_split_token_string_array_to_tokens(shell);
+	tokenize(shell, "ls -l you | wc -l");
 	TEST_ASSERT_EQUAL_STRING("ls", shell->token[0].cmd_args[0].elem);
 	TEST_ASSERT_EQUAL_STRING("-l", shell->token[0].cmd_args[1].elem);
 	TEST_ASSERT_EQUAL_STRING("you", shell->token[0].cmd_args[2].elem);
@@ -114,9 +113,8 @@ void	test_destroy_null() {
 }
 
 void	test_recursive_expansion() {
-	t_shell	*shell = support_test_tokens("ls -l $somedir ' ' | cat -e | wc -l", ((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", NULL}));
-	add_pipes_as_tokens(shell);
-	convert_split_token_string_array_to_tokens(shell);
+	t_shell	*shell = support_test_tokens(((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", NULL}));
+	tokenize(shell, "ls -l $somedir ' ' | cat -e | wc -l");
 	TEST_ASSERT_NOT_NULL(shell->token[0].split_pipes);
 	// we want recursive expansion
 	TEST_ASSERT_EQUAL_STRING("$otherdir", shell->token[0].cmd_args[2].elem);
@@ -133,19 +131,17 @@ void	test_recursive_expansion() {
 }
 
 void	test_export_env() {
-	t_shell	*shell = support_test_tokens("unset true", ((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", "true=true", NULL}));
+	t_shell	*shell = support_test_tokens(((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", "true=true", NULL}));
 
 	export_env(shell, ft_strdup("true=false"));
 	char	**expected = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", "true=false", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, shell->env, 6);
-	add_pipes_as_tokens(shell);
+	tokenize(shell, "unset true");
 	TEST_ASSERT_EQUAL_STRING("unset true", shell->token[0].split_pipes);
-	convert_split_token_string_array_to_tokens(shell);
 	convert_tokens_to_string_array(shell->token);
 	TEST_ASSERT_EQUAL_STRING("unset", shell->token[0].cmd_args[0].elem);
 	TEST_ASSERT_EQUAL_STRING("true", shell->token[0].cmd_args[1].elem);
 	builtin_unset(shell, shell->token);
-	// @audit should possibly return empty string instead of null
 	TEST_ASSERT_NULL(get_env(shell->env, "true"));
 	cleanup_support_test_token(shell);
 }
