@@ -2,16 +2,27 @@
 # define TOKENS_H
 # include <stddef.h>
 typedef struct s_token	t_token;
+typedef struct s_shell	t_shell;
 
 # ifndef WHITESPACE
 #  define WHITESPACE " \t\n\r\v\f"
 # endif
 
+enum e_redir
+{
+	NO_REDIR,
+	INPUT_REDIR,
+	OUTPUT_REDIR,
+	APPEND,
+	HEREDOC,
+};
+
 enum e_arg
 {
 	STRING,
-	PIPE,
-	EXPANSION,
+	REDIR,//this could prove useful
+	REDIR_WORD,
+	REDIR_REMOVED,// maybe for implementing spaces in between redir and word
 };
 
 enum e_quote
@@ -25,10 +36,10 @@ typedef struct s_arg
 {
 	char	*elem;
 	enum	e_arg	type;
-	enum	e_quote	quote;
+	enum	e_quote	quote;//mostly unused
+	enum	e_redir	redir;
 }	t_arg;
 
-typedef struct s_shell	t_shell;
 struct s_token
 {
 	t_arg	*cmd_args;// keep attributes in execution (i.e. redirs), cmd_args[0] is the first token/command (not pipe)

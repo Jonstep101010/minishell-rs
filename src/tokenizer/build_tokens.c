@@ -10,6 +10,32 @@
 #include "struct.h"
 #include "parser.h"
 
+// cannot be inside quotes at this point (we compare max 2 chars)
+enum e_redir	check_redirections(t_arg *cmd_args)
+{
+	size_t	ii;
+	bool	redir;
+
+	ii = 0;
+	redir = false;
+	while (cmd_args[ii].elem)
+	{
+		cmd_args[ii].redir = NO_REDIR;
+		if (ft_strncmp(cmd_args[ii].elem, ">>", 2) == 0)
+			cmd_args[ii].redir = APPEND;
+		else if (ft_strncmp(cmd_args[ii].elem, ">", 1) == 0)
+			cmd_args[ii].redir = OUTPUT_REDIR;
+		else if (ft_strncmp(cmd_args[ii].elem, "<<", 2) == 0)
+			cmd_args[ii].redir = HEREDOC;
+		else if (ft_strncmp(cmd_args[ii].elem, "<", 1) == 0)
+			cmd_args[ii].redir = INPUT_REDIR;
+		if (cmd_args[ii].redir != NO_REDIR)
+			redir = true;
+		ii++;
+	}
+	return (redir);
+}
+
 static void	*setup_token(t_token *token)
 {
 	size_t	len;
@@ -50,6 +76,7 @@ static void	set_arg_attributes(t_arg *cmd_arg)
 		cmd_arg->elem = tmp;
 	}
 	cmd_arg->type = STRING;
+	check_redirections(cmd_arg);
 }
 
 static void	*expand_if_allowed(t_token *token, size_t ii, char *const *env)
@@ -86,7 +113,7 @@ static void	*inner_loop(t_token *token, char *const *env)
 		if (!expand_if_allowed(token, ii, env))
 			return (NULL);
 		set_cmd_func(token);
-		set_arg_attributes(&token->cmd_args[ii]);
+		set_arg_attributes(&token->cmd_args[ii]);// last step
 		ii++;
 	}
 	return (token);
