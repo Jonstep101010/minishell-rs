@@ -23,7 +23,7 @@ static int	unset_internal(const char *const *args, char **env)
 	{
 		if (!check_valid_key(*args) || check_illegal_char(*args))
 		{
-			eprint("unset: %s: invalid option", *args);
+			eprint("unset: `%s': not a valid identifier", *args);
 			return (1);
 		}
 		index = get_index_env(env, *args);
