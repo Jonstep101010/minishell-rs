@@ -22,7 +22,8 @@ enum e_arg
 	STRING,
 	REDIR,//this could prove useful
 	REDIR_WORD,
-	REDIR_REMOVED,// maybe for implementing spaces in between redir and word
+	REDIR_REMOVED,// remove current t_arg and set to next t_arg
+	// (should be REDIR_WORD) - later removed
 };
 
 enum e_quote
