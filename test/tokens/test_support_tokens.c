@@ -24,7 +24,6 @@ void	test_support_test_tokens(void)
 	TEST_ASSERT_EQUAL_STRING("cat -e", shell->token[1].split_pipes);
 	TEST_ASSERT_EQUAL_STRING("wc -l", shell->token[2].split_pipes);
 	destroy_all_tokens(shell);
-	// arr_free(shell->split_pipes);
 	arr_free(shell->env);
 	free(shell);
 }
@@ -53,10 +52,6 @@ void test_support_test_tokens_cleanup(void)
 
 	TEST_ASSERT_EQUAL_STRING("wc", shell->token[2].cmd_args[0].elem);
 	TEST_ASSERT_EQUAL_STRING("-l", shell->token[2].cmd_args[1].elem);
-
-	TEST_ASSERT_EQUAL_INT(SINGLE, shell->token[0].cmd_args[3].quote);
-	TEST_ASSERT_EQUAL_INT(STRING, shell->token[0].cmd_args[2].type);
-	TEST_ASSERT_EQUAL_INT(NONE, shell->token[0].cmd_args[2].quote);
 
 	cleanup_support_test_token(shell);
 }

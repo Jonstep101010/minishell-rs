@@ -6,8 +6,6 @@
 
 #include "support_tokens.c"
 #include "support_commands.c"
-#include "redirection_utils.c"
-#include "memsize.c"
 #include "support_msh.c"
 
 #ifndef PRINT_TEST

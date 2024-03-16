@@ -26,18 +26,10 @@ enum e_arg
 	// (should be REDIR_WORD) - later removed
 };
 
-enum e_quote
-{
-	SINGLE,
-	DOUBLE,
-	NONE,
-};
-
 typedef struct s_arg
 {
 	char	*elem;
 	enum	e_arg	type;
-	enum	e_quote	quote;//mostly unused
 	enum	e_redir	redir;
 }	t_arg;
 

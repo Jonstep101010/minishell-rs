@@ -33,29 +33,6 @@ static void	*setup_token(t_token *token)
 	return (token);
 }
 
-static void	set_arg_attributes(t_arg *cmd_arg)
-{
-	int		quote;
-	char	*tmp;
-
-	quote = 0;
-	if (str_cchr(cmd_arg->elem, '\'') == 0
-		&& str_cchr(cmd_arg->elem, '"') == 0)
-		cmd_arg->quote = NONE;
-	else if (str_cchr(cmd_arg->elem, '"'))
-		cmd_arg->quote = DOUBLE;
-	else if (str_cchr(cmd_arg->elem, '\''))
-		cmd_arg->quote = SINGLE;
-	if (cmd_arg->quote != NONE)
-	{
-		tmp = do_quote_bs(cmd_arg->elem, &quote);
-		if (!tmp)
-			return ;
-		free(cmd_arg->elem);
-		cmd_arg->elem = tmp;
-	}
-}
-
 static void	*expand_if_allowed(t_token *token, size_t ii, char *const *env)
 {
 	char	*tmp;
@@ -78,6 +55,24 @@ static void	*expand_if_allowed(t_token *token, size_t ii, char *const *env)
 	return (token);
 }
 
+static void	rm_quotes(t_arg *cmd_arg)
+{
+	char	*tmp;
+	int		quote;
+	int		i;
+
+	quote = 0;
+	i = -1;
+	while (cmd_arg[++i].elem)
+	{
+		tmp = do_quote_bs(cmd_arg[i].elem, &quote);
+		if (!tmp)
+			return ;
+		free(cmd_arg[i].elem);
+		cmd_arg[i].elem = tmp;
+	}
+}
+
 static void	*inner_loop(t_token *token, char *const *env)
 {
 	size_t	ii;
@@ -90,14 +85,14 @@ static void	*inner_loop(t_token *token, char *const *env)
 		if (!expand_if_allowed(token, ii, env))
 			return (NULL);
 		set_cmd_func(token);
-		set_arg_attributes(&token->cmd_args[ii]);// last step
 		ii++;
 	}
-	if (check_redirections(&token->cmd_args[0]))
+	if (check_redirections(token->cmd_args))
 	{
-		parse_redir_types(&token->cmd_args[0]);
-		rm_prefix_redir_word(&token->cmd_args[0]);
+		parse_redir_types(token->cmd_args);
+		rm_prefix_redir_word(token->cmd_args);
 	}
+	rm_quotes(token->cmd_args);
 	return (token);
 }
 
