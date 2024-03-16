@@ -244,3 +244,12 @@ void	test_nothing_to_trim() {
 	arr_free(split_tokens);
 	arr_free(split_tokens_0);
 }
+
+void	test_can_ignore_quotes() {
+	char	*input = strdup("echo hello world '>' file < file2");
+	char	**tokens = split_outside_quotes(input, WHITESPACE);
+	char	**expected = (char *[]){"echo", "hello", "world", "'>'", "file", "<", "file2", NULL};
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 8);
+	free(input);
+	arr_free(tokens);
+}

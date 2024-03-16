@@ -163,3 +163,51 @@ void	test_assert_simplify_two() {
 	arr_free(shell->env);
 	free(shell);
 }
+
+void	test_assert_shell_redir_one() {
+	t_shell	*shell = support_clean_env((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL});
+	shell->token = tokenize(shell, "ls <cmd1 > cmd2 >> cmd3");
+	t_arg	*arg = shell->token->cmd_args;
+	t_arg	expected[5] = {
+		{.elem = strdup("ls"), .type = STRING, .redir = NO_REDIR},
+		{.elem = strdup("cmd1"), .type = REDIR, .redir = INPUT_REDIR},
+		{.elem = strdup("cmd2"), .type = REDIR, .redir = OUTPUT_REDIR},
+		{.elem = strdup("cmd3"), .type = REDIR, .redir = APPEND},
+	};
+	TEST_ASSERT_EQUAL(true, shell->token->has_redir);
+	for (int i = 0; i < 5; i++)
+	{
+		TEST_ASSERT_EQUAL_STRING(expected[i].elem, arg[i].elem);
+		TEST_ASSERT_EQUAL_INT(expected[i].type, arg[i].type);
+		TEST_ASSERT_EQUAL_INT(expected[i].redir, arg[i].redir);
+		free(expected[i].elem);
+	}
+	destroy_all_tokens(shell);
+	arr_free(shell->env);
+	free(shell);
+}
+
+void	test_assert_shell_no_redir_one() {
+	t_shell	*shell = support_clean_env((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL});
+	shell->token = tokenize(shell, "echo hello world '>' \">file\" file2");
+	t_arg	*arg = shell->token->cmd_args;
+	t_arg	expected[7] = {
+		{.elem = strdup("echo"), .type = STRING, .redir = NO_REDIR},
+		{.elem = strdup("hello"), .type = STRING, .redir = NO_REDIR},
+		{.elem = strdup("world"), .type = STRING, .redir = NO_REDIR},
+		{.elem = strdup(">"), .type = STRING, .redir = NO_REDIR},
+		{.elem = strdup(">file"), .type = STRING, .redir = NO_REDIR},
+		{.elem = strdup("file2"), .type = STRING, .redir = NO_REDIR},
+	};
+	TEST_ASSERT_EQUAL(false, shell->token->has_redir);
+	for (int i = 0; i < 7; i++)
+	{
+		TEST_ASSERT_EQUAL_STRING(expected[i].elem, arg[i].elem);
+		TEST_ASSERT_EQUAL_INT(expected[i].type, arg[i].type);
+		TEST_ASSERT_EQUAL_INT(expected[i].redir, arg[i].redir);
+		free(expected[i].elem);
+	}
+	destroy_all_tokens(shell);
+	arr_free(shell->env);
+	free(shell);
+}
