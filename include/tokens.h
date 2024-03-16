@@ -21,10 +21,8 @@ enum e_redir
 enum e_arg
 {
 	STRING,
-	REDIR,//this could prove useful
-	// REDIR_WORD,
-	REDIR_REMOVED,// remove current t_arg and set to next t_arg
-	// (should be REDIR_WORD) - later removed
+	REDIR,
+	REDIR_REMOVED,
 };
 
 typedef struct s_arg
@@ -36,7 +34,7 @@ typedef struct s_arg
 
 struct s_token
 {
-	t_arg	*cmd_args;// keep attributes in execution (i.e. redirs), cmd_args[0] is the first token/command (not pipe)
+	t_arg	*cmd_args;
 	bool	has_redir;
 	char	*split_pipes;
 	char	**tmp_arr;
