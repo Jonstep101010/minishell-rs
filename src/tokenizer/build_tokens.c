@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stddef.h>
 #include <sys/param.h>
 #include "arr_utils.h"
@@ -9,6 +10,10 @@
 #include "environment.h"
 #include "struct.h"
 #include "parser.h"
+
+void	rm_prefix_redir_word(t_arg *arg);
+void	parse_redir_types(t_arg *arg);
+enum e_redir	check_redirections(t_arg *cmd_args);
 
 static void	*setup_token(t_token *token)
 {
@@ -26,30 +31,6 @@ static void	*setup_token(t_token *token)
 	if (!token->cmd_args)
 		return (NULL);
 	return (token);
-}
-
-static void	set_arg_attributes(t_arg *cmd_arg)
-{
-	int		quote;
-	char	*tmp;
-
-	quote = 0;
-	if (str_cchr(cmd_arg->elem, '\'') == 0
-		&& str_cchr(cmd_arg->elem, '"') == 0)
-		cmd_arg->quote = NONE;
-	else if (str_cchr(cmd_arg->elem, '"'))
-		cmd_arg->quote = DOUBLE;
-	else if (str_cchr(cmd_arg->elem, '\''))
-		cmd_arg->quote = SINGLE;
-	if (cmd_arg->quote != NONE)
-	{
-		tmp = do_quote_bs(cmd_arg->elem, &quote);
-		if (!tmp)
-			return ;
-		free(cmd_arg->elem);
-		cmd_arg->elem = tmp;
-	}
-	cmd_arg->type = STRING;
 }
 
 static void	*expand_if_allowed(t_token *token, size_t ii, char *const *env)
@@ -74,6 +55,24 @@ static void	*expand_if_allowed(t_token *token, size_t ii, char *const *env)
 	return (token);
 }
 
+static void	rm_quotes(t_arg *cmd_arg)
+{
+	char	*tmp;
+	int		quote;
+	int		i;
+
+	quote = 0;
+	i = -1;
+	while (cmd_arg[++i].elem)
+	{
+		tmp = do_quote_bs(cmd_arg[i].elem, &quote);
+		if (!tmp)
+			return ;
+		free(cmd_arg[i].elem);
+		cmd_arg[i].elem = tmp;
+	}
+}
+
 static void	*inner_loop(t_token *token, char *const *env)
 {
 	size_t	ii;
@@ -86,19 +85,27 @@ static void	*inner_loop(t_token *token, char *const *env)
 		if (!expand_if_allowed(token, ii, env))
 			return (NULL);
 		set_cmd_func(token);
-		set_arg_attributes(&token->cmd_args[ii]);
 		ii++;
 	}
+	if (check_redirections(token->cmd_args))
+	{
+		token->has_redir = true;
+		parse_redir_types(token->cmd_args);
+		rm_prefix_redir_word(token->cmd_args);
+	}
+	rm_quotes(token->cmd_args);
 	return (token);
 }
 
-void	convert_split_token_string_array_to_tokens(t_shell *shell)
+void	*tokenize(t_shell *shell, char const *trimmed_line)
 {
 	size_t	i;
 
 	i = 0;
-	if (!shell->token || !shell->token[i].split_pipes)
-		return ;
+	shell->token = get_tokens(trimmed_line);
+	if (!shell->token || !shell->token->split_pipes
+			|| !shell->token->split_pipes[0])
+		return (eprint("alloc fail"), NULL);
 	while (shell->token[i].split_pipes)
 	{
 		setup_token(&shell->token[i]);
@@ -106,4 +113,5 @@ void	convert_split_token_string_array_to_tokens(t_shell *shell)
 		free(shell->token[i].tmp_arr);
 		i++;
 	}
+	return (shell->token);
 }

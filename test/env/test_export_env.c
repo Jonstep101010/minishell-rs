@@ -1,4 +1,3 @@
-// @audit fix these before merge into dev
 #include "unity.h"
 
 #include "support_tokens.c"
@@ -6,7 +5,7 @@
 #include "support_msh.c"
 
 void	test_replace_key() {
-	t_shell	*shell = support_test_tokens("", (char *[]){"something=wrong", "this=false", "some=none", NULL});
+	t_shell	*shell = support_test_tokens((char *[]){"something=wrong", "this=false", "some=none", NULL});
 	export_env(shell, ft_strdup("this=correct"));
 	char	*expected = "this=correct";
 	TEST_ASSERT_EQUAL_STRING(expected, shell->env[1]);
@@ -14,9 +13,8 @@ void	test_replace_key() {
 }
 
 void	test_replace_key_two() {
-	t_shell	*shell = support_test_tokens("export this= correct", (char *[]){"something=wrong", "this=false", "some=none", NULL});
-	add_pipes_as_tokens(shell);
-	convert_split_token_string_array_to_tokens(shell);
+	t_shell	*shell = support_test_tokens((char *[]){"something=wrong", "this=false", "some=none", NULL});
+	tokenize(shell, "export this= correct");
 	convert_tokens_to_string_array(shell->token);
 	TEST_ASSERT_EQUAL_STRING("export", shell->token[0].cmd_args[0].elem);
 	TEST_ASSERT_EQUAL_STRING("this=", shell->token[0].cmd_args[1].elem);
@@ -27,9 +25,8 @@ void	test_replace_key_two() {
 }
 
 void	test_export_invalid_name_one() {
-	t_shell	*shell = support_test_tokens("export th@is= correct", (char *[]){"something=wrong", "this=false", "some=none", NULL});
-	add_pipes_as_tokens(shell);
-	convert_split_token_string_array_to_tokens(shell);
+	t_shell	*shell = support_test_tokens((char *[]){"something=wrong", "this=false", "some=none", NULL});
+	tokenize(shell, "export th@is= correct");
 	convert_tokens_to_string_array(shell->token);
 	TEST_ASSERT_EQUAL_STRING("export", shell->token[0].cmd_args[0].elem);
 	TEST_ASSERT_EQUAL_STRING("th@is=", shell->token[0].cmd_args[1].elem);
@@ -40,9 +37,8 @@ void	test_export_invalid_name_one() {
 }
 
 void	test_export_invalid_name_two() {
-	t_shell	*shell = support_test_tokens("export this==correct", (char *[]){"something=wrong", "this=false", "some=none", NULL});
-	add_pipes_as_tokens(shell);
-	convert_split_token_string_array_to_tokens(shell);
+	t_shell	*shell = support_test_tokens((char *[]){"something=wrong", "this=false", "some=none", NULL});
+	tokenize(shell, "export this==correct");
 	convert_tokens_to_string_array(shell->token);
 	TEST_ASSERT_EQUAL_STRING("this==correct", shell->token[0].cmd_args[1].elem);
 	TEST_ASSERT_EQUAL_INT(1, builtin_export(shell, shell->token));
@@ -51,9 +47,8 @@ void	test_export_invalid_name_two() {
 }
 
 void	test_export_valid_name() {
-	t_shell	*shell = support_test_tokens("export this=correct that=false", (char *[]){"something=wrong", "this=false", "some=none", NULL});
-	add_pipes_as_tokens(shell);
-	convert_split_token_string_array_to_tokens(shell);
+	t_shell	*shell = support_test_tokens((char *[]){"something=wrong", "this=false", "some=none", NULL});
+	tokenize(shell, "export this=correct that=false");
 	convert_tokens_to_string_array(shell->token);
 	TEST_ASSERT_EQUAL_STRING("this=correct", shell->token[0].cmd_args[1].elem);
 	TEST_ASSERT_EQUAL_STRING("that=false", shell->token[0].cmd_args[2].elem);
@@ -102,16 +97,16 @@ void	test_replace_using_update_null() {
 	free(new);
 }
 
-// we can only see if the printing from the function is correct:
-// minishell: fatal: invalid memory!
-// void	test_export_with_invalid_env() {
-// 	t_shell	*shell = support_test_tokens("export this=correct that=false", (char *[]){"something=wrong", "this=false", "some=none", NULL});
-// 	add_pipes_as_tokens(shell);
-// 	convert_split_token_string_array_to_tokens(shell);
-// 	convert_tokens_to_string_array(shell->token);
-// 	TEST_ASSERT_EQUAL_STRING("this=correct", shell->token[0].cmd_args[1].elem);
-// 	TEST_ASSERT_EQUAL_STRING("that=false", shell->token[0].cmd_args[2].elem);
-// 	arr_free(shell->env);
-// 	shell->env = NULL;
-// 	export(shell, shell->token);
-// }
+// // we can only see if the printing from the function is correct:
+// // minishell: fatal: invalid memory!
+// // void	test_export_with_invalid_env() {
+// // 	t_shell	*shell = support_test_tokens("export this=correct that=false", (char *[]){"something=wrong", "this=false", "some=none", NULL});
+// //
+// // 	tokenize(shell);
+// // 	convert_tokens_to_string_array(shell->token);
+// // 	TEST_ASSERT_EQUAL_STRING("this=correct", shell->token[0].cmd_args[1].elem);
+// // 	TEST_ASSERT_EQUAL_STRING("that=false", shell->token[0].cmd_args[2].elem);
+// // 	arr_free(shell->env);
+// // 	shell->env = NULL;
+// // 	export(shell, shell->token);
+// // }

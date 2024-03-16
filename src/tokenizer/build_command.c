@@ -2,8 +2,7 @@
 #include "utils.h"
 #include "arr_utils.h"
 #include <stdio.h>
-#include "struct.h"
-#include "commands.h"
+#include "libft.h"
 
 void	convert_tokens_to_string_array(t_token *token)
 {
@@ -34,28 +33,26 @@ void	convert_tokens_to_string_array(t_token *token)
 	}
 }
 
-void	add_pipes_as_tokens(t_shell *shell)
+// splits into split_pipes, removes whitespace and assigns to tokens
+t_token	*get_tokens(char const *trimmed_line)
 {
 	size_t	i;
-	size_t	len;
-	char	**tmp_arr;
+	char	**split_pipes;
+	t_token	*token;
 
-	shell->split_pipes = split_outside_quotes(shell->trimmed_line, "|");
-	if (!shell->split_pipes)
-		builtin_exit(shell, NULL);
-	tmp_arr = arr_trim(shell->split_pipes, WHITESPACE);
-	if (!tmp_arr)
-		builtin_exit(shell, NULL);
-	arr_free(shell->split_pipes);
-	shell->split_pipes = tmp_arr;
-	len = arr_len(shell->split_pipes);
-	shell->token = init_token(len);
-	if (!shell->token)
-		builtin_exit(shell, NULL);
-	i = 0;
-	while (i <= len)
+	split_pipes = split_outside_quotes(trimmed_line, "|");
+	if (!split_pipes)
+		return (eprint("alloc fail!"), NULL);
+	token = init_token(arr_len(split_pipes));
+	if (!token)
 	{
-		shell->token[i].split_pipes = shell->split_pipes[i];
-		i++;
+		eprint("alloc fail token");
+		arr_free(split_pipes);
+		return (NULL);
 	}
+	i = -1;
+	while (split_pipes[++i])
+		token[i].split_pipes = ft_strtrim(split_pipes[i], WHITESPACE);
+	arr_free(split_pipes);
+	return (token);
 }

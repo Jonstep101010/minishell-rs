@@ -4,13 +4,10 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include "minishell.h"
-#include "arr_utils.h"
-#ifndef TEST
+#include "tokens.h"
+#include <sys/wait.h>
 
-# include "tokens.h"
-# include <sys/wait.h>
-
-t_lexer	lexer_checks_basic(char *s);
+t_lexer	lexer_checks_basic(const char *s);
 void	builtin_exit(t_shell *shell, t_token *token);
 
 static int	lex_error(t_lexer code)
@@ -26,23 +23,19 @@ static int	lex_error(t_lexer code)
 	return (0);
 }
 
-t_lexer	lexer(t_shell *shell)
+t_lexer	lexer(t_shell *shell, const char *trimmed_line)
 {
 	t_lexer	code;
 
-	code = lexer_checks_basic(shell->trimmed_line);
+	code = lexer_checks_basic(trimmed_line);
 	if (code != LEXER_SUCCESS)
 	{
 		update_exit_status(shell, lex_error(code));
 		return (code);
 	}
-	add_pipes_as_tokens(shell);
-	if (!shell->token->split_pipes)
-		return (arr_free(shell->split_pipes), LEXER_NULL);
-	convert_split_token_string_array_to_tokens(shell);
+	if (!tokenize(shell, trimmed_line))
+		return (LEXER_NULL);
 	if (!shell->token->cmd_args)
 		return (destroy_all_tokens(shell), LEXER_NULL);
-	arr_free(shell->split_pipes);
 	return (LEXER_SUCCESS);
 }
-#endif
