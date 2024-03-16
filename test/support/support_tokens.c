@@ -3,11 +3,13 @@
 #include "struct.h"
 #include "init.c"
 #include "support_lib.c"
+#include "memsize.c"
 #include "destroy_tokens.c"
 #include "support_commands.c"
 #include "build_command.c"
 #include "token_utils.c"
 #include "build_tokens.c"
+#include "redirection_utils.c"
 #include <stdlib.h>
 
 t_shell	*support_test_tokens(char *envp[])
