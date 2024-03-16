@@ -21,9 +21,8 @@ LDFLAGS = ./include/libgnl/libgnl.a ./include/libftprintf/libftprintf.a ./includ
 # ---------------------------------------------------------------------------- #
 
 SRCS = $(addprefix src/builtins/, execute_commands.c builtin_cd.c builtin_echo.c builtin_env.c builtin_exit.c builtin_export.c builtin_pwd.c builtin_unset.c) \
-    $(addprefix src/environment/, export_env.c get_env.c get_index.c check_key.c) \
+    $(addprefix src/environment/, export_env.c get_env.c get_index.c check_key.c expander.c) \
     $(addprefix src/executor/, execution.c executils.c) \
-	$(addprefix src/expander/, expand_var.c expand_variables.c expander.c) \
     $(addprefix src/lexer/, check_pipes.c check_quotes.c checks_basic.c lexer_support.c lexer.c) \
     $(addprefix src/parser/, interpret_quotes.c parser.c split_outside_quotes.c) \
     $(addprefix src/signals/, signals.c) \
@@ -52,12 +51,14 @@ all: $(TARGET) $(LIBS)
 ceedling:
 	ceedling release
 
-MEMCHECK_PARAMS = rm -f valgrind.log; valgrind --leak-check=full --track-origins=yes -s --log-file=valgrind.log 
+MEMCHECK_PARAMS = valgrind --leak-check=full --track-origins=yes -s --log-file=valgrind.log 
 EXEC_PATH = ./build/release/$(NAME)
 
 memcheck: ceedling
+	rm -f valgrind.log
 	$(MEMCHECK_PARAMS) $(EXEC_PATH)
 memcheck-all: ceedling
+	rm -f valgrind.log
 	$(MEMCHECK_PARAMS) --show-leak-kinds=all $(EXEC_PATH)
 
 # ---------------------------------------------------------------------------- #
@@ -89,6 +90,6 @@ re: fclean
 memtest:
 	rm -rf build
 	ceedling test:$(TEST)
-	$(MEMCHECK_PARAMS) ./build/test/out/test_$(TEST).out
+	valgrind --leak-check=full --track-origins=yes -s --log-file=valgrind.log ./build/test/out/test_$(TEST).out
 
 .PHONY: memtest

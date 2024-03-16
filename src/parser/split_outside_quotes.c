@@ -51,11 +51,10 @@ static char	**split_iterator(const char *to_split,
 			split->quote = trim[split->i];
 		else if (split->quote && trim[split->i] == split->quote)
 			split->quote = 0;
-		else if (!split->quote && is_in_set(trim[split->i], set)
+		if (!split->quote && is_in_set(trim[split->i], set)
 			&& !splitter(split, trim, set))
 			return (free(split), NULL);
-		else
-			split->token_end = split->i;
+		split->token_end = split->i;
 		split->i++;
 	}
 	ret = append_str_arr_free(split->ret,
