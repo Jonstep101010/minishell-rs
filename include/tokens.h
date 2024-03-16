@@ -21,7 +21,7 @@ enum e_arg
 {
 	STRING,
 	REDIR,//this could prove useful
-	REDIR_WORD,
+	// REDIR_WORD,
 	REDIR_REMOVED,// remove current t_arg and set to next t_arg
 	// (should be REDIR_WORD) - later removed
 };

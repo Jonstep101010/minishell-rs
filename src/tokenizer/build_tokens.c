@@ -95,15 +95,8 @@ static void	*inner_loop(t_token *token, char *const *env)
 	}
 	if (check_redirections(&token->cmd_args[0]))
 	{
-		size_t	tmp = 0;
 		parse_redir_types(&token->cmd_args[0]);
 		rm_prefix_redir_word(&token->cmd_args[0]);
-		while (token->cmd_args[tmp].elem)
-		{
-			if (token->cmd_args[tmp].type == REDIR_WORD)
-				token->cmd_args[tmp].type = REDIR;
-			tmp++;
-		}
 	}
 	return (token);
 }
