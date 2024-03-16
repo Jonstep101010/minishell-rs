@@ -1,6 +1,7 @@
 #ifndef TOKENS_H
 # define TOKENS_H
 # include <stddef.h>
+# include <stdbool.h>
 typedef struct s_token	t_token;
 typedef struct s_shell	t_shell;
 
@@ -36,6 +37,7 @@ typedef struct s_arg
 struct s_token
 {
 	t_arg	*cmd_args;// keep attributes in execution (i.e. redirs), cmd_args[0] is the first token/command (not pipe)
+	bool	has_redir;
 	char	*split_pipes;
 	char	**tmp_arr;
 	char	**command;// for execution (each token has the command)

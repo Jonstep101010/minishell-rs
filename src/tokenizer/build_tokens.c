@@ -89,6 +89,7 @@ static void	*inner_loop(t_token *token, char *const *env)
 	}
 	if (check_redirections(token->cmd_args))
 	{
+		token->has_redir = true;
 		parse_redir_types(token->cmd_args);
 		rm_prefix_redir_word(token->cmd_args);
 	}

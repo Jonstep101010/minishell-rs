@@ -31,6 +31,9 @@ t_arg	*init_cmdargs(size_t size)
 	args = ft_calloc(sizeof(t_arg), (size + 1));
 	if (!args)
 		return (NULL);
+	args[size].elem = NULL;
+	args[size].redir = NO_REDIR;
+	args[size].type = STRING;
 	return (args);
 }
 
@@ -46,5 +49,6 @@ t_token	*init_token(size_t size)
 	token[size].command = NULL;
 	token[size].split_pipes = NULL;
 	token[size].cmd_func = NULL;
+	token[size].has_redir = false;
 	return (token);
 }

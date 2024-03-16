@@ -84,8 +84,6 @@ enum e_redir	check_redirections(t_arg *cmd_args)
 	redir = false;
 	while (cmd_args[ii].elem)
 	{
-		cmd_args[ii].redir = NO_REDIR;
-		cmd_args[ii].type = STRING;
 		if (ft_strncmp(cmd_args[ii].elem, ">>", 2) == 0)
 			cmd_args[ii].redir = APPEND;
 		else if (ft_strncmp(cmd_args[ii].elem, ">", 1) == 0)
