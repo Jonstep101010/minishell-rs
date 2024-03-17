@@ -51,8 +51,8 @@ int		builtin_exit(t_shell *shell, t_token *code_nullable)
 		if (!check_exit_code(code_nullable))
 			return (1);
 		exit_code = ft_atol(code_nullable->command[1]);
-		eprint_single("exit\n", exit_code);
 	}
+	eprint_single("exit\n", exit_code);
 	if (shell->env)
 		arr_free(shell->env);
 	destroy_all_tokens(shell);
