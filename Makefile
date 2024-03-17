@@ -25,8 +25,8 @@ SRCS = $(addprefix src/builtins/, execute_commands.c builtin_cd.c builtin_echo.c
     $(addprefix src/lexer/, check_pipes.c check_quotes.c checks_basic.c lexer_support.c lexer.c) \
     $(addprefix src/parser/, interpret_quotes.c parser.c split_outside_quotes.c) \
     $(addprefix src/signals/, signals.c) \
-    $(addprefix src/tokenizer/, build_command.c build_tokens.c destroy_tokens.c token_utils.c) \
-    $(addprefix src/utils/, arr_utils.c bool_array.c error.c free_strjoin.c free_strjoin_utils.c print_arr_sep.c str_equal.c while_string_wrapper.c) \
+    $(addprefix src/tokenizer/, build_command.c build_tokens.c destroy_tokens.c token_utils.c redirection_utils.c) \
+    $(addprefix src/utils/, arr_utils.c bool_array.c error.c free_strjoin.c free_strjoin_utils.c print_arr_sep.c str_equal.c while_string_wrapper.c memsize.c) \
     src/init.c src/main.c
 OBJS = $(SRCS:.c=.o)
 
