@@ -9,7 +9,13 @@
 # include "get_index.c"
 # include "check_key.c"
 # include "get_env.c"
-# include "execute_commands.c"
+// mock function to avoid dependencies for testing
+int	not_builtin(t_shell *shell, t_token *token)
+{
+	(void)shell;
+	(void)token;
+	return (0);
+}
 # include "builtin_exit.c"
 # include "export_env.c"
 # include "error.c"
