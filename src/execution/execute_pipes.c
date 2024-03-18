@@ -27,15 +27,22 @@ static void	close_pipe_fds(int **pipes, int token_count)
 	}
 }
 
+void	do_redirections(t_token *token);
+
 static void	exec_child(t_shell *shell, int i, int **pipes, int token_count)
 {
-	// do redirections
 	if (i != 0)
 		dup2(pipes[i - 1][0], STDIN_FILENO);
 	if (i != token_count - 1)
 		dup2(pipes[i][1], STDOUT_FILENO);
+	if (shell->token[i].has_redir)
+	{
+		// do heredocs
+		do_redirections(&shell->token[i]);
+	}
 	close_pipe_fds(pipes, token_count);
 	convert_tokens_to_string_array(&shell->token[i]);
+	print_arr(shell->token[i].command);
 	if (!shell->token[i].command)
 		return ;
 	if (shell->token[i].cmd_func != not_builtin)
@@ -61,13 +68,13 @@ void	do_redirections(t_token *token)
 	{
 		if (token->cmd_args[i].type == REDIR)
 		{
+			printf("redir elem: %s\n", token->cmd_args[i].elem);
 			fd = -1;
 			if (token->cmd_args[i].redir == INPUT_REDIR)
 				fd = open(token->cmd_args[i].elem, O_RDONLY);
 			else if (token->cmd_args[i].redir == OUTPUT_REDIR)
 			{
 				fd = open(token->cmd_args[i].elem, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-				printf("fd: %d\n", fd);
 			}
 			else if (token->cmd_args[i].redir == APPEND)
 				fd = open(token->cmd_args[i].elem, O_WRONLY | O_CREAT | O_APPEND, 0644);
@@ -96,17 +103,12 @@ void	execute_pipes(t_shell *shell, int **pipes, int token_count)
 		if (pid == -1)
 			eprint("fork %s\n", strerror(errno));
 		if (pid == 0)
-		{
-			if (shell->token[i].has_redir)
-			{
-				// do heredocs
-				do_redirections(&shell->token[i]);
-			}
 			exec_child(shell, i, pipes, token_count);
-		}
 	}
 	close_pipe_fds(pipes, token_count);
 	waitpid(pid, &status, 0);
+	while (wait(NULL) > 0)
+		;
 	if (WIFEXITED(status))
 		shell->exit_status = WEXITSTATUS(status);
 	i = -1;
