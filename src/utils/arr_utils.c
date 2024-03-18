@@ -3,37 +3,6 @@
 #include "utils.h"
 #include "arr_utils.h"
 
-char	**append_str_arr(const char **arr, const char *s)
-{
-	size_t	len;
-	size_t	i;
-	char	**ret;
-
-	if (!s)
-		return (NULL);
-	len = arr_len((const char **)arr);
-	ret = (char **) ft_calloc(len + 2, sizeof(char *));
-	if (!ret)
-		return (NULL);// leave original array intact
-	i = 0;
-	while (arr && arr[i] && i <= len)
-	{
-		ret[i] = ft_strdup(arr[i]);// duplicate instead
-		if (!ret[i])
-		{
-			arr_free(ret);
-			return (NULL);
-		}
-		i++;
-	}
-	ret[i] = ft_strdup(s);
-	if (!ret[i])
-		return (arr_free(ret), NULL);
-	// printf("%zu(len)", len + 2);
-	// print_arr_sep(ret, '{', '}');
-	return (ret);
-}
-
 // @follow-up @audit-info this can only find the exact string, might need something that enables find and replace
 void	rm_str_arr(char **arr, const char *s)
 {
@@ -43,10 +12,10 @@ void	rm_str_arr(char **arr, const char *s)
 	if (!arr || !s)
 		return ;
 	i = 0;
-	len = arr_len((const char **)arr);
+	len = arr_len(arr);
 	while (arr[i])
 	{
-		if (occurs_exclusively(arr[i], s))
+		if (equal(arr[i], s))
 		{
 			free(arr[i]);
 			while (i < len)
@@ -71,7 +40,7 @@ char	**arr_trim(char **arr, char const *set)
 	if (!set)
 		return (arr);
 	i = 0;
-	len = arr_len((const char **)arr);
+	len = arr_len(arr);
 	ret = malloc(sizeof(char *) * (len + 1));
 	if (!ret)
 		return (NULL);
@@ -84,7 +53,7 @@ char	**arr_trim(char **arr, char const *set)
 	return (ret);
 }
 
-int	arr_ncmp(const char **arr1, const char **arr2, size_t n)
+int	arr_ncmp(char *const *arr1, char *const *arr2, size_t n)
 {
 	size_t	i;
 

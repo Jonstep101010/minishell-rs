@@ -22,6 +22,8 @@
 #include "ft_strncmp.c"
 #include "ft_strnstr.c"
 
+#include "ft_atol.c"
+
 #include "str_cchr.c"
 #include "arr_len.c"
 #include "arr_free.c"
@@ -29,4 +31,11 @@
 
 #include "support_printf.c"
 #include "print_arr.c"
-#include "ft_isspace.c"
+#include "is_something.c"
+#include "append_str.c"
+#include "join_strings.c"
+#include "../../include/libutils/src/utils/free_mem.c"
+#include "free_strjoin.c"
+#include "free_strjoin_utils.c"
+#include "append_char.c"
+#include "secure_strlen.c"

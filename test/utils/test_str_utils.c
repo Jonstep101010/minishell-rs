@@ -1,4 +1,3 @@
-#include "str_utils.c"
 #include "unity.h"
 #include <string.h>
 #include "support_lib.c"

@@ -1,40 +1,4 @@
 NAME		  := minishell
-.DEFAULT_GOAL := ceedling
-
-# --------------------------------- includes --------------------------------- #
-
-# INCS		= ./include \
-# 				./include/libft/include
-
-# LIB			:= ft
-# LIB_FT		:= include/libft/libft.a
-
-# BUILD_DIR	:= .build
-
-# ---------------------------------------------------------------------------- #
-#                                 source files                                 #
-# ---------------------------------------------------------------------------- #
-
-# VPATH		:= src/
-
-# SRC			:= $(NAME).c
-
-# SRCS		:= $(SRC)
-
-# ---------------------------------------------------------------------------- #
-#                             compilation arguments                            #
-# ---------------------------------------------------------------------------- #
-
-# OBJS		:= $(addprefix $(BUILD_DIR)/, $(SRCS:%.c=%.o))
-# DEPS		:= $(OBJS:.o=.d)
-
-# CC			:= clang
-# CFLAGS		?= -g3 -Wall -Wextra -Werror#-Wpedantic
-# CPPFLAGS	:= $(addprefix -I,$(INCS)) -MMD -MP
-# LDFLAGS		= $(addprefix -L, $(dir $(LIB_FT)))
-# LDLIB		:= $(addprefix -l, $(LIB))
-
-MAKEFLAGS	+= --no-print-directory --silent
 
 ifeq ($(uname -s),Darwin)
 DONE		= printf "\033[0;32m\xE2\x9C\x93\033[0m "
@@ -44,62 +8,87 @@ DONE		= printf "\033[0;32m✓\033[0m "
 DONE_NL		= printf "\033[0;32m✓\033[0m\n\n"
 endif
 
+# MAKEFLAGS	+= --no-print-directory --silent
+
+CC = clang
+# ----------------------------- includes/linking ----------------------------- #
+CFLAGS = -Wall -Wextra -Werror -I./include $(shell find ./src -type d | sed 's/^/-I/') $(shell find ./include -name "*.a" -exec dirname {} \; | xargs -I{} find {} -type d | sed 's/^/-I/')
+
+LDFLAGS = ./include/libgnl/libgnl.a ./include/libftprintf/libftprintf.a ./include/libutils/libutils.a ./include/libft/libft.a
+
 # ---------------------------------------------------------------------------- #
-#                             building the program                             #
+#                                 source files                                 #
 # ---------------------------------------------------------------------------- #
-C_LIBFT:
-	cd include/libft && make
-ceedling: C_LIBFT
-	ceedling release
 
-test: C_LIBFT
-	ceedling test:all
-MEMCHECK_PARAMS = ceedling release; valgrind --leak-check=full --track-origins=yes -s --log-file=valgrind.log 
-EXEC_PATH = ./build/release/$(NAME)
-memcheck:
-	$(MEMCHECK_PARAMS) $(EXEC_PATH)
-memcheck-all:
-	$(MEMCHECK_PARAMS) --show-leak-kinds=all $(EXEC_PATH)
-# bonus: all
-# all: $(NAME)
+SRCS = $(addprefix src/builtins/, execute_commands.c builtin_cd.c builtin_echo.c builtin_env.c builtin_exit.c builtin_export.c builtin_pwd.c builtin_unset.c) \
+    $(addprefix src/environment/, export_env.c get_env.c get_index.c check_key.c expander.c) \
+    $(addprefix src/lexer/, check_pipes.c check_quotes.c checks_basic.c lexer_support.c lexer.c) \
+    $(addprefix src/parser/, interpret_quotes.c parser.c split_outside_quotes.c) \
+    $(addprefix src/signals/, signals.c) \
+    $(addprefix src/tokenizer/, build_command.c build_tokens.c destroy_tokens.c token_utils.c redirection_utils.c) \
+    $(addprefix src/utils/, arr_utils.c bool_array.c error.c free_strjoin.c free_strjoin_utils.c print_arr_sep.c str_equal.c while_string_wrapper.c memsize.c) \
+    src/init.c src/main.c
+OBJS = $(SRCS:.c=.o)
 
-# $(LIB_FT):
-# 	$(MAKE) -C $(@D) -B
-
-# $(NAME): $(OBJS) $(LIB_FT)
-# 	$(info creating $(NAME) executable)
-# 	$(CC) $(CFLAGS) $(OBJS) $(LIB_FT) $(CPPFLAGS) $(LDLIB) $(LDFLAGS) -o $(NAME)
-# 	$(DONE_NL)
-
-# $(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)
-# 	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $< && $(DONE)
-# 	echo $(notdir $<)
-# info $($<)
-$(BUILD_DIR):
-	mkdir -p .build
+TARGET = minishell
 
 # ---------------------------------------------------------------------------- #
 #                                     rules                                    #
 # ---------------------------------------------------------------------------- #
 
-clean:
-	$(info Cleaning...)
-	rm -rf include/libft/build/*
+LIBS:
+	$(MAKE) -C ./include/libft
+	$(MAKE) -C ./include/libutils
+	$(MAKE) -C ./include/libgnl
+	$(MAKE) -C ./include/libftprintf
+
+all: $(TARGET) $(LIBS)
+	$(shell mkdir -p build; mv $(OBJS) build)
 	$(DONE_NL)
 
+# ----------------------------- additional rules ----------------------------- #
+ceedling:
+	ceedling release
+
+MEMCHECK_PARAMS = valgrind --leak-check=full --track-origins=yes -s --log-file=valgrind.log 
+EXEC_PATH = ./build/release/$(NAME)
+
+memcheck: ceedling
+	rm -f valgrind.log
+	$(MEMCHECK_PARAMS) $(EXEC_PATH)
+memcheck-all: ceedling
+	rm -f valgrind.log
+	$(MEMCHECK_PARAMS) --show-leak-kinds=all $(EXEC_PATH)
+
+# ---------------------------------------------------------------------------- #
+#                                  compilation                                 #
+# ---------------------------------------------------------------------------- #
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -lreadline -o $@ $^ $(LDFLAGS)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -rf build
+	$(MAKE) -C ./include/libft clean
+	$(MAKE) -C ./include/libutils clean
+	$(MAKE) -C ./include/libgnl clean
+	$(MAKE) -C ./include/libftprintf clean
 fclean: clean
-	rm -rf build/*
+	rm -f $(TARGET)
+	$(MAKE) -C ./include/libft fclean
+	$(MAKE) -C ./include/libutils fclean
+	$(MAKE) -C ./include/libgnl fclean
+	$(MAKE) -C ./include/libftprintf fclean
 
 re: fclean
-	rm -rf include/libft/
-	rm -rf include/libgnl/
-	rm -rf include/libutils/
-	rm -rf include/libftprintf/
 	git submodule update --init
+	$(MAKE)
 
-# ----------------------------- additional rules ----------------------------- #
-run: $(ceedling release)
-	./minishell
-.PHONY: run update upgrade re
-# .SILENT:
--include $(DEPS)
+memtest:
+	rm -rf build
+	ceedling test:$(TEST)
+	valgrind --leak-check=full --track-origins=yes -s --log-file=valgrind.log ./build/test/out/test_$(TEST).out
+
+.PHONY: memtest

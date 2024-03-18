@@ -36,8 +36,8 @@ void	*do_quote_bs(const char *s, int *quote)
 
 bool	interpret_quotes(char **cmd_arr)
 {
-	int	i;
-	int	quote;
+	int		i;
+	int		quote;
 	char	*tmp;
 
 	i = 0;

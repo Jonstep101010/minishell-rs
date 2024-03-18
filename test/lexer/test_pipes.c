@@ -11,14 +11,14 @@
 /* @follow-up anything within balanced quotes */
 void test_pipes_filter_WIP()
 {
-	TEST_ASSERT(lexer_checks_basic("echo \"|\"") == LEXER_SUCCESS);
-	TEST_ASSERT(lexer_checks_basic("echo '|'") == LEXER_SUCCESS);
-	TEST_ASSERT(lexer_checks_basic("\"|\"") == LEXER_SUCCESS);
-	TEST_ASSERT(lexer_checks_basic("'|'") == LEXER_SUCCESS);
-	TEST_ASSERT(lexer_checks_basic("echo \"Hello || World | hello\"") == LEXER_SUCCESS);
-	TEST_ASSERT(lexer_checks_basic("echo Hello | World | hello") == LEXER_SUCCESS);
-	TEST_ASSERT(lexer_checks_basic("echo Hello | World | hello") == LEXER_SUCCESS);
-	TEST_ASSERT(lexer_checks_basic("ls \"||\" grep file '||' wc -l") == LEXER_SUCCESS);
+	TEST_ASSERT_EQUAL(lexer_checks_basic("echo \"|\""), LEXER_SUCCESS);
+	TEST_ASSERT_EQUAL(lexer_checks_basic("echo '|'"), LEXER_SUCCESS);
+	TEST_ASSERT_EQUAL(lexer_checks_basic("\"|\""), LEXER_SUCCESS);
+	TEST_ASSERT_EQUAL(lexer_checks_basic("'|'"), LEXER_SUCCESS);
+	TEST_ASSERT_EQUAL(lexer_checks_basic("echo \"Hello || World | hello\""), LEXER_SUCCESS);
+	TEST_ASSERT_EQUAL(lexer_checks_basic("echo Hello | World | hello"), LEXER_SUCCESS);
+	TEST_ASSERT_EQUAL(lexer_checks_basic("echo Hello | World | hello"), LEXER_SUCCESS);
+	TEST_ASSERT_EQUAL(lexer_checks_basic("ls \"||\" grep file '||' wc -l"), LEXER_SUCCESS);
 	// @audit-info make this an error (no handling)
 	// TEST_ASSERT(lexer_checks_basic("echo |") == LEXER_SUCCESS);
 }
@@ -28,6 +28,7 @@ void test_pipes_filter_fail()
 {
 	TEST_ASSERT(lexer_checks_basic("hello ||") != LEXER_SUCCESS);
 	TEST_ASSERT(lexer_checks_basic("hello |") != LEXER_SUCCESS);
+	TEST_ASSERT_EQUAL(LEXER_PIPES, lexer_checks_basic("hello | hello | hello |"));
 	TEST_ASSERT(lexer_checks_basic("     ||") != LEXER_SUCCESS);
 	TEST_ASSERT(lexer_checks_basic("           |    ") != LEXER_SUCCESS);
 	TEST_ASSERT(lexer_checks_basic("			|    ") != LEXER_SUCCESS);
@@ -56,12 +57,12 @@ void test_pipes_filter_working()
 
 void test_pipes_filter_valid()
 {
-	TEST_ASSERT(lexer_checks_basic("hello | hello") == LEXER_SUCCESS);
+	TEST_ASSERT_EQUAL(lexer_checks_basic("hello | hello"), LEXER_SUCCESS);
 	TEST_ASSERT(lexer_checks_basic("hello|hello") == LEXER_SUCCESS);
 	TEST_ASSERT(lexer_checks_basic("echo Hello | World") == LEXER_SUCCESS);
 	TEST_ASSERT(lexer_checks_basic("ls | grep file | wc -l") == LEXER_SUCCESS);
 	// sometimes works sometimes doesn't @audit
 	TEST_ASSERT(lexer_checks_basic("hello || hello") == LEXER_SUCCESS);
-	TEST_ASSERT(lexer_checks_basic("\n") == LEXER_SUCCESS);
+	TEST_ASSERT_EQUAL(LEXER_SUCCESS, lexer_checks_basic("\n"));
 }
 

@@ -1,62 +1,35 @@
-#include "tokens.h"
 #include "unity.h"
-#include "support_shell.c"
-
-void	*do_quote_bs(const char *s, int *quote)
-{
-	char	*tmp;
-	size_t	len;
-	size_t	tmp_len;
-
-	len = ft_strlen(s);
-	tmp = (char *)ft_calloc(len + 1, sizeof(char));
-	if (!tmp)
-		return (NULL);
-	while (*s)
-	{
-		if (*quote == 0 && (*s == '\'' || *s == '"'))
-			*quote = *s;
-		else if (*quote != 0 && *s == *quote)
-			*quote = 0;
-		else
-		{
-			tmp_len = ft_strlen(tmp);
-			tmp[tmp_len] = *s;
-			tmp[tmp_len + 1] = '\0';
-		}
-		s++;
-	}
-	return (tmp);
-}
+#include "support_lib.c"
+#include "interpret_quotes.c"
 
 void	test_nested_one() {
 	// "'"'"'test'"'"'"
 	// "'"     '"'      test   '"'    "'"
 	// '"test"'
-	t_shell *this = setup_shell("\"'\"'\"'test'\"'\"'\"");
-	int	quote = 0;
-	this->line = do_quote_bs(this->line, &quote);
+	char	*input = "\"'\"'\"'test'\"'\"'\"";
+	char	*line = do_quote_bs(input, &(int){0});
 	char	*expected = "'\"test\"'";
-	TEST_ASSERT_EQUAL_STRING(expected, this->line);
-	clean_shell(this);
+	TEST_ASSERT_EQUAL_STRING(expected, line);
+	free(line);
+}
+
+void	test_nested_one_two() {
 	// "'"test"'" -> "'" test "'"
-	quote = 0;
-	this = setup_shell("\"'\"test\"'\"");
-	this->line = do_quote_bs(this->line, &quote);
+	char	*input = "\"'\"test\"'\"";
+	char	*line = do_quote_bs(input, &(int){0});
 	char	*expected2 = "'test'";
-	TEST_ASSERT_EQUAL_STRING(expected2, this->line);
-	clean_shell(this);
+	TEST_ASSERT_EQUAL_STRING(expected2, line);
+	free(line);
 }
 
 void	test_nested_two() {
 	// echo "'" '"' test "'" '"'
 	// ' " test ' "
-	int	quote = 0;
-	t_shell	*this = setup_shell("echo \"'\" '\"' test \"'\" '\"'");
-	this->line = do_quote_bs(this->line, &quote);
+	char	*input = "echo \"'\" '\"' test \"'\" '\"'";
+	char	*line = do_quote_bs(input, &(int){0});
 	char	*expected = "echo ' \" test ' \"";
-	TEST_ASSERT_EQUAL_STRING(expected, this->line);
-	clean_shell(this);
+	TEST_ASSERT_EQUAL_STRING(expected, line);
+	free(line);
 }
 
 // /* cases:
@@ -79,36 +52,39 @@ void	test_nested_two() {
 // no way to use single quotes to denote single quotes, e.g. '''
 void	test_nested_three() {
 	// echo ''hello'' -> hello
-	t_shell	*this = setup_shell("echo ''test''");
-	int	quote = 0;
+	char	*input = "echo ''test''";
+	char	*line = do_quote_bs(input, &(int){0});
 	char	*expected = "echo test";
-	this->line = do_quote_bs(this->line, &quote);
-	TEST_ASSERT_EQUAL_STRING(expected, this->line);
-	clean_shell(this);
+	TEST_ASSERT_EQUAL_STRING(expected, line);
+	free(line);
+}
+
+void	test_nested_three_two() {
 	// echo ""hello"" -> hello
-	this = setup_shell("echo \"\"test\"\"");
-	quote = 0;
-	this->line = do_quote_bs(this->line, &quote);
-	TEST_ASSERT_EQUAL_STRING(expected, this->line);
-	clean_shell(this);
+	char	*input = "echo \"\"test\"\"";
+	char	*line = do_quote_bs(input, &(int){0});
+	char	*expected = "echo test";
+	TEST_ASSERT_EQUAL_STRING(expected, line);
+	free(line);
 }
 
 // in case of minishell, only expansion is to be considered (no escapes)
 // echo "'hello'" -> 'hello' (sq just characters)
 // echo '"hello"' -> "hello"
 void	test_nested_four() {
-	t_shell	*this = setup_shell("\"'hello'\"");
-	int	quote = 0;
-	this->line = do_quote_bs(this->line, &quote);
+	char	*input = "\"'hello'\"";
+	char	*line = do_quote_bs(input, &(int){0});
 	char	*expected = "'hello'";
-	TEST_ASSERT_EQUAL_STRING(expected, this->line);
-	clean_shell(this);
-	quote = 0;
-	this = setup_shell("'\"hello\"'");
-	this->line = do_quote_bs(this->line, &quote);
-	expected = "\"hello\"";
-	TEST_ASSERT_EQUAL_STRING(expected, this->line);
-	clean_shell(this);
+	TEST_ASSERT_EQUAL_STRING(expected, line);
+	free(line);
+}
+
+void	test_nested_five() {
+	char	*input = "'\"hello\"'";
+	char	*line = do_quote_bs(input, &(int){0});
+	char	*expected = "\"hello\"";
+	TEST_ASSERT_EQUAL_STRING(expected, line);
+	free(line);
 }
 // // echo "$PATH" -> value of path
 // // echo ""'$PATH'"" -> prints $PATH bc singles & ignored ""
@@ -123,52 +99,50 @@ void	test_nested_four() {
 // echo "hello tehre 'hello inside single' "jesus""
 // -> hello tehre 'hello inside single' jesus
 void	test_inside_one() {
-	int	quote = 0;
-	t_shell	*this = setup_shell("echo \"hello tehre 'hello inside single' \"jesus\"\"");
-	this->line = do_quote_bs(this->line, &quote);
+	char	*input = "echo \"hello tehre 'hello inside single' \"jesus\"\"";
+	char	*line = do_quote_bs(input, &(int){0});
 	char	*expected = "echo hello tehre 'hello inside single' jesus";
-	TEST_ASSERT_EQUAL_STRING(expected, this->line);
-	clean_shell(this);
+	TEST_ASSERT_EQUAL_STRING(expected, line);
+	free(line);
 }
 
 void	test_inside_two() {
 	// echo 'hello tehre 'hello inside single' "jesus"'
 	// -> hello tehre hello inside single "jesus"
-	int	quote = 0;
-	t_shell	*this = setup_shell("echo 'hello tehre 'hello inside single' \"jesus\"'");
-	this->line = do_quote_bs(this->line, &quote);
+	char	*input = "echo 'hello tehre 'hello inside single' \"jesus\"'";
+	char	*line = do_quote_bs(input, &(int){0});
 	char	*expected = "echo hello tehre hello inside single \"jesus\"";
-	TEST_ASSERT_EQUAL_STRING(expected, this->line);
-	clean_shell(this);
+	TEST_ASSERT_EQUAL_STRING(expected, line);
+	free(line);
+}
+
+void	test_inside_two_two() {
 	// echo 'hello tehre 'hello inside single' jesus""'
 	// -> hello tehre hello inside single jesus""
-	quote = 0;
-	this = setup_shell("echo 'hello tehre 'hello inside single' jesus\"\"'");
-	this->line = do_quote_bs(this->line, &quote);
-	expected = "echo hello tehre hello inside single jesus\"\"";
-	TEST_ASSERT_EQUAL_STRING(expected, this->line);
-	clean_shell(this);
+	char	*input = "echo 'hello tehre 'hello inside single' jesus\"\"'";
+	char	*line = do_quote_bs(input, &(int){0});
+	char	*expected = "echo hello tehre hello inside single jesus\"\"";
+	TEST_ASSERT_EQUAL_STRING(expected, line);
+	free(line);
 }
 
 void	test_inside_three() {
 	// echo 'hello tehre  'hello inside single' jesus'''
 	// -> hello tehre hello inside single jesus
-	int	quote = 0;
-	t_shell *this = setup_shell("echo 'hello tehre 'hello inside single' jesus'''");
-	this->line = do_quote_bs(this->line, &quote);
+	char	*input = "echo 'hello tehre 'hello inside single' jesus'''";
+	char	*line = do_quote_bs(input, &(int){0});
 	char	*expected = "echo hello tehre hello inside single jesus";
-	TEST_ASSERT_EQUAL_STRING(expected, this->line);
-	clean_shell(this);
+	TEST_ASSERT_EQUAL_STRING(expected, line);
+	free(line);
 }
 
 // should not remove repeating doublequotes inside singles
 void	test_inside_four() {
 	// echo 'hello tehre 'hello inside single' ""jesus""'
 	// -> hello tehre hello inside single ""jesus""
-	int	quote = 0;
-	t_shell *this = setup_shell("echo 'hello tehre 'hello inside single' \"\"jesus\"\"'");
-	this->line = do_quote_bs(this->line, &quote);
+	char 	*input = "echo 'hello tehre 'hello inside single' \"\"jesus\"\"'";
+	char	*line = do_quote_bs(input, &(int){0});
 	char	*expected = "echo hello tehre hello inside single \"\"jesus\"\"";
-	TEST_ASSERT_EQUAL_STRING(expected, this->line);
-	clean_shell(this);
+	TEST_ASSERT_EQUAL_STRING(expected, line);
+	free(line);
 }

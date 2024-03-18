@@ -1,132 +1,117 @@
+#include <assert.h>
 #include <stddef.h>
 #include <sys/param.h>
 #include "arr_utils.h"
+#include "commands.h"
 #include "libft.h"
 #include "tokens.h"
 #include "utils.h"
 #include "libutils.h"
+#include "environment.h"
 #include "struct.h"
-#include "builtins.h"
 #include "parser.h"
 
-void	set_cmd_func(t_token *token);
+void	rm_prefix_redir_word(t_arg *arg);
+void	parse_redir_types(t_arg *arg);
+enum e_redir	check_redirections(t_arg *cmd_args);
 
-t_arg	*init_cmdargs(size_t size)
+static void	*setup_token(t_token *token)
 {
-	t_arg	*args;
+	size_t	len;
 
-	args = ft_calloc(sizeof(t_arg), (size + 1));
-	if (!args)
+	if (!token || !token->split_pipes)
 		return (NULL);
-	return (args);
-}
-
-t_token	*init_token(size_t size)
-{
-	t_token	*token;
-
-	token = ft_calloc(sizeof(t_token), (size + 1));
-	if (!token)
+	token->tmp_arr = split_outside_quotes(token->split_pipes, WHITESPACE);
+	if (!token->tmp_arr)
 		return (NULL);
-	token[size].cmd_args = NULL;
-	token[size].tmp_arr = NULL;
-	token[size].command = NULL;
-	token[size].split_pipes = NULL;
-	token[size].cmd_func = NULL;
+	len = arr_len(token->tmp_arr);
+	if (len == 0)
+		return (NULL);
+	token->cmd_args = init_cmdargs(len);
+	if (!token->cmd_args)
+		return (NULL);
 	return (token);
 }
 
-
-void	add_pipe_split_as_tokens(char **pipe_split, t_shell *shell)
+static void	*expand_if_allowed(t_token *token, size_t ii, char *const *env)
 {
-	size_t	i;
-	size_t	len;
+	char	*tmp;
 
-	if (!pipe_split)
-		return ;
-	len = arr_len((const char **)pipe_split);
-
-	i = 0;
-	shell->token = init_token(len);
-	if (!shell->token)
-		return ;
-	while (i <= len)
+	if (token->cmd_func != builtin_env
+				&& str_cchr(token->cmd_args[ii].elem, '$') != 0)
 	{
-		shell->token[i].split_pipes = pipe_split[i];
-		i++;
+		tmp = expander(token->cmd_args[ii].elem, env);
+		if (!tmp)
+			return (NULL);
+		if (ft_strncmp(tmp, token->cmd_args[ii].elem, MAX(ft_strlen(tmp),
+					ft_strlen(token->cmd_args[ii].elem)) == 0))
+			free(tmp);
+		else
+		{
+			free(token->cmd_args[ii].elem);
+			token->cmd_args[ii].elem = tmp;
+		}
+	}
+	return (token);
+}
+
+static void	rm_quotes(t_arg *cmd_arg)
+{
+	char	*tmp;
+	int		quote;
+	int		i;
+
+	quote = 0;
+	i = -1;
+	while (cmd_arg[++i].elem)
+	{
+		tmp = do_quote_bs(cmd_arg[i].elem, &quote);
+		if (!tmp)
+			return ;
+		free(cmd_arg[i].elem);
+		cmd_arg[i].elem = tmp;
 	}
 }
 
-char	*expander(const char *input, const char **envp);
+static void	*inner_loop(t_token *token, char *const *env)
+{
+	size_t	ii;
 
-// take the token with command string and split it into command and arguments
-// if we find any pipes
-void	convert_split_token_string_array_to_tokens(t_shell *shell)
+	ii = 0;
+	while (token->tmp_arr[ii])
+	{
+		token->cmd_args[ii].elem = token->tmp_arr[ii];
+		set_cmd_func(token);
+		if (!expand_if_allowed(token, ii, env))
+			return (NULL);
+		set_cmd_func(token);
+		ii++;
+	}
+	if (check_redirections(token->cmd_args))
+	{
+		token->has_redir = true;
+		parse_redir_types(token->cmd_args);
+		rm_prefix_redir_word(token->cmd_args);
+	}
+	rm_quotes(token->cmd_args);
+	return (token);
+}
+
+void	*tokenize(t_shell *shell, char const *trimmed_line)
 {
 	size_t	i;
-	size_t	ii;
-	size_t	len;
 
 	i = 0;
-	ii = 0;
-	char	*tmp;
-	if (!shell->token || !shell->token[i].split_pipes)
-		return ;
+	shell->token = get_tokens(trimmed_line);
+	if (!shell->token || !shell->token->split_pipes
+			|| !shell->token->split_pipes[0])
+		return (eprint("alloc fail"), NULL);
 	while (shell->token[i].split_pipes)
 	{
-		// split into command and arguments
-		shell->token[i].tmp_arr = split_outside_quotes(shell->token[i].split_pipes, WHITESPACE);
-		if (!shell->token[i].tmp_arr)
-			return ;
-		len = arr_len((const char **)shell->token[i].tmp_arr);
-		if (len == 0)
-			return ;
-		// create cmd_args with space for the arguments
-		shell->token[i].cmd_args = init_cmdargs(len);
-		if (!shell->token[i].cmd_args)
-			return ;
-		ii = 0;
-		// printf("elem: %s, %d\n", shell->token[i].cmd_args[0].elem, shell->token[i].builtin_info);
-		while (shell->token[i].tmp_arr[ii])
-		{
-			// store the cmd_args in the token
-			shell->token[i].cmd_args[ii].elem = shell->token[i].tmp_arr[ii];
-			if (!shell->token[i].cmd_args[ii].elem)
-				return ;
-			set_cmd_func(&shell->token[i]);
-			// @follow-up add more properties (count?), separate function?
-			if (str_cchr(shell->token[i].cmd_args[ii].elem, '\'') == 0 && str_cchr(shell->token[i].cmd_args[ii].elem, '"') == 0)
-				shell->token[i].cmd_args[ii].quote = NONE;
-			if (str_cchr(shell->token[i].cmd_args[ii].elem, '"'))
-				shell->token[i].cmd_args[ii].quote = DOUBLE;
-			if (str_cchr(shell->token[i].cmd_args[ii].elem, '\''))
-				shell->token[i].cmd_args[ii].quote = SINGLE;
-			tmp = expander(shell->token[i].cmd_args[ii].elem, (const char **)shell->owned_envp);
-			// fprintf(stderr, "tmp in convert: %s\n", tmp);
-			if (!tmp)
-				return ;
-			if (ft_strncmp(tmp, shell->token[i].cmd_args[ii].elem, MAX(ft_strlen(tmp), ft_strlen(shell->token[i].cmd_args[ii].elem))== 0))
-			{
-				// printf("recursive expansion is the same as the original, freeing\n");
-				// printf("reex: %s\n", shell->token[i].cmd_args[ii].elem);
-				free(tmp);
-				break ;
-			}
-			free(shell->token[i].cmd_args[ii].elem);
-			shell->token[i].cmd_args[ii].elem = tmp;
-			int quote = 0;
-			if (shell->token[i].cmd_args[ii].quote != NONE)
-			{
-				tmp = do_quote_bs(shell->token[i].cmd_args[ii].elem, &quote);
-				if (!tmp)
-					return ;
-				free(shell->token[i].cmd_args[ii].elem);
-				shell->token[i].cmd_args[ii].elem = tmp;
-			}
-			shell->token[i].cmd_args[ii].type = STRING; // default type
-			ii++;
-		}
+		setup_token(&shell->token[i]);
+		inner_loop(&shell->token[i], shell->env);
 		free(shell->token[i].tmp_arr);
 		i++;
 	}
+	return (shell->token);
 }

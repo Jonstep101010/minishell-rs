@@ -1,7 +1,7 @@
 #include "unity.h"
 
 #include "arr_utils.c"
-#include "occurs.c"
+#include "str_equal.c"
 #include "support_lib.c"
 #include "utils.h"
 
@@ -9,21 +9,21 @@
 char	**append_once() {
 	char	*tmp[] = {"Hello, ", "World", NULL};
 	char	*expected[] = {"Hello, ", "World", "!", NULL};
-	char	**arr = arr_dup((const char **)tmp);
+	char	**arr = arr_dup(tmp);
 	TEST_ASSERT_NOT_NULL(arr);
 	// print_arr(arr);
 	TEST_ASSERT_NULL(arr[2]);
-	char	**appended = append_str_arr((const char **)arr, "!");
+	char	**appended = append_str_arr(arr, "!");
 
 	// print_arr(arr);
 	arr_free(arr);
 	TEST_ASSERT_NOT_NULL(appended);
 	TEST_ASSERT_NULL(appended[3]);
 	TEST_ASSERT_EQUAL_STRING("!", appended[2]);
-	// char	**expected = arr_dup((const char **)tmp_expected);
+	// char	**expected = arr_dup(tmp_expected);
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, appended, 4);
 
-	TEST_ASSERT_EQUAL(arr_len((const char **)appended), arr_len((const char **)expected));
+	TEST_ASSERT_EQUAL(arr_len(appended), arr_len(expected));
 	return (appended);
 }
 
@@ -34,13 +34,13 @@ void	test_append() {
 	char	*expected[] = {"Hello, ", "World", "!", "my", "precious", NULL};
 
 	TEST_ASSERT_NULL(expected[5]);
-	char	**appended1 = append_str_arr((const char **)arr, "my");
+	char	**appended1 = append_str_arr(arr, "my");
 	TEST_ASSERT_NOT_NULL(appended1);
 	arr_free(arr);
 	TEST_ASSERT_NULL(appended1[4]);
 	print_arr(appended1);
 
-	char	**appended2 = append_str_arr((const char **)appended1, "precious");
+	char	**appended2 = append_str_arr(appended1, "precious");
 	arr_free(appended1);
 	TEST_ASSERT_NULL(appended2[5]);
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, appended2, 6);
@@ -50,23 +50,23 @@ void	test_append() {
 
 void	test_append_after_rm() {
 	char	*tmp[] = {"World", NULL, NULL};
-	char	**arr = append_str_arr((const char **)(tmp), "Yapping");
+	char	**arr = append_str_arr((tmp), "Yapping");
 	TEST_ASSERT_NOT_NULL(arr);
 	char	*expected[] = {"World", "Yapping", NULL, NULL};
 	print_arr(arr);
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, arr, 3);
-	TEST_ASSERT_EQUAL(arr_len((const char **)expected), arr_len((const char **)arr));
+	TEST_ASSERT_EQUAL(arr_len(expected), arr_len(arr));
 	rm_str_arr(arr, "World");
 	rm_str_arr(arr, "Yapping");
 	char	*expected2[] = {NULL, NULL, NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected2, arr, 3);
 
 	TEST_ASSERT_NOT_NULL(arr);
-	char	**appended1 = append_str_arr((const char **)arr, "Hello, ");
+	char	**appended1 = append_str_arr(arr, "Hello, ");
 	arr_free(arr);
 	TEST_ASSERT_NOT_NULL(appended1);
 	TEST_ASSERT_NOT_NULL(appended1[0]);
-	char	**appended2 = append_str_arr((const char **)appended1, "World!");
+	char	**appended2 = append_str_arr(appended1, "World!");
 	TEST_ASSERT_NOT_NULL(appended2);
 	arr_free(appended1);
 
@@ -80,7 +80,7 @@ void	test_create_null() {
 	char	*expected[] = {"Hello", NULL};
 	TEST_ASSERT_NOT_NULL(arr);
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, arr, 2);
-	char	**nullret = append_str_arr((const char **)arr, NULL);
+	char	**nullret = append_str_arr(arr, NULL);
 	TEST_ASSERT_NULL(nullret);
 	arr_free(arr);
 }

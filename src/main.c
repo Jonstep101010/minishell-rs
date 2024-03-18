@@ -12,47 +12,37 @@
 #include "get_next_line.h"
 #include "utils.h"
 #include "commands.h"
-t_lexer lexer(t_shell *shell);
+t_lexer lexer(t_shell *shell, const char *trimmed_line);
 
 void	minishell_loop(t_shell *shell)
 {
+	char	*readline_line;
+	char	*trimmed_line;
+
 	check_signals(&shell->p_termios);
 	while (1)
 	{
-		if (isatty(fileno(stdin)))
+		readline_line = readline("minishell> ");
+		trimmed_line = ft_strtrim(readline_line, WHITESPACE);
+		if (!readline_line || !trimmed_line)
+			builtin_exit(shell, NULL);
+		add_history(trimmed_line);
+		free(readline_line);
+		if (*trimmed_line == '\0' || lexer(shell, trimmed_line) != LEXER_SUCCESS)
 		{
-			shell->line = readline("minishell> ");
-			if (!shell->line)
-				builtin_exit(shell, NULL);
-			if (ft_strlen(shell->line) == 0)
-			{
-				free(shell->line);
-				continue ;
-			}
-			shell->trimmed_line = ft_strtrim(shell->line, WHITESPACE);
-			if (!shell->trimmed_line)
-				builtin_exit(shell, NULL);
-			add_history(shell->trimmed_line);
-			if (*shell->trimmed_line == '\0' || lexer(shell) != LEXER_SUCCESS)
-			{
-				free(shell->line);
-				free(shell->trimmed_line);
-				continue ;
-			}
-			deploy_tokens(shell);
+			free(trimmed_line);
+			continue ;
 		}
-		else
+		free(trimmed_line);
+		if (shell->env && *shell->env && shell->token)
 		{
-			char *line;
-			line = get_next_line(fileno(stdin));
-			shell->line = ft_strtrim(line, "\n");
-			free(line);
+			execute_commands(shell, shell->token);
+			destroy_all_tokens(shell);
 		}
 	}
 }
 
-
-int main(int ac, char **av, const char **envp)
+int main(int ac, char **av, char **envp)
 {
 	t_shell		*shell;
 
@@ -65,21 +55,4 @@ int main(int ac, char **av, const char **envp)
 		return (1);
 	minishell_loop(shell);
 	return (0);
-}
-
-void	deploy_tokens(t_shell *shell)
-{
-	if (shell->owned_envp && *shell->owned_envp)
-	{
-		free(shell->line);
-		free(shell->trimmed_line);
-		if (shell->line && shell->trimmed_line)
-		{
-			if (shell->token && shell->owned_envp)
-			{
-				execute_commands(shell, shell->token);
-				destroy_all_tokens(shell);
-			}
-		}
-	}
 }

@@ -1,6 +1,7 @@
 #include "struct.h"
 #include "tokens.h"
 #include "libft.h"
+#include "libutils.h"
 
 #ifndef TEST_TOKENS_H
 # include "libft.h"
@@ -8,30 +9,13 @@
 # include "arr_utils.h"
 #endif
 
-/**
- * @brief free and set pointer to NULL
- * @warning use address of pointer
- * @param p address of pointer
- */
-void	free_null(void *p)
-{
-	void	**ptr;
-
-	if (!p)
-		return ;
-	ptr = (void **)p;
-	if (*ptr)
-		free(*ptr);
-	*ptr = NULL;
-}
-
 void	destroy_all_tokens(t_shell *shell)
 {
 	t_token	*token;
 	size_t	i;
 	size_t	ii;
 
-	if (!shell->token)
+	if (!shell->token || !(shell->token->split_pipes))
 		return ;
 	token = shell->token;
 	i = 0;
@@ -49,6 +33,7 @@ void	destroy_all_tokens(t_shell *shell)
 		}
 		if (token[i].command)
 			arr_free(token[i].command);
+		free_null(&(token[i].split_pipes));
 		i++;
 	}
 	free_null(&shell->token);
