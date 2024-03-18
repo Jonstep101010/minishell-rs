@@ -20,12 +20,15 @@ void	convert_tokens_to_string_array(t_token *token)
 		tmp = NULL;
 		while (token[i].cmd_args[ii].elem)
 		{
-			token[i].tmp_arr = append_str_arr(tmp,
-					token[i].cmd_args[ii].elem);
-			arr_free(tmp);
-			if (!token[i].tmp_arr)
-				return ((void)printf("something went to shit!\n"));
-			tmp = token[i].tmp_arr;
+			if (token[i].cmd_args[ii].type != REDIR)
+			{
+				token[i].tmp_arr = append_str_arr(tmp,
+						token[i].cmd_args[ii].elem);
+				arr_free(tmp);
+				if (!token[i].tmp_arr)
+					return ((void)printf("something went to shit!\n"));
+				tmp = token[i].tmp_arr;
+			}
 			ii++;
 		}
 		token[i].command = token[i].tmp_arr;

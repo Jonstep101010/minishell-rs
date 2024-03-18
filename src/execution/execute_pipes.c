@@ -3,6 +3,7 @@
 #include "tokens.h"
 #include "utils.h"
 #include <errno.h>
+#include <fcntl.h>
 #include <stdbool.h>
 #include <string.h>
 #include <sys/param.h>
@@ -12,6 +13,7 @@
 #include <stdlib.h>
 #include "libft.h"
 #include "execution.h"
+#include "tokens.h"
 
 static void	close_pipe_fds(int **pipes, int token_count)
 {
@@ -49,6 +51,38 @@ static void	exec_child(t_shell *shell, int i, int **pipes, int token_count)
 		execve_fail(shell, shell->token[i].cmd_args[0].elem);
 }
 
+void	do_redirections(t_token *token)
+{
+	int		fd;
+	int		i;
+
+	i = 0;
+	while (token->cmd_args[i].elem)
+	{
+		if (token->cmd_args[i].type == REDIR)
+		{
+			fd = -1;
+			if (token->cmd_args[i].redir == INPUT_REDIR)
+				fd = open(token->cmd_args[i].elem, O_RDONLY);
+			else if (token->cmd_args[i].redir == OUTPUT_REDIR)
+			{
+				fd = open(token->cmd_args[i].elem, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+				printf("fd: %d\n", fd);
+			}
+			else if (token->cmd_args[i].redir == APPEND)
+				fd = open(token->cmd_args[i].elem, O_WRONLY | O_CREAT | O_APPEND, 0644);
+			if (fd == -1)
+				eprint("open %s\n", strerror(errno));
+			else if (token->cmd_args[i].redir != INPUT_REDIR)
+				dup2(fd, STDOUT_FILENO);
+			else
+				dup2(fd, STDIN_FILENO);
+			close(fd);
+		}
+		i++;
+	}
+}
+
 void	execute_pipes(t_shell *shell, int **pipes, int token_count)
 {
 	int		status;
@@ -58,12 +92,18 @@ void	execute_pipes(t_shell *shell, int **pipes, int token_count)
 	i = -1;
 	while (++i < token_count)
 	{
-		// do heredocs
 		pid = fork();
 		if (pid == -1)
 			eprint("fork %s\n", strerror(errno));
 		if (pid == 0)
+		{
+			if (shell->token[i].has_redir)
+			{
+				// do heredocs
+				do_redirections(&shell->token[i]);
+			}
 			exec_child(shell, i, pipes, token_count);
+		}
 	}
 	close_pipe_fds(pipes, token_count);
 	waitpid(pid, &status, 0);
