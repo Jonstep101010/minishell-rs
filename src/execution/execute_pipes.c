@@ -29,18 +29,38 @@ static void	close_pipe_fds(int **pipes, int token_count)
 	}
 }
 
-void	do_redirections(t_token *token);
+static void	heredoc_loop(char *delim, int fd, char **env)
+{
+	char	*expanded;
+	char	*line;
+
+	expanded = NULL;
+	line = NULL;
+	while (1)
+	{
+		line = readline("> ");
+		if (equal(delim, line) || !line)
+			break ;
+		if (ft_strchr(line, '$'))
+		{
+			expanded = expander(line, env);
+			if (expanded && !equal(expanded, line))
+				ft_putendl_fd(expanded, fd);
+			free(expanded);
+		}
+		else
+			ft_putendl_fd(line, fd);
+		free(line);
+	}
+	free(line);
+}
 
 static void	do_heredocs(t_token *token, const int *target, char **env)
 {
 	int		fd;
 	int		i;
-	char	*line;
 
-	line = NULL;
-	char	*expanded;
 	i = -1;
-	expanded = NULL;
 	while (token->cmd_args[++i].elem)
 	{
 		if (token->cmd_args[i].redir == HEREDOC)
@@ -49,23 +69,7 @@ static void	do_heredocs(t_token *token, const int *target, char **env)
 			fd = open(token->cmd_args[i].elem, O_RDWR | O_CREAT | O_TRUNC, 0644);
 			if (fd == -1)
 				return (eprint("%s", strerror(errno)), exit(1));
-			while (1)
-			{
-				line = readline("> ");
-				if (equal(token->cmd_args[i].elem, line) || !line)
-					break ;
-				if (ft_strchr(line, '$'))
-				{
-					expanded = expander(line, env);
-					if (expanded && !equal(expanded, line))
-						ft_putendl_fd(expanded, fd);
-					free(expanded);
-				}
-				else
-					ft_putendl_fd(line, fd);
-				free(line);
-			}
-			free(line);
+			heredoc_loop(token->cmd_args[i].elem, fd, env);
 			close(fd);
 			fd = open(token->cmd_args[i].elem, O_RDONLY);
 			dup2(fd, *target);
@@ -73,6 +77,8 @@ static void	do_heredocs(t_token *token, const int *target, char **env)
 		}
 	}
 }
+
+void	do_redirections(t_token *token);
 
 static void	exec_child(t_shell *shell, int i, int **pipes, int token_count)
 {
@@ -110,7 +116,7 @@ void	do_redirections(t_token *token)
 		if (token->cmd_args[i].type == REDIR && token->cmd_args[i].redir != HEREDOC)
 		{
 			eprint("redir elem: %s\n", token->cmd_args[i].elem);
-			fd = -1;
+			fd = -2;
 			if (token->cmd_args[i].redir == INPUT_REDIR)
 				fd = open(token->cmd_args[i].elem, O_RDONLY);
 			else if (token->cmd_args[i].redir == OUTPUT_REDIR)
