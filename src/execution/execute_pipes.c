@@ -40,6 +40,7 @@ static void	do_heredocs(t_token *token, const int *target, char **env)
 	line = NULL;
 	char	*expanded;
 	i = -1;
+	expanded = NULL;
 	while (token->cmd_args[++i].elem)
 	{
 		if (token->cmd_args[i].redir == HEREDOC)
@@ -54,10 +55,10 @@ static void	do_heredocs(t_token *token, const int *target, char **env)
 				if (equal(token->cmd_args[i].elem, line) || !line)
 					break ;
 				if (ft_strchr(line, '$'))
-					expanded = expander(line, env);
-				if (expanded)
 				{
-					ft_putendl_fd(expanded, fd);
+					expanded = expander(line, env);
+					if (expanded && !equal(expanded, line))
+						ft_putendl_fd(expanded, fd);
 					free(expanded);
 				}
 				else
