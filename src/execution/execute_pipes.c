@@ -80,8 +80,32 @@ static void	do_heredocs(t_token *token, const int *target, char **env)
 
 void	do_redirections(t_token *token);
 
+static void	heredoc_nopipe(t_token *token, char **env)
+{
+	int		fd;
+	int		i;
+
+	i = -1;
+	while (token->cmd_args[++i].elem)
+	{
+		if (token->cmd_args[i].redir == HEREDOC)
+		{
+			fd = open(token->cmd_args[i].elem, O_RDWR | O_CREAT | O_TRUNC, 0644);
+			if (fd == -1)
+				eprint("%s", strerror(errno)), exit(1);
+			heredoc_loop(token->cmd_args[i].elem, fd, env);
+			close(fd);
+			fd = open(token->cmd_args[i].elem, O_RDONLY);
+			dup2(fd, STDIN_FILENO);
+			close(fd);
+		}
+	}
+}
+
 static void	exec_child(t_shell *shell, int i, int **pipes, int token_count)
 {
+	if (shell->token[i].has_redir && i == 0)
+		heredoc_nopipe(&shell->token[i], shell->env);
 	if (i != 0)
 		dup2(pipes[i - 1][0], STDIN_FILENO);
 	if (i != token_count - 1)
