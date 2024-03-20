@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stddef.h>
 #include <sys/param.h>
 #include "arr_utils.h"
@@ -81,10 +80,8 @@ static void	*inner_loop(t_token *token, char *const *env)
 	while (token->tmp_arr[ii])
 	{
 		token->cmd_args[ii].elem = token->tmp_arr[ii];
-		set_cmd_func(token);
 		if (!expand_if_allowed(token, ii, env))
 			return (NULL);
-		set_cmd_func(token);
 		ii++;
 	}
 	if (check_redirections(token->cmd_args))
@@ -94,6 +91,12 @@ static void	*inner_loop(t_token *token, char *const *env)
 		rm_prefix_redir_word(token->cmd_args);
 	}
 	rm_quotes(token->cmd_args);
+	ii = -1;
+	while (++ii && token->has_redir && token->cmd_args[ii].elem)
+		if (token->cmd_args[ii].redir == NO_REDIR)
+			break ;
+	set_cmd_func(token->cmd_args[ii].elem, token);
+	eprint("token->cmd_func: %s", token->cmd_args[ii].elem);
 	return (token);
 }
 

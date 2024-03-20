@@ -43,7 +43,7 @@ struct s_token
 	int		(*cmd_func)(t_shell *, t_token *);
 };
 
-void	set_cmd_func(t_token *token);
+void	set_cmd_func(const char *cmd, t_token *token);
 
 t_token	*get_tokens(char const *trimmed_line);
 void	*tokenize(t_shell *shell, char const *trimmed_line);

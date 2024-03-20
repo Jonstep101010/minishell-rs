@@ -4,15 +4,14 @@
 #include "commands.h"
 #include "libft.h"
 
-void	set_cmd_func(t_token *token)
+void	set_cmd_func(const char *cmd, t_token *token)
 {
 	uint8_t	i;
 
 	i = 0;
 	while (g_cmds[i].name)
 	{
-		if (equal(
-				token->cmd_args[0].elem, g_cmds[i].name))
+		if (equal(cmd, g_cmds[i].name))
 		{
 			token->cmd_func = g_cmds[i].cmd;
 			return ;
