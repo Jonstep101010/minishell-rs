@@ -80,8 +80,6 @@ static bool	pipes_valid(const char *s, const int pipes)
 			return (two_pipes_valid(s, i));
 		while_i(s, ft_isspace, 1, &i);
 		count -= while_is_i(s, '|', &i);
-		if (count > 2)
-			return (false);
 		while (s[i])
 		{
 			if (ft_isalnum(s[i]))

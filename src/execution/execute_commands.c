@@ -64,11 +64,14 @@ static void	exec_single_command(t_shell *shell, t_token *token)
 {
 	pid_t	pid;
 	int		status;
+	int		redir_status;
 
 	if (!forkable_builtin(token))
 	{
 		// eprint("not forkable builtin");
-		do_redirections(token);
+		redir_status = do_redirections(token->cmd_args);
+		if (redir_status != 0)
+			return (update_exit_status(shell, redir_status));
 		convert_tokens_to_string_array(token);
 		return (update_exit_status(shell, token->cmd_func(shell, token)));
 	}
@@ -80,11 +83,9 @@ static void	exec_single_command(t_shell *shell, t_token *token)
 	{
 		if (token->has_redir)
 			heredoc_nopipe(token, shell->env);
-		do_redirections(token);
+		exit_free(shell, do_redirections(token->cmd_args));
 		convert_tokens_to_string_array(token);
-		if (!token->command)
-			exit(-1);
-		exit(token->cmd_func(shell, token));
+		exit_free(shell, token->cmd_func(shell, token));
 	}
 	else
 	{
@@ -107,7 +108,6 @@ void	execute_commands(t_shell *shell, t_token *token)
 	{
 		// eprint("single token");
 		exec_single_command(shell, token);
-		update_exit_status(shell, shell->exit_status);
 	}
 	else
 	{

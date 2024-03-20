@@ -2,7 +2,7 @@
 # define EXECUTION_H
 # include "struct.h"
 
-void	do_redirections(t_token *token);
+int		do_redirections(t_arg *cmd_args);
 void	do_heredocs(t_token *token, const int *target, char **env);
 void	heredoc_nopipe(t_token *token, char **env);
 
