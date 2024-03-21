@@ -7,6 +7,7 @@
 #include "error.c"
 #include "arr_utils.c"
 #include "str_equal.c"
+#include "destroy_tokens.c"
 
 void	test_expander() {
 	char	*line = "echo $PAGER";

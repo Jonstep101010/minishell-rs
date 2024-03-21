@@ -18,6 +18,7 @@
 #include "str_equal.c"
 
 #include "split_outside_quotes.c"
+#include "destroy_tokens.c"
 
 void	test_find_leaks() {
 	char	*input = strdup("echo | \"nopipes |\" | echo hello");
