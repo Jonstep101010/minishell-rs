@@ -11,6 +11,8 @@
 #include <unistd.h>
 #include "execution.h"
 
+uint8_t	set_binpath(char *const *env, const char *bin, char **binpath_buf);
+
 /**
  * @brief
  * @audit atm only works for execution of one command (forbidden function)
@@ -20,10 +22,28 @@
  */
 int	not_builtin(t_shell *shell, t_token *token)
 {
-	// implement signals, redirs
-	// find path_to_bin, check for permissions (check for not found)... access, execve fail
-	if (execvp(token->cmd_args[0].elem, token->command) == -1)
-		execve_fail(shell, token->cmd_args[0].elem);
+	// @todo implement signals
+	int	access_status;
+	access_status = set_binpath(shell->env, token->cmd_args[0].elem, &(token->bin));
+	eprint("access_status %d", access_status);
+	if (access_status == 1)
+	{
+		eprint("alloc fail");
+		exit_free(shell, 1);
+	}
+	if (access_status == 126)
+	{
+		eprint("%s: %s", token->cmd_args[0].elem, strerror(errno));
+		exit_free(shell, 126);
+	}
+	if (access_status == 127)
+	{
+		eprint("command not found: %s", token->cmd_args[0].elem);
+		exit_free(shell, 127);
+	}
+	if (execve(token->bin, token->command, shell->env) == -1)
+		execve_fail(shell, token->bin);
+	exit_free(shell, 0);
 	return (0);
 }
 
@@ -73,17 +93,20 @@ static void	exec_single_command(t_shell *shell, t_token *token)
 		if (redir_status != 0)
 			return (update_exit_status(shell, redir_status));
 		convert_tokens_to_string_array(token);
-		return (update_exit_status(shell, token->cmd_func(shell, token)));
+		update_exit_status(shell, token->cmd_func(shell, token));
+		destroy_all_tokens(shell);
+		return ;
 	}
 	// eprint("forkable function");
 	pid = fork();
 	if (pid < 0)
 		return (eprint("fork %s", strerror(errno)));
+	eprint("first elem %s", token->cmd_args[0].elem);
 	if (pid == 0)
 	{
 		if (token->has_redir)
 			heredoc_nopipe(token, shell->env);
-		exit_free(shell, do_redirections(token->cmd_args));
+		do_redirections(token->cmd_args);
 		convert_tokens_to_string_array(token);
 		exit_free(shell, token->cmd_func(shell, token));
 	}
@@ -92,6 +115,7 @@ static void	exec_single_command(t_shell *shell, t_token *token)
 		waitpid(pid, &status, 0);
 		if (WIFEXITED(status))
 			update_exit_status(shell, WEXITSTATUS(status));
+		destroy_all_tokens(shell);
 	}
 }
 

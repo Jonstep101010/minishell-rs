@@ -37,7 +37,6 @@ void	minishell_loop(t_shell *shell)
 		if (shell->env && *shell->env && shell->token)
 		{
 			execute_commands(shell, shell->token);
-			destroy_all_tokens(shell);
 		}
 	}
 }

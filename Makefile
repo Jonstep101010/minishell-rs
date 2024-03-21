@@ -51,11 +51,11 @@ all: $(TARGET) $(LIBS)
 ceedling:
 	ceedling release
 
-MEMCHECK_PARAMS = valgrind --leak-check=full --track-origins=yes --trace-children=yes -s --log-file=valgrind.log 
+MEMCHECK_PARAMS = valgrind --leak-check=full --track-origins=yes --trace-children=yes --show-leak-kinds=all -s --log-file=valgrind.log 
 EXEC_PATH = ./build/release/$(NAME)
 
 memcheck: ceedling
-	rm -f valgrind.log
+	rm -rf valgrind.log
 	$(MEMCHECK_PARAMS) $(EXEC_PATH)
 memcheck-all: ceedling
 	rm -f valgrind.log

@@ -49,8 +49,8 @@ static void	exec_child(t_shell *shell, int i, int **pipes, int token_count)
 	convert_tokens_to_string_array(&shell->token[i]);
 	if (!shell->token[i].command)
 		return ;
-	shell->token[i].cmd_func(shell, &shell->token[i]);
-	exit(shell->exit_status);
+	exit_free(shell, shell->token[i].cmd_func(shell, &shell->token[i]));
+
 }
 
 void	execute_pipes(t_shell *shell, int **pipes, int token_count)

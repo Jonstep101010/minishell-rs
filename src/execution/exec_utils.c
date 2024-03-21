@@ -7,7 +7,10 @@
 // handle execve fail:
 void	execve_fail(t_shell *shell, char *cmd)
 {
-	eprint("%s: %s\n", cmd, strerror(errno));
-	shell->exit_status = errno;
-	builtin_exit(shell, NULL);
+	eprint("%s: %s", cmd, strerror(errno));
+	if (shell->env)
+		arr_free(shell->env);
+	destroy_all_tokens(shell);
+	free(shell);
+	exit(errno);
 }

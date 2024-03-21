@@ -49,5 +49,6 @@ t_token	*init_token(size_t size)
 	token[size].split_pipes = NULL;
 	token[size].cmd_func = NULL;
 	token[size].has_redir = false;
+	token[size].bin = NULL;
 	return (token);
 }

@@ -29,6 +29,7 @@
     - +:test/env/
     - +:test/tokens/
     - +:test/random/
+    - +:test/execution/
   :source:
     - +:src/*
   :include:

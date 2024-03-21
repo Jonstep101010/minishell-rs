@@ -21,6 +21,7 @@
 #include "ft_strlcat.c"
 #include "ft_strncmp.c"
 #include "ft_strnstr.c"
+#include "ft_split.c"
 
 #include "ft_atol.c"
 

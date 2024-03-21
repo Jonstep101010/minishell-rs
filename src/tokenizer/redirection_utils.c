@@ -80,7 +80,7 @@ enum e_redir	check_redirections(t_arg *cmd_args)
 	size_t	ii;
 	bool	redir;
 
-	ii = 0;
+	ii = 1;
 	redir = false;
 	while (cmd_args[ii].elem)
 	{

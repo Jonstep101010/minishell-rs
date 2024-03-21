@@ -34,6 +34,8 @@ void	destroy_all_tokens(t_shell *shell)
 		if (token[i].command)
 			arr_free(token[i].command);
 		free_null(&(token[i].split_pipes));
+		if (token[i].bin)
+			free_null(&(token[i].bin));
 		i++;
 	}
 	free_null(&shell->token);
