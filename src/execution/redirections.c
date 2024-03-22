@@ -7,32 +7,38 @@
 #include <string.h>
 #include <unistd.h>
 
-static int	open_redir(const char *file, enum e_redir redir)
+static int	open_redir(const char *file, enum e_redir redir, int *fd)
 {
-	int		fd;
-	bool	perm;
+	int		perm;
 
-	fd = -2;
-	perm = false;
+	perm = 0;
 	if (redir == INPUT_REDIR)
 	{
-		perm = access(file, R_OK | F_OK);
-		if (perm)
-			fd = open(file, O_RDONLY);
+		perm = access(file, F_OK);
+		if (perm != 0)
+			return (127);
+		perm = access(file, R_OK);
+		if (perm != 0)
+			return (126);
+		*fd = open(file, O_RDONLY);
 	}
 	else if (redir == OUTPUT_REDIR)
 	{
 		perm = access(file, W_OK);
-		if (perm)
-			fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		if (perm != 0)
+			return (errno);
+		*fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	}
 	else if (redir == APPEND)
 	{
 		perm = access(file, W_OK);
-		if (perm)
-			fd = open(file, O_WRONLY | O_CREAT | O_APPEND, 0644);
+		if (perm != 0)
+			return (errno);
+		*fd = open(file, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	}
-	return (fd);
+	if (*fd == -1)
+		return (errno);
+	return (0);
 }
 
 /**
@@ -41,25 +47,21 @@ static int	open_redir(const char *file, enum e_redir redir)
  * @param token
  * @return int 0 if no error, 1 if open failed, 2 if access failed
  */
-int	do_redirections(t_arg *cmd_args)
+int	do_redirections(t_arg *cmd_args, char **error_elem)
 {
-	int		fd;
-	int		i;
+	int	i;
+	int	fd;
 
 	i = 0;
 	while (cmd_args[i].elem)
 	{
-		if (cmd_args[i].redir == INPUT_REDIR
-			|| cmd_args[i].redir == OUTPUT_REDIR
-				|| cmd_args[i].redir == APPEND)
+		fd = 0;
+		if (cmd_args[i].type == REDIR && cmd_args[i].redir != HEREDOC)
 		{
-			fd = open_redir(cmd_args[i].elem, cmd_args[i].redir);
-			if (fd < 0)
+			if (open_redir(cmd_args[i].elem, cmd_args[i].redir, &fd) != 0)
 			{
-				eprint("%s: %s", cmd_args[i].elem, strerror(errno));
-				if (fd == -2)
-					return (2);
-				return (1);
+				*error_elem = cmd_args[i].elem;
+				return (errno);
 			}
 			if (cmd_args[i].redir != INPUT_REDIR)
 				dup2(fd, STDOUT_FILENO);

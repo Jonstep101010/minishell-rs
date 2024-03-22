@@ -29,7 +29,8 @@ static void	close_pipe_fds(int **pipes, int token_count)
 
 static void	exec_child(t_shell *shell, int i, int **pipes, int token_count)
 {
-	int	redir_status;
+	int		redir_status;
+	char	*error_elem;
 
 	redir_status = -2;
 	if (shell->token[i].has_redir && i == 0)
@@ -40,7 +41,7 @@ static void	exec_child(t_shell *shell, int i, int **pipes, int token_count)
 		dup2(pipes[i][1], STDOUT_FILENO);
 	if (shell->token[i].has_redir)
 	{
-		redir_status = do_redirections(shell->token[i].cmd_args);
+		redir_status = do_redirections(shell->token[i].cmd_args, &error_elem);
 		if (redir_status != 0)
 			close_pipe_fds(pipes, token_count);
 		exit_free(shell, redir_status);
