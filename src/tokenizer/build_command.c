@@ -39,23 +39,21 @@ void	convert_tokens_to_string_array(t_token *token)
 // splits into split_pipes, removes whitespace and assigns to tokens
 t_token	*get_tokens(char const *trimmed_line)
 {
-	size_t	i;
+	int		i;
 	char	**split_pipes;
 	t_token	*token;
 
 	split_pipes = split_outside_quotes(trimmed_line, "|");
 	if (!split_pipes)
 		return (eprint("alloc fail!"), NULL);
+	if (!*split_pipes)
+		return (arr_free(split_pipes), NULL);
 	token = init_token(arr_len(split_pipes));
-	if (!token)
-	{
-		eprint("alloc fail token");
-		arr_free(split_pipes);
-		return (NULL);
-	}
 	i = -1;
-	while (split_pipes[++i])
+	while (token && split_pipes[++i])
 		token[i].split_pipes = ft_strtrim(split_pipes[i], WHITESPACE);
+	if (!token)
+		eprint("alloc fail token");
 	arr_free(split_pipes);
 	return (token);
 }

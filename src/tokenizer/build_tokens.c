@@ -16,19 +16,14 @@ enum e_redir	check_redirections(t_arg *cmd_args);
 
 static void	*setup_token(t_token *token)
 {
-	size_t	len;
-
 	if (!token || !token->split_pipes)
 		return (NULL);
 	token->tmp_arr = split_outside_quotes(token->split_pipes, WHITESPACE);
 	if (!token->tmp_arr)
 		return (NULL);
-	len = arr_len(token->tmp_arr);
-	if (len == 0)
-		return (NULL);
-	token->cmd_args = init_cmdargs(len);
-	if (!token->cmd_args)
-		return (NULL);
+	if (!*token->tmp_arr)
+		return (arr_free(token->tmp_arr), NULL);
+	token->cmd_args = init_cmdargs(arr_len(token->tmp_arr));
 	return (token);
 }
 
@@ -111,7 +106,8 @@ void	*tokenize(t_shell *shell, char const *trimmed_line)
 		return (eprint("alloc fail"), NULL);
 	while (shell->token[i].split_pipes)
 	{
-		setup_token(&shell->token[i]);
+		if (!setup_token(&shell->token[i]))
+			return (destroy_all_tokens(shell), NULL);
 		inner_loop(&shell->token[i], shell->env);
 		free(shell->token[i].tmp_arr);
 		i++;

@@ -23,32 +23,30 @@ void	set_cmd_func(const char *cmd, t_token *token)
 
 t_arg	*init_cmdargs(size_t size)
 {
-	t_arg	*args;
+	const t_arg	*args = ft_calloc(sizeof(t_arg), size + 1);
+	const t_arg	template = {
+		.redir = NO_REDIR,
+		.type = STRING
+	};
 
-	if (size == 0)
-		return (NULL);
-	args = ft_calloc(sizeof(t_arg), (size + 1));
-	if (!args)
-		return (NULL);
-	args[size].elem = NULL;
-	args[size].redir = NO_REDIR;
-	args[size].type = STRING;
-	return (args);
+	while (args && size--)
+		ft_memcpy((t_arg *)&args[size], &template, sizeof(*args));
+	return ((t_arg *)args);
 }
 
+/**
+ * @param size must be size of non-NULL, terminated array
+ * @return t_token* instance
+ */
 t_token	*init_token(size_t size)
 {
-	t_token	*token;
+	const t_token	*token = ft_calloc(sizeof(t_token), (size + 1));
+	const t_token	template = {
+		.has_redir = false,
+		.cmd_func = not_builtin,
+	};
 
-	token = ft_calloc(sizeof(t_token), (size + 1));
-	if (!token)
-		return (NULL);
-	token[size].cmd_args = NULL;
-	token[size].tmp_arr = NULL;
-	token[size].command = NULL;
-	token[size].split_pipes = NULL;
-	token[size].cmd_func = NULL;
-	token[size].has_redir = false;
-	token[size].bin = NULL;
-	return (token);
+	while (token && size--)
+		ft_memcpy((t_token *)&token[size], &template, sizeof(*token));
+	return ((t_token *)token);
 }
