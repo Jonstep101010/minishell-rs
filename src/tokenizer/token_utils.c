@@ -40,7 +40,7 @@ t_arg	*init_cmdargs(size_t size)
  */
 t_token	*init_token(size_t size)
 {
-	const t_token	*token = ft_calloc(sizeof(t_token), (size + 1));
+	t_token	*token = ft_calloc(sizeof(t_token), (size + 1));
 	const t_token	template = {
 		.has_redir = false,
 		.cmd_func = not_builtin,

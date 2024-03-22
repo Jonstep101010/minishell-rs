@@ -38,6 +38,7 @@ int	not_builtin(t_shell *shell, t_token *token)
 	}
 	if (access_status == 127)
 	{
+		eprint("'%s'", token->cmd_args[0].elem);
 		eprint("command not found: %s", token->cmd_args[0].elem);
 		exit_free(shell, 127);
 	}
@@ -47,18 +48,18 @@ int	not_builtin(t_shell *shell, t_token *token)
 	return (0);
 }
 
-static int	**create_pipes(int token_count)
+static int	**create_pipes(size_t token_count)
 {
 	int	**pipes;
 	int	i;
 
 	i = -1;
-	pipes = ft_calloc(token_count - 1, sizeof(int *));
+	pipes = malloc((token_count) * sizeof(int *));
 	if (!pipes)
 		return (NULL);
-	while (++i < token_count - 1)
+	while (++i < (int)token_count)
 	{
-		pipes[i] = ft_calloc(2, sizeof(int));
+		pipes[i] = malloc(2 * sizeof(int));
 		if (!pipes[i])
 		{
 			while (--i >= 0)

@@ -33,25 +33,23 @@ static void	exec_child(t_shell *shell, int i, int **pipes, int token_count)
 	char	*error_elem;
 
 	redir_status = -2;
-	if (shell->token[i].has_redir && i == 0)
-		heredoc_nopipe(&shell->token[i], shell->env);
 	if (i != 0)
 		dup2(pipes[i - 1][0], STDIN_FILENO);
 	if (i != token_count - 1)
 		dup2(pipes[i][1], STDOUT_FILENO);
 	if (shell->token[i].has_redir)
 	{
+		if (i == 0)
+			heredoc_nopipe(&shell->token[i], shell->env);
 		redir_status = do_redirections(shell->token[i].cmd_args, &error_elem);
 		if (redir_status != 0)
 			close_pipe_fds(pipes, token_count);
-		exit_free(shell, redir_status);
 	}
 	close_pipe_fds(pipes, token_count);
 	convert_tokens_to_string_array(&shell->token[i]);
 	if (!shell->token[i].command)
 		return ;
-	exit_free(shell, shell->token[i].cmd_func(shell, &shell->token[i]));
-
+	shell->token[i].cmd_func(shell, &shell->token[i]);
 }
 
 void	execute_pipes(t_shell *shell, int **pipes, int token_count)
@@ -63,13 +61,17 @@ void	execute_pipes(t_shell *shell, int **pipes, int token_count)
 	i = -1;
 	while (++i < token_count)
 	{
+		pid = -2;
 		if (shell->token[i].has_redir && i != 0)
 			do_heredocs(&shell->token[i], pipes[i - 1], shell->env);
 		pid = fork();
 		if (pid == -1)
 			eprint("fork %s\n", strerror(errno));
 		if (pid == 0)
+		{
 			exec_child(shell, i, pipes, token_count);
+			exit_free(shell, 0);
+		}
 	}
 	close_pipe_fds(pipes, token_count);
 	waitpid(pid, &status, 0);
@@ -78,7 +80,7 @@ void	execute_pipes(t_shell *shell, int **pipes, int token_count)
 	if (WIFEXITED(status))
 		shell->exit_status = WEXITSTATUS(status);
 	i = -1;
-	while (++i < token_count - 1)
+	while (++i < token_count)
 		free(pipes[i]);
 	free(pipes);
 }
