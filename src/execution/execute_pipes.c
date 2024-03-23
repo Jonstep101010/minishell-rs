@@ -15,72 +15,83 @@
 #include "execution.h"
 #include "tokens.h"
 
-static void	close_pipe_fds(int **pipes, int token_count)
+void	exec_last(t_shell *shell, int i, int prevpipe)
 {
-	int	i;
+	pid_t	cpid;
+	int		status;
 
-	i = -1;
-	while (++i < token_count - 1)
+	cpid = fork ();
+	if (cpid == 0)
 	{
-		close(pipes[i][0]);
-		close(pipes[i][1]);
+		eprint("child %d: exec_last", i);
+		char	*error_elem;
+		if (do_redirections(shell->token[i].cmd_args, &error_elem) != 0)
+			exit_error(shell, error_elem);
+		dup2 (prevpipe, STDIN_FILENO);
+		close (prevpipe);
+		convert_tokens_to_string_array(&shell->token[i]);
+		exit_free(shell, shell->token[i].cmd_func(shell, &shell->token[i]));
+	}
+	else
+	{
+		waitpid(cpid, &status, 0);
+		close (prevpipe);
+		while (wait(NULL) > 0)
+			;
+		if (WIFEXITED(status))
+			update_exit_status(shell, WEXITSTATUS(status));
 	}
 }
 
-static void	exec_child(t_shell *shell, int i, int **pipes, int token_count)
+void	exec_pipe(t_shell *shell, int i, int *prevpipe)
 {
-	int		redir_status;
+	int		pipefd[2];
+	pid_t	cpid;
+	int		status;
 	char	*error_elem;
 
-	redir_status = -2;
-	if (i != 0)
-		dup2(pipes[i - 1][0], STDIN_FILENO);
-	if (i != token_count - 1)
-		dup2(pipes[i][1], STDOUT_FILENO);
-	if (shell->token[i].has_redir)
+	pipe(pipefd);
+	cpid = fork();
+	if (cpid == 0)
 	{
-		if (i == 0)
-			heredoc_nopipe(&shell->token[i], shell->env);
-		redir_status = do_redirections(shell->token[i].cmd_args, &error_elem);
-		if (redir_status != 0)
-			close_pipe_fds(pipes, token_count);
+		eprint("child %d: exec_pipe", i);
+		close(pipefd[0]);
+		dup2(pipefd[1], STDOUT_FILENO);
+		close(pipefd[1]);
+		dup2(*prevpipe, STDIN_FILENO);
+		close(*prevpipe);
+		if (do_redirections(shell->token[i].cmd_args, &error_elem) != 0)
+			exit_error(shell, error_elem);
+		convert_tokens_to_string_array(shell->token);
+		status = shell->token[i].cmd_func(shell, &shell->token[i]);
+		if (shell->env)
+			arr_free(shell->env);
+		destroy_all_tokens(shell);
+		free(shell);
+		exit(status);
 	}
-	close_pipe_fds(pipes, token_count);
-	convert_tokens_to_string_array(&shell->token[i]);
-	if (!shell->token[i].command)
-		return ;
-	shell->token[i].cmd_func(shell, &shell->token[i]);
+	else
+	{
+		close(pipefd[1]);
+		close(*prevpipe);
+		*prevpipe = pipefd[0];
+	}
 }
 
-void	execute_pipes(t_shell *shell, int **pipes, int token_count)
+void	execute_pipes(t_shell *shell, int token_count)
 {
-	int		status;
 	int		i;
-	pid_t	pid;
+	int		prevpipe;
 
 	i = -1;
-	while (++i < token_count)
+	prevpipe = dup(STDIN_FILENO);
+	while (++i < token_count - 1)
 	{
-		pid = -2;
-		if (shell->token[i].has_redir && i != 0)
-			do_heredocs(&shell->token[i], pipes[i - 1], shell->env);
-		pid = fork();
-		if (pid == -1)
-			eprint("fork %s\n", strerror(errno));
-		if (pid == 0)
-		{
-			exec_child(shell, i, pipes, token_count);
-			exit_free(shell, 0);
-		}
+		if (shell->token[i].has_redir && i != token_count - 1)
+			do_heredocs(&shell->token[i], &prevpipe, shell->env);
+		exec_pipe(shell, i, &prevpipe);
 	}
-	close_pipe_fds(pipes, token_count);
-	waitpid(pid, &status, 0);
-	while (wait(NULL) > 0)
-		;
-	if (WIFEXITED(status))
-		shell->exit_status = WEXITSTATUS(status);
-	i = -1;
-	while (++i < token_count)
-		free(pipes[i]);
-	free(pipes);
+	if (shell->token[i].has_redir && i == token_count - 1)
+		do_heredocs(&shell->token[i], &prevpipe, shell->env);
+	exec_last(shell, i, prevpipe);
 }

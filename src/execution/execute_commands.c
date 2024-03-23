@@ -14,8 +14,7 @@
 uint8_t	set_binpath(char *const *env, const char *bin, char **binpath_buf);
 
 /**
- * @brief
- * @audit atm only works for execution of one command (forbidden function)
+ * @brief is called by single command/pipe to execute the command
  * @audit should be renamed
  * @param shell
  * @param token pointer to element in array of tokens
@@ -48,30 +47,6 @@ int	not_builtin(t_shell *shell, t_token *token)
 	return (0);
 }
 
-static int	**create_pipes(size_t token_count)
-{
-	int	**pipes;
-	int	i;
-
-	i = -1;
-	pipes = malloc((token_count) * sizeof(int *));
-	if (!pipes)
-		return (NULL);
-	while (++i < (int)token_count)
-	{
-		pipes[i] = malloc(2 * sizeof(int));
-		if (!pipes[i])
-		{
-			while (--i >= 0)
-				free(pipes[i]);
-			free(pipes);
-			return (NULL);
-		}
-		pipe(pipes[i]);
-	}
-	return (pipes);
-}
-
 size_t	arr_len_size(void *arr, size_t size);
 
 static bool forkable_builtin(t_token *token)
@@ -81,17 +56,18 @@ static bool forkable_builtin(t_token *token)
 		&& token->cmd_func != builtin_cd);
 }
 
-static void	exec_single_command(t_shell *shell, t_token *token)
+void	execute_commands(t_shell *shell, t_token *token)
 {
-	pid_t	pid;
-	int		status;
+	int		token_count;
 	int		redir_status;
 	char	*error_elem;
 
-	error_elem = NULL;
-	if (!forkable_builtin(token))
+	if (!token)
+		return (update_exit_status(shell, -1));
+	token_count = arr_len_size(shell->token, sizeof(t_token));
+	if (token_count == 1 && !forkable_builtin(token))
 	{
-		// eprint("not forkable builtin");
+		eprint("not forkable builtin");
 		redir_status = do_redirections(token->cmd_args, &error_elem);
 		if (redir_status != 0)
 		{
@@ -103,48 +79,6 @@ static void	exec_single_command(t_shell *shell, t_token *token)
 		destroy_all_tokens(shell);
 		return ;
 	}
-	// eprint("forkable function");
-	pid = fork();
-	if (pid < 0)
-		return (eprint("fork %s", strerror(errno)));
-	eprint("first elem %s", token->cmd_args[0].elem);
-	if (pid == 0)
-	{
-		if (token->has_redir)
-			heredoc_nopipe(token, shell->env);
-		if (do_redirections(token->cmd_args, &error_elem) != 0)
-			exit_error(shell, error_elem);
-		convert_tokens_to_string_array(token);
-		exit_free(shell, token->cmd_func(shell, token));
-	}
-	else
-	{
-		waitpid(pid, &status, 0);
-		if (WIFEXITED(status))
-			update_exit_status(shell, WEXITSTATUS(status));
-		destroy_all_tokens(shell);
-	}
-}
-
-void	execute_commands(t_shell *shell, t_token *token)
-{
-	int	token_count;
-	int	**pipes;
-
-	// eprint("execute_commands");
-	if (!token)
-		return (update_exit_status(shell, -1));
-	token_count = arr_len_size(shell->token, sizeof(t_token));
-	if (token_count == 1)
-	{
-		// eprint("single token");
-		exec_single_command(shell, token);
-	}
-	else
-	{
-		pipes = create_pipes(token_count);
-		if (!pipes)
-			return ;
-		execute_pipes(shell, pipes, token_count);
-	}
+	execute_pipes(shell, token_count);
+	destroy_all_tokens(shell);
 }

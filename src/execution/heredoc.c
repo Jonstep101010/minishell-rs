@@ -45,37 +45,13 @@ void	do_heredocs(t_token *token, const int *target, char **env)
 		if (token->cmd_args[i].redir == HEREDOC)
 		{
 			eprint("token[%d] has heredoc!", i);
-			fd = open(token->cmd_args[i].elem, O_RDWR | O_CREAT | O_TRUNC, 0644);
+			fd = open(".heredoc.txt", O_RDWR | O_CREAT | O_TRUNC, 0644);
 			if (fd == -1)
 				return (eprint("%s", strerror(errno)), exit(1));
 			heredoc_loop(token->cmd_args[i].elem, fd, env);
 			close(fd);
-			fd = open(token->cmd_args[i].elem, O_RDONLY);
-			dup2(fd, *target);
-			close(fd);
-			unlink(token->cmd_args[i].elem);
-		}
-	}
-}
-
-void	heredoc_nopipe(t_token *token, char **env)
-{
-	int		fd;
-	int		i;
-
-	i = -1;
-	while (token->cmd_args[++i].elem)
-	{
-		if (token->cmd_args[i].redir == HEREDOC)
-		{
-			eprint("heredoc_nopipe!");
-			fd = open(".heredoc.txt", O_RDWR | O_CREAT | O_TRUNC, 0644);
-			if (fd == -1)
-				eprint("%s", strerror(errno)), exit(1);
-			heredoc_loop(token->cmd_args[i].elem, fd, env);
-			close(fd);
 			fd = open(".heredoc.txt", O_RDONLY);
-			dup2(fd, STDIN_FILENO);
+			dup2(fd, *target);
 			close(fd);
 			unlink(".heredoc.txt");
 		}

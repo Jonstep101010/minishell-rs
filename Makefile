@@ -12,7 +12,7 @@ endif
 
 CC = clang
 # ----------------------------- includes/linking ----------------------------- #
-CFLAGS = -Wall -Wextra -Werror -I./include $(shell find ./src -type d | sed 's/^/-I/') $(shell find ./include -name "*.a" -exec dirname {} \; | xargs -I{} find {} -type d | sed 's/^/-I/')
+CFLAGS = -Wall -Wextra -Werror -g -fsanitize=address -fsanitize-address-use-after-scope -fno-omit-frame-pointer -I./include $(shell find ./src -type d | sed 's/^/-I/') $(shell find ./include -name "*.a" -exec dirname {} \; | xargs -I{} find {} -type d | sed 's/^/-I/')
 
 LDFLAGS = ./include/libgnl/libgnl.a ./include/libftprintf/libftprintf.a ./include/libutils/libutils.a ./include/libft/libft.a
 
@@ -21,7 +21,7 @@ LDFLAGS = ./include/libgnl/libgnl.a ./include/libftprintf/libftprintf.a ./includ
 # ---------------------------------------------------------------------------- #
 
 SRCS = $(addprefix src/builtins/, builtin_cd.c builtin_echo.c builtin_env.c builtin_exit.c builtin_export.c builtin_pwd.c builtin_unset.c) \
-    $(addprefix src/execution/, execute_pipes.c execute_commands.c exec_utils.c redirections.c heredoc.c) \
+    $(addprefix src/execution/, execute_pipes.c execute_commands.c exec_utils.c redirections.c heredoc.c bin_path.c) \
     $(addprefix src/environment/, export_env.c get_env.c get_index.c check_key.c expander.c) \
     $(addprefix src/lexer/, check_pipes.c check_quotes.c checks_basic.c lexer_support.c lexer.c) \
     $(addprefix src/parser/, interpret_quotes.c parser.c split_outside_quotes.c) \
