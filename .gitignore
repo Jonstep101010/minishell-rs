@@ -9,3 +9,8 @@ notes.md
 msh_tester.log
 infile
 outfile
+noread
+*.o
+*.a
+compile_commands.json
+*.tmp

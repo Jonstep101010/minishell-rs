@@ -24,7 +24,6 @@ int	not_builtin(t_shell *shell, t_token *token)
 	// @todo implement signals
 	int	access_status;
 	access_status = set_binpath(shell->env, token->cmd_args[0].elem, &(token->bin));
-	eprint("access_status %d", access_status);
 	if (access_status == 1)
 	{
 		eprint("alloc fail");
@@ -37,7 +36,6 @@ int	not_builtin(t_shell *shell, t_token *token)
 	}
 	if (access_status == 127)
 	{
-		eprint("'%s'", token->cmd_args[0].elem);
 		eprint("command not found: %s", token->cmd_args[0].elem);
 		exit_free(shell, 127);
 	}
@@ -65,20 +63,20 @@ void	execute_commands(t_shell *shell, t_token *token)
 	if (!token)
 		return (update_exit_status(shell, -1));
 	token_count = arr_len_size(shell->token, sizeof(t_token));
+	convert_tokens_to_string_array(shell->token);
+	if (!shell->token)
+		exit_error(shell, "alloc fail");
 	if (token_count == 1 && !forkable_builtin(token))
 	{
-		eprint("not forkable builtin");
 		redir_status = do_redirections(token->cmd_args, &error_elem);
 		if (redir_status != 0)
 		{
 			eprint("%s: %s", error_elem, strerror(errno));
 			return (update_exit_status(shell, redir_status));
 		}
-		convert_tokens_to_string_array(token);
 		update_exit_status(shell, token->cmd_func(shell, token));
-		destroy_all_tokens(shell);
-		return ;
 	}
-	execute_pipes(shell, token_count);
+	else
+		execute_pipes(shell, token_count);
 	destroy_all_tokens(shell);
 }

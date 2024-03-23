@@ -15,7 +15,7 @@
 #include "execution.h"
 #include "tokens.h"
 
-void	exec_last(t_shell *shell, int i, int prevpipe)
+static void	exec_last(t_shell *shell, int i, int prevpipe, char **error_elem)
 {
 	pid_t	cpid;
 	int		status;
@@ -23,13 +23,10 @@ void	exec_last(t_shell *shell, int i, int prevpipe)
 	cpid = fork ();
 	if (cpid == 0)
 	{
-		eprint("child %d: exec_last", i);
-		char	*error_elem;
-		if (do_redirections(shell->token[i].cmd_args, &error_elem) != 0)
-			exit_error(shell, error_elem);
-		dup2 (prevpipe, STDIN_FILENO);
-		close (prevpipe);
-		convert_tokens_to_string_array(&shell->token[i]);
+		if (do_redirections(shell->token[i].cmd_args, error_elem) != 0)
+			exit_error(shell, *error_elem);
+		dup2(prevpipe, STDIN_FILENO);
+		close(prevpipe);
 		exit_free(shell, shell->token[i].cmd_func(shell, &shell->token[i]));
 	}
 	else
@@ -43,26 +40,23 @@ void	exec_last(t_shell *shell, int i, int prevpipe)
 	}
 }
 
-void	exec_pipe(t_shell *shell, int i, int *prevpipe)
+static void	exec_pipe(t_shell *shell, int i, int *prevpipe, char **error_elem)
 {
 	int		pipefd[2];
 	pid_t	cpid;
 	int		status;
-	char	*error_elem;
 
 	pipe(pipefd);
 	cpid = fork();
 	if (cpid == 0)
 	{
-		eprint("child %d: exec_pipe", i);
 		close(pipefd[0]);
 		dup2(pipefd[1], STDOUT_FILENO);
 		close(pipefd[1]);
 		dup2(*prevpipe, STDIN_FILENO);
 		close(*prevpipe);
-		if (do_redirections(shell->token[i].cmd_args, &error_elem) != 0)
-			exit_error(shell, error_elem);
-		convert_tokens_to_string_array(shell->token);
+		if (do_redirections(shell->token[i].cmd_args, error_elem) != 0)
+			exit_error(shell, *error_elem);
 		status = shell->token[i].cmd_func(shell, &shell->token[i]);
 		if (shell->env)
 			arr_free(shell->env);
@@ -82,6 +76,7 @@ void	execute_pipes(t_shell *shell, int token_count)
 {
 	int		i;
 	int		prevpipe;
+	char	*error_elem;
 
 	i = -1;
 	prevpipe = dup(STDIN_FILENO);
@@ -89,9 +84,9 @@ void	execute_pipes(t_shell *shell, int token_count)
 	{
 		if (shell->token[i].has_redir && i != token_count - 1)
 			do_heredocs(&shell->token[i], &prevpipe, shell->env);
-		exec_pipe(shell, i, &prevpipe);
+		exec_pipe(shell, i, &prevpipe, &error_elem);
 	}
 	if (shell->token[i].has_redir && i == token_count - 1)
 		do_heredocs(&shell->token[i], &prevpipe, shell->env);
-	exec_last(shell, i, prevpipe);
+	exec_last(shell, i, prevpipe, &error_elem);
 }

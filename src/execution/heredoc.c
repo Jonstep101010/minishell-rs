@@ -44,7 +44,6 @@ void	do_heredocs(t_token *token, const int *target, char **env)
 	{
 		if (token->cmd_args[i].redir == HEREDOC)
 		{
-			eprint("token[%d] has heredoc!", i);
 			fd = open(".heredoc.txt", O_RDWR | O_CREAT | O_TRUNC, 0644);
 			if (fd == -1)
 				return (eprint("%s", strerror(errno)), exit(1));

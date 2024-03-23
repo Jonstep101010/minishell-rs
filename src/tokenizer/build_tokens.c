@@ -91,7 +91,6 @@ static void	*inner_loop(t_token *token, char *const *env)
 		if (token->cmd_args[ii].redir == NO_REDIR)
 			break ;
 	set_cmd_func(token->cmd_args[ii].elem, token);
-	eprint("token->cmd_func: '%s'", token->cmd_args[ii].elem);
 	return (token);
 }
 
