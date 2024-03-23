@@ -73,7 +73,6 @@ static void	set_type_redir(t_arg *cmd_arg)
 	}
 }
 
-// @audit quotes removal needs to hapen after this
 // cannot be inside quotes at this point (we compare max 2 chars)
 enum e_redir	check_redirections(t_arg *cmd_args)
 {

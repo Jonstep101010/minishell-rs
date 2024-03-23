@@ -59,8 +59,6 @@ void	test_expander_two() {
 // // echo $'PAGER'S -> echo $PAGERS
 // // echo '$PAGER' -> echo $PAGER
 // // echo $"PAGER"S -> echo $PAGERS
-
-// @audit single quotes
 void	test_expander_ignore_in_singlequotes() {
 	char	*line = "echo '$PAGER'";
 	char	*envp[] = {"PAGER=true", "TEST=false", NULL};

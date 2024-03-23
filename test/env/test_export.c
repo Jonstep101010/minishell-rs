@@ -15,7 +15,6 @@
 
 int	export_run(const char *line, t_shell *shell)
 {
-	// @audit leaks here (in arr_trim)
 	tokenize(shell, line);
 	convert_tokens_to_string_array(shell->token);
 	int	ret = builtin_export(shell, shell->token);
@@ -95,7 +94,7 @@ void	test_export_empty_three() {
 	cleanup_support_test_token(shell);
 }
 
-// export export -> print nothing (not a valid variable - not export without args!) @follow-up
+// export export -> print nothing (not a valid variable - not export without args!)
 void	test_export_keyword() {
 	t_shell	*shell = support_clean_env((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL});
 	char	**expected_env = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL};
@@ -176,15 +175,13 @@ void	test_export_mult_equalsign() {
 	cleanup_support_test_token(shell);
 }
 
-// export TES$?T=123 @follow-up expansion: make this work
+// export TES$?T=123
 void	test_export_expanded_req_expansion() {
 	t_shell	*shell = support_clean_env((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL});
 	shell->env = append_str_arr_free(shell->env, ft_strdup("?=1"));
 	char	**expected_env_start = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "?=1", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_env_start, shell->env, arr_len(expected_env_start));
 	char	**expected_env = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "?=1", "TES1T=123", NULL};
-	// this is not working yet because of the expansion not working correctly
-	// @follow-up
 	TEST_ASSERT_EQUAL(0, export_run("export TES$?T=123", shell));
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_env, shell->env, arr_len(expected_env));
 	cleanup_support_test_token(shell);

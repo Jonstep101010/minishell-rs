@@ -40,7 +40,6 @@ void test_works_with_quotes() {
 		== lexer_checks_basic("echo \"Hello, World!"));
 	TEST_ASSERT(LEXER_SINGLE_QUOTE
 		== lexer_checks_basic("echo \'Hello, World!"));
-	// @audit-info no need to handle!
 	TEST_ASSERT(LEXER_SUCCESS != lexer_checks_basic("echo 'Hello, World!"));
 	TEST_ASSERT(LEXER_SUCCESS != lexer_checks_basic("'\"'"));
 	TEST_ASSERT(LEXER_SUCCESS != lexer_checks_basic("echo \"'Hello, World!\""));

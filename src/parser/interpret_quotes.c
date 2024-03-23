@@ -5,7 +5,6 @@
 
 /**
  * only keeps if nested and not same as outer
- * make this work with tokens? @audit
  */
 void	*do_quote_bs(const char *s, int *quote)
 {
