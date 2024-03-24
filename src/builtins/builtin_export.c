@@ -20,22 +20,24 @@ static int	declare_x_env_var(char *const *env)
 
 int	builtin_export(t_shell *shell, t_token *token)
 {
-	size_t	i;
+	const char	**command = (const char **)get_cmd_arr_token(token);
+	size_t		i;
 
 	i = 1;
-	if (!token->command || !token->command[i])
+	if (!command || !command[i])
 		return (declare_x_env_var(shell->env));
-	while (token->command[i])
+	while (command[i])
 	{
-		if (!check_valid_key(token->command[i]))
+		if (!check_valid_key(command[i]))
 		{
-			eprint("export: `%s': not a valid identifier", token->command[i]);
+			eprint("export: `%s': not a valid identifier", command[i]);
 			return (1);
 		}
-		if (str_cchr(token->command[i], '=') >= 1)
-			export_env(shell, ft_strdup(token->command[i]));
+		if (str_cchr(command[i], '=') >= 1)
+			export_env(shell, ft_strdup(command[i]));
 		i++;
 	}
+	arr_free((char **)command);
 	if (i > 1)
 		return (0);
 	return (1);

@@ -101,7 +101,6 @@ void	test_add_string_array_as_tokens()
 
 void	test_destroy_null() {
 	t_shell	*shell = support_test_tokens((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL});
-	remove_token(shell, NULL);
 	tokenize(shell, "ls -l you | wc -l");
 	TEST_ASSERT_EQUAL_STRING("ls", shell->token[0].cmd_args[0].elem);
 	TEST_ASSERT_EQUAL_STRING("-l", shell->token[0].cmd_args[1].elem);
@@ -131,17 +130,74 @@ void	test_recursive_expansion() {
 }
 
 void	test_export_env() {
-	t_shell	*shell = support_test_tokens(((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", "true=true", NULL}));
+	t_shell	*shell = support_clean_env(((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", "true=true", NULL}));
 
 	export_env(shell, ft_strdup("true=false"));
 	char	**expected = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", "true=false", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, shell->env, 6);
-	tokenize(shell, "unset true");
+	TEST_ASSERT_NOT_NULL(tokenize(shell, "unset true"));
 	TEST_ASSERT_EQUAL_STRING("unset true", shell->token[0].split_pipes);
-	convert_tokens_to_string_array(shell->token);
 	TEST_ASSERT_EQUAL_STRING("unset", shell->token[0].cmd_args[0].elem);
 	TEST_ASSERT_EQUAL_STRING("true", shell->token[0].cmd_args[1].elem);
-	builtin_unset(shell, shell->token);
+	builtin_unset(shell, &shell->token[0]);
+	char	**expected_rm = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", NULL};
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_rm, shell->env, 6);
 	TEST_ASSERT_NULL(get_env(shell->env, "true"));
+	cleanup_support_test_token(shell);
+}
+
+void	test_no_leaks() {
+	t_shell	*shell = support_test_tokens(((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", NULL}));
+	shell->token = tokenize(shell, ">tmp_out | echo 1");
+	TEST_ASSERT_NOT_NULL(shell->token);
+	TEST_ASSERT_EQUAL_STRING("tmp_out", shell->token[0].cmd_args[0].elem);
+	TEST_ASSERT_EQUAL_INT(OUTPUT_REDIR, shell->token[0].cmd_args[0].redir);
+	TEST_ASSERT_EQUAL_STRING("echo", shell->token[1].cmd_args[0].elem);
+	TEST_ASSERT_EQUAL_STRING("1", shell->token[1].cmd_args[1].elem);
+	destroy_all_tokens(shell);
+	arr_free(shell->env);
+	free(shell);
+}
+
+void	test_no_leaks_two() {
+	t_shell	*shell = support_test_tokens(((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", NULL}));
+	shell->token = tokenize(shell, ">tmp_out | echo 1");
+	TEST_ASSERT_NOT_NULL(shell->token);
+	TEST_ASSERT_EQUAL_STRING("tmp_out", shell->token[0].cmd_args[0].elem);
+	TEST_ASSERT_EQUAL_INT(OUTPUT_REDIR, shell->token[0].cmd_args[0].redir);
+	TEST_ASSERT_EQUAL_STRING("echo", shell->token[1].cmd_args[0].elem);
+	TEST_ASSERT_EQUAL_STRING("1", shell->token[1].cmd_args[1].elem);
+	char	**cmd_arr_null = get_cmd_arr_token(&shell->token[0]);
+	TEST_ASSERT_NULL(cmd_arr_null);
+	char	**cmd_arr = get_cmd_arr_token(&shell->token[1]);
+	TEST_ASSERT_NOT_NULL(cmd_arr);
+	TEST_ASSERT_NULL(cmd_arr[2]);
+	TEST_ASSERT_EQUAL_STRING("echo", cmd_arr[0]);
+	TEST_ASSERT_EQUAL_STRING("1", cmd_arr[1]);
+	destroy_all_tokens(shell);
+	arr_free(shell->env);
+	free(shell);
+	arr_free(cmd_arr);
+}
+
+void	test_corrupted_input() {
+	t_shell	*shell = support_test_tokens(((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", NULL}));
+	shell->token = tokenize(shell, "cat | cat | ls");
+	TEST_ASSERT_NOT_NULL(shell->token);
+	TEST_ASSERT_EQUAL_STRING("cat", shell->token[0].cmd_args[0].elem);
+	TEST_ASSERT_EQUAL_INT(NO_REDIR, shell->token[0].cmd_args[0].redir);
+	TEST_ASSERT_EQUAL_STRING("cat", shell->token[1].cmd_args[0].elem);
+	TEST_ASSERT_EQUAL_STRING("ls", shell->token[2].cmd_args[0].elem);
+	cleanup_support_test_token(shell);
+}
+
+void	test_corrupted_input_two() {
+	t_shell	*shell = support_test_tokens(((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", NULL}));
+	shell->token = tokenize(shell, "<tmp_out cat");
+	TEST_ASSERT_NOT_NULL(shell->token);
+	TEST_ASSERT_EQUAL_STRING("tmp_out", shell->token[0].cmd_args[0].elem);
+	TEST_ASSERT_EQUAL_INT(INPUT_REDIR, shell->token[0].cmd_args[0].redir);
+	TEST_ASSERT_EQUAL_INT(NO_REDIR, shell->token[0].cmd_args[1].redir);
+	TEST_ASSERT_EQUAL_STRING("cat", shell->token[0].cmd_args[1].elem);
 	cleanup_support_test_token(shell);
 }

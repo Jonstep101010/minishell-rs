@@ -1,6 +1,7 @@
 #include "tokens.h"
 #include "utils.h"
 #include <fcntl.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
@@ -23,12 +24,7 @@ static int	open_redir(const char *file, enum e_redir redir, int *fd)
 		*fd = open(file, O_RDONLY);
 	}
 	else if (redir == OUTPUT_REDIR)
-	{
-		perm = access(file, W_OK);
-		if (perm != 0)
-			return (errno);
 		*fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	}
 	else if (redir == APPEND)
 	{
 		perm = access(file, W_OK);
@@ -37,7 +33,10 @@ static int	open_redir(const char *file, enum e_redir redir, int *fd)
 		*fd = open(file, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	}
 	if (*fd == -1)
+	{
+		perror("open");
 		return (errno);
+	}
 	return (0);
 }
 

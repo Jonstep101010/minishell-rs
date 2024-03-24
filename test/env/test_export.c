@@ -16,7 +16,6 @@
 int	export_run(const char *line, t_shell *shell)
 {
 	tokenize(shell, line);
-	convert_tokens_to_string_array(shell->token);
 	int	ret = builtin_export(shell, shell->token);
 	destroy_all_tokens(shell);
 	return (ret);

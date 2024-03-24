@@ -1,3 +1,4 @@
+#include "libutils.h"
 #include "tokens.h"
 #include "libft.h"
 #include <stdbool.h>
@@ -47,7 +48,7 @@ void	parse_redir_types(t_arg *arg)
 				tmp = ft_strdup(&arg[i].elem[1]);
 			else
 				tmp = ft_strdup(&arg[i].elem[2]);
-			free(arg[i].elem);
+			free_null(&(arg[i].elem));
 			arg[i].elem = tmp;
 		}
 	}

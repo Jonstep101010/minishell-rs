@@ -1,3 +1,4 @@
+#include "arr_utils.h"
 #include "libft.h"
 #include "tokens.h"
 
@@ -50,11 +51,13 @@ static void	echo_default(const char *const *cmd_args)
 
 int	echo(t_shell *nullable, t_token *token)
 {
-	const char *const	*args = (const char *const *)token->command;
+	const char	**args = (const char **)get_cmd_arr_token(token);
 
 	(void)nullable;
-	if (!args || !*args)
-		return (write(1, "\n", 1), 0);
-	echo_default(&args[1]);
+	if (*(args + 1))
+		echo_default(&args[1]);
+	else
+		write(1, "\n", 1);
+	arr_free((char **)args);
 	return (0);
 }

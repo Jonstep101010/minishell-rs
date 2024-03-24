@@ -254,3 +254,12 @@ void	test_can_ignore_quotes() {
 	free(input);
 	arr_free(tokens);
 }
+
+void	test_split_no_leaks() {
+	char	*input = strdup(">tmp_out | echo 1");
+	char	**tokens = split_outside_quotes(input, "|");
+	char	**expected = (char *[]){">tmp_out ", " echo 1", NULL};
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 3);
+	free(input);
+	arr_free(tokens);
+}

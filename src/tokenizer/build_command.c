@@ -4,36 +4,30 @@
 #include <stdio.h>
 #include "libft.h"
 
-void	convert_tokens_to_string_array(t_token *token)
+char	**get_cmd_arr_token(t_token *token)
 {
-	size_t	i;
-	size_t	ii;
-	char	**tmp;
+	int		i;
+	char	**cmd_arr;
 
 	i = 0;
-	ii = 0;
-	if (!token || !token->cmd_args || !token->cmd_args[0].elem)
-		return ;
-	while (token[i].cmd_args)
+	cmd_arr = NULL;
+	if (!token || !token->cmd_args)
+		return (NULL);
+	if (token->cmd_args[0].elem)
 	{
-		ii = 0;
-		tmp = NULL;
-		while (token[i].cmd_args[ii].elem)
+		while (token->cmd_args[i].elem)
 		{
-			if (token[i].cmd_args[ii].type != REDIR)
+			if (token->cmd_args[i].type != REDIR)
 			{
-				token[i].tmp_arr = append_str_arr(tmp,
-						token[i].cmd_args[ii].elem);
-				arr_free(tmp);
-				if (!token[i].tmp_arr)
-					return ((void)printf("something went to shit!\n"));
-				tmp = token[i].tmp_arr;
+				cmd_arr = append_str_arr_free(cmd_arr,
+					ft_strdup(token->cmd_args[i].elem));
+				if (!cmd_arr)
+					return (NULL);
 			}
-			ii++;
+			i++;
 		}
-		token[i].command = token[i].tmp_arr;
-		i++;
 	}
+	return (cmd_arr);
 }
 
 // splits into split_pipes, removes whitespace and assigns to tokens

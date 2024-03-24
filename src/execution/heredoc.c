@@ -34,7 +34,7 @@ static void	heredoc_loop(char *delim, int fd, char **env)
 	free(line);
 }
 
-void	do_heredocs(t_token *token, const int *target, char **env)
+void	do_heredocs(t_token *token, int *target, char **env)
 {
 	int		fd;
 	int		i;

@@ -14,15 +14,17 @@ static bool		check_sign(const char *exit_code)
 	return (true);
 }
 
-static bool		check_exit_code(t_token *code_nullable)
+static bool		check_exit_code(const char **command)
 {
-	char	*exit_code;
+	const char	*exit_code;
 	int		i;
 
 	i = -1;
-	if (code_nullable->command[1] && code_nullable->command[2])
+	if (!command || !command[1])
+		return (true);
+	if (command[1] && command[2])
 		return (eprint("exit: too many arguments"), false);
-	exit_code = code_nullable->command[1];
+	exit_code = (const char *)command[1];
 	if (ft_strlen(exit_code) == 1 && *exit_code == '0')
 		return (true);
 	while (exit_code[++i])
@@ -44,13 +46,18 @@ static bool		check_exit_code(t_token *code_nullable)
 int		builtin_exit(t_shell *shell, t_token *code_nullable)
 {
 	uint8_t		exit_code;
+	const char	**command = (const char **)get_cmd_arr_token(code_nullable);
 
 	exit_code = shell->exit_status;
-	if (code_nullable && code_nullable->command[1])
+	if (code_nullable)
 	{
-		if (!check_exit_code(code_nullable))
-			return (1);
-		exit_code = ft_atol(code_nullable->command[1]);
+		if (command[1])
+		{
+			if (!check_exit_code(command))
+				return (1);
+			exit_code = ft_atol(command[1]);
+		}
+		arr_free((char **)command);
 	}
 	eprint_single("exit\n", exit_code);
 	if (shell->env)

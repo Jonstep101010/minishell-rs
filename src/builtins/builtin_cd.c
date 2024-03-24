@@ -42,7 +42,7 @@ static int	changedir(const char *path, t_shell *shell)
  * @param shell to update env
  * @return int exit code
  */
-static int	cd_internal(char *const *cmd_args, t_shell *shell)
+static int	cd_internal(const char **cmd_args, t_shell *shell)
 {
 	char	*path;
 	char	*oldpwd;
@@ -72,5 +72,10 @@ static int	cd_internal(char *const *cmd_args, t_shell *shell)
 
 int	builtin_cd(t_shell *shell, t_token *token)
 {
-	return (cd_internal(token->command, shell));
+	int			status;
+	const char	**command = (const char **)get_cmd_arr_token(token);
+
+	status = cd_internal(command, shell);
+	arr_free((char **)command);
+	return (status);
 }

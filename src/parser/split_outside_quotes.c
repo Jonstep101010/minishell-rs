@@ -53,7 +53,7 @@ static char	**split_iterator(const char *to_split,
 			split->quote = 0;
 		if (!split->quote && is_in_set(trim[split->i], set)
 			&& !splitter(split, trim, set))
-			return (free(split), NULL);
+			return (free(split), arr_free(split->ret), NULL);
 		split->token_end = split->i;
 		split->i++;
 	}
@@ -67,6 +67,7 @@ char	**split_outside_quotes(const char *to_split, const char *set)
 	char		**ret;
 	char		*trimmed;
 
+	trimmed = NULL;
 	if (!to_split)
 		return (NULL);
 	while (is_in_set(*to_split, set))

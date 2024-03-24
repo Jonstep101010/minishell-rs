@@ -22,8 +22,14 @@ uint8_t	set_binpath(char *const *env, const char *bin, char **binpath_buf);
 int	not_builtin(t_shell *shell, t_token *token)
 {
 	// @todo implement signals
-	int	access_status;
+	int			access_status;
+	const char	**command = (const char **)get_cmd_arr_token(token);
+
+	if (!command)
+		exit_free(shell, 0);
 	access_status = set_binpath(shell->env, token->cmd_args[0].elem, &(token->bin));
+	if (access_status == 1 || access_status == 126 || access_status == 127)
+		arr_free((char **)command);
 	if (access_status == 1)
 	{
 		eprint("alloc fail");
@@ -31,7 +37,7 @@ int	not_builtin(t_shell *shell, t_token *token)
 	}
 	if (access_status == 126)
 	{
-		eprint("%s: %s", token->cmd_args[0].elem, strerror(errno));
+		// eprint("%s: %s", token->cmd_args[0].elem, strerror(errno));
 		exit_free(shell, 126);
 	}
 	if (access_status == 127)
@@ -39,8 +45,11 @@ int	not_builtin(t_shell *shell, t_token *token)
 		eprint("command not found: %s", token->cmd_args[0].elem);
 		exit_free(shell, 127);
 	}
-	if (execve(token->bin, token->command, shell->env) == -1)
+	if (execve(token->bin, (char **)command, shell->env) == -1)
+	{
+		arr_free((char **)command);
 		execve_fail(shell, token->bin);
+	}
 	exit_free(shell, 0);
 	return (0);
 }
@@ -63,9 +72,6 @@ void	execute_commands(t_shell *shell, t_token *token)
 	if (!token)
 		return (update_exit_status(shell, -1));
 	token_count = arr_len_size(shell->token, sizeof(t_token));
-	convert_tokens_to_string_array(shell->token);
-	if (!shell->token)
-		exit_error(shell, "alloc fail");
 	if (token_count == 1 && !forkable_builtin(token))
 	{
 		redir_status = do_redirections(token->cmd_args, &error_elem);
