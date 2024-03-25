@@ -10,7 +10,7 @@
 # include "check_key.c"
 # include "get_env.c"
 // mock function to avoid dependencies for testing
-int	not_builtin(t_shell *shell, t_token *token)
+int	exec_bin(t_shell *shell, t_token *token)
 {
 	(void)shell;
 	(void)token;

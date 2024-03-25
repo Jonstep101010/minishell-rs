@@ -11,12 +11,12 @@ char	**append_once() {
 	char	*expected[] = {"Hello, ", "World", "!", NULL};
 	char	**arr = arr_dup(tmp);
 	TEST_ASSERT_NOT_NULL(arr);
+	TEST_ASSERT_EQUAL_STRING_ARRAY(tmp, arr, 3);
 	// print_arr(arr);
 	TEST_ASSERT_NULL(arr[2]);
-	char	**appended = append_str_arr(arr, "!");
+	char	**appended = append_str_arr_free(arr, strdup("!"));
 
 	// print_arr(arr);
-	arr_free(arr);
 	TEST_ASSERT_NOT_NULL(appended);
 	TEST_ASSERT_NULL(appended[3]);
 	TEST_ASSERT_EQUAL_STRING("!", appended[2]);

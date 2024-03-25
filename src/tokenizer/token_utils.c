@@ -18,7 +18,7 @@ void	set_cmd_func(const char *cmd, t_token *token)
 		}
 		i++;
 	}
-	token->cmd_func = not_builtin;
+	token->cmd_func = exec_bin;
 }
 
 t_arg	*init_cmdargs(size_t size)
@@ -40,10 +40,10 @@ t_arg	*init_cmdargs(size_t size)
  */
 t_token	*init_token(size_t size)
 {
-	t_token	*token = ft_calloc(sizeof(t_token), (size + 1));
+	const t_token	*token = ft_calloc(sizeof(t_token), (size + 1));
 	const t_token	template = {
 		.has_redir = false,
-		.cmd_func = not_builtin,
+		.cmd_func = exec_bin,
 	};
 
 	while (token && size--)

@@ -1,7 +1,7 @@
 #ifndef COMMANDS_H
 # define COMMANDS_H
 # include "struct.h"
-int							not_builtin(t_shell *shell, t_token *token);
+int							exec_bin(t_shell *shell, t_token *token);
 int							builtin_cd(t_shell *shell, t_token *token);
 int							builtin_export(t_shell *shell, t_token *token);
 int							builtin_unset(t_shell *shell, t_token *token);

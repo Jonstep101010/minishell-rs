@@ -31,7 +31,7 @@ static char	**splitter(t_splitter *split, const char *trimmed, const char *set)
 		return (arr_free(split->arr), NULL);
 	split->ret = append_str_arr_free(split->arr, split->tmp);
 	if (!split->ret)
-		return (arr_free(split->ret), NULL);
+		return (NULL);
 	split->arr = split->ret;
 	split->start = split->i + 1;
 	return (split->ret);
@@ -51,9 +51,11 @@ static char	**split_iterator(const char *to_split,
 			split->quote = trim[split->i];
 		else if (split->quote && trim[split->i] == split->quote)
 			split->quote = 0;
-		if (!split->quote && is_in_set(trim[split->i], set)
-			&& !splitter(split, trim, set))
-			return (free(split), arr_free(split->ret), NULL);
+		if (!split->quote && is_in_set(trim[split->i], set))
+		{
+			if (!splitter(split, trim, set))
+				return (free(split), arr_free(split->ret), NULL);
+		}
 		split->token_end = split->i;
 		split->i++;
 	}
@@ -75,6 +77,8 @@ char	**split_outside_quotes(const char *to_split, const char *set)
 	trimmed = ft_strtrim(to_split, set);
 	if (!trimmed)
 		return (NULL);
+	if (trimmed == to_split)
+		trimmed = ft_strdup(to_split);
 	ret = split_iterator(to_split, trimmed, set);
 	free(trimmed);
 	return (ret);

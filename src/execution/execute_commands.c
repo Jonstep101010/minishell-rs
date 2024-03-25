@@ -19,7 +19,7 @@ uint8_t	set_binpath(char *const *env, const char *bin, char **binpath_buf);
  * @param shell
  * @param token pointer to element in array of tokens
  */
-int	not_builtin(t_shell *shell, t_token *token)
+int	exec_bin(t_shell *shell, t_token *token)
 {
 	// @todo implement signals
 	int			access_status;
