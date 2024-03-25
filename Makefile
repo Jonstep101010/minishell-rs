@@ -12,7 +12,7 @@ endif
 
 CC = clang
 # ----------------------------- includes/linking ----------------------------- #
-CFLAGS = -Wall -Wextra -Werror -g -fsanitize=address -fsanitize-address-use-after-scope -fno-omit-frame-pointer -I./include $(shell find ./src -type d | sed 's/^/-I/') $(shell find ./include -name "*.a" -exec dirname {} \; | xargs -I{} find {} -type d | sed 's/^/-I/')
+CFLAGS = -Wall -Wextra -Werror -g -fsanitize=address -fsanitize-address-use-after-scope -fno-omit-frame-pointer -I./include -I./include/libutils/include -I./include/libft -I./include/libftprintf -I./include/libgnl
 
 LDFLAGS = ./include/libgnl/libgnl.a ./include/libftprintf/libftprintf.a ./include/libutils/libutils.a ./include/libft/libft.a
 
@@ -29,7 +29,9 @@ SRCS = $(addprefix src/builtins/, builtin_cd.c builtin_echo.c builtin_env.c buil
     $(addprefix src/tokenizer/, build_command.c build_tokens.c destroy_tokens.c token_utils.c redirection_utils.c) \
     $(addprefix src/utils/, arr_utils.c bool_array.c error.c free_strjoin.c free_strjoin_utils.c print_arr_sep.c str_equal.c while_string_wrapper.c memsize.c) \
     src/init.c src/main.c
-OBJS = $(SRCS:.c=.o)
+
+BUILD_DIR = build
+OBJS = $(addprefix $(BUILD_DIR)/, $(SRCS:.c=.o))
 
 TARGET = minishell
 
@@ -37,15 +39,7 @@ TARGET = minishell
 #                                     rules                                    #
 # ---------------------------------------------------------------------------- #
 
-LIBS:
-	$(MAKE) -C ./include/libft
-	$(MAKE) -C ./include/libutils
-	$(MAKE) -C ./include/libgnl
-	$(MAKE) -C ./include/libftprintf
-
-all: $(TARGET) $(LIBS)
-	$(shell mkdir -p build; mv $(OBJS) build)
-	$(DONE_NL)
+all: $(TARGET)
 
 # ----------------------------- additional rules ----------------------------- #
 ceedling:
@@ -66,8 +60,14 @@ memcheck-all: ceedling
 # ---------------------------------------------------------------------------- #
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -lreadline -o $@ $^ $(LDFLAGS)
+	$(DONE_NL)
 
-%.o: %.c
+$(BUILD_DIR)/%.o: %.c
+	mkdir -p $(@D)
+	$(MAKE) -C ./include/libft
+	$(MAKE) -C ./include/libutils
+	$(MAKE) -C ./include/libgnl
+	$(MAKE) -C ./include/libftprintf
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
