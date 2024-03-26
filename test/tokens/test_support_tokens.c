@@ -20,9 +20,9 @@ void	test_support_test_tokens(void)
 	shell = (t_shell *) support_test_tokens((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=you", NULL});
 	(void)shell;
 	shell->token = get_tokens("ls -l $somedir ' ' | cat -e | wc -l");
-	TEST_ASSERT_EQUAL_STRING("ls -l $somedir ' '", shell->token[0].split_pipes);
-	TEST_ASSERT_EQUAL_STRING("cat -e", shell->token[1].split_pipes);
-	TEST_ASSERT_EQUAL_STRING("wc -l", shell->token[2].split_pipes);
+	TEST_ASSERT_EQUAL_STRING("ls -l $somedir ' ' ", shell->token[0].split_pipes);
+	TEST_ASSERT_EQUAL_STRING(" cat -e ", shell->token[1].split_pipes);
+	TEST_ASSERT_EQUAL_STRING(" wc -l", shell->token[2].split_pipes);
 	destroy_all_tokens(shell);
 	arr_free(shell->env);
 	free(shell);
@@ -34,9 +34,9 @@ void test_support_test_tokens_cleanup(void)
 
 	shell->token = get_tokens(" ls -l $somedir ' ' | cat -e | wc -l");
 
-	TEST_ASSERT_EQUAL_STRING("ls -l $somedir ' '", shell->token[0].split_pipes);
-	TEST_ASSERT_EQUAL_STRING("cat -e", shell->token[1].split_pipes);
-	TEST_ASSERT_EQUAL_STRING("wc -l", shell->token[2].split_pipes);
+	TEST_ASSERT_EQUAL_STRING(" ls -l $somedir ' ' ", shell->token[0].split_pipes);
+	TEST_ASSERT_EQUAL_STRING(" cat -e ", shell->token[1].split_pipes);
+	TEST_ASSERT_EQUAL_STRING(" wc -l", shell->token[2].split_pipes);
 
 	destroy_all_tokens(shell);
 	tokenize(shell, " ls -l $somedir ' ' | cat -e | wc -l");
