@@ -8,8 +8,8 @@ typedef struct s_splitter
 	size_t	i;
 	size_t	start;
 	size_t	token_end;
-	char	**ret;
 	char	*tmp;
+	char	*last;
 	char	**arr;
 }	t_splitter;
 

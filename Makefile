@@ -12,7 +12,7 @@ endif
 
 CC = clang
 # ----------------------------- includes/linking ----------------------------- #
-CFLAGS = -Wall -Wextra -Werror -g -fsanitize=address -fsanitize-address-use-after-scope -fno-omit-frame-pointer -I./include -I./include/libutils/include -I./include/libft -I./include/libftprintf -I./include/libgnl
+CFLAGS = -Wall -Wextra -Werror -g -fsanitize=address,undefined -fsanitize-address-use-after-scope -fno-omit-frame-pointer -I./include -I./include/libutils/include -I./include/libft -I./include/libftprintf -I./include/libgnl
 
 LDFLAGS = ./include/libgnl/libgnl.a ./include/libftprintf/libftprintf.a ./include/libutils/libutils.a ./include/libft/libft.a
 
@@ -84,7 +84,6 @@ fclean: clean
 	$(MAKE) -C ./include/libftprintf fclean
 
 re: fclean
-	git submodule update --init
 	$(MAKE)
 
 memtest:

@@ -91,9 +91,19 @@ void	test_add_string_array_as_tokens()
 	shell->env = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", NULL};
 	tokenize(shell, trimmed_line);
 	TEST_ASSERT_NOT_NULL(shell->token);
-	TEST_ASSERT_EQUAL_STRING("ls -l somedir", shell->token[0].split_pipes);
-	TEST_ASSERT_EQUAL_STRING("cat -e", shell->token[1].split_pipes);
-	TEST_ASSERT_EQUAL_STRING("wc -l", shell->token[2].split_pipes);
+	// TEST_ASSERT_EQUAL_STRING("ls -l somedir ", shell->token[0].split_pipes);
+	// TEST_ASSERT_EQUAL_STRING(" cat -e ", shell->token[1].split_pipes);
+	// TEST_ASSERT_EQUAL_STRING("wc -l", shell->token[2].split_pipes);
+
+	TEST_ASSERT_EQUAL_STRING("ls", shell->token[0].cmd_args[0].elem);
+	TEST_ASSERT_EQUAL_STRING("-l", shell->token[0].cmd_args[1].elem);
+	TEST_ASSERT_EQUAL_STRING("somedir", shell->token[0].cmd_args[2].elem);
+
+	TEST_ASSERT_EQUAL_STRING("cat", shell->token[1].cmd_args[0].elem);
+	TEST_ASSERT_EQUAL_STRING("-e", shell->token[1].cmd_args[1].elem);
+
+	TEST_ASSERT_EQUAL_STRING("wc", shell->token[2].cmd_args[0].elem);
+	TEST_ASSERT_EQUAL_STRING("-l", shell->token[2].cmd_args[1].elem);
 	destroy_all_tokens(shell);
 	free(shell->token);
 	free(shell);

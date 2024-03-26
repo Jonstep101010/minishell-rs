@@ -14,26 +14,25 @@
 #include "commands.h"
 t_lexer lexer(t_shell *shell, const char *trimmed_line);
 
+char	*get_input(char *rl_prompt);
+
 void	minishell_loop(t_shell *shell)
 {
-	char	*readline_line;
 	char	*trimmed_line;
 
 	check_signals(&shell->p_termios);
 	while (1)
 	{
-		readline_line = readline("minishell> ");
-		trimmed_line = ft_strtrim(readline_line, WHITESPACE);
-		if (!readline_line || !trimmed_line)
+		trimmed_line = get_input(readline("minishell> "));
+		if (!trimmed_line)
 			builtin_exit(shell, NULL);
 		add_history(trimmed_line);
-		free(readline_line);
 		if (*trimmed_line == '\0' || lexer(shell, trimmed_line) != LEXER_SUCCESS)
 		{
-			free(trimmed_line);
+			get_input(NULL);
 			continue ;
 		}
-		free(trimmed_line);
+		get_input(NULL);
 		if (shell->env && *shell->env && shell->token)
 		{
 			execute_commands(shell, shell->token);
