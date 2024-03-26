@@ -27,16 +27,10 @@ void	minishell_loop(t_shell *shell)
 		if (!trimmed_line)
 			builtin_exit(shell, NULL);
 		add_history(trimmed_line);
-		if (*trimmed_line == '\0' || lexer(shell, trimmed_line) != LEXER_SUCCESS)
-		{
-			get_input(NULL);
+		if (!*trimmed_line || lexer(shell, trimmed_line) != LEXER_SUCCESS)
 			continue ;
-		}
-		get_input(NULL);
 		if (shell->env && *shell->env && shell->token)
-		{
 			execute_commands(shell, shell->token);
-		}
 	}
 }
 

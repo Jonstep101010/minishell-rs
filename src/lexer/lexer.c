@@ -23,6 +23,8 @@ static int	lex_error(t_lexer code)
 	return (0);
 }
 
+char	*get_input(char *rl_prompt);
+
 t_lexer	lexer(t_shell *shell, const char *trimmed_line)
 {
 	t_lexer	code;
@@ -33,7 +35,9 @@ t_lexer	lexer(t_shell *shell, const char *trimmed_line)
 		update_exit_status(shell, lex_error(code));
 		return (code);
 	}
-	if (!tokenize(shell, trimmed_line))
+	shell->token = tokenize(shell, trimmed_line);
+	get_input(NULL);
+	if (!shell->token)
 		return (LEXER_NULL);
 	if (!shell->token->cmd_args)
 		return (destroy_all_tokens(shell), LEXER_NULL);
