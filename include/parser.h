@@ -4,13 +4,12 @@
 # include <stddef.h>
 typedef struct s_splitter
 {
-	int		quote;
-	size_t	i;
-	size_t	start;
-	size_t	token_end;
-	char	*tmp;
-	char	*last;
-	char	**arr;
+	int			quote;
+	size_t		start;
+	size_t		len;
+	char		**arr;
+	char		*to_split;
+	const char	*set;
 }	t_splitter;
 
 char	**split_outside_quotes(const char *to_split, const char *set);

@@ -22,9 +22,9 @@ void	test_prep_token(void)
 	// add the split tokens as tokens
 	shell->token = (t_token *)get_tokens(trimmed_line);
 
-	TEST_ASSERT_EQUAL_STRING("ls -l $somedir ' '", shell->token[0].split_pipes);
-	TEST_ASSERT_EQUAL_STRING("cat -e", shell->token[1].split_pipes);
-	TEST_ASSERT_EQUAL_STRING("wc -l", shell->token[2].split_pipes);
+	TEST_ASSERT_EQUAL_STRING("ls -l $somedir ' ' ", shell->token[0].split_pipes);
+	TEST_ASSERT_EQUAL_STRING(" cat -e ", shell->token[1].split_pipes);
+	TEST_ASSERT_EQUAL_STRING(" wc -l", shell->token[2].split_pipes);
 
 	destroy_all_tokens(shell);
 	arr_free(shell->env);
