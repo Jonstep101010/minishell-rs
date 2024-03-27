@@ -1,19 +1,12 @@
+#include "utils.h"
+#include "execution.h"
+#include "minishell.h"
 #include "commands.h"
 #include "struct.h"
-#include "tokens.h"
-#include "utils.h"
-#include <errno.h>
-#include <fcntl.h>
-#include <readline/readline.h>
-#include <stdbool.h>
-#include <string.h>
-#include <sys/param.h>
-#include <sys/wait.h>
-#include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
-#include "execution.h"
-#include "tokens.h"
+#include <sys/wait.h>
+#include <sys/param.h>
+#include <unistd.h>
 
 static void	exec_last(t_shell *shell, int i, int prevpipe, char **error_elem)
 {

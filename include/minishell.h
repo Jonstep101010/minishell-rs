@@ -1,12 +1,13 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 /* helper functions to prototype*/
-#include "struct.h"
+# include "struct.h"
 int while_d(const char *s, int (*)(int), int is_true, int *index);
 int while_i(const char *s, int (*)(int), int is_true, int *index);
 int	while_not_i(const char *s, int (*)(int), char c, int *index);
 int	while_is_i(const char *s, char c, int *index);
-
+# include "lexer.h"
+t_lexer lexer(t_shell *shell, const char *trimmed_line);
 // initialize shell
 void	update_exit_status(t_shell *shell, int status);
 

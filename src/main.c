@@ -1,20 +1,14 @@
-#include "lexer.h"
-#include "struct.h"
+#include <stdio.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <unistd.h>
-
 #include "msh_signals.h"
-
 #include "minishell.h"
-#include "libft.h"
 #include <stdlib.h>
-#include "get_next_line.h"
 #include "utils.h"
 #include "commands.h"
-t_lexer lexer(t_shell *shell, const char *trimmed_line);
-
-char	*get_input(char *rl_prompt);
+#include "lexer.h"
+#include "struct.h"
 
 void	minishell_loop(t_shell *shell)
 {

@@ -35,5 +35,6 @@ void	eprint_single(const char *fmt, ...);
 t_shell	*init_shell(char *const *envp);
 void	update_exit_status(t_shell *shell, int status);
 
+char	*get_input(char *rl_prompt);
 
 #endif
