@@ -18,9 +18,4 @@ typedef const struct s_func
 	t_cmd_func_builtin		cmd;
 }	t_func;
 
-static const struct s_func	g_cmds[] = {
-{"echo", echo}, {"cd", builtin_cd},
-{"pwd", builtin_pwd}, {"export", builtin_export},
-{"unset", builtin_unset}, {"env", builtin_env},
-{"exit", builtin_exit}, {NULL, NULL}};
 #endif

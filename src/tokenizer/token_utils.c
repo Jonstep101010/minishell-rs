@@ -7,7 +7,7 @@
 void	set_cmd_func(const char *cmd, t_token *token)
 {
 	uint8_t					i;
-	const struct s_func	cmds[] = {
+	const struct s_func		cmds[] = {
 	{"echo", echo}, {"cd", builtin_cd},
 	{"pwd", builtin_pwd}, {"export", builtin_export},
 	{"unset", builtin_unset}, {"env", builtin_env},
