@@ -36,9 +36,17 @@ static int	unset_internal(const char *const *args, char **env)
 
 int	builtin_unset(t_shell *shell, t_token *token)
 {
-	const char *const	*args = (const char *const *)token->command;
+	int			status;
+	const char	**args = (const char **)get_cmd_arr_token(token);
 
-	if (!shell->env || !*(args + 1) || !*shell->env)
+	if (!shell->env || !args || !*shell->env)
 		return (0);
-	return (unset_internal(args + 1, shell->env));
+	if (!*args)
+	{
+		arr_free((char **)args);
+		return (0);
+	}
+	status = unset_internal(args + 1, shell->env);
+	arr_free((char **)args);
+	return (status);
 }

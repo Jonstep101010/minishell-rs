@@ -2,9 +2,7 @@
 #include <signal.h>
 #include <termios.h>
 #include <unistd.h>
-// #include <bits/alltypes.h>
 #include <stdio.h>
-// #include <readline/rltypedefs.h>
 #include <readline/readline.h>
 
 void	check_signals(struct termios *p_termios)

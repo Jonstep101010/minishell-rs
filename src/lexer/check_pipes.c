@@ -2,113 +2,98 @@
 #include "minishell.h"
 #include "libft.h"
 #include "libutils.h"
+#include "utils.h"
 
-static	bool	inner_loop(const char *s, int *i, int *count)
+int	check_pipes_redirection_quotes(const char *s, t_lexer *input)
 {
-	while (s[*i])
+	if (!input->ignore)
+		return (LEXER_NULL);
+	int	flag_redir = 0;
+	int	flag_word = 0;
+	if (*s == '|')
+		return (eprint("found leading pipe"), ERR_LEADING);
+	fprintf(stderr, "s: %s\n", s);
+	if (ft_strchr("<>|", s[input->len - 1]))
+		return (eprint("found trailing redir/pipe"), ERR_TRAILING);
+	size_t	i = 0;
+	while (i < input->len && input->ignore)
 	{
-		if (ft_isalnum(s[*i]))
+		if (input->ignore && !input->ignore[i])
 		{
-			(*count)++;
-			(*i)++;
-			break ;
-		}
-		if (s[*i] == '>' || s[*i] == '<' || s[*i] == '|')
-			return (false);
-		(*i)++;
-	}
-	return (true);
-}
-
-static bool	redir_valid(const char *s, const int redircount, char c)
-{
-	int	i;
-	int	count;
-
-	i = 0;
-	count = redircount;
-	while (s[i])
-	{
-		while (s[i] && s[i] != c)
-			i++;
-		if (s[i] == c)
-		{
-			i++;
-			if (s[i] == c)
+			flag_word = 0;
+			flag_redir = 0;
+			while (s[i] && s[i] != '|' && !input->ignore[i])
+			{
+				if (ft_strchr("><", s[i]) && (!flag_redir || (s[i - 1] && s[i - 1] == s[i] && (!s[i - 2] || ft_isspace(s[i - 2])))))
+					flag_redir = 1;
+				else if (ft_strchr("><", s[i]))
+					return (eprint("syntax error near unexpected token `newline'"), 2);
+				else if (ft_isalnum(s[i]))
+				{
+					flag_redir = 0;
+					flag_word = 1;
+				}
 				i++;
-			count--;
-		}
-		if (!inner_loop(s, &i, &count))
-			return (false);
-	}
-	return (count == redircount);
-}
-
-static bool	two_pipes_valid(const char *s, const int index)
-{
-	int	flag;
-	int	i;
-
-	i = 0;
-	flag = 0;
-	i = ft_strlen(s) - 1;
-	flag = 0;
-	while (s[i] && i >= index)
-	{
-		while_d(s, ft_isspace, 1, &i);
-		flag = while_d(s, &ft_isalnum, 1, &i);
-		while_d(s, &ft_isspace, 1, &i);
-		if (s[i] == '|' && flag == 1 && index + 1 == i)
-			return (true);
-		return (false);
-	}
-	return (false);
-}
-
-static bool	pipes_valid(const char *s, const int pipes)
-{
-	int	i;
-	int	count;
-
-	i = 0;
-	count = pipes;
-	while (s[i])
-	{
-		if (while_not_i(s, &ft_isalnum, '|', &i) == 0)
-			return (false);
-		if (s[i] == '|' && s[i + 1] == '|' && pipes == 2)
-			return (two_pipes_valid(s, i));
-		while_i(s, ft_isspace, 1, &i);
-		count -= while_is_i(s, '|', &i);
-		if (count > 2)
-			return (false);
-		while (s[i])
-		{
-			if (ft_isalnum(s[i]))
-				return (count + 1 == pipes);
-			if (s[i] == '>' || s[i] == '<' || s[i] == '|')
+			}
+			if (input->ignore[i])
 				break ;
-			i++;
+			else if (!flag_word)
+				return (eprint("syntax error near unexpected token `|'"), 2);
+			else if ((!s[i] || s[i] == '|') && (flag_redir || !flag_word))
+				return (eprint("syntax error near unexpected token `|'"), 2);
+			while (s[i] && s[i] == '|')
+				i++;
 		}
+		else
+			i++;
 	}
-	return (count == pipes);
+	if (flag_redir)
+		return (eprint("syntax error near unexpected token `newline'"), 2);
+	return (LEXER_SUCCESS);
 }
 
-t_lexer	check_pipes_redirection(const char *s, struct s_lexer *input)
+int	check_pipes_redirection(const char *s, t_lexer *input)
 {
-	if (input->pipes > 0)
+	int	flag_redir = 0;
+	int	flag_word = 0;
+	if (input->ignore)
+		return (check_pipes_redirection_quotes(s, input));
+	if (*s == '|')
+		return (eprint("found leading pipe"), ERR_LEADING);
+	fprintf(stderr, "s: %s\n", s);
+	if (ft_strchr("<>|", s[input->len - 1]))
+		return (eprint("found trailing redir/pipe"), ERR_TRAILING);
+	size_t	i = 0;
+	while (i < input->len)
 	{
-		input->lexer = LEXER_PIPES;
-		if (s[0] == '|' || s[ft_strlen(s) - 1] == '|')
-			return (LEXER_PIPES);
-		if (!pipes_valid(s, input->pipes))
-			return (LEXER_PIPES);
+		if (s[i])
+		{
+			flag_word = 0;
+			flag_redir = 0;
+			while (s[i] && s[i] != '|')
+			{
+				if (ft_strchr("><", s[i]) && (!flag_redir || (s[i - 1] && s[i - 1] == s[i] && (!s[i - 2] || ft_isspace(s[i - 2])))))
+					flag_redir = 1;
+				else if (ft_strchr("><", s[i]))
+					return (eprint("syntax error near unexpected token `newline'"), 2);
+				else if (ft_isalnum(s[i]))
+				{
+					flag_redir = 0;
+					flag_word = 1;
+				}
+				i++;
+			}
+			if (!flag_word)
+				return (eprint("syntax error near unexpected token `|'"), 2);
+			if ((!s[i] || s[i] == '|') && (flag_redir || !flag_word))
+				return (eprint("syntax error near unexpected token `|'"), 2);
+			while (s[i] && s[i] == '|')
+				i++;
+		}
+		else
+			i++;
 	}
-	input->lexer = LEXER_REDIRECTION;
-	if (input->redir_greater > 0 && !redir_valid(s, input->redir_greater, '>'))
-		return (LEXER_REDIRECTION);
-	if (input->redir_smaller > 0 && !redir_valid(s, input->redir_smaller, '<'))
-		return (LEXER_REDIRECTION);
-	input->lexer = LEXER_SUCCESS;
+	if (flag_redir)
+		return (eprint("syntax error near unexpected token `newline'"), 2);
 	return (LEXER_SUCCESS);
 }

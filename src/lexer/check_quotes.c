@@ -1,38 +1,7 @@
 #include "lexer.h"
 #include "libft.h"
 
-// void debug_print_table(const char *s, const bool *arr) {
-// 	if (!s || !arr)
-// 		return ;
-// 	for (int i = 0; i <= (int)strlen(s); i++){
-// 		fprintf(stderr, "i: [%d]: %d, %c\n", i, arr[i], s[i]);
-// 	}
-// 	for (int i = 0; i <= (int)strlen(s); i++){
-// 		if (arr[i] == true)
-// 			fprintf(stderr, "%d", arr[i]);
-// 		else
-// 			fprintf(stderr, "%d", arr[i]);
-// 	}
-// 	fprintf(stderr,"\n");
-// }
-
-// void debug_print_line(const char *s, const bool *arr) {
-// 	if (!s || !arr)
-// 		return ;
-// 	for (int i = 0; i <= (int)strlen(s); i++){
-// 		fprintf(stderr, "%c", s[i]);
-// 	}
-// 	fprintf(stderr,"\n");
-// 	for (int i = 0; i <= (int)strlen(s); i++){
-// 		if (arr[i] == true)
-// 			fprintf(stderr, "%d", arr[i]);
-// 		else
-// 			fprintf(stderr, "%d", arr[i]);
-// 	}
-// 	fprintf(stderr,"\n");
-// }
-
-t_lexer	ignore_quotes(const char *s, struct s_lexer *input)
+enum e_lexer	ignore_quotes(const char *s, struct s_lexer *input)
 {
 	if (!s || !input)
 		return (LEXER_NULL);
@@ -47,7 +16,7 @@ t_lexer	ignore_quotes(const char *s, struct s_lexer *input)
 	return (LEXER_SUCCESS);
 }
 
-t_lexer	check_against_ignore(const char *s, struct s_lexer *input)
+enum e_lexer	check_against_ignore(const char *s, struct s_lexer *input)
 {
 	int	i;
 
@@ -56,8 +25,6 @@ t_lexer	check_against_ignore(const char *s, struct s_lexer *input)
 	if (input->ignore == NULL)
 		return (LEXER_NULL);
 	i = 0;
-	if (input->singlequotes % 2 != 0 || input->doublequotes % 2 != 0)
-		return (LEXER_UNBALANCED_QUOTES);
 	while (i < (int)input->len)
 	{
 		if (input->ignore[i] == false)

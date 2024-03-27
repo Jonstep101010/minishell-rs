@@ -21,3 +21,4 @@ void	eprint_single(const char *fmt, ...)
 	ft_vdprintf(STDERR_FILENO, fmt, args);
 	va_end(args);
 }
+

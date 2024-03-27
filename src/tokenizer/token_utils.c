@@ -4,51 +4,56 @@
 #include "commands.h"
 #include "libft.h"
 
-void	set_cmd_func(t_token *token)
+void	set_cmd_func(const char *cmd, t_token *token)
 {
-	uint8_t	i;
+	uint8_t					i;
+	const struct s_func		cmds[] = {
+	{"echo", echo}, {"cd", builtin_cd},
+	{"pwd", builtin_pwd}, {"export", builtin_export},
+	{"unset", builtin_unset}, {"env", builtin_env},
+	{"exit", builtin_exit}, {NULL, NULL}};
 
 	i = 0;
-	while (g_cmds[i].name)
+	while (cmds[i].name)
 	{
-		if (equal(
-				token->cmd_args[0].elem, g_cmds[i].name))
+		if (equal(cmd, cmds[i].name))
 		{
-			token->cmd_func = g_cmds[i].cmd;
+			token->cmd_func = cmds[i].cmd;
 			return ;
 		}
 		i++;
 	}
-	token->cmd_func = not_builtin;
+	token->cmd_func = exec_bin;
 }
 
 t_arg	*init_cmdargs(size_t size)
 {
-	t_arg	*args;
+	t_arg		*args;
+	const t_arg	template = {
+		.redir = NO_REDIR,
+		.type = STRING
+	};
 
-	if (size == 0)
-		return (NULL);
-	args = ft_calloc(sizeof(t_arg), (size + 1));
-	if (!args)
-		return (NULL);
-	args[size].elem = NULL;
-	args[size].redir = NO_REDIR;
-	args[size].type = STRING;
+	args = ft_calloc(size + 1, sizeof(*args));
+	while (args && size--)
+		ft_memcpy(&args[size], &template, sizeof(*args));
 	return (args);
 }
 
+/**
+ * @param size must be size of non-NULL, terminated array
+ * @return t_token* instance
+ */
 t_token	*init_token(size_t size)
 {
-	t_token	*token;
+	t_token			*token;
+	const t_token	template = {
+		.has_redir = false,
+		.cmd_func = exec_bin,
+	};
 
-	token = ft_calloc(sizeof(t_token), (size + 1));
-	if (!token)
-		return (NULL);
-	token[size].cmd_args = NULL;
-	token[size].tmp_arr = NULL;
-	token[size].command = NULL;
-	token[size].split_pipes = NULL;
-	token[size].cmd_func = NULL;
-	token[size].has_redir = false;
+	token = ft_calloc(size + 1, sizeof(*token));
+	while (token && size--)
+		ft_memcpy(&token[size], &template, sizeof(*token));
 	return (token);
 }

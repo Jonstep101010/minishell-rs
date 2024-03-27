@@ -1,8 +1,7 @@
+#include "libutils.h"
 #include "tokens.h"
 #include "libft.h"
 #include <stdbool.h>
-
-size_t	arr_len_size(void *arr, size_t size);
 
 void	rm_prefix_redir_word(t_arg *arg)
 {
@@ -12,7 +11,7 @@ void	rm_prefix_redir_word(t_arg *arg)
 	if (!arg)
 		return ;
 	i = 0;
-	len = arr_len_size(arg, sizeof(t_arg));
+	len = memsize(arg, sizeof(t_arg));
 	while (arg[i].elem)
 	{
 		if (arg[i].type == REDIR_REMOVED && arg[i + 1].elem)
@@ -47,7 +46,7 @@ void	parse_redir_types(t_arg *arg)
 				tmp = ft_strdup(&arg[i].elem[1]);
 			else
 				tmp = ft_strdup(&arg[i].elem[2]);
-			free(arg[i].elem);
+			free_null(&(arg[i].elem));
 			arg[i].elem = tmp;
 		}
 	}
@@ -73,7 +72,6 @@ static void	set_type_redir(t_arg *cmd_arg)
 	}
 }
 
-// @audit quotes removal needs to hapen after this
 // cannot be inside quotes at this point (we compare max 2 chars)
 enum e_redir	check_redirections(t_arg *cmd_args)
 {

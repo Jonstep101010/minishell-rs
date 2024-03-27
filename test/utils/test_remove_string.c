@@ -4,8 +4,6 @@
 #include "../src/utils/arr_utils.c"
 #include "../src/utils/str_equal.c"
 
-#include "print_arr_sep.c"
-
 void	test_arr_remove_hello() {
 	char	*tmp[] = {"Hello, ", "World", "!", NULL};
 

@@ -1,8 +1,6 @@
 #include "unity.h"
 #include "support_lib.c"
 
-// TEST_INCLUDE_PATH("../include/libft/src/")
-
 void	test_arr_len() {
 	char	**arr = (char *[]){"0", "1", "2", "3", "4", NULL};
 	TEST_ASSERT_NOT_NULL(arr);
@@ -42,7 +40,6 @@ void	test_arr_free() {
 	TEST_ASSERT_NULL(arr_dup(NULL));
 }
 
-// #include "print_arr_sep.c"
 #include "str_equal.c"
 #include "arr_utils.c"
 
@@ -118,3 +115,20 @@ void	test_arr_dup_empty_string() {
 // 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, env, 5);
 // 	arr_free(env);
 // }
+
+void	test_append_arr_free() {
+	char	**arr = NULL;
+	char	*str = strdup("hello");
+	char	**ret = append_str_arr_free(arr, str);
+	TEST_ASSERT_NOT_NULL(ret);
+	TEST_ASSERT_EQUAL_STRING("hello", ret[0]);
+	arr_free(ret);
+}
+
+void	test_append_arr_free_one() {
+	char	**arr = NULL;
+	char	*str = NULL;
+	char	**ret = append_str_arr_free(arr, str);
+	TEST_ASSERT_NULL(ret);
+	arr_free(ret);
+}

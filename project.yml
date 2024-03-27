@@ -23,12 +23,12 @@
   :test:
     - +:test/lexer/
     - +:test/bool_array/
-    - +:test/wrapper/
     - +:test/parser/
     - +:test/utils/
     - +:test/env/
     - +:test/tokens/
     - +:test/random/
+    - +:test/execution/
   :source:
     - +:src/*
   :include:
@@ -85,9 +85,10 @@
       :artifacts:
         :includes:
           - ./include
-          - ./src/array
           - ./src/string
+          - ./src/array
           - ./src/char
+          - ./src/utils
         :static_libraries:
           - libutils.a
     - :name: libftprintf

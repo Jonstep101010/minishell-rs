@@ -7,6 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <err.h>
+#include "str_utils.h"
 
 /**
  * @brief change directory to path, update PWD and OLDPWD
@@ -31,9 +32,9 @@ static int	changedir(const char *path, t_shell *shell)
 		eprint("cd: %s: %s\n", path, strerror(errno));
 		return (free(oldpwd), -1);
 	}
-	export_env(shell, str_join(2, "PWD=", pwd));
-	export_env(shell, str_join(2, "OLDPWD=", oldpwd));
-	return (free(pwd), free(oldpwd), 0);
+	export_env(shell, free_second_join("PWD=", pwd));
+	export_env(shell, free_second_join("OLDPWD=", pwd));
+	return (0);
 }
 
 /**
@@ -42,7 +43,7 @@ static int	changedir(const char *path, t_shell *shell)
  * @param shell to update env
  * @return int exit code
  */
-static int	cd_internal(char *const *cmd_args, t_shell *shell)
+static int	cd_internal(const char **cmd_args, t_shell *shell)
 {
 	char	*path;
 	char	*oldpwd;
@@ -72,5 +73,10 @@ static int	cd_internal(char *const *cmd_args, t_shell *shell)
 
 int	builtin_cd(t_shell *shell, t_token *token)
 {
-	return (cd_internal(token->command, shell));
+	int			status;
+	const char	**command = (const char **)get_cmd_arr_token(token);
+
+	status = cd_internal(command, shell);
+	arr_free((char **)command);
+	return (status);
 }

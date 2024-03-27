@@ -52,9 +52,6 @@ void	test_assert_can_distinguish() {
 	free(arg);
 }
 
-// @audit no more than 2 redirs per elem/word (other than quoted strings)
-// @follow-up check that there is no redirection in the REDIR_WORD (lexer), and that it is non null
-
 void	test_assert_trim() {
 	t_arg	*arg = support_redir_simple_one();
 	TEST_ASSERT(check_redirections(arg));
@@ -129,8 +126,6 @@ void	test_assert_simplify() {
 	};
 	for (int i = 0; i < 7; i++)
 	{
-		// if (arg[i].type == REDIR_WORD)// integration into functions @follow-up
-		// 	TEST_FAIL_MESSAGE("redir_word should have been removed");
 		TEST_ASSERT_EQUAL_STRING(expected[i].elem, arg[i].elem);
 		TEST_ASSERT_EQUAL_INT(expected[i].type, arg[i].type);
 		TEST_ASSERT_EQUAL_INT(expected[i].redir, arg[i].redir);
@@ -152,8 +147,6 @@ void	test_assert_simplify_two() {
 	};
 	for (int i = 0; i < 5; i++)
 	{
-		// if (arg[i].type == REDIR_WORD || arg[i].type == REDIR_REMOVED)// integration into functions @follow-up
-		// 	TEST_FAIL();
 		TEST_ASSERT_EQUAL_STRING(expected[i].elem, arg[i].elem);
 		TEST_ASSERT_EQUAL_INT(expected[i].type, arg[i].type);
 		TEST_ASSERT_EQUAL_INT(expected[i].redir, arg[i].redir);

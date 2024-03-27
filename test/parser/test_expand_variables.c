@@ -7,6 +7,7 @@
 #include "error.c"
 #include "arr_utils.c"
 #include "str_equal.c"
+#include "destroy_tokens.c"
 
 void	test_expander() {
 	char	*line = "echo $PAGER";
@@ -58,8 +59,6 @@ void	test_expander_two() {
 // // echo $'PAGER'S -> echo $PAGERS
 // // echo '$PAGER' -> echo $PAGER
 // // echo $"PAGER"S -> echo $PAGERS
-
-// @audit single quotes
 void	test_expander_ignore_in_singlequotes() {
 	char	*line = "echo '$PAGER'";
 	char	*envp[] = {"PAGER=true", "TEST=false", NULL};

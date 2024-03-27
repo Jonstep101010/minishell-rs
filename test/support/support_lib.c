@@ -21,6 +21,7 @@
 #include "ft_strlcat.c"
 #include "ft_strncmp.c"
 #include "ft_strnstr.c"
+#include "ft_split.c"
 
 #include "ft_atol.c"
 
@@ -30,7 +31,6 @@
 #include "arr_dup.c"
 
 #include "support_printf.c"
-#include "print_arr.c"
 #include "is_something.c"
 #include "append_str.c"
 #include "join_strings.c"
@@ -39,3 +39,4 @@
 #include "free_strjoin_utils.c"
 #include "append_char.c"
 #include "secure_strlen.c"
+#include "../../include/libutils/src/utils/memsize.c"

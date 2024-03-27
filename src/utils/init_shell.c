@@ -31,7 +31,7 @@ t_shell	*init_shell(char *const *envp)
 {
 	t_shell	*shell;
 
-	shell = (t_shell *)ft_calloc(1, sizeof(t_shell));
+	shell = ft_calloc(1, sizeof(t_shell));
 	if (!shell)
 		exit(1);
 	shell->p_termios = (struct termios){0};

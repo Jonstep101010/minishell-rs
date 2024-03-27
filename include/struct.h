@@ -14,4 +14,6 @@ typedef struct s_shell
 	struct termios	p_termios;
 }	t_shell;
 
+void	update_exit_status(t_shell *shell, int status);
+
 #endif

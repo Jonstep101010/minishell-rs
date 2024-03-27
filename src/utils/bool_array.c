@@ -7,7 +7,7 @@ bool	*bool_arr_zeroing(size_t len)
 	size_t	i = 0;
 	bool	*ignore;
 
-	ignore = (bool *) ft_calloc(len + 1, sizeof(bool));
+	ignore = ft_calloc(len + 1, sizeof(bool));
 	if (!ignore)
 		return (NULL);
 	while (i < len + 1)
