@@ -1,8 +1,7 @@
 #ifndef UTILS_H
 # define UTILS_H
 # include "arr_utils.h"
-# include "libutils.h"
-#include "tokens.h"
+# include "tokens.h"
 
 char	*equal(const char *expected, const char *actual);
 

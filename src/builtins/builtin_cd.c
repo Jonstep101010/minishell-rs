@@ -7,6 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <err.h>
+#include "str_utils.h"
 
 /**
  * @brief change directory to path, update PWD and OLDPWD

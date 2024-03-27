@@ -1,4 +1,5 @@
 #include "libft.h"
+#include "str_utils.h"
 #include "utils.h"
 #include "environment.h"
 

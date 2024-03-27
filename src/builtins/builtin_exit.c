@@ -1,5 +1,6 @@
 #include "struct.h"
 #include "arr_utils.h"
+#include "str_utils.h"
 #include <stdlib.h>
 #include "utils.h"
 #include "libft.h"
