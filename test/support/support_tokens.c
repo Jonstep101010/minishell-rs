@@ -3,7 +3,6 @@
 #include "struct.h"
 #include "init.c"
 #include "support_lib.c"
-#include "memsize.c"
 #include "destroy_tokens.c"
 #include "support_commands.c"
 #include "build_command.c"

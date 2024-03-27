@@ -3,7 +3,7 @@
 # include <stddef.h>
 # include <stdbool.h>
 
-typedef enum e_lexer
+enum e_lexer
 {
 	LEXER_SUCCESS,
 	LEXER_NULL,
@@ -13,9 +13,13 @@ typedef enum e_lexer
 	LEXER_PIPES,
 	LEXER_SINGLE_QUOTE,
 	LEXER_DOUBLE_QUOTE,
-}	t_lexer;
+	ERR_TRAILING,
+	ERR_LEADING,
+	ERR_EMPTY_PIPES,
+	LEXER_BEGIN,
+};
 
-struct s_lexer
+typedef struct s_lexer
 {
 	int		singlequotes;
 	int		doublequotes;
@@ -28,14 +32,16 @@ struct s_lexer
 	int		redir_greater;
 	int		redir_smaller;
 	int		pipes;
-	t_lexer	lexer;
 	bool	*ignore;
 	size_t	len;
-};
+	char	*error;
+	int		exit_status;
+	enum 	e_lexer lexer;
+}	t_lexer;
 
-t_lexer	ignore_quotes(const char *s, struct s_lexer *input);
-t_lexer	check_pipes_redirection(const char *s, struct s_lexer *input);
-t_lexer	check_against_ignore(const char *s, struct s_lexer *input);
+enum e_lexer	ignore_quotes(const char *s, struct s_lexer *input);
+int		check_pipes_redirection(const char *s, t_lexer *input);
+enum e_lexer	check_against_ignore(const char *s, struct s_lexer *input);
 void	count_number(const char *s, struct s_lexer *input);
 
 bool	*bool_arr_zeroing(size_t len);

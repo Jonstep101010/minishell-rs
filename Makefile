@@ -32,7 +32,7 @@ SRCS = $(addprefix src/builtins/, builtin_cd.c builtin_echo.c builtin_env.c buil
     $(addprefix src/parser/, interpret_quotes.c split_outside_quotes.c) \
     $(addprefix src/signals/, signals.c) \
     $(addprefix src/tokenizer/, build_command.c build_tokens.c destroy_tokens.c token_utils.c redirection_utils.c) \
-    $(addprefix src/utils/, arr_utils.c bool_array.c error.c print_arr_sep.c str_equal.c while_string_wrapper.c get_input.c) \
+    $(addprefix src/utils/, arr_utils.c bool_array.c error.c print_arr_sep.c str_equal.c get_input.c exit_free.c) \
     src/init.c src/main.c
 
 BUILD_DIR = build

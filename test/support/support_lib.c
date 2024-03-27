@@ -40,3 +40,4 @@
 #include "free_strjoin_utils.c"
 #include "append_char.c"
 #include "secure_strlen.c"
+#include "../../include/libutils/src/utils/memsize.c"

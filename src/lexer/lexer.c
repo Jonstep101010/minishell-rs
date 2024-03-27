@@ -7,34 +7,40 @@
 #include "tokens.h"
 #include <sys/wait.h>
 
-t_lexer	lexer_checks_basic(const char *s);
-void	builtin_exit(t_shell *shell, t_token *token);
 
-static int	lex_error(t_lexer code)
-{
-	if (code == LEXER_SINGLE_QUOTE)
-		return (eprint_single("syntax error near unexpected token '''\n"), 0);
-	if (code == LEXER_DOUBLE_QUOTE)
-		return (eprint_single("syntax error near unexpected token '\"'\n"), 0);
-	if (code == LEXER_UNBALANCED_QUOTES)
-		return (eprint_single("Error: quotes not closed\n"), 0);
-	if (code == LEXER_PIPES)
-		return (eprint_single("syntax error near unexpected token '|'\n"), 127);
-	return (0);
-}
+// int	lex_error(t_lexer code)
+// {
+// 	if (code == LEXER_SINGLE_QUOTE)
+// 		return (eprint_single("syntax error near unexpected token '''\n"), 0);
+// 	if (code == LEXER_DOUBLE_QUOTE)
+// 		return (eprint_single("syntax error near unexpected token '\"'\n"), 0);
+// 	if (code == LEXER_UNBALANCED_QUOTES)
+// 		return (eprint_single("Error: quotes not closed\n"), 0);
+// 	if (code == LEXER_PIPES)
+// 		return (eprint_single("syntax error near unexpected token '|'\n"), 127);
+// 	return (0);
+// }
 
+t_lexer	*lexer_checks_basic(const char *s);
 char	*get_input(char *rl_prompt);
 
-t_lexer	lexer(t_shell *shell, const char *trimmed_line)
+int	lexer(t_shell *shell, const char *trimmed_line)
 {
-	t_lexer	code;
+	t_lexer	*lex;
 
-	code = lexer_checks_basic(trimmed_line);
-	if (code != LEXER_SUCCESS)
+	lex = lexer_checks_basic(trimmed_line);
+	if (lex->lexer != LEXER_SUCCESS)
 	{
-		update_exit_status(shell, lex_error(code));
-		return (code);
+		// update_exit_status(shell, lex_error(lex->lexer));
+		return (lex->lexer);
 	}
+	// if (code != LEXER_SUCCESS)
+	// 	eprint("would not pass: %d", code);
+	// if (code != 0)
+	// {
+	// 	update_exit_status(shell, lex_error(code));
+	// 	return (code);
+	// }
 	shell->token = tokenize(shell, trimmed_line);
 	get_input(NULL);
 	if (!shell->token)

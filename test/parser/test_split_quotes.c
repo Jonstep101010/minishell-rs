@@ -295,18 +295,39 @@ void	test_split_spaceshit_two() {
 				{"cat", NULL},
 		(char *[]){"cat", NULL},
 		(char *[]){"ls", NULL}, NULL};
-	int	i = 1000;
-	while (i--)
-	{
-		tokens_two_first = split_outside_quotes(tokens[0], WHITESPACE);
-	 	tokens_two_second = split_outside_quotes(tokens[1], WHITESPACE);
-		tokens_two_third= split_outside_quotes(tokens[2], WHITESPACE);
-		TEST_ASSERT_EQUAL_STRING_ARRAY(expected_two[0], tokens_two_first, 2);
-		TEST_ASSERT_EQUAL_STRING_ARRAY(expected_two[1], tokens_two_second, 2);
-		TEST_ASSERT_EQUAL_STRING_ARRAY(expected_two[2], tokens_two_third, 2);
-		arr_free(tokens_two_first);
-		arr_free(tokens_two_second);
-		arr_free(tokens_two_third);
-	}
+	tokens_two_first = split_outside_quotes(tokens[0], WHITESPACE);
+	tokens_two_second = split_outside_quotes(tokens[1], WHITESPACE);
+	tokens_two_third= split_outside_quotes(tokens[2], WHITESPACE);
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_two[0], tokens_two_first, 2);
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_two[1], tokens_two_second, 2);
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_two[2], tokens_two_third, 2);
+	arr_free(tokens_two_first);
+	arr_free(tokens_two_second);
+	arr_free(tokens_two_third);
+	arr_free(tokens);
+}
+
+void	test_split_mult_pipes() {
+	char	*input = strdup("echo hello    || echo world | cat");
+	char	**tokens = split_outside_quotes(input, "|");
+	char	**expected = (char *[]){"echo hello    ", " echo world ", " cat", NULL};
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 4);
+	free(input);
+	char	**tokens_two_first;
+	char	**tokens_two_second;
+	char	**tokens_two_third;
+	char	***expected_two = (char **[]){(char *[])
+				{"echo", "hello", NULL},
+		(char *[]){"echo", "world", NULL},
+		(char *[]){"cat", NULL}, NULL};
+	tokens_two_first = split_outside_quotes(tokens[0], WHITESPACE);
+	tokens_two_second = split_outside_quotes(tokens[1], WHITESPACE);
+	tokens_two_third= split_outside_quotes(tokens[2], WHITESPACE);
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_two[0], tokens_two_first, 2);
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_two[1], tokens_two_second, 2);
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected_two[2], tokens_two_third, 2);
+	arr_free(tokens_two_first);
+	arr_free(tokens_two_second);
+	arr_free(tokens_two_third);
 	arr_free(tokens);
 }

@@ -32,7 +32,7 @@
 // 	fprintf(stderr,"\n");
 // }
 
-t_lexer	ignore_quotes(const char *s, struct s_lexer *input)
+enum e_lexer	ignore_quotes(const char *s, struct s_lexer *input)
 {
 	if (!s || !input)
 		return (LEXER_NULL);
@@ -47,7 +47,7 @@ t_lexer	ignore_quotes(const char *s, struct s_lexer *input)
 	return (LEXER_SUCCESS);
 }
 
-t_lexer	check_against_ignore(const char *s, struct s_lexer *input)
+enum e_lexer	check_against_ignore(const char *s, struct s_lexer *input)
 {
 	int	i;
 
@@ -56,8 +56,6 @@ t_lexer	check_against_ignore(const char *s, struct s_lexer *input)
 	if (input->ignore == NULL)
 		return (LEXER_NULL);
 	i = 0;
-	if (input->singlequotes % 2 != 0 || input->doublequotes % 2 != 0)
-		return (LEXER_UNBALANCED_QUOTES);
 	while (i < (int)input->len)
 	{
 		if (input->ignore[i] == false)
