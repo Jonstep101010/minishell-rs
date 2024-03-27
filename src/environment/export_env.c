@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include "utils.h"
 #include "commands.h"
-#include "str_utils.h"
+#include "libutils.h"
 
 // export VARNAME="value"
 // export VARNAME='value'

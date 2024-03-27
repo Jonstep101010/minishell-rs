@@ -86,9 +86,6 @@
       :artifacts:
         :includes:
           - ./include
-          - ./src/array
-          - ./src/string
-          - ./src/char
         :static_libraries:
           - libutils.a
     - :name: libftprintf
