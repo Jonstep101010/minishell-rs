@@ -31,9 +31,9 @@ static int	changedir(const char *path, t_shell *shell)
 		eprint("cd: %s: %s\n", path, strerror(errno));
 		return (free(oldpwd), -1);
 	}
-	export_env(shell, str_join(2, "PWD=", pwd));
-	export_env(shell, str_join(2, "OLDPWD=", oldpwd));
-	return (free(pwd), free(oldpwd), 0);
+	export_env(shell, free_second_join("PWD=", pwd));
+	export_env(shell, free_second_join("OLDPWD=", pwd));
+	return (0);
 }
 
 /**

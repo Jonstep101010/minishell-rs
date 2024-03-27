@@ -80,17 +80,3 @@ size_t	get_len(const int count, va_list ap)
 	va_end(ap_start);
 	return (length);
 }
-
-// second string needs to be heap allocated
-char	*free_second_join(char const *s1, char *s2)
-{
-	char	*ret;
-
-	if (!s1)
-		return (free(s2), NULL);
-	if (!s2)
-		return (NULL);
-	ret = ft_strjoin(s1, s2);
-	free(s2);
-	return (ret);
-}
