@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
-#include "commands.h"
 
 // handle execve fail:
 void	execve_fail(t_shell *shell, char *cmd)

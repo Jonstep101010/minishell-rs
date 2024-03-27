@@ -32,16 +32,13 @@ char	*get_input(char *rl_prompt)
 
 	if (!rl_prompt)
 		return (free_null(&line), NULL);
-	else
-	{
-		line = collect_as_ascii(rl_prompt);
-		if (!line)
-			return (free(rl_prompt), NULL);
-		trim = ft_strtrim(line, WHITESPACE);
-		if (!trim)
-			return (free_null(&line), NULL);
-		free_null(&line);
-		line = trim;
-	}
+	line = collect_as_ascii(rl_prompt);
+	if (!line)
+		return (free(rl_prompt), NULL);
+	trim = ft_strtrim(line, WHITESPACE);
+	free_null(&line);
+	if (!trim)
+		return (NULL);
+	line = trim;
 	return (line);
 }

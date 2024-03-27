@@ -13,7 +13,7 @@ static void	exec_last(t_shell *shell, int i, int prevpipe, char **error_elem)
 	pid_t	cpid;
 	int		status;
 
-	cpid = fork ();
+	cpid = fork();
 	status = 0;
 	if (cpid == 0)
 	{
@@ -21,17 +21,12 @@ static void	exec_last(t_shell *shell, int i, int prevpipe, char **error_elem)
 			exit_error(shell, *error_elem);
 		dup2(prevpipe, STDIN_FILENO);
 		close(prevpipe);
-		status = shell->token[i].cmd_func(shell, &shell->token[i]);
-		if (shell->env)
-			arr_free(shell->env);
-		destroy_all_tokens(shell);
-		free(shell);
-		exit(status);
+		exit_free(shell, shell->token[i].cmd_func(shell, &shell->token[i]));
 	}
 	else
 	{
 		waitpid(cpid, &status, 0);
-		close (prevpipe);
+		close(prevpipe);
 		while (wait(NULL) > 0)
 			;
 		if (WIFEXITED(status))
@@ -43,11 +38,9 @@ static void	exec_pipe(t_shell *shell, int i, int *prevpipe, char **error_elem)
 {
 	int		pipefd[2];
 	pid_t	cpid;
-	int		status;
 
 	pipe(pipefd);
 	cpid = fork();
-	status = 0;
 	if (cpid == 0)
 	{
 		close(pipefd[0]);
@@ -57,13 +50,7 @@ static void	exec_pipe(t_shell *shell, int i, int *prevpipe, char **error_elem)
 		close(*prevpipe);
 		if (do_redirections(shell->token[i].cmd_args, error_elem) != 0)
 			exit_error(shell, *error_elem);
-		if (shell->token[i].cmd_func)
-			status = shell->token[i].cmd_func(shell, &shell->token[i]);
-		if (shell->env)
-			arr_free(shell->env);
-		destroy_all_tokens(shell);
-		free(shell);
-		exit(status);
+		exit_free(shell, shell->token[i].cmd_func(shell, &shell->token[i]));
 	}
 	else
 	{
