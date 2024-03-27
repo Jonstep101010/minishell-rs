@@ -1,37 +1,6 @@
 #include "lexer.h"
 #include "libft.h"
 
-// void debug_print_table(const char *s, const bool *arr) {
-// 	if (!s || !arr)
-// 		return ;
-// 	for (int i = 0; i <= (int)strlen(s); i++){
-// 		fprintf(stderr, "i: [%d]: %d, %c\n", i, arr[i], s[i]);
-// 	}
-// 	for (int i = 0; i <= (int)strlen(s); i++){
-// 		if (arr[i] == true)
-// 			fprintf(stderr, "%d", arr[i]);
-// 		else
-// 			fprintf(stderr, "%d", arr[i]);
-// 	}
-// 	fprintf(stderr,"\n");
-// }
-
-// void debug_print_line(const char *s, const bool *arr) {
-// 	if (!s || !arr)
-// 		return ;
-// 	for (int i = 0; i <= (int)strlen(s); i++){
-// 		fprintf(stderr, "%c", s[i]);
-// 	}
-// 	fprintf(stderr,"\n");
-// 	for (int i = 0; i <= (int)strlen(s); i++){
-// 		if (arr[i] == true)
-// 			fprintf(stderr, "%d", arr[i]);
-// 		else
-// 			fprintf(stderr, "%d", arr[i]);
-// 	}
-// 	fprintf(stderr,"\n");
-// }
-
 enum e_lexer	ignore_quotes(const char *s, struct s_lexer *input)
 {
 	if (!s || !input)

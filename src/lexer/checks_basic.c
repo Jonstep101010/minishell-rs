@@ -27,11 +27,7 @@ t_lexer	*lexer_checks_basic(const char *s)
 		return (free(input->ignore), input);
 	input->lexer = LEXER_BEGIN;
 	if (input->pipes || input->redir_greater || input->redir_smaller)
-	{
 		input->lexer = check_pipes_redirection(s, input);
-		// if (input->lexer != LEXER_SUCCESS)
-		// 	return (free(input->ignore), input);
-	}
 	if (input->lexer == LEXER_BEGIN)
 		input->lexer = LEXER_SUCCESS;
 	return (free(input->ignore), input);
