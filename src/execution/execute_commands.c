@@ -54,7 +54,7 @@ int	exec_bin(t_shell *shell, t_token *token)
 	return (0);
 }
 
-size_t	arr_len_size(void *arr, size_t size);
+size_t	memsize(void *arr, size_t size);
 
 static bool forkable_builtin(t_token *token)
 {
@@ -71,7 +71,7 @@ void	execute_commands(t_shell *shell, t_token *token)
 
 	if (!token)
 		return (update_exit_status(shell, -1));
-	token_count = arr_len_size(shell->token, sizeof(t_token));
+	token_count = memsize(shell->token, sizeof(t_token));
 	if (token_count == 1 && !forkable_builtin(token))
 	{
 		redir_status = do_redirections(token->cmd_args, &error_elem);

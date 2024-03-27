@@ -3,8 +3,6 @@
 #include "libft.h"
 #include <stdbool.h>
 
-size_t	arr_len_size(void *arr, size_t size);
-
 void	rm_prefix_redir_word(t_arg *arg)
 {
 	size_t i;
@@ -13,7 +11,7 @@ void	rm_prefix_redir_word(t_arg *arg)
 	if (!arg)
 		return ;
 	i = 0;
-	len = arr_len_size(arg, sizeof(t_arg));
+	len = memsize(arg, sizeof(t_arg));
 	while (arg[i].elem)
 	{
 		if (arg[i].type == REDIR_REMOVED && arg[i + 1].elem)

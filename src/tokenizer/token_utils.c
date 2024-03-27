@@ -6,14 +6,19 @@
 
 void	set_cmd_func(const char *cmd, t_token *token)
 {
-	uint8_t	i;
+	uint8_t					i;
+	const struct s_func	cmds[] = {
+	{"echo", echo}, {"cd", builtin_cd},
+	{"pwd", builtin_pwd}, {"export", builtin_export},
+	{"unset", builtin_unset}, {"env", builtin_env},
+	{"exit", builtin_exit}, {NULL, NULL}};
 
 	i = 0;
-	while (g_cmds[i].name)
+	while (cmds[i].name)
 	{
-		if (equal(cmd, g_cmds[i].name))
+		if (equal(cmd, cmds[i].name))
 		{
-			token->cmd_func = g_cmds[i].cmd;
+			token->cmd_func = cmds[i].cmd;
 			return ;
 		}
 		i++;
