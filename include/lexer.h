@@ -40,11 +40,11 @@ typedef struct s_lexer
 }	t_lexer;
 
 enum e_lexer	ignore_quotes(const char *s, struct s_lexer *input);
-int		check_pipes_redirection(const char *s, t_lexer *input);
+int				check_pipes_redirection(const char *s, t_lexer *input);
 enum e_lexer	check_against_ignore(const char *s, struct s_lexer *input);
-void	count_number(const char *s, struct s_lexer *input);
+void			count_number(const char *s, struct s_lexer *input);
 
-bool	*bool_arr_zeroing(size_t len);
-void	range_ignore(const char *s, bool *ignore, unsigned char c);
+bool			*bool_arr_zeroing(size_t len);
+void			range_ignore(const char *s, bool *ignore, unsigned char c);
 
 #endif // LEXER_H

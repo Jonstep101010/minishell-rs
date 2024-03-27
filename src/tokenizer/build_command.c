@@ -3,6 +3,7 @@
 #include "arr_utils.h"
 #include <stdio.h>
 #include "libft.h"
+#include "parser.h"
 
 char	**get_cmd_arr_token(t_token *token)
 {
