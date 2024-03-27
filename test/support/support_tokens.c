@@ -1,7 +1,7 @@
 #include "unity.h"
 #include "tokens.h"
 #include "struct.h"
-#include "init.c"
+#include "init_shell.c"
 #include "support_lib.c"
 #include "destroy_tokens.c"
 #include "support_commands.c"
