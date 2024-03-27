@@ -6,7 +6,6 @@
 char	*equal(const char *expected, const char *actual);
 
 char	**split_outside_quotes(const char *to_split, const char *set);
-void	print_arr_sep(char **arr, char sep_open, char sep_close);
 void	rm_str_arr(char **arr, const char *s);
 char	**arr_trim(char **arr, char const *set);
 

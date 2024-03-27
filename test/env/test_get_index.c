@@ -3,7 +3,6 @@
 #include "arr_utils.c"
 #include "str_equal.c"
 
-#include "print_arr_sep.c"
 #include "support_lib.c"
 
 void	test_get_key_len() {

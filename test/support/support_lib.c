@@ -31,7 +31,6 @@
 #include "arr_dup.c"
 
 #include "support_printf.c"
-#include "print_arr.c"
 #include "is_something.c"
 #include "append_str.c"
 #include "join_strings.c"

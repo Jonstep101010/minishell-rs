@@ -6,7 +6,6 @@
 # include "get_index.c"
 
 # include "arr_utils.c"
-# include "print_arr_sep.c"
 # include "str_equal.c"
 
 # include "lexer.c"

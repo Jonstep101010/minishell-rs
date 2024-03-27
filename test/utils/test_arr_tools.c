@@ -1,8 +1,6 @@
 #include "unity.h"
 #include "support_lib.c"
 
-// TEST_INCLUDE_PATH("../include/libft/src/")
-
 void	test_arr_len() {
 	char	**arr = (char *[]){"0", "1", "2", "3", "4", NULL};
 	TEST_ASSERT_NOT_NULL(arr);
@@ -42,7 +40,6 @@ void	test_arr_free() {
 	TEST_ASSERT_NULL(arr_dup(NULL));
 }
 
-// #include "print_arr_sep.c"
 #include "str_equal.c"
 #include "arr_utils.c"
 
