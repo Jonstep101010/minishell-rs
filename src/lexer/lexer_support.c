@@ -17,7 +17,8 @@ void	count_number(const char *s, struct s_lexer *input)
 		.redir_smaller = str_cchr(s, '<'),
 		.pipes = str_cchr(s, '|'),
 		.ignore = NULL,
-		.lexer = LEXER_NULL,
+		.lexer = 0,
+		.result = false,
 		.len = (int)ft_strlen(s),
 	};
 }

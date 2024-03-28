@@ -24,9 +24,7 @@ int	exec_bin(t_shell *shell, t_token *token)
 
 	if (!command)
 		exit_free(shell, 0);
-	access_status = set_binpath(shell->env, token->cmd_args[0].elem, &(token->bin));
-	if (access_status == 1 || access_status == 126 || access_status == 127)
-		arr_free((char **)command);
+	access_status = set_binpath(shell->env, *command, &(token->bin));
 	if (access_status == 1)
 	{
 		eprint("alloc fail");
@@ -35,12 +33,14 @@ int	exec_bin(t_shell *shell, t_token *token)
 	if (access_status == 126)
 	{
 		// @todo implement strerror, exit codes
-		// eprint("%s: %s", token->cmd_args[0].elem, strerror(errno));
+		eprint("%s: %s", *command, strerror(errno));
+		arr_free((char **)command);
 		exit_free(shell, 126);
 	}
 	if (access_status == 127)
 	{
-		eprint("command not found: %s", token->cmd_args[0].elem);
+		eprint("%s: command not found", *command);
+		arr_free((char **)command);
 		exit_free(shell, 127);
 	}
 	if (execve(token->bin, (char **)command, shell->env) == -1)

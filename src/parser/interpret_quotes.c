@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "libft.h"
 #include "str_utils.h"
 
 /**
@@ -9,10 +10,15 @@
 void	*do_quote_bs(const char *s, int *quote)
 {
 	char	*tmp;
+	size_t	len;
+	size_t	tmp_len;
 
 	if (!s)
 		return (NULL);
-	tmp = NULL;
+	len = ft_strlen(s);
+	tmp = ft_calloc(len + 1, sizeof(char));
+	if (!tmp)
+		return (NULL);
 	while (*s)
 	{
 		if (*quote == 0 && (*s == '\'' || *s == '"'))
@@ -21,9 +27,9 @@ void	*do_quote_bs(const char *s, int *quote)
 			*quote = 0;
 		else
 		{
-			tmp = append_char_str(tmp, *s);
-			if (!tmp)
-				return (NULL);
+			tmp_len = ft_strlen(tmp);
+			tmp[tmp_len] = *s;
+			tmp[tmp_len + 1] = '\0';
 		}
 		s++;
 	}

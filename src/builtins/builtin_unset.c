@@ -41,7 +41,7 @@ int	builtin_unset(t_shell *shell, t_token *token)
 
 	if (!shell->env || !args || !*shell->env)
 		return (0);
-	if (!*args)
+	if (!*args || !args[1] || !*args[1])
 	{
 		arr_free((char **)args);
 		return (0);
