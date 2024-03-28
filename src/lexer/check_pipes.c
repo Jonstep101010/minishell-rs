@@ -6,14 +6,18 @@
 
 int	check_pipes_redirection_quotes(const char *s, t_lexer *input)
 {
-	if (!input->ignore)
-		return (-1);
-	int	flag_redir = 0;
-	int	flag_word = 0;
+	int	flag_redir;
+	int	flag_word;
 	size_t	i = 0;
+	bool	ignore;
+
+	ignore = false;
 	while (i < input->len && input->ignore)
 	{
-		if (input->ignore && !input->ignore[i])
+		// ignored means that anything inside can be a valid command/word for redirection, ergo after redir makes it valid, same for before or after pipe (not enclosed in quotes)
+
+		// if not inside quotes, check for redir/pipes
+		if (!input->ignore[i])
 		{
 			flag_word = 0;
 			flag_redir = 0;
@@ -30,19 +34,26 @@ int	check_pipes_redirection_quotes(const char *s, t_lexer *input)
 				}
 				i++;
 			}
-			if (input->ignore[i])
-				break ;
-			else if (!flag_word)
-				return (eprint("syntax error near unexpected token `|'"), 2);
-			else if ((!s[i] || s[i] == '|') && (flag_redir || !flag_word))
-				return (eprint("syntax error near unexpected token `|'"), 2);
-			while (s[i] && s[i] == '|')
+			if (!input->ignore[i] && s[i] == '|' && !ignore)
+			{
+				if (!flag_word)
+					return (eprint("syntax error near unexpected token `|'"), 2);
+				if ((!s[i] || s[i] == '|') && (flag_redir || !flag_word))
+					return (eprint("syntax error near unexpected token `|'"), 2);
+			}
+			if (s[i] == '|')
+				ignore = false;
+		}
+		if (input->ignore[i])
+		{
+			ignore = true;
+			while (s[i] && input->ignore[i])
 				i++;
 		}
 		else
 			i++;
 	}
-	if (flag_redir)
+	if (flag_redir && !ignore)
 		return (eprint("syntax error near unexpected token `newline'"), 2);
 	return (LEXER_SUCCESS);
 }

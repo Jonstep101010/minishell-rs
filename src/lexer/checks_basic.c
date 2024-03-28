@@ -16,21 +16,15 @@ int	check_quotes(const char *s, struct s_lexer *input)
 	return (LEXER_SUCCESS);
 }
 
-#define LEXER_BEGIN 0
-
 t_lexer	*lexer_checks_basic(const char *s)
 {
 	t_lexer	*input;
 
 	input = ft_calloc(sizeof(t_lexer), 1);
-	input->lexer = LEXER_BEGIN;
 	count_number(s, input);
 	input->lexer = check_quotes(s, input);
-	if (input->lexer != LEXER_SUCCESS)
-	{
-		input->lexer = 0;
+	if (input->lexer != 0)
 		return (free(input->ignore), input);
-	}
 	if (input->pipes || input->redir_greater || input->redir_smaller)
 	{
 		input->lexer = check_pipes_redirection(s, input);
