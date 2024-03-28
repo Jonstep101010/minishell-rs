@@ -86,7 +86,6 @@ static void	*inner_loop(t_token *token)
 		parse_redir_types(token->cmd_args);
 		rm_prefix_redir_word(token->cmd_args);
 	}
-	rm_quotes(token->cmd_args);
 	int	i;
 	i = 0;
 	while (token->cmd_args[i].elem)
@@ -97,7 +96,8 @@ static void	*inner_loop(t_token *token)
 			break ;
 	}
 	set_cmd_func(token->cmd_args[i].elem, token);
-	eprint("token->cmd_func: '%s'", token->cmd_args[i].elem);
+	rm_quotes(token->cmd_args);
+	// eprint("token->cmd_func: '%s'", token->cmd_args[i].elem);
 	// if (token->cmd_func == not_builtin && token->cmd_args[0].type == REDIR)
 	// 	token->cmd_func = NULL;
 	return (token);
