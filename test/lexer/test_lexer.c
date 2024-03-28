@@ -94,6 +94,9 @@ void	test_redir_quotes() {
 	TEST_ASSERT_EQUAL(0, lexer_checks_basic("cat << \"$USER\"")->lexer);
 	TEST_ASSERT_EQUAL(0, lexer_checks_basic("cat << \"$US\"E\"R\"")->lexer);
 	TEST_ASSERT_EQUAL(0, lexer_checks_basic(">> \"$USER'$USER'\"")->lexer);
+	TEST_ASSERT_EQUAL(0, lexer_checks_basic("\"$USER'$USER'\" | echo")->lexer);
+	TEST_ASSERT_EQUAL(0, lexer_checks_basic("\"$USER'$USER'\" | \"echo\"")->lexer);
+	TEST_ASSERT_EQUAL(0, lexer_checks_basic("$USER'$USER' | \"echo\"")->lexer);
 }
 
 /*
