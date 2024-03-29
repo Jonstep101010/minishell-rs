@@ -25,12 +25,13 @@ int	builtin_export(t_shell *shell, t_token *token)
 
 	i = 1;
 	if (!command || !command[i])
-		return (declare_x_env_var(shell->env));
+		return (arr_free((char **)command), declare_x_env_var(shell->env));
 	while (command[i])
 	{
 		if (!check_valid_key(command[i]))
 		{
 			eprint("export: `%s': not a valid identifier", command[i]);
+			arr_free((char **)command);
 			return (1);
 		}
 		if (str_cchr(command[i], '=') >= 1)
