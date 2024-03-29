@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   builtin_cd.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 18:13:42 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 18:15:39 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "libutils.h"
 #include "utils.h"
 #include "struct.h"
@@ -52,10 +64,7 @@ static int	cd_internal(const char **cmd_args, t_shell *shell)
 	path = get_env(shell->env, "HOME");
 	oldpwd = get_env(shell->env, "OLDPWD");
 	if (!cmd_args[1] && !path)
-	{
-		free_null(&oldpwd);
-		return (eprint("cd: HOME not set"), 1);
-	}
+		return (free_null(&oldpwd), eprint("cd: HOME not set"), 1);
 	if (!cmd_args[1] && path)
 		changedir(path, shell);
 	else if (*cmd_args[1] == '~' && path)
