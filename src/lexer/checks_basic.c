@@ -1,9 +1,31 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   checks_basic.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 19:51:28 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 19:51:37 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lexer.h"
 #include "libft.h"
 #include <stdlib.h>
 #include "utils.h"
 
-int	check_quotes(const char *s, struct s_lexer *input)
+static int	ignore_quotes(const char *s, struct s_lexer *input)
+{
+	if (!s || !input)
+		return (1);
+	input->ignore = bool_arr_zeroing(ft_strlen(s));
+	range_ignore(s, input->ignore, '"');
+	range_ignore(s, input->ignore, '\'');
+	return (LEXER_SUCCESS);
+}
+
+static int	check_quotes(const char *s, struct s_lexer *input)
 {
 	if (input->singlequotes == 1)
 		return (eprint_single("syntax error near unexpected token '''\n"), 1);

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lexer.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 19:51:58 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 19:51:59 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lexer.h"
 #include "struct.h"
 #include "utils.h"
@@ -22,7 +34,6 @@ int	lexer(t_shell *shell, const char *trimmed_line)
 	lex = lexer_checks_basic(trimmed_line);
 	if (!lex->result)
 	{
-		// @todo handle errors
 		update_exit_status(shell, lex->lexer);
 		get_input(NULL);
 		free(lex);

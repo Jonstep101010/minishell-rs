@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/29 18:02:04 by jschwabe          #+#    #+#             */
-/*   Updated: 2024/03/29 19:09:41 by jschwabe         ###   ########.fr       */
+/*   Updated: 2024/03/29 19:53:07 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,6 @@ typedef struct s_lexer
 	bool	result;
 }	t_lexer;
 
-
-int				ignore_quotes(const char *s, struct s_lexer *input);
 int				check_pipes_redirection(const char *s, t_lexer *input);
 void			count_number(const char *s, struct s_lexer *input);
 
