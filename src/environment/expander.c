@@ -22,13 +22,7 @@ static char *expand_inside(char *key, char *const *env, int *i)
 	char			*ret;
 
 	ret = NULL;
-	if (!*key)
-	{
-		ret = append_char_str(NULL, '$');
-		if (!ret)
-			return (free(key), NULL);
-	}
-	else
+	if (*key)
 		ret = get_env(env, key);
 	if (!ret)
 		ret = ft_strdup("");

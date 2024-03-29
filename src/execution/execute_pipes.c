@@ -7,8 +7,9 @@
 #include <sys/wait.h>
 #include <sys/param.h>
 #include <unistd.h>
+#include "msh_signals.h"
 
-static void	exec_last(t_shell *shell, int i, int prevpipe, char **error_elem)
+static void	exec_last(t_shell *shell, int i, int *prevpipe, char **error_elem)
 {
 	pid_t	cpid;
 	int		status;
@@ -17,16 +18,19 @@ static void	exec_last(t_shell *shell, int i, int prevpipe, char **error_elem)
 	status = 0;
 	if (cpid == 0)
 	{
+		check_signals_child(&shell->p_termios);
+		if (shell->token[i].has_redir)
+			do_heredocs(&shell->token[i], prevpipe, shell->env);
 		if (do_redirections(shell->token[i].cmd_args, error_elem) != 0)
 			exit_error(shell, *error_elem);
-		dup2(prevpipe, STDIN_FILENO);
-		close(prevpipe);
+		dup2(*prevpipe, STDIN_FILENO);
+		close(*prevpipe);
 		exit_free(shell, shell->token[i].cmd_func(shell, &shell->token[i]));
 	}
 	else
 	{
 		waitpid(cpid, &status, 0);
-		close(prevpipe);
+		close(*prevpipe);
 		while (wait(NULL) > 0)
 			;
 		if (WIFEXITED(status))
@@ -43,6 +47,7 @@ static void	exec_pipe(t_shell *shell, int i, int *prevpipe, char **error_elem)
 	cpid = fork();
 	if (cpid == 0)
 	{
+		check_signals_child(&shell->p_termios);
 		close(pipefd[0]);
 		dup2(pipefd[1], STDOUT_FILENO);
 		close(pipefd[1]);
@@ -74,7 +79,5 @@ void	execute_pipes(t_shell *shell, int token_count)
 			do_heredocs(&shell->token[i], &prevpipe, shell->env);
 		exec_pipe(shell, i, &prevpipe, &error_elem);
 	}
-	if (shell->token[i].has_redir && i == token_count - 1)
-		do_heredocs(&shell->token[i], &prevpipe, shell->env);
-	exec_last(shell, i, prevpipe, &error_elem);
+	exec_last(shell, i, &prevpipe, &error_elem);
 }

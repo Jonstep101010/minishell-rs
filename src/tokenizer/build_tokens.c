@@ -110,9 +110,8 @@ void	*tokenize(t_shell *shell, char const *trimmed_line)
 	i = 0;
 	// size_t	ii = 0;
 	shell->token = get_tokens(trimmed_line);
-	if (!shell->token || !shell->token->split_pipes
-			|| !shell->token->split_pipes[0])
-		return (eprint("alloc fail"), NULL);
+	if (!shell->token)
+		return (NULL);
 	while (shell->token[i].split_pipes)
 	{
 		if (!setup_token(&shell->token[i], shell->env))

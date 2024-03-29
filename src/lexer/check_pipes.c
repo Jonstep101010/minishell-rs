@@ -23,7 +23,7 @@ int	check_pipes_redirection_quotes(const char *s, t_lexer *input)
 			flag_redir = 0;
 			while (s[i] && s[i] != '|' && !input->ignore[i])
 			{
-				if (ft_strchr("><", s[i]) && (!flag_redir || (s[i - 1] && s[i - 1] == s[i] && (!s[i - 2] || ft_isspace(s[i - 2])))))
+				if (ft_strchr("><", s[i]) && (!flag_redir || (s[i - 1] && s[i - 1] == s[i])))
 					flag_redir = 1;
 				else if (ft_strchr("><", s[i]))
 					return (eprint("syntax error near unexpected token `newline'"), 2);

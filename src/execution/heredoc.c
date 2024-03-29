@@ -9,6 +9,8 @@
 #include "utils.h"
 #include "environment.h"
 
+int	g_ctrl_c = 0;
+
 static void	heredoc_loop(char *delim, int fd, char **env)
 {
 	char	*expanded;
@@ -16,11 +18,15 @@ static void	heredoc_loop(char *delim, int fd, char **env)
 
 	expanded = NULL;
 	line = NULL;
-	while (1)
+	g_ctrl_c = 0;
+	while (1 && !g_ctrl_c)
 	{
 		line = readline("> ");
-		if (equal(delim, line) || !line)
+		if (equal(delim, line) || !line || g_ctrl_c)
+		{
+			g_ctrl_c = 0;
 			break ;
+		}
 		if (ft_strchr(line, '$'))
 		{
 			expanded = expander(line, env);

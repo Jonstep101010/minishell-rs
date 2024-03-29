@@ -25,14 +25,11 @@ int	exec_bin(t_shell *shell, t_token *token)
 	if (!command)
 		exit_free(shell, 0);
 	access_status = set_binpath(shell->env, *command, &(token->bin));
-	if (access_status == 1)
-	{
-		eprint("alloc fail");
-		exit_free(shell, 1);
-	}
+	if (access_status == 1 || access_status == 2)
+		exit_free(shell, access_status);
 	if (access_status == 126)
 	{
-		if (**command != '~')
+		if (!ft_strchr("~/", **command))
 			eprint("%s: %s", *command, strerror(errno));
 		// @todo implement strerror, exit codes
 		arr_free((char **)command);

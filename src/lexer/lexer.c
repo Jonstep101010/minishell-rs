@@ -14,6 +14,11 @@ int	lexer(t_shell *shell, const char *trimmed_line)
 {
 	t_lexer	*lex;
 
+	if (!*trimmed_line)
+	{
+		get_input(NULL);
+		return (0);
+	}
 	lex = lexer_checks_basic(trimmed_line);
 	if (!lex->result)
 	{

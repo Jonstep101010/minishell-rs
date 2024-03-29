@@ -54,8 +54,13 @@ int		builtin_exit(t_shell *shell, t_token *code_nullable)
 	{
 		if (command[1])
 		{
+			if (!*command[1])
+			{
+				eprint_single("exit\nminishell: exit: numeric argument required", exit_code);
+				return (arr_free((char **)command), 2);
+			}
 			if (!check_exit_code(command))
-				return (1);
+				return (arr_free((char **)command), 1);
 			exit_code = ft_atol(command[1]);
 		}
 		arr_free((char **)command);
