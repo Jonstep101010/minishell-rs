@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   redirection_utils.c                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 20:11:18 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 20:12:16 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "libutils.h"
 #include "tokens.h"
 #include "libft.h"
@@ -5,8 +17,8 @@
 
 void	rm_prefix_redir_word(t_arg *arg)
 {
-	size_t i;
-	size_t len;
+	size_t	i;
+	size_t	len;
 
 	if (!arg)
 		return ;
@@ -30,7 +42,6 @@ void	rm_prefix_redir_word(t_arg *arg)
 	}
 }
 
-// currently needs to be called after check_redirections and before rm_prefix_redir_word
 void	parse_redir_types(t_arg *arg)
 {
 	int		i;
@@ -55,7 +66,7 @@ void	parse_redir_types(t_arg *arg)
 static void	set_type_redir(t_arg *cmd_arg)
 {
 	if (cmd_arg->redir == APPEND
-			|| cmd_arg->redir == HEREDOC)
+		|| cmd_arg->redir == HEREDOC)
 	{
 		if (!cmd_arg->elem[2])
 			cmd_arg->type = REDIR_REMOVED;
@@ -63,7 +74,7 @@ static void	set_type_redir(t_arg *cmd_arg)
 			cmd_arg->type = REDIR;
 	}
 	else if (cmd_arg->redir == OUTPUT_REDIR
-			|| cmd_arg->redir == INPUT_REDIR)
+		|| cmd_arg->redir == INPUT_REDIR)
 	{
 		if (!cmd_arg->elem[1])
 			cmd_arg->type = REDIR_REMOVED;
