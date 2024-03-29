@@ -24,7 +24,10 @@ t_lexer	*lexer_checks_basic(const char *s)
 	count_number(s, input);
 	input->lexer = check_quotes(s, input);
 	if (input->lexer != 0)
+	{
+		input->lexer = 0;
 		return (free(input->ignore), input);
+	}
 	if (input->pipes || input->redir_greater || input->redir_smaller)
 	{
 		input->lexer = check_pipes_redirection(s, input);

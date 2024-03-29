@@ -59,6 +59,8 @@ uint8_t	set_binpath(char *const *env, const char *bin, char **binpath_buf)
 
 	if (!bin || !*bin)
 		return (EXIT_FAILURE);
+	if (*bin == '~' && !*(bin + 1))
+		return (126);
 	if (*bin == '.' || *bin == '/')
 	{
 		*binpath_buf = ft_strdup(bin);

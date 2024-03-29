@@ -22,6 +22,7 @@ int	lexer(t_shell *shell, const char *trimmed_line)
 		free(lex);
 		return (1);
 	}
+	free(lex);
 	shell->token = tokenize(shell, trimmed_line);
 	get_input(NULL);
 	if (!shell->token)

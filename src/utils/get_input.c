@@ -16,7 +16,7 @@ static char	*collect_as_ascii(char *readline_line)
 		{
 			collected_line = append_char_str(collected_line, readline_line[i]);
 			if (!collected_line)
-				return (NULL);
+				return (free(readline_line), NULL);
 		}
 		i++;
 	}
@@ -34,7 +34,7 @@ char	*get_input(char *rl_prompt)
 		return (free_null(&line), NULL);
 	line = collect_as_ascii(rl_prompt);
 	if (!line)
-		return (free(rl_prompt), NULL);
+		return (NULL);
 	trim = ft_strtrim(line, WHITESPACE);
 	free_null(&line);
 	if (!trim)
