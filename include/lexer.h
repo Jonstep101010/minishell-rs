@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/29 18:02:04 by jschwabe          #+#    #+#             */
-/*   Updated: 2024/03/29 18:02:05 by jschwabe         ###   ########.fr       */
+/*   Updated: 2024/03/29 19:09:41 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,15 @@
 # include <stdbool.h>
 
 # define LEXER_SUCCESS 0
+# define ERR_TOKEN "syntax error near unexpected token "
+
+struct s_check_pipes
+{
+	int		flag_redir;
+	int		flag_word;
+	size_t	i;
+	bool	ignore;
+};
 
 typedef struct s_lexer
 {
@@ -36,6 +45,7 @@ typedef struct s_lexer
 	int		lexer;
 	bool	result;
 }	t_lexer;
+
 
 int				ignore_quotes(const char *s, struct s_lexer *input);
 int				check_pipes_redirection(const char *s, t_lexer *input);
