@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   heredoc.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 18:45:16 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 18:46:35 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdio.h>
 #include <readline/readline.h>
 #include "tokens.h"
@@ -16,7 +28,6 @@ static void	heredoc_loop(char *delim, int fd, char **env)
 	char	*expanded;
 	char	*line;
 
-	expanded = NULL;
 	line = NULL;
 	g_ctrl_c = 0;
 	while (1 && !g_ctrl_c)

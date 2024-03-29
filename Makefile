@@ -26,7 +26,7 @@ endif
 # ---------------------------------------------------------------------------- #
 
 SRCS = $(addprefix src/builtins/, builtin_cd.c builtin_echo.c builtin_env.c builtin_exit.c builtin_export.c builtin_pwd.c builtin_unset.c) \
-    $(addprefix src/execution/, execute_pipes.c execute_commands.c exec_utils.c redirections.c heredoc.c bin_path.c exec_bin.c) \
+    $(addprefix src/execution/, execute_pipes.c execute_commands.c redirections.c heredoc.c bin_path.c exec_bin.c) \
     $(addprefix src/environment/, export_env.c get_env.c get_index.c check_key.c expander.c) \
     $(addprefix src/lexer/, check_pipes.c check_quotes.c checks_basic.c lexer_support.c lexer.c) \
     $(addprefix src/parser/, interpret_quotes.c split_outside_quotes.c) \

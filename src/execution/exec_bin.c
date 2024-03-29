@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   exec_bin.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 18:37:32 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 18:42:38 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "commands.h"
 #include "libft.h"
 #include "struct.h"
@@ -11,6 +23,16 @@
 #include <unistd.h>
 #include "execution.h"
 
+static void	execve_fail(t_shell *shell, char *cmd)
+{
+	eprint("%s: %s", cmd, strerror(errno));
+	if (shell->env)
+		arr_free(shell->env);
+	destroy_all_tokens(shell);
+	free(shell);
+	exit(errno);
+}
+
 uint8_t	set_binpath(char *const *env, const char *bin, char **binpath_buf);
 
 /**
@@ -18,28 +40,21 @@ uint8_t	set_binpath(char *const *env, const char *bin, char **binpath_buf);
  */
 int	exec_bin(t_shell *shell, t_token *token)
 {
-	// @todo implement signals
 	int			access_status;
 	const char	**command = (const char **)get_cmd_arr_token(token);
 
 	if (!command)
 		exit_free(shell, 0);
 	access_status = set_binpath(shell->env, *command, &(token->bin));
-	if (access_status == 1 || access_status == 2)
-		exit_free(shell, access_status);
-	if (access_status == 126)
+	if (access_status == 1 || access_status == 2
+		|| access_status == 126 || access_status == 127)
 	{
-		if (!ft_strchr("~/", **command))
+		if (access_status == 126 && !ft_strchr("~/", **command))
 			eprint("%s: %s", *command, strerror(errno));
-		// @todo implement strerror, exit codes
+		if (access_status == 127)
+			eprint("%s: command not found", *command);
 		arr_free((char **)command);
-		exit_free(shell, 126);
-	}
-	if (access_status == 127)
-	{
-		eprint("%s: command not found", *command);
-		arr_free((char **)command);
-		exit_free(shell, 127);
+		exit_free(shell, access_status);
 	}
 	if (execve(token->bin, (char **)command, shell->env) == -1)
 	{
