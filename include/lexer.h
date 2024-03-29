@@ -1,24 +1,22 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lexer.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 18:02:04 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 18:02:05 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef LEXER_H
 # define LEXER_H
+
 # include <stddef.h>
 # include <stdbool.h>
 
 # define LEXER_SUCCESS 0
-// enum e_lexer
-// {
-	// LEXER_SUCCESS,
-// 	LEXER_NULL,
-// 	LEXER_UNBALANCED_QUOTES,
-// 	LEXER_UNBALANCED_BRACKETS,
-// 	LEXER_REDIRECTION,
-// 	LEXER_PIPES,
-// 	LEXER_SINGLE_QUOTE,
-// 	LEXER_DOUBLE_QUOTE,
-// 	ERR_TRAILING,
-// 	ERR_LEADING,
-// 	ERR_EMPTY_PIPES,
-// 	LEXER_BEGIN,
-// };
 
 typedef struct s_lexer
 {
@@ -35,8 +33,7 @@ typedef struct s_lexer
 	int		pipes;
 	bool	*ignore;
 	size_t	len;
-	char	*error;
-	int		 lexer;
+	int		lexer;
 	bool	result;
 }	t_lexer;
 
