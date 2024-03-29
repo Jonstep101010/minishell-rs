@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   expander.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 18:32:25 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 18:36:33 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "libft.h"
 #include "str_utils.h"
 #include "utils.h"
@@ -16,7 +28,7 @@ static int	check_index_advance(const char *s, int i)
 	return (count);
 }
 
-static char *expand_inside(char *key, char *const *env, int *i)
+static char	*expand_inside(char *key, char *const *env, int *i)
 {
 	const size_t	len = ft_strlen(key);
 	char			*ret;
@@ -72,12 +84,12 @@ static char	*expand(char const *s, char *const *env)
 	{
 		check_quotes(&s[i], &expand, &double_quote);
 		if (expand && (s[i] == '$'
-			&& s[i + 1]	&& !ft_strchr("$()", s[i + 1])))
+				&& s[i + 1] && !ft_strchr("$()", s[i + 1])))
 		{
 			key = ft_substr(s, i + 1, check_index_advance(s, i));
 			if (!key)
 				return (free(ret), eprint("alloc fail!"), NULL);
-	 		ret = free_both_join(ret, expand_inside(key, env, &i));
+			ret = free_both_join(ret, expand_inside(key, env, &i));
 		}
 		else
 			ret = append_char_str(ret, s[i]);

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_index.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 18:35:03 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 18:35:27 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "libft.h"
 #include <stdbool.h>
 
@@ -41,7 +53,7 @@ int	get_index_env(char *const *env, char const *substr)
 	{
 		if (ft_strncmp(env[i], substr, key_len) == 0
 			&& env[i][key_len] && env[i][key_len] == '=')
-				return (i);
+			return (i);
 		i++;
 	}
 	return (-1);
