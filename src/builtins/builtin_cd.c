@@ -23,17 +23,17 @@ static int	changedir(const char *path, t_shell *shell)
 	oldpwd = getcwd(NULL, 0);
 	if (chdir(path) == -1)
 	{
-		eprint("cd: %s: %s\n", path, strerror(errno));
+		eprint("cd: %s: %s", path, strerror(errno));
 		return (free(oldpwd), -1);
 	}
 	pwd = getcwd(NULL, 0);
 	if (!pwd)
 	{
-		eprint("cd: %s: %s\n", path, strerror(errno));
+		eprint("cd: %s: %s", path, strerror(errno));
 		return (free(oldpwd), -1);
 	}
 	export_env(shell, free_second_join("PWD=", pwd));
-	export_env(shell, free_second_join("OLDPWD=", pwd));
+	export_env(shell, free_second_join("OLDPWD=", oldpwd));
 	return (0);
 }
 
