@@ -1,6 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   commands.h                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 17:58:33 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 17:59:06 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef COMMANDS_H
 # define COMMANDS_H
+
 # include "struct.h"
+
 int							exec_bin(t_shell *shell, t_token *token);
 int							builtin_cd(t_shell *shell, t_token *token);
 int							builtin_export(t_shell *shell, t_token *token);

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   split_outside_quotes.c                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 20:01:11 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 20:01:12 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "libft.h"
 #include "utils.h"
 #include "arr_utils.h"
@@ -9,7 +21,7 @@ static char	**split_loop(t_splitter *s)
 	size_t	i;
 
 	i = 0;
-	while (++i < s->len)
+	while (i < s->len)
 	{
 		if (s->quote && s->to_split[i] == s->quote)
 			s->quote = 0;
@@ -26,9 +38,10 @@ static char	**split_loop(t_splitter *s)
 				i++;
 			s->start = i + 1;
 		}
+		i++;
 	}
 	return (append_str_arr_free(s->arr,
-			ft_strtrim(&s->to_split[s->start], s->set)));
+			ft_substr(&s->to_split[s->start], 0, i - s->start)));
 }
 
 char	**split_outside_quotes(const char *to_split, const char *set)

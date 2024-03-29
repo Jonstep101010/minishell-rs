@@ -1,13 +1,23 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   msh_signals.h                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 18:02:42 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 18:02:50 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef MSH_SIGNALS_H
 # define MSH_SIGNALS_H
-# include <signal.h>
-# include <termios.h>
-# include <stdbool.h> //@follow-up
 
-// bool	g_ctrl_c = false;
+# include <termios.h>
+# include <stdbool.h>
+
+extern int	g_ctrl_c;
 
 void	check_signals(struct termios *p_termios);
-void	ctrl_c_init(void);
-void	ctrl_c_handler(int sig, siginfo_t *info, void *unused);
-void	ctrl_bkslash_init(void);
+void	check_signals_child(struct termios *p_termios_child);
 #endif

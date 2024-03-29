@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   build_tokens.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 20:04:23 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 20:06:45 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stddef.h>
 #include <sys/param.h>
 #include "arr_utils.h"
@@ -10,40 +22,16 @@
 #include "struct.h"
 #include "parser.h"
 
-void	rm_prefix_redir_word(t_arg *arg);
-void	parse_redir_types(t_arg *arg);
+void			rm_prefix_redir_word(t_arg *arg);
+void			parse_redir_types(t_arg *arg);
 enum e_redir	check_redirections(t_arg *cmd_args);
-static void	*expand_if_allowed(t_token *token, size_t ii, char *const *env);
-static void	*setup_token(t_token *token, char *const *env)
-{
-	if (!token || !token->split_pipes)
-		return (NULL);
-	token->tmp_arr = split_outside_quotes(token->split_pipes, WHITESPACE);
-	if (!token->tmp_arr)
-		return (free_null(&token->split_pipes), NULL);
-	token->cmd_args = init_cmdargs(arr_len(token->tmp_arr));
-	if (!token->cmd_args)
-		return (arr_free(token->tmp_arr), NULL);
-	size_t	ii;
-
-	ii = 0;
-	while (token->tmp_arr[ii])
-	{
-		token->cmd_args[ii].elem = token->tmp_arr[ii];
-		if (!expand_if_allowed(token, ii, env))
-			return (NULL);
-		ii++;
-	}
-	free_null(&(token->tmp_arr));
-	return (token);
-}
 
 static void	*expand_if_allowed(t_token *token, size_t ii, char *const *env)
 {
 	char	*tmp;
 
 	if (token->cmd_func != builtin_env
-				&& str_cchr(token->cmd_args[ii].elem, '$') != 0)
+		&& str_cchr(token->cmd_args[ii].elem, '$') != 0)
 	{
 		tmp = expander(token->cmd_args[ii].elem, env);
 		if (!tmp)
@@ -57,6 +45,30 @@ static void	*expand_if_allowed(t_token *token, size_t ii, char *const *env)
 			token->cmd_args[ii].elem = tmp;
 		}
 	}
+	return (token);
+}
+
+static void	*setup_token(t_token *token, char *const *env)
+{
+	size_t	ii;
+
+	if (!token || !token->split_pipes)
+		return (NULL);
+	token->tmp_arr = split_outside_quotes(token->split_pipes, WHITESPACE);
+	if (!token->tmp_arr)
+		return (free_null(&token->split_pipes), NULL);
+	token->cmd_args = init_cmdargs(arr_len(token->tmp_arr));
+	if (!token->cmd_args)
+		return (arr_free(token->tmp_arr), NULL);
+	ii = 0;
+	while (token->tmp_arr[ii])
+	{
+		token->cmd_args[ii].elem = token->tmp_arr[ii];
+		if (!expand_if_allowed(token, ii, env))
+			return (NULL);
+		ii++;
+	}
+	free_null(&(token->tmp_arr));
 	return (token);
 }
 
@@ -80,14 +92,14 @@ static void	rm_quotes(t_arg *cmd_arg)
 
 static void	*inner_loop(t_token *token)
 {
+	int	i;
+
 	if (check_redirections(token->cmd_args))
 	{
 		token->has_redir = true;
 		parse_redir_types(token->cmd_args);
 		rm_prefix_redir_word(token->cmd_args);
 	}
-	rm_quotes(token->cmd_args);
-	int	i;
 	i = 0;
 	while (token->cmd_args[i].elem)
 	{
@@ -97,9 +109,7 @@ static void	*inner_loop(t_token *token)
 			break ;
 	}
 	set_cmd_func(token->cmd_args[i].elem, token);
-	eprint("token->cmd_func: '%s'", token->cmd_args[i].elem);
-	// if (token->cmd_func == not_builtin && token->cmd_args[0].type == REDIR)
-	// 	token->cmd_func = NULL;
+	rm_quotes(token->cmd_args);
 	return (token);
 }
 
@@ -108,11 +118,9 @@ void	*tokenize(t_shell *shell, char const *trimmed_line)
 	size_t	i;
 
 	i = 0;
-	// size_t	ii = 0;
 	shell->token = get_tokens(trimmed_line);
-	if (!shell->token || !shell->token->split_pipes
-			|| !shell->token->split_pipes[0])
-		return (eprint("alloc fail"), NULL);
+	if (!shell->token)
+		return (NULL);
 	while (shell->token[i].split_pipes)
 	{
 		if (!setup_token(&shell->token[i], shell->env))

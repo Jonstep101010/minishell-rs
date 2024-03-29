@@ -1,22 +1,30 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lexer.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 18:02:04 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 19:53:07 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef LEXER_H
 # define LEXER_H
+
 # include <stddef.h>
 # include <stdbool.h>
 
-enum e_lexer
+# define LEXER_SUCCESS 0
+# define ERR_TOKEN "syntax error near unexpected token "
+
+struct s_check_pipes
 {
-	LEXER_SUCCESS,
-	LEXER_NULL,
-	LEXER_UNBALANCED_QUOTES,
-	LEXER_UNBALANCED_BRACKETS,
-	LEXER_REDIRECTION,
-	LEXER_PIPES,
-	LEXER_SINGLE_QUOTE,
-	LEXER_DOUBLE_QUOTE,
-	ERR_TRAILING,
-	ERR_LEADING,
-	ERR_EMPTY_PIPES,
-	LEXER_BEGIN,
+	int		flag_redir;
+	int		flag_word;
+	size_t	i;
+	bool	ignore;
 };
 
 typedef struct s_lexer
@@ -34,14 +42,11 @@ typedef struct s_lexer
 	int		pipes;
 	bool	*ignore;
 	size_t	len;
-	char	*error;
-	int		exit_status;
-	enum 	e_lexer lexer;
+	int		lexer;
+	bool	result;
 }	t_lexer;
 
-enum e_lexer	ignore_quotes(const char *s, struct s_lexer *input);
 int				check_pipes_redirection(const char *s, t_lexer *input);
-enum e_lexer	check_against_ignore(const char *s, struct s_lexer *input);
 void			count_number(const char *s, struct s_lexer *input);
 
 bool			*bool_arr_zeroing(size_t len);

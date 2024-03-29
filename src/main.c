@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 18:31:23 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 18:31:47 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdio.h>
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -13,13 +25,17 @@
 void	minishell_loop(t_shell *shell)
 {
 	char	*trimmed_line;
+	char	*readline_line;
 
 	check_signals(&shell->p_termios);
 	while (1)
 	{
-		trimmed_line = get_input(readline("minishell> "));
-		if (!trimmed_line)
+		readline_line = readline("minishell> ");
+		if (!readline_line)
 			builtin_exit(shell, NULL);
+		trimmed_line = get_input(readline_line);
+		if (!trimmed_line)
+			continue ;
 		add_history(trimmed_line);
 		if (!*trimmed_line || lexer(shell, trimmed_line) != LEXER_SUCCESS)
 			continue ;
@@ -28,14 +44,14 @@ void	minishell_loop(t_shell *shell)
 	}
 }
 
-int main(int ac, char **av, char **envp)
+	// if (ac > 1 || av[1])
+	// 	return (printf("do not pass arguments\n"), 1);
+int	main(int ac, char **av, char **envp)
 {
 	t_shell		*shell;
 
 	(void)ac;
 	(void)av;
-	// if (ac > 1 || av[1])
-	// 	return (printf("do not pass arguments\n"), 1);
 	shell = init_shell(envp);
 	if (!shell)
 		return (1);

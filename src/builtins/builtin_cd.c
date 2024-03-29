@@ -1,3 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   builtin_cd.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 18:13:42 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 18:15:39 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "libutils.h"
 #include "utils.h"
 #include "struct.h"
 #include "environment.h"
@@ -23,17 +36,17 @@ static int	changedir(const char *path, t_shell *shell)
 	oldpwd = getcwd(NULL, 0);
 	if (chdir(path) == -1)
 	{
-		eprint("cd: %s: %s\n", path, strerror(errno));
+		eprint("cd: %s: %s", path, strerror(errno));
 		return (free(oldpwd), -1);
 	}
 	pwd = getcwd(NULL, 0);
 	if (!pwd)
 	{
-		eprint("cd: %s: %s\n", path, strerror(errno));
+		eprint("cd: %s: %s", path, strerror(errno));
 		return (free(oldpwd), -1);
 	}
 	export_env(shell, free_second_join("PWD=", pwd));
-	export_env(shell, free_second_join("OLDPWD=", pwd));
+	export_env(shell, free_second_join("OLDPWD=", oldpwd));
 	return (0);
 }
 
@@ -51,7 +64,7 @@ static int	cd_internal(const char **cmd_args, t_shell *shell)
 	path = get_env(shell->env, "HOME");
 	oldpwd = get_env(shell->env, "OLDPWD");
 	if (!cmd_args[1] && !path)
-		return (eprint("cd: HOME not set\n"), 1);
+		return (free_null(&oldpwd), eprint("cd: HOME not set"), 1);
 	if (!cmd_args[1] && path)
 		changedir(path, shell);
 	else if (*cmd_args[1] == '~' && path)

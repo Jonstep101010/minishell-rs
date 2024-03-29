@@ -1,5 +1,18 @@
-#ifndef ENV_H
-# define ENV_H
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   environment.h                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 17:59:17 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 18:00:18 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef ENVIRONMENT_H
+# define ENVIRONMENT_H
+
 # include <stdbool.h>
 # include "struct.h"
 

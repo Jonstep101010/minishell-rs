@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   builtin_unset.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 18:25:00 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 18:25:01 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "environment.h"
 #include "tokens.h"
 #include "utils.h"
@@ -41,7 +53,7 @@ int	builtin_unset(t_shell *shell, t_token *token)
 
 	if (!shell->env || !args || !*shell->env)
 		return (0);
-	if (!*args)
+	if (!*args || !args[1] || !*args[1])
 	{
 		arr_free((char **)args);
 		return (0);

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   execute_commands.c                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 18:44:24 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 18:44:39 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "commands.h"
 #include "libft.h"
 #include "struct.h"
@@ -13,7 +25,7 @@
 
 size_t	memsize(void *arr, size_t size);
 
-static bool forkable_builtin(t_token *token)
+static bool	forkable_builtin(t_token *token)
 {
 	return (token->cmd_func != builtin_exit
 		&& token->cmd_func != builtin_export

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_input.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 20:19:35 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 20:19:58 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "libft.h"
 #include "libutils.h"
 #include "tokens.h"
@@ -10,13 +22,17 @@ static char	*collect_as_ascii(char *readline_line)
 
 	i = 0;
 	collected_line = NULL;
+	if (readline_line && !*readline_line)
+	{
+		return (free(readline_line), ft_strdup(""));
+	}
 	while (readline_line && readline_line[i])
 	{
 		if (ft_isascii(readline_line[i]))
 		{
 			collected_line = append_char_str(collected_line, readline_line[i]);
 			if (!collected_line)
-				return (NULL);
+				return (free(readline_line), NULL);
 		}
 		i++;
 	}
@@ -27,18 +43,17 @@ static char	*collect_as_ascii(char *readline_line)
 
 char	*get_input(char *rl_prompt)
 {
-	static	char	*line;
-	char			*trim;
+	static char	*trim;
+	char		*line;
 
 	if (!rl_prompt)
-		return (free_null(&line), NULL);
+		return (free(trim), NULL);
 	line = collect_as_ascii(rl_prompt);
 	if (!line)
-		return (free(rl_prompt), NULL);
+		return (NULL);
 	trim = ft_strtrim(line, WHITESPACE);
-	free_null(&line);
+	free(line);
 	if (!trim)
 		return (NULL);
-	line = trim;
-	return (line);
+	return (trim);
 }

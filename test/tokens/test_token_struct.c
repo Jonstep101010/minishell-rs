@@ -19,6 +19,30 @@
 // get module support
 #include "support_tokens.c"
 
+char	**arr_trim(char **arr, char const *set)
+{
+	size_t	i;
+	size_t	len;
+	char	**ret;
+
+	if (!arr)
+		return (NULL);
+	if (!set)
+		return (arr);
+	i = 0;
+	len = arr_len(arr);
+	ret = malloc(sizeof(char *) * (len + 1));
+	if (!ret)
+		return (NULL);
+	while (arr[i])
+	{
+		ret[i] = ft_strtrim(arr[i], set);
+		i++;
+	}
+	ret[i] = NULL;
+	return (ret);
+}
+
 void	test_token_struct(void)
 {
 	t_shell	*shell;

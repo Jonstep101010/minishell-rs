@@ -1,12 +1,25 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   bool_array.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 20:18:03 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 20:27:33 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdbool.h>
 #include <stddef.h>
 #include "libft.h"
 
 bool	*bool_arr_zeroing(size_t len)
 {
-	size_t	i = 0;
+	size_t	i;
 	bool	*ignore;
 
+	i = 0;
 	ignore = ft_calloc(len + 1, sizeof(bool));
 	if (!ignore)
 		return (NULL);

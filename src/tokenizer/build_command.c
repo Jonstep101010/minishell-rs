@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   build_command.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 20:03:57 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 20:04:12 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "tokens.h"
 #include "utils.h"
 #include "arr_utils.h"
@@ -21,7 +33,7 @@ char	**get_cmd_arr_token(t_token *token)
 			if (token->cmd_args[i].type != REDIR)
 			{
 				cmd_arr = append_str_arr_free(cmd_arr,
-					ft_strdup(token->cmd_args[i].elem));
+						ft_strdup(token->cmd_args[i].elem));
 				if (!cmd_arr)
 					return (NULL);
 			}
