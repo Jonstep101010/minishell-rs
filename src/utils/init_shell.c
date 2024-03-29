@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init_shell.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 20:20:04 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 20:20:18 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "struct.h"
 #include "libft.h"
 #include "utils.h"
@@ -28,7 +40,7 @@ static char	**init_env(char *const *envp)
 	path = get_env(env, "PATH");
 	if (!path)
 		env = append_str_arr_free(env,
-		ft_strdup("PATH=/bin:/usr/bin:/sbin/:/usr/sbin"));
+				ft_strdup("PATH=/bin:/usr/bin:/sbin/:/usr/sbin"));
 	else
 		free_null(&path);
 	return (env);

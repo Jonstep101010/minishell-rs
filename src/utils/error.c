@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   error.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 20:19:10 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 20:19:17 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "ft_printf.h"
 #include <stdio.h>
 #include <unistd.h>
@@ -21,4 +33,3 @@ void	eprint_single(const char *fmt, ...)
 	ft_vdprintf(STDERR_FILENO, fmt, args);
 	va_end(args);
 }
-

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_input.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/29 20:19:35 by jschwabe          #+#    #+#             */
+/*   Updated: 2024/03/29 20:19:58 by jschwabe         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "libft.h"
 #include "libutils.h"
 #include "tokens.h"
@@ -31,8 +43,8 @@ static char	*collect_as_ascii(char *readline_line)
 
 char	*get_input(char *rl_prompt)
 {
-	static	char	*trim;
-	char			*line;
+	static char	*trim;
+	char		*line;
 
 	if (!rl_prompt)
 		return (free(trim), NULL);
