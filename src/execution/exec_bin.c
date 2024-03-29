@@ -32,8 +32,9 @@ int	exec_bin(t_shell *shell, t_token *token)
 	}
 	if (access_status == 126)
 	{
+		if (**command != '~')
+			eprint("%s: %s", *command, strerror(errno));
 		// @todo implement strerror, exit codes
-		eprint("%s: %s", *command, strerror(errno));
 		arr_free((char **)command);
 		exit_free(shell, 126);
 	}

@@ -1,3 +1,4 @@
+#include "libutils.h"
 #include "utils.h"
 #include "struct.h"
 #include "environment.h"
@@ -51,7 +52,10 @@ static int	cd_internal(const char **cmd_args, t_shell *shell)
 	path = get_env(shell->env, "HOME");
 	oldpwd = get_env(shell->env, "OLDPWD");
 	if (!cmd_args[1] && !path)
-		return (eprint("cd: HOME not set\n"), 1);
+	{
+		free_null(&oldpwd);
+		return (eprint("cd: HOME not set"), 1);
+	}
 	if (!cmd_args[1] && path)
 		changedir(path, shell);
 	else if (*cmd_args[1] == '~' && path)

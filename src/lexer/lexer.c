@@ -19,6 +19,7 @@ int	lexer(t_shell *shell, const char *trimmed_line)
 	{
 		// @todo handle errors
 		update_exit_status(shell, lex->lexer);
+		get_input(NULL);
 		free(lex);
 		return (1);
 	}

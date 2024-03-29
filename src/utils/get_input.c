@@ -27,18 +27,17 @@ static char	*collect_as_ascii(char *readline_line)
 
 char	*get_input(char *rl_prompt)
 {
-	static	char	*line;
-	char			*trim;
+	static	char	*trim;
+	char			*line;
 
 	if (!rl_prompt)
-		return (free_null(&line), NULL);
+		return (free(trim), NULL);
 	line = collect_as_ascii(rl_prompt);
 	if (!line)
 		return (NULL);
 	trim = ft_strtrim(line, WHITESPACE);
-	free_null(&line);
+	free(line);
 	if (!trim)
 		return (NULL);
-	line = trim;
-	return (line);
+	return (trim);
 }

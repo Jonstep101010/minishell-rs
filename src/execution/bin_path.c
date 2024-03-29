@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "arr_utils.h"
 #include "libutils.h"
+#include "utils.h"
 
 static uint8_t	find_bin(const char **paths, const char *binprefix
 						, char **binpath_buf)
@@ -34,13 +35,23 @@ static uint8_t	get_bin(const char **paths, const char *bin, char **binpath_buf)
 	if (!bin_prefix)
 		return (arr_free((char **)paths), 1);
 	status = find_bin(paths, bin_prefix, binpath_buf);
-	arr_free((char **)paths);
-	if (status == 127)
+	if (!paths && status == 127)
 		status = find_bin(syspaths, bin_prefix, binpath_buf);
+	arr_free((char **)paths);
 	free((char *)bin_prefix);
 	if (status == 0 && access(*binpath_buf, X_OK) == -1)
 		return (126);
 	return (status);
+}
+
+uint8_t	set_tilde(char *const *env, char **binpath_buf)
+{
+	*binpath_buf = get_env(env, "HOME");
+	if (!*binpath_buf)
+		eprint("/home/minishell: Is a directory");
+	else
+		eprint("%s: Is a directory", *binpath_buf);
+	return (126);
 }
 
 /**
@@ -60,7 +71,7 @@ uint8_t	set_binpath(char *const *env, const char *bin, char **binpath_buf)
 	if (!bin || !*bin)
 		return (EXIT_FAILURE);
 	if (*bin == '~' && !*(bin + 1))
-		return (126);
+		return (set_tilde(env, binpath_buf));
 	if (*bin == '.' || *bin == '/')
 	{
 		*binpath_buf = ft_strdup(bin);
