@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/29 18:37:32 by jschwabe          #+#    #+#             */
-/*   Updated: 2024/03/29 18:42:38 by jschwabe         ###   ########.fr       */
+/*   Updated: 2024/03/30 10:14:26 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ int	exec_bin(t_shell *shell, t_token *token)
 		arr_free((char **)command);
 		execve_fail(shell, token->bin);
 	}
+	arr_free((char **)command);
 	exit_free(shell, 0);
 	return (0);
 }

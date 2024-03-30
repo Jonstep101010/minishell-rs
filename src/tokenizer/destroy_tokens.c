@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/29 20:07:10 by jschwabe          #+#    #+#             */
-/*   Updated: 2024/03/29 20:10:20 by jschwabe         ###   ########.fr       */
+/*   Updated: 2024/03/30 11:29:11 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void	destroy_all_tokens(t_shell *shell)
 
 	token = shell->token;
 	i = 0;
-	while (token && shell->token->split_pipes && token[i].split_pipes)
+	while (token && i < shell->token_len)
 	{
 		if (token[i].cmd_args)
 		{
@@ -34,10 +34,10 @@ void	destroy_all_tokens(t_shell *shell)
 			}
 			free_null(&token[i].cmd_args);
 		}
-		free_null(&(token[i].split_pipes));
 		if (token[i].bin)
 			free_null(&(token[i].bin));
 		i++;
 	}
 	free_null(&shell->token);
+	shell->token_len = 0;
 }

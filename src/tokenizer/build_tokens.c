@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/29 20:04:23 by jschwabe          #+#    #+#             */
-/*   Updated: 2024/03/29 20:06:45 by jschwabe         ###   ########.fr       */
+/*   Updated: 2024/03/30 11:29:31 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,9 @@ static void	*setup_token(t_token *token, char *const *env)
 	if (!token || !token->split_pipes)
 		return (NULL);
 	token->tmp_arr = split_outside_quotes(token->split_pipes, WHITESPACE);
+	free_null(&(token->split_pipes));
 	if (!token->tmp_arr)
-		return (free_null(&token->split_pipes), NULL);
+		return (NULL);
 	token->cmd_args = init_cmdargs(arr_len(token->tmp_arr));
 	if (!token->cmd_args)
 		return (arr_free(token->tmp_arr), NULL);
@@ -118,10 +119,13 @@ void	*tokenize(t_shell *shell, char const *trimmed_line)
 	size_t	i;
 
 	i = 0;
+	shell->token_len = 0;
 	shell->token = get_tokens(trimmed_line);
 	if (!shell->token)
 		return (NULL);
-	while (shell->token[i].split_pipes)
+	while (shell->token[shell->token_len].split_pipes)
+		shell->token_len++;
+	while (i < shell->token_len)
 	{
 		if (!setup_token(&shell->token[i], shell->env))
 			return (destroy_all_tokens(shell), NULL);

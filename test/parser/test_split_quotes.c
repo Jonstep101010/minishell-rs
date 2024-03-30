@@ -20,6 +20,30 @@
 #include "split_outside_quotes.c"
 #include "destroy_tokens.c"
 
+char	**arr_trim(char **arr, char const *set)
+{
+	size_t	i;
+	size_t	len;
+	char	**ret;
+
+	if (!arr)
+		return (NULL);
+	if (!set)
+		return (arr);
+	i = 0;
+	len = arr_len(arr);
+	ret = malloc(sizeof(char *) * (len + 1));
+	if (!ret)
+		return (NULL);
+	while (arr[i])
+	{
+		ret[i] = ft_strtrim(arr[i], set);
+		i++;
+	}
+	ret[i] = NULL;
+	return (ret);
+}
+
 void	test_find_leaks() {
 	char	*input = strdup("echo | \"nopipes |\" | echo hello");
 	char	**tokens = split_outside_quotes(input, "|");
@@ -329,5 +353,23 @@ void	test_split_mult_pipes() {
 	arr_free(tokens_two_first);
 	arr_free(tokens_two_second);
 	arr_free(tokens_two_third);
+	arr_free(tokens);
+}
+
+void	test_split_mult_leaks() {
+	char	*input = strdup("cat | ls");
+	char	**tokens = split_outside_quotes(input, "|");
+	free(input);
+	char	**expected = (char *[]){"cat ", " ls", NULL};
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 3);
+	arr_free(tokens);
+}
+
+void	test_split_mult_leaks_two() {
+	char	*input = strdup("cat | cat | ls");
+	char	**tokens = split_outside_quotes(input, "|");
+	free(input);
+	char	**expected = (char *[]){"cat ", " cat ", " ls", NULL};
+	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, tokens, 3);
 	arr_free(tokens);
 }

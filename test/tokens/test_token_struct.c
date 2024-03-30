@@ -148,7 +148,7 @@ void	test_destroy_null() {
 void	test_recursive_expansion() {
 	t_shell	*shell = support_test_tokens(((char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", NULL}));
 	tokenize(shell, "ls -l $somedir ' ' | cat -e | wc -l");
-	TEST_ASSERT_NOT_NULL(shell->token[0].split_pipes);
+	// TEST_ASSERT_NOT_NULL(shell->token[0].split_pipes);
 	// we want recursive expansion
 	TEST_ASSERT_EQUAL_STRING("$otherdir", shell->token[0].cmd_args[2].elem);
 
@@ -170,7 +170,7 @@ void	test_export_env() {
 	char	**expected = (char *[]){"PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=$otherdir", "otherdir=mypath$", "true=false", NULL};
 	TEST_ASSERT_EQUAL_STRING_ARRAY(expected, shell->env, 6);
 	TEST_ASSERT_NOT_NULL(tokenize(shell, "unset true"));
-	TEST_ASSERT_EQUAL_STRING("unset true", shell->token[0].split_pipes);
+	// TEST_ASSERT_EQUAL_STRING("unset true", shell->token[0].split_pipes);
 	TEST_ASSERT_EQUAL_STRING("unset", shell->token[0].cmd_args[0].elem);
 	TEST_ASSERT_EQUAL_STRING("true", shell->token[0].cmd_args[1].elem);
 	builtin_unset(shell, &shell->token[0]);
@@ -233,5 +233,15 @@ void	test_corrupted_input_two() {
 	TEST_ASSERT_EQUAL_INT(INPUT_REDIR, shell->token[0].cmd_args[0].redir);
 	TEST_ASSERT_EQUAL_INT(NO_REDIR, shell->token[0].cmd_args[1].redir);
 	TEST_ASSERT_EQUAL_STRING("cat", shell->token[0].cmd_args[1].elem);
+	cleanup_support_test_token(shell);
+}
+
+void test_can_create_mult_noleaks() {
+	t_shell	*shell = support_clean_env((char *[]){"", "PATH=/usr/bin", "HOME=/home/user", "USER=user", "somedir=you", NULL});
+	shell->token = tokenize(shell, "cat | cat | ls");
+	TEST_ASSERT_NOT_NULL(shell->token);
+	TEST_ASSERT_EQUAL_STRING("cat", shell->token[0].cmd_args[0].elem);
+	TEST_ASSERT_EQUAL_STRING("cat", shell->token[1].cmd_args[0].elem);
+	TEST_ASSERT_EQUAL_STRING("ls", shell->token[2].cmd_args[0].elem);
 	cleanup_support_test_token(shell);
 }
