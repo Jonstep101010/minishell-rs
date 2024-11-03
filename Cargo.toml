@@ -2,7 +2,7 @@
 members = [
 ]
 [package]
-name = "c2rust_out"
+name = "minishell-rs"
 authors = ["C2Rust"]
 version = "0.0.0"
 publish = false
@@ -19,3 +19,4 @@ name = "minishell-rs"
 [dependencies]
 libc= "0.2"
 gnu-readline-sys = "0.1.0"
+libft_rs = { package = "libft_rs", git= "https://github.com/Jonstep101010/libft-rs", branch = "main" }

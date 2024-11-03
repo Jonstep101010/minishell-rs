@@ -9,43 +9,44 @@
 #![feature(extern_types)]
 
 extern crate libc;
+extern crate libft_rs;
 pub mod include {
-	pub mod libft_rs {
-		pub mod ft_atoi;
-		pub mod ft_bzero;
-		pub mod ft_calloc;
-		pub mod ft_isalnum;
-		pub mod ft_isalpha;
-		pub mod ft_isascii;
-		pub mod ft_isdigit;
-		pub mod ft_isprint;
-		pub mod ft_itoa;
-		pub mod ft_memchr;
-		pub mod ft_memcmp;
-		pub mod ft_memcpy;
-		pub mod ft_memmove;
-		pub mod ft_memset;
-		pub mod ft_putchar_fd;
-		pub mod ft_putendl_fd;
-		pub mod ft_putnbr_fd;
-		pub mod ft_putstr_fd;
-		pub mod ft_split;
-		pub mod ft_strchr;
-		pub mod ft_strdup;
-		pub mod ft_striteri;
-		pub mod ft_strjoin;
-		pub mod ft_strlcat;
-		pub mod ft_strlcpy;
-		pub mod ft_strlen;
-		pub mod ft_strmapi;
-		pub mod ft_strncmp;
-		pub mod ft_strnstr;
-		pub mod ft_strrchr;
-		pub mod ft_strtrim;
-		pub mod ft_substr;
-		pub mod ft_tolower;
-		pub mod ft_toupper;
-	} // mod libft_rs
+	// pub mod libft_rs {
+	// 	pub mod ft_atoi;
+	// 	pub mod ft_bzero;
+	// 	pub mod ft_calloc;
+	// 	pub mod ft_isalnum;
+	// 	pub mod ft_isalpha;
+	// 	pub mod ft_isascii;
+	// 	pub mod ft_isdigit;
+	// 	pub mod ft_isprint;
+	// 	pub mod ft_itoa;
+	// 	pub mod ft_memchr;
+	// 	pub mod ft_memcmp;
+	// 	pub mod ft_memcpy;
+	// 	pub mod ft_memmove;
+	// 	pub mod ft_memset;
+	// 	pub mod ft_putchar_fd;
+	// 	pub mod ft_putendl_fd;
+	// 	pub mod ft_putnbr_fd;
+	// 	pub mod ft_putstr_fd;
+	// 	pub mod ft_split;
+	// 	pub mod ft_strchr;
+	// 	pub mod ft_strdup;
+	// 	pub mod ft_striteri;
+	// 	pub mod ft_strjoin;
+	// 	pub mod ft_strlcat;
+	// 	pub mod ft_strlcpy;
+	// 	pub mod ft_strlen;
+	// 	pub mod ft_strmapi;
+	// 	pub mod ft_strncmp;
+	// 	pub mod ft_strnstr;
+	// 	pub mod ft_strrchr;
+	// 	pub mod ft_strtrim;
+	// 	pub mod ft_substr;
+	// 	pub mod ft_tolower;
+	// 	pub mod ft_toupper;
+	// } // mod libft_rs
 	pub mod libftprintf_rs {
 		pub mod ft_ltoa;
 		pub mod ft_printf;
