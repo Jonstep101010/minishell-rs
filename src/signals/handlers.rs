@@ -23,6 +23,10 @@ pub type __uid_t = libc::c_uint;
 pub type __pid_t = libc::c_int;
 pub type __clock_t = libc::c_long;
 pub type __ssize_t = libc::c_long;
+pub type cc_t = libc::c_uchar;
+pub type speed_t = libc::c_uint;
+pub type tcflag_t = libc::c_uint;
+
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct __sigset_t {
@@ -134,23 +138,20 @@ pub type __sighandler_t = Option<unsafe extern "C" fn(libc::c_int) -> ()>;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct sigaction {
-	pub __sigaction_handler: C2RustUnnamed_9,
+	pub __sigaction_handler: C2RustUnnamed_10,
 	pub sa_mask: __sigset_t,
 	pub sa_flags: libc::c_int,
 	pub sa_restorer: Option<unsafe extern "C" fn() -> ()>,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
-pub union C2RustUnnamed_9 {
+pub union C2RustUnnamed_10 {
 	pub sa_handler: __sighandler_t,
 	pub sa_sigaction:
 		Option<unsafe extern "C" fn(libc::c_int, *mut siginfo_t, *mut libc::c_void) -> ()>,
 }
 pub type size_t = libc::c_ulong;
 pub type ssize_t = __ssize_t;
-pub type cc_t = libc::c_uchar;
-pub type speed_t = libc::c_uint;
-pub type tcflag_t = libc::c_uint;
 #[no_mangle]
 pub unsafe extern "C" fn check_signals(mut p_termios: *mut termios) {
 	tcgetattr(0 as libc::c_int, p_termios);
@@ -161,7 +162,7 @@ pub unsafe extern "C" fn check_signals(mut p_termios: *mut termios) {
 }
 unsafe extern "C" fn ctrl_bkslash_init() {
 	let mut sig: sigaction = sigaction {
-		__sigaction_handler: C2RustUnnamed_9 { sa_handler: None },
+		__sigaction_handler: C2RustUnnamed_10 { sa_handler: None },
 		sa_mask: __sigset_t { __val: [0; 16] },
 		sa_flags: 0,
 		sa_restorer: None,
@@ -171,11 +172,15 @@ unsafe extern "C" fn ctrl_bkslash_init() {
 	);
 	sig.sa_flags = 0x10000000 as libc::c_int;
 	sigemptyset(&mut sig.sa_mask);
-	sigaction(3 as libc::c_int, &mut sig, 0 as *mut sigaction);
+	sigaction(
+		3 as libc::c_int,
+		&mut sig,
+		std::ptr::null_mut::<sigaction>(),
+	);
 }
 unsafe extern "C" fn ctrl_c_init() {
 	let mut sig: sigaction = sigaction {
-		__sigaction_handler: C2RustUnnamed_9 { sa_handler: None },
+		__sigaction_handler: C2RustUnnamed_10 { sa_handler: None },
 		sa_mask: __sigset_t { __val: [0; 16] },
 		sa_flags: 0,
 		sa_restorer: None,
@@ -186,7 +191,11 @@ unsafe extern "C" fn ctrl_c_init() {
 	);
 	sig.sa_flags = 0x10000000 as libc::c_int;
 	sigemptyset(&mut sig.sa_mask);
-	sigaction(2 as libc::c_int, &mut sig, 0 as *mut sigaction);
+	sigaction(
+		2 as libc::c_int,
+		&mut sig,
+		std::ptr::null_mut::<sigaction>(),
+	);
 }
 unsafe extern "C" fn ctrl_c_handler(
 	mut sig: libc::c_int,
@@ -204,4 +213,68 @@ unsafe extern "C" fn ctrl_c_handler(
 		rl_replace_line(b"\0" as *const u8 as *const libc::c_char, 0 as libc::c_int);
 		rl_redisplay();
 	}
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn check_signals_child(mut p_termios_child: *mut termios) {
+	let mut attr: termios = termios {
+		c_iflag: 0,
+		c_oflag: 0,
+		c_cflag: 0,
+		c_lflag: 0,
+		c_line: 0,
+		c_cc: [0; 32],
+		c_ispeed: 0,
+		c_ospeed: 0,
+	};
+	attr = {
+		termios {
+			c_iflag: 0 as libc::c_int as tcflag_t,
+			c_oflag: 0,
+			c_cflag: 0,
+			c_lflag: 0,
+			c_line: 0,
+			c_cc: [0; 32],
+			c_ispeed: 0,
+			c_ospeed: 0,
+		}
+	};
+	tcgetattr(0 as libc::c_int, p_termios_child);
+	tcgetattr(0 as libc::c_int, &mut attr);
+	attr.c_lflag &= !(0o1000 as libc::c_int) as libc::c_uint;
+	tcsetattr(1 as libc::c_int, 2 as libc::c_int, p_termios_child);
+	ctrl_backslash_child();
+	ctrl_c_child();
+}
+unsafe extern "C" fn ctrl_c_child() {
+	let mut ctrl_c: sigaction = sigaction {
+		__sigaction_handler: C2RustUnnamed_10 { sa_handler: None },
+		sa_mask: __sigset_t { __val: [0; 16] },
+		sa_flags: 0,
+		sa_restorer: None,
+	};
+	ctrl_c.__sigaction_handler.sa_handler = None;
+	ctrl_c.sa_flags = 0x10000000 as libc::c_int;
+	sigemptyset(&mut ctrl_c.sa_mask);
+	sigaction(
+		2 as libc::c_int,
+		&mut ctrl_c,
+		std::ptr::null_mut::<sigaction>(),
+	);
+}
+unsafe extern "C" fn ctrl_backslash_child() {
+	let mut ctrl_slash: sigaction = sigaction {
+		__sigaction_handler: C2RustUnnamed_10 { sa_handler: None },
+		sa_mask: __sigset_t { __val: [0; 16] },
+		sa_flags: 0,
+		sa_restorer: None,
+	};
+	ctrl_slash.__sigaction_handler.sa_handler = None;
+	ctrl_slash.sa_flags = 0x10000000 as libc::c_int;
+	sigemptyset(&mut ctrl_slash.sa_mask);
+	sigaction(
+		3 as libc::c_int,
+		&mut ctrl_slash,
+		std::ptr::null_mut::<sigaction>(),
+	);
 }

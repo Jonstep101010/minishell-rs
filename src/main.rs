@@ -51,8 +51,7 @@ pub mod parser {
 	pub mod split_outside_quotes;
 } // mod parser
 pub mod signals {
-	pub mod signals;
-	pub mod signals_childs;
+	pub mod handlers;
 } // mod signals
 pub mod tokenizer {
 	pub mod build_command;
