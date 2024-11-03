@@ -68,7 +68,6 @@ pub unsafe extern "C" fn get_cmd_arr_token(mut token: *mut t_token) -> *mut *mut
 				}
 			}
 			i += 1;
-			i;
 		}
 	}
 	return cmd_arr;
@@ -96,7 +95,6 @@ pub unsafe extern "C" fn get_tokens(mut trimmed_line: *const libc::c_char) -> *m
 		let ref mut fresh0 = (*token.offset(i as isize)).split_pipes;
 		*fresh0 = *split_pipes.offset(i as isize);
 		i += 1;
-		i;
 	}
 	free(split_pipes as *mut libc::c_void);
 	return token;

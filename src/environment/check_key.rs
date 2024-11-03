@@ -19,7 +19,6 @@ pub unsafe extern "C" fn check_valid_key(mut s: *const libc::c_char) -> bool {
 			|| *s.offset(i as isize) as libc::c_int == '_' as i32
 		{
 			i += 1;
-			i;
 		} else {
 			return 0 as libc::c_int != 0;
 		}

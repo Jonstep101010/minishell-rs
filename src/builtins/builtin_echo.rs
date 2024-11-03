@@ -26,10 +26,8 @@ pub const STRING: e_arg = 0;
 unsafe extern "C" fn is_n_arg(mut arg: *const libc::c_char) -> libc::c_int {
 	if *arg as libc::c_int == '-' as i32 {
 		arg = arg.offset(1);
-		arg;
 		while *arg as libc::c_int == 'n' as i32 {
 			arg = arg.offset(1);
-			arg;
 			if *arg as libc::c_int == '\0' as i32 {
 				return 1 as libc::c_int;
 			}
@@ -47,7 +45,6 @@ unsafe extern "C" fn echo_default(mut cmd_args: *const *const libc::c_char) {
 		&& is_n_arg(*cmd_args.offset(i as isize)) == 1 as libc::c_int
 	{
 		i += 1;
-		i;
 	}
 	if i == 0 as libc::c_int {
 		flag = 2 as libc::c_int;
@@ -77,7 +74,6 @@ unsafe extern "C" fn echo_default(mut cmd_args: *const *const libc::c_char) {
 			printf(b" \0" as *const u8 as *const libc::c_char);
 		}
 		i += 1;
-		i;
 	}
 	if flag != 1 as libc::c_int {
 		printf(b"\n\0" as *const u8 as *const libc::c_char);

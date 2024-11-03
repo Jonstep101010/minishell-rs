@@ -46,7 +46,6 @@ unsafe extern "C" fn declare_x_env_var(mut env: *const *mut libc::c_char) -> lib
 			*env,
 		);
 		env = env.offset(1);
-		env;
 	}
 	return 0 as libc::c_int;
 }
@@ -76,7 +75,6 @@ pub unsafe extern "C" fn builtin_export(
 			export_env(shell, ft_strdup(*command.offset(i as isize)));
 		}
 		i = i.wrapping_add(1);
-		i;
 	}
 	arr_free(command as *mut *mut libc::c_char);
 	if i > 1 as libc::c_int as libc::c_ulong {

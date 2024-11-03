@@ -14,7 +14,6 @@ unsafe extern "C" fn get_key_len(mut s: *const libc::c_char) -> size_t {
 	}
 	while key_len < len && *s.offset(key_len as isize) as libc::c_int != '=' as i32 {
 		key_len = key_len.wrapping_add(1);
-		key_len;
 	}
 	if *s.offset(key_len as isize) as libc::c_int == '=' as i32
 		&& key_len != 0 as libc::c_int as libc::c_ulong
@@ -49,7 +48,6 @@ pub unsafe extern "C" fn get_index_env(
 			return i as libc::c_int;
 		}
 		i = i.wrapping_add(1);
-		i;
 	}
 	return -(1 as libc::c_int);
 }

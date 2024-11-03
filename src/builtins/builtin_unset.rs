@@ -49,7 +49,6 @@ unsafe extern "C" fn check_illegal_char(mut str: *const libc::c_char) -> bool {
 			return 1 as libc::c_int != 0;
 		}
 		str = str.offset(1);
-		str;
 	}
 	return 0 as libc::c_int != 0;
 }
@@ -71,7 +70,6 @@ unsafe extern "C" fn unset_internal(
 			rm_str_arr(env, *env.offset(index as isize));
 		}
 		args = args.offset(1);
-		args;
 	}
 	return 0 as libc::c_int;
 }

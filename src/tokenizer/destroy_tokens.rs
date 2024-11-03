@@ -51,7 +51,6 @@ pub unsafe extern "C" fn destroy_all_tokens(mut shell: *mut t_shell) {
 						as *mut *mut libc::c_char as *mut libc::c_void,
 				);
 				ii = ii.wrapping_add(1);
-				ii;
 			}
 			free_null(
 				&mut (*token.offset(i as isize)).cmd_args as *mut *mut t_arg as *mut libc::c_void,
@@ -63,7 +62,6 @@ pub unsafe extern "C" fn destroy_all_tokens(mut shell: *mut t_shell) {
 			);
 		}
 		i = i.wrapping_add(1);
-		i;
 	}
 	free_null(&mut (*shell).token as *mut *mut t_token as *mut libc::c_void);
 	(*shell).token_len = 0 as libc::c_int as size_t;

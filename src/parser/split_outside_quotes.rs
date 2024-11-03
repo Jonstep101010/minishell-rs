@@ -62,12 +62,10 @@ unsafe extern "C" fn split_loop(mut s: *mut t_splitter) -> *mut *mut libc::c_cha
 			.is_null()
 			{
 				i = i.wrapping_add(1);
-				i;
 			}
 			(*s).start = i.wrapping_add(1 as libc::c_int as libc::c_ulong);
 		}
 		i = i.wrapping_add(1);
-		i;
 	}
 	return append_str_arr_free(
 		(*s).arr,

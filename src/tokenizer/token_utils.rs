@@ -135,7 +135,6 @@ pub unsafe extern "C" fn set_cmd_func(mut cmd: *const libc::c_char, mut token: *
 			return;
 		}
 		i = i.wrapping_add(1);
-		i;
 	}
 	(*token).cmd_func =
 		Some(exec_bin as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int);

@@ -31,7 +31,6 @@ unsafe extern "C" fn find_bin(
 		}
 		free_null(binpath_buf as *mut libc::c_void);
 		paths = paths.offset(1);
-		paths;
 	}
 	return 127 as libc::c_int as uint8_t;
 }

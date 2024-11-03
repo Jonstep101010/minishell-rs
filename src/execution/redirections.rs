@@ -89,7 +89,6 @@ pub unsafe extern "C" fn do_redirections(
 			close(fd);
 		}
 		i += 1;
-		i;
 	}
 	return 0 as libc::c_int;
 }

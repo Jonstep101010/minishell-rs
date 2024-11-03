@@ -123,7 +123,6 @@ unsafe extern "C" fn setup_token(
 			return 0 as *mut libc::c_void;
 		}
 		ii = ii.wrapping_add(1);
-		ii;
 	}
 	free_null(&mut (*token).tmp_arr as *mut *mut *mut libc::c_char as *mut libc::c_void);
 	return token as *mut libc::c_void;
@@ -165,7 +164,6 @@ unsafe extern "C" fn inner_loop(mut token: *mut t_token) -> *mut libc::c_void {
 			break;
 		}
 		i += 1;
-		i;
 	}
 	set_cmd_func((*((*token).cmd_args).offset(i as isize)).elem, token);
 	rm_quotes((*token).cmd_args);
@@ -194,7 +192,6 @@ pub unsafe extern "C" fn tokenize(
 		}
 		inner_loop(&mut *((*shell).token).offset(i as isize));
 		i = i.wrapping_add(1);
-		i;
 	}
 	return (*shell).token as *mut libc::c_void;
 }

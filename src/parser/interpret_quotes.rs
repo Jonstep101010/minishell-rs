@@ -39,7 +39,6 @@ pub unsafe extern "C" fn do_quote_bs(
 				'\0' as i32 as libc::c_char;
 		}
 		s = s.offset(1);
-		s;
 	}
 	return tmp as *mut libc::c_void;
 }
@@ -66,7 +65,6 @@ pub unsafe extern "C" fn interpret_quotes(mut cmd_arr: *mut *mut libc::c_char) -
 			*fresh0 = tmp;
 		}
 		i += 1;
-		i;
 	}
 	return 1 as libc::c_int != 0;
 }

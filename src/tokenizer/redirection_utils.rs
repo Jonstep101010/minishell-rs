@@ -47,12 +47,10 @@ pub unsafe extern "C" fn rm_prefix_redir_word(mut arg: *mut t_arg) {
 				*arg.offset(i as isize) =
 					*arg.offset(i.wrapping_add(1 as libc::c_int as libc::c_ulong) as isize);
 				i = i.wrapping_add(1);
-				i;
 			}
 			return rm_prefix_redir_word(arg);
 		}
 		i = i.wrapping_add(1);
-		i;
 	}
 }
 #[no_mangle]
@@ -150,7 +148,6 @@ pub unsafe extern "C" fn check_redirections(mut cmd_args: *mut t_arg) -> e_redir
 			redir = 1 as libc::c_int != 0;
 		}
 		ii = ii.wrapping_add(1);
-		ii;
 	}
 	return redir as e_redir;
 }

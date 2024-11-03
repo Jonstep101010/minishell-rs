@@ -18,7 +18,6 @@ pub unsafe extern "C" fn bool_arr_zeroing(mut len: size_t) -> *mut bool {
 	while i < len.wrapping_add(1 as libc::c_int as libc::c_ulong) {
 		*ignore.offset(i as isize) = 0 as libc::c_int != 0;
 		i = i.wrapping_add(1);
-		i;
 	}
 	return ignore;
 }
@@ -36,13 +35,11 @@ pub unsafe extern "C" fn range_ignore(
 		{
 			*ignore.offset(i as isize) = 1 as libc::c_int != 0;
 			i += 1;
-			i;
 			while *s.offset(i as isize) as libc::c_int != 0
 				&& *s.offset(i as isize) as libc::c_int != c as libc::c_int
 			{
 				*ignore.offset(i as isize) = 1 as libc::c_int != 0;
 				i += 1;
-				i;
 			}
 			if *s.offset(i as isize) as libc::c_int == c as libc::c_int {
 				*ignore.offset(i as isize) = 1 as libc::c_int != 0;
@@ -50,11 +47,9 @@ pub unsafe extern "C" fn range_ignore(
 			while *s.offset(i as isize) as libc::c_int != c as libc::c_int {
 				*ignore.offset(i as isize) = 0 as libc::c_int != 0;
 				i -= 1;
-				i;
 			}
 		} else {
 			i += 1;
-			i;
 		}
 	}
 }

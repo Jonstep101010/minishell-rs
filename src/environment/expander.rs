@@ -26,7 +26,6 @@ unsafe extern "C" fn check_index_advance(
 		.is_null()
 	{
 		count += 1;
-		count;
 	}
 	if *s.offset((i + count) as isize) as libc::c_int != 0
 		&& *s.offset((i + count + 1 as libc::c_int) as isize) as libc::c_int == '?' as i32

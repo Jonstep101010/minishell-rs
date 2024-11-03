@@ -24,7 +24,6 @@ unsafe extern "C" fn collect_as_ascii(mut readline_line: *mut libc::c_char) -> *
 			}
 		}
 		i += 1;
-		i;
 	}
 	if !readline_line.is_null() {
 		free(readline_line as *mut libc::c_void);
