@@ -7,7 +7,70 @@
 	unused_assignments,
 	unused_mut
 )]
-use ::libminishell::*;
+#![feature(c_variadic)]
+#![feature(extern_types)]
+
+extern crate libc;
+extern crate libft_rs;
+extern crate libftprintf_rs;
+extern crate libgnl_rs;
+extern crate libutils_rs;
+
+pub mod builtins {
+	pub mod builtin_cd;
+	pub mod builtin_echo;
+	pub mod builtin_env;
+	pub mod builtin_exit;
+	pub mod builtin_export;
+	pub mod builtin_pwd;
+	pub mod builtin_unset;
+} // mod builtins
+pub mod environment {
+	pub mod check_key;
+	pub mod expander;
+	pub mod export_env;
+	pub mod get_env;
+	pub mod get_index;
+} // mod environment
+pub mod execution {
+	pub mod bin_path;
+	pub mod exec_bin;
+	pub mod execute_commands;
+	pub mod execute_pipes;
+	pub mod heredoc;
+	pub mod redirections;
+} // mod execution
+pub mod lexer {
+	pub mod check_pipes;
+	pub mod checks_basic;
+	pub mod lexer;
+	pub mod lexer_support;
+} // mod lexer
+pub mod parser {
+	pub mod interpret_quotes;
+	pub mod split_outside_quotes;
+} // mod parser
+pub mod signals {
+	pub mod signals;
+	pub mod signals_childs;
+} // mod signals
+pub mod tokenizer {
+	pub mod build_command;
+	pub mod build_tokens;
+	pub mod destroy_tokens;
+	pub mod redirection_utils;
+	pub mod token_utils;
+} // mod tokenizer
+pub mod utils {
+	pub mod arr_utils;
+	pub mod bool_array;
+	pub mod error;
+	pub mod exit_free;
+	pub mod get_input;
+	pub mod init_shell;
+	pub mod str_equal;
+} // mod utils
+
 extern "C" {
 	fn readline(_: *const libc::c_char) -> *mut libc::c_char;
 	fn add_history(_: *const libc::c_char);
