@@ -137,15 +137,24 @@ pub const STRING: e_arg = 0;
 
 pub type __pid_t = libc::c_int;
 pub type pid_t = __pid_t;
-#[no_mangle]
-pub unsafe extern "C" fn minishell_loop(mut shell: *mut t_shell) {
-	let mut trimmed_line: *mut libc::c_char = 0 as *mut libc::c_char;
-	let mut readline_line: *mut libc::c_char = 0 as *mut libc::c_char;
+
+unsafe fn main_0(
+	mut _ac: libc::c_int,
+	mut _av: *mut *mut libc::c_char,
+	mut envp: *mut *mut libc::c_char,
+) -> libc::c_int {
+	let mut shell: *mut t_shell = std::ptr::null_mut::<t_shell>();
+	shell = utils::init_shell::init_shell(envp);
+	if shell.is_null() {
+		return 1 as libc::c_int;
+	}
+	let mut trimmed_line: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
+	let mut readline_line: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	check_signals(&mut (*shell).p_termios);
 	loop {
 		readline_line = readline(b"minishell> \0" as *const u8 as *const libc::c_char);
 		if readline_line.is_null() {
-			builtins::builtin_exit::builtin_exit(shell, 0 as *mut t_token);
+			builtins::builtin_exit::builtin_exit(shell, std::ptr::null_mut::<t_token>());
 		}
 		trimmed_line = utils::get_input::get_input(readline_line);
 		if trimmed_line.is_null() {
@@ -160,21 +169,6 @@ pub unsafe extern "C" fn minishell_loop(mut shell: *mut t_shell) {
 			execution::execute_commands::execute_commands(shell, (*shell).token);
 		}
 	}
-}
-
-// @todo cleanup params
-unsafe fn main_0(
-	mut _ac: libc::c_int,
-	mut _av: *mut *mut libc::c_char,
-	mut envp: *mut *mut libc::c_char,
-) -> libc::c_int {
-	let mut shell: *mut t_shell = 0 as *mut t_shell;
-	shell = utils::init_shell::init_shell(envp);
-	if shell.is_null() {
-		return 1 as libc::c_int;
-	}
-	minishell_loop(shell);
-	return 0 as libc::c_int;
 }
 pub fn main() {
 	let mut args: Vec<*mut libc::c_char> = Vec::new();
@@ -199,8 +193,8 @@ pub fn main() {
 	unsafe {
 		::std::process::exit(main_0(
 			(args.len() - 1) as libc::c_int,
-			args.as_mut_ptr() as *mut *mut libc::c_char,
-			vars.as_mut_ptr() as *mut *mut libc::c_char,
+			args.as_mut_ptr(),
+			vars.as_mut_ptr(),
 		) as i32)
 	}
 }
