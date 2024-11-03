@@ -20,7 +20,7 @@ checksum = "8e9489c2807c139ffd9c1794f4af0ebe86a828db53ecdc7fea2111d0fed085d1"
 [[package]]
 name = "libft_rs"
 version = "0.0.0"
-source = "git+https://github.com/Jonstep101010/libft-rs?branch=main#1f0fb5554c3309be41157cecf8d83ecfc5209e6c"
+source = "git+https://github.com/Jonstep101010/libft-rs?branch=main#ce73a114a9a1b8af96dd96d8f438d8a3ff2fa2bf"
 dependencies = [
  "libc",
 ]
@@ -28,7 +28,7 @@ dependencies = [
 [[package]]
 name = "libftprintf_rs"
 version = "0.0.0"
-source = "git+https://github.com/Jonstep101010/libftprintf-rs?branch=main#9d80de83ba25ef7ec51e7044c94538d5e9411b19"
+source = "git+https://github.com/Jonstep101010/libftprintf-rs?branch=main#1a6232542eee8080b1bd2c21de123d7a34267927"
 dependencies = [
  "libc",
 ]
@@ -36,7 +36,7 @@ dependencies = [
 [[package]]
 name = "libgnl_rs"
 version = "0.0.0"
-source = "git+https://github.com/Jonstep101010/libgnl-rs?branch=main#5ab8eedfaf83b15caa5d7a42301a9132534d716a"
+source = "git+https://github.com/Jonstep101010/libgnl-rs?branch=main#bb9a846a78947562f29e3594ee2d92de12d4eb36"
 dependencies = [
  "libc",
  "libft_rs",
@@ -45,9 +45,10 @@ dependencies = [
 [[package]]
 name = "libutils_rs"
 version = "0.0.0"
-source = "git+https://github.com/Jonstep101010/libutils-rs?branch=main#53246ac2eb54394ba68278cef484d2c19a90e4f6"
+source = "git+https://github.com/Jonstep101010/libutils-rs?branch=main#ccc0cb2566ef01796d99d666df76597f1789ad9a"
 dependencies = [
  "libc",
+ "libft_rs",
 ]
 
 [[package]]
