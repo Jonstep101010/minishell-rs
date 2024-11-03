@@ -1,3 +1,4 @@
+use crate::t_shell;
 use ::libc;
 extern "C" {
 	pub type s_shell;
@@ -10,26 +11,7 @@ extern "C" {
 pub type size_t = libc::c_ulong;
 pub type __ssize_t = libc::c_long;
 pub type ssize_t = __ssize_t;
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct s_token {
-	pub cmd_args: *mut t_arg,
-	pub has_redir: bool,
-	pub split_pipes: *mut libc::c_char,
-	pub tmp_arr: *mut *mut libc::c_char,
-	pub bin: *mut libc::c_char,
-	pub cmd_func: Option<unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int>,
-}
-pub type t_token = s_token;
-pub type t_shell = s_shell;
-pub type t_arg = s_arg;
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct s_arg {
-	pub elem: *mut libc::c_char,
-	pub type_0: e_arg,
-	pub redir: e_redir,
-}
+use crate::t_token;
 pub type e_redir = libc::c_uint;
 pub const HEREDOC: e_redir = 4;
 pub const APPEND: e_redir = 3;

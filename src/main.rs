@@ -100,7 +100,7 @@ pub struct termios {
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
-pub struct s_token {
+pub struct t_token {
 	pub cmd_args: *mut t_arg,
 	pub has_redir: bool,
 	pub split_pipes: *mut libc::c_char,
@@ -108,11 +108,9 @@ pub struct s_token {
 	pub bin: *mut libc::c_char,
 	pub cmd_func: Option<unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int>,
 }
-pub type t_token = s_token;
-pub type t_shell = s_shell;
 #[derive(Copy, Clone)]
 #[repr(C)]
-pub struct s_shell {
+pub struct t_shell {
 	pub exit_status: uint8_t,
 	pub env: *mut *mut libc::c_char,
 	pub token: *mut t_token,
@@ -120,10 +118,9 @@ pub struct s_shell {
 	pub p_termios: termios,
 }
 pub type uint8_t = __uint8_t;
-pub type t_arg = s_arg;
 #[derive(Copy, Clone)]
 #[repr(C)]
-pub struct s_arg {
+pub struct t_arg {
 	pub elem: *mut libc::c_char,
 	pub type_0: e_arg,
 	pub redir: e_redir,
@@ -138,6 +135,9 @@ pub type e_arg = libc::c_uint;
 pub const REDIR_REMOVED: e_arg = 2;
 pub const REDIR: e_arg = 1;
 pub const STRING: e_arg = 0;
+
+pub type __pid_t = libc::c_int;
+pub type pid_t = __pid_t;
 #[no_mangle]
 pub unsafe extern "C" fn minishell_loop(mut shell: *mut t_shell) {
 	let mut trimmed_line: *mut libc::c_char = 0 as *mut libc::c_char;

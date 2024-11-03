@@ -7,14 +7,7 @@ extern "C" {
 	fn ft_strdup(s: *const libc::c_char) -> *mut libc::c_char;
 }
 pub type size_t = libc::c_ulong;
-pub type t_arg = s_arg;
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct s_arg {
-	pub elem: *mut libc::c_char,
-	pub type_0: e_arg,
-	pub redir: e_redir,
-}
+use crate::t_arg;
 pub type e_redir = libc::c_uint;
 pub const HEREDOC: e_redir = 4;
 pub const APPEND: e_redir = 3;

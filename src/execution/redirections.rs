@@ -6,14 +6,7 @@ extern "C" {
 	fn dup2(__fd: libc::c_int, __fd2: libc::c_int) -> libc::c_int;
 	fn __errno_location() -> *mut libc::c_int;
 }
-pub type t_arg = s_arg;
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct s_arg {
-	pub elem: *mut libc::c_char,
-	pub type_0: e_arg,
-	pub redir: e_redir,
-}
+use crate::t_arg;
 pub type e_redir = libc::c_uint;
 pub const HEREDOC: e_redir = 4;
 pub const APPEND: e_redir = 3;
