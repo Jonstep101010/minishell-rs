@@ -190,8 +190,8 @@ unsafe extern "C" fn ctrl_c_init() {
 }
 unsafe extern "C" fn ctrl_c_handler(
 	mut sig: libc::c_int,
-	mut info: *mut siginfo_t,
-	mut unused: *mut libc::c_void,
+	mut _info: *mut siginfo_t,
+	mut _unused: *mut libc::c_void,
 ) {
 	if sig == 2 as libc::c_int {
 		g_ctrl_c = 1 as libc::c_int;

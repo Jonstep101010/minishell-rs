@@ -162,9 +162,11 @@ pub unsafe extern "C" fn minishell_loop(mut shell: *mut t_shell) {
 		}
 	}
 }
+
+// @todo cleanup params
 unsafe fn main_0(
-	mut ac: libc::c_int,
-	mut av: *mut *mut libc::c_char,
+	mut _ac: libc::c_int,
+	mut _av: *mut *mut libc::c_char,
 	mut envp: *mut *mut libc::c_char,
 ) -> libc::c_int {
 	let mut shell: *mut t_shell = 0 as *mut t_shell;

@@ -38,7 +38,7 @@ pub const STRING: e_arg = 0;
 #[no_mangle]
 pub unsafe extern "C" fn builtin_pwd(
 	mut shell: *mut t_shell,
-	mut token_nullable: *mut t_token,
+	mut _token_nullable: *mut t_token,
 ) -> libc::c_int {
 	let mut tmp: *mut libc::c_char = 0 as *mut libc::c_char;
 	let mut env_pwd: *mut libc::c_char = 0 as *mut libc::c_char;
