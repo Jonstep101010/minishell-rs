@@ -1,4 +1,3 @@
-use ::libc;
 use crate::signals::signals::termios;
 extern "C" {
 	fn tcgetattr(__fd: libc::c_int, __termios_p: *mut termios) -> libc::c_int;
