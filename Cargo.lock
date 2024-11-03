@@ -1647,6 +1647,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "libutils_rs"
+version = "0.0.0"
+source = "git+https://github.com/Jonstep101010/libutils-rs?branch=main#78efb5f1d7e7fac1c303a5df5d02026fe1df25a2"
+dependencies = [
+ "libc",
+]
+
+[[package]]
 name = "linux-raw-sys"
 version = "0.4.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1699,6 +1707,7 @@ dependencies = [
  "gnu-readline-sys",
  "libc",
  "libft_rs",
+ "libutils_rs",
 ]
 
 [[package]]

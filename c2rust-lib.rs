@@ -10,6 +10,7 @@
 
 extern crate libc;
 extern crate libft_rs;
+extern crate libutils_rs;
 pub mod include {
 	// pub mod libft_rs {
 	// 	pub mod ft_atoi;
@@ -57,35 +58,35 @@ pub mod include {
 		pub mod get_next_line;
 		pub mod get_next_line_utils;
 	} // mod libgnl_rs
-	pub mod libutils_rs {
-		pub mod src {
-			pub mod array {
-				pub mod append_str;
-				pub mod arr_dup;
-				pub mod arr_free;
-				pub mod arr_len;
-				pub mod remove_str;
-			} // mod array
-			pub mod r#char {
-				pub mod is_something;
-			} // mod r#char
-			pub mod string {
-				pub mod append_char;
-				pub mod free_strjoin;
-				pub mod free_strjoin_utils;
-				pub mod ft_atol;
-				pub mod idx_strchr;
-				pub mod join_strings;
-				pub mod secure_strlen;
-				pub mod str_cchr;
-				pub mod str_equal;
-			} // mod string
-			pub mod utils {
-				pub mod free_mem;
-				pub mod memsize;
-			} // mod utils
-		} // mod src
-	} // mod libutils_rs
+	// pub mod libutils_rs {
+	// 	pub mod src {
+	// 		pub mod array {
+	// 			pub mod append_str;
+	// 			pub mod arr_dup;
+	// 			pub mod arr_free;
+	// 			pub mod arr_len;
+	// 			pub mod remove_str;
+	// 		} // mod array
+	// 		pub mod r#char {
+	// 			pub mod is_something;
+	// 		} // mod r#char
+	// 		pub mod string {
+	// 			pub mod append_char;
+	// 			pub mod free_strjoin;
+	// 			pub mod free_strjoin_utils;
+	// 			pub mod ft_atol;
+	// 			pub mod idx_strchr;
+	// 			pub mod join_strings;
+	// 			pub mod secure_strlen;
+	// 			pub mod str_cchr;
+	// 			pub mod str_equal;
+	// 		} // mod string
+	// 		pub mod utils {
+	// 			pub mod free_mem;
+	// 			pub mod memsize;
+	// 		} // mod utils
+	// 	} // mod src
+	// } // mod libutils_rs
 } // mod include
 pub mod src {
 	pub mod builtins {
