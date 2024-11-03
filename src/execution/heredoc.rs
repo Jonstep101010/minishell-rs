@@ -108,7 +108,7 @@ pub unsafe extern "C" fn do_heredocs(
 					b"%s\0" as *const u8 as *const libc::c_char,
 					strerror(*__errno_location()),
 				);
-				return exit(1 as libc::c_int);
+				panic!("i/o error");
 			}
 			heredoc_loop((*((*token).cmd_args).offset(i as isize)).elem, fd, env);
 			close(fd);
