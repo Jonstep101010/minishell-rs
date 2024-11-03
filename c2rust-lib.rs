@@ -11,7 +11,9 @@
 extern crate libc;
 extern crate libft_rs;
 extern crate libutils_rs;
-pub mod include {
+extern crate libftprintf_rs;
+extern crate libgnl_rs;
+// pub mod include {
 	// pub mod libft_rs {
 	// 	pub mod ft_atoi;
 	// 	pub mod ft_bzero;
@@ -48,16 +50,16 @@ pub mod include {
 	// 	pub mod ft_tolower;
 	// 	pub mod ft_toupper;
 	// } // mod libft_rs
-	pub mod libftprintf_rs {
-		pub mod ft_ltoa;
-		pub mod ft_printf;
-		pub mod ft_vdprintf;
-		pub mod put_utils;
-	} // mod libftprintf_rs
-	pub mod libgnl_rs {
-		pub mod get_next_line;
-		pub mod get_next_line_utils;
-	} // mod libgnl_rs
+	// pub mod libftprintf_rs {
+	// 	pub mod ft_ltoa;
+	// 	pub mod ft_printf;
+	// 	pub mod ft_vdprintf;
+	// 	pub mod put_utils;
+	// } // mod libftprintf_rs
+	// pub mod libgnl_rs {
+	// 	pub mod get_next_line;
+	// 	pub mod get_next_line_utils;
+	// } // mod libgnl_rs
 	// pub mod libutils_rs {
 	// 	pub mod src {
 	// 		pub mod array {
@@ -87,7 +89,7 @@ pub mod include {
 	// 		} // mod utils
 	// 	} // mod src
 	// } // mod libutils_rs
-} // mod include
+// } // mod include
 pub mod src {
 	pub mod builtins {
 		pub mod builtin_cd;

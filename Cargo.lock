@@ -20,15 +20,32 @@ checksum = "8e9489c2807c139ffd9c1794f4af0ebe86a828db53ecdc7fea2111d0fed085d1"
 [[package]]
 name = "libft_rs"
 version = "0.0.0"
-source = "git+https://github.com/Jonstep101010/libft-rs?branch=main#65e201890d7c7d9184a546a0c4f019b4ae411865"
+source = "git+https://github.com/Jonstep101010/libft-rs?branch=main#1f0fb5554c3309be41157cecf8d83ecfc5209e6c"
 dependencies = [
  "libc",
 ]
 
 [[package]]
+name = "libftprintf_rs"
+version = "0.0.0"
+source = "git+https://github.com/Jonstep101010/libftprintf-rs?branch=main#9d80de83ba25ef7ec51e7044c94538d5e9411b19"
+dependencies = [
+ "libc",
+]
+
+[[package]]
+name = "libgnl_rs"
+version = "0.0.0"
+source = "git+https://github.com/Jonstep101010/libgnl-rs?branch=main#5ab8eedfaf83b15caa5d7a42301a9132534d716a"
+dependencies = [
+ "libc",
+ "libft_rs",
+]
+
+[[package]]
 name = "libutils_rs"
 version = "0.0.0"
-source = "git+https://github.com/Jonstep101010/libutils-rs?branch=main#78efb5f1d7e7fac1c303a5df5d02026fe1df25a2"
+source = "git+https://github.com/Jonstep101010/libutils-rs?branch=main#53246ac2eb54394ba68278cef484d2c19a90e4f6"
 dependencies = [
  "libc",
 ]
@@ -40,5 +57,7 @@ dependencies = [
  "gnu-readline-sys",
  "libc",
  "libft_rs",
+ "libftprintf_rs",
+ "libgnl_rs",
  "libutils_rs",
 ]
