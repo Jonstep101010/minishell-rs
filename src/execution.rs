@@ -1,21 +1,27 @@
-use ::libc;
+mod bin_path;
+mod exec_bin;
+mod execute_pipes;
+mod heredoc;
+mod redirections;
 extern "C" {
-	fn destroy_all_tokens(shell: *mut t_shell);
-	fn update_exit_status(shell: *mut t_shell, status: libc::c_int);
-	fn builtin_cd(shell: *mut t_shell, token: *mut t_token) -> libc::c_int;
-	fn builtin_export(shell: *mut t_shell, token: *mut t_token) -> libc::c_int;
-	fn builtin_unset(shell: *mut t_shell, token: *mut t_token) -> libc::c_int;
-	fn builtin_exit(shell: *mut t_shell, nullable: *mut t_token) -> libc::c_int;
-	fn strerror(_: libc::c_int) -> *mut libc::c_char;
-	fn eprint(fmt: *const libc::c_char, _: ...);
 	fn __errno_location() -> *mut libc::c_int;
-	fn do_redirections(cmd_args: *mut t_arg, error_elem: *mut *mut libc::c_char) -> libc::c_int;
-	fn execute_pipes(shell: *mut t_shell, token_count: libc::c_int);
-	fn memsize(arr: *mut libc::c_void, size: size_t) -> size_t;
 }
+use crate::utils::error::eprint;
+use ::libc;
+use libc::strerror;
 pub type size_t = libc::c_ulong;
-use crate::t_shell;
-
+use self::execute_pipes::execute_pipes;
+use self::redirections::do_redirections;
+use crate::libutils_rs::src::utils::memsize::memsize;
+use crate::{
+	builtins::{
+		builtin_cd::builtin_cd, builtin_exit::builtin_exit, builtin_export::builtin_export,
+		builtin_unset::builtin_unset,
+	},
+	environment::export_env::update_exit_status,
+	t_shell,
+	tokenizer::destroy_tokens::destroy_all_tokens,
+};
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct termios {
@@ -33,7 +39,6 @@ pub type cc_t = libc::c_uchar;
 pub type tcflag_t = libc::c_uint;
 pub type uint8_t = __uint8_t;
 pub type __uint8_t = libc::c_uchar;
-use crate::t_arg;
 use crate::t_token;
 pub type e_redir = libc::c_uint;
 pub const HEREDOC: e_redir = 4;

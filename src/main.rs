@@ -33,14 +33,7 @@ pub mod environment {
 	pub mod get_env;
 	pub mod get_index;
 } // mod environment
-pub mod execution {
-	mod bin_path;
-	mod exec_bin;
-	pub mod execute_commands;
-	mod execute_pipes;
-	mod heredoc;
-	mod redirections;
-} // mod execution
+pub mod execution; // mod execution
 pub mod lexer {
 	use crate::environment::export_env::update_exit_status;
 	use crate::tokenizer::{build_tokens::tokenize, destroy_tokens::destroy_all_tokens};
@@ -249,7 +242,7 @@ unsafe fn main_0(
 			continue;
 		}
 		if !((*shell).env).is_null() && !(*(*shell).env).is_null() && !((*shell).token).is_null() {
-			execution::execute_commands::execute_commands(shell, (*shell).token);
+			execution::execute_commands(shell, (*shell).token);
 		}
 	}
 }
