@@ -10,9 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "../../include/libft-rs/libft.h"
 #include "utils.h"
-#include "arr_utils.h"
+#include "../../include/libutils-rs/include/arr_utils.h"
 #include <unistd.h>
 #include "parser.h"
 

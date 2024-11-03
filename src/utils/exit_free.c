@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "arr_utils.h"
+#include "../../include/libutils-rs/include/arr_utils.h"
 #include "struct.h"
 #include <errno.h>
 #include <stdlib.h>

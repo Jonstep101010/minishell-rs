@@ -10,12 +10,12 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "../../include/libft-rs/libft.h"
 #include "environment.h"
 #include <stdbool.h>
 #include "utils.h"
 #include "commands.h"
-#include "str_utils.h"
+#include "../../include/libutils-rs/include/str_utils.h"
 
 // export VARNAME="value"
 // export VARNAME='value'

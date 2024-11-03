@@ -11,12 +11,12 @@
 /* ************************************************************************** */
 
 #include "struct.h"
-#include "libft.h"
+#include "../../include/libft-rs/libft.h"
 #include "utils.h"
 #include "environment.h"
-#include "arr_utils.h"
+#include "../../include/libutils-rs/include/arr_utils.h"
 #include "utils.h"
-#include "libutils.h"
+#include "../../include/libutils-rs/include/libutils.h"
 
 static char	**init_env(char *const *envp)
 {

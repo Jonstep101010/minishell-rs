@@ -12,7 +12,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "libft.h"
+#include "../../include/libft-rs/libft.h"
 
 bool	*bool_arr_zeroing(size_t len)
 {

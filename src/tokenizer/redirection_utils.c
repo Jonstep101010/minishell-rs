@@ -10,9 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libutils.h"
+#include "../../include/libutils-rs/include/libutils.h"
 #include "tokens.h"
-#include "libft.h"
+#include "../../include/libft-rs/libft.h"
 #include <stdbool.h>
 
 void	rm_prefix_redir_word(t_arg *arg)

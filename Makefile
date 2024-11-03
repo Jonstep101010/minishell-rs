@@ -1,20 +1,20 @@
 NAME		= minishell
 
-ifeq ($(uname -s),Darwin)
-DONE		= printf "\033[0;32m\xE2\x9C\x93\033[0m "
-DONE_NL		= printf "\033[0;32m\xE2\x9C\x93\n\033[0m"
-else
-DONE		= printf "\033[0;32m✓\033[0m "
-DONE_NL		= printf "\033[0;32m✓\033[0m\n\n"
-endif
+# ifeq ($(uname -s),Darwin)
+# DONE		= printf "\033[0;32m\xE2\x9C\x93\033[0m "
+# DONE_NL		= printf "\033[0;32m\xE2\x9C\x93\n\033[0m"
+# else
+# DONE		= printf "\033[0;32m✓\033[0m "
+# DONE_NL		= printf "\033[0;32m✓\033[0m\n\n"
+# endif
 
-MAKEFLAGS	+= --no-print-directory --silent
+# MAKEFLAGS	+= --no-print-directory --silent
 
 CC = clang
 # ----------------------------- includes/linking ----------------------------- #
-CFLAGS = -Wall -Wextra -Werror -g -fsanitize=address,undefined -fsanitize-address-use-after-scope -fno-omit-frame-pointer -I./include -I./include/libutils/include -I./include/libft -I./include/libftprintf -I./include/libgnl
+CFLAGS = -Wall -Wextra -Werror -g -fsanitize=address,undefined -fsanitize-address-use-after-scope -fno-omit-frame-pointer -I./include -I./include/libutils-rs/include -I./include/libft-rs -I./include/libftprintf-rs -I./include/libgnl-rs
 
-LDFLAGS = ./include/libgnl/libgnl.a ./include/libftprintf/libftprintf.a ./include/libutils/libutils.a ./include/libft/libft.a
+LDFLAGS = ./include/libgnl-rs/libgnl.a ./include/libftprintf-rs/libftprintf.a ./include/libutils-rs/libutils.a ./include/libft-rs/libft.a
 ifeq ($(uname -s),Darwin)
 READLINE = $(shell brew --prefix readline)
 CFLAGS += -I $(READLINE)/include
@@ -67,24 +67,24 @@ $(NAME): $(OBJS)
 
 $(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(@D)
-	@$(MAKE) -C ./include/libft
-	@$(MAKE) -C ./include/libutils
-	@$(MAKE) -C ./include/libgnl
-	@$(MAKE) -C ./include/libftprintf
+	@$(MAKE) -C ./include/libft-rs
+	@$(MAKE) -C ./include/libutils-rs
+	@$(MAKE) -C ./include/libgnl-rs
+	@$(MAKE) -C ./include/libftprintf-rs
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	@rm -rf build
-	@$(MAKE) -C ./include/libft clean
-	@$(MAKE) -C ./include/libutils clean
-	@$(MAKE) -C ./include/libgnl clean
-	@$(MAKE) -C ./include/libftprintf clean
+	@$(MAKE) -C ./include/libft-rs clean
+	@$(MAKE) -C ./include/libutils-rs clean
+	@$(MAKE) -C ./include/libgnl-rs clean
+	@$(MAKE) -C ./include/libftprintf-rs clean
 fclean: clean
 	@rm -f $(NAME)
-	@$(MAKE) -C ./include/libft fclean
-	@$(MAKE) -C ./include/libutils fclean
-	@$(MAKE) -C ./include/libgnl fclean
-	@$(MAKE) -C ./include/libftprintf fclean
+	@$(MAKE) -C ./include/libft-rs fclean
+	@$(MAKE) -C ./include/libutils-rs fclean
+	@$(MAKE) -C ./include/libgnl-rs fclean
+	@$(MAKE) -C ./include/libftprintf-rs fclean
 
 re: fclean
 	$(MAKE)

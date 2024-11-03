@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "arr_utils.h"
-#include "libft.h"
+#include "../../include/libutils-rs/include/arr_utils.h"
+#include "../../include/libft-rs/libft.h"
 #include "tokens.h"
 
 static int	is_n_arg(char const *arg)

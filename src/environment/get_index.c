@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "../../include/libft-rs/libft.h"
 #include <stdbool.h>
 
 static size_t	get_key_len(const char *s)

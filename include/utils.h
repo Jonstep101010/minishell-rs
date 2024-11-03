@@ -13,7 +13,7 @@
 #ifndef UTILS_H
 # define UTILS_H
 
-# include "arr_utils.h"
+# include "../../include/libutils-rs/include/arr_utils.h"
 # include "tokens.h"
 # include <stddef.h>
 # include <stdbool.h>

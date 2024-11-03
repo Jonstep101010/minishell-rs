@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "../../include/libft-rs/libft.h"
 
 /**
  * @brief looks if strings match

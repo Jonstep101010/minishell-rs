@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "../../include/libft-rs/libft.h"
 #include <stdbool.h>
 
 bool	check_valid_key(const char *s)

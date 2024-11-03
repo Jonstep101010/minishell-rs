@@ -11,8 +11,8 @@
 /* ************************************************************************** */
 
 #include "lexer.h"
-#include "libft.h"
-#include "str_utils.h"
+#include "../../include/libft-rs/libft.h"
+#include "../../include/libutils-rs/include/str_utils.h"
 
 void	count_number(const char *s, t_lexer *input)
 {

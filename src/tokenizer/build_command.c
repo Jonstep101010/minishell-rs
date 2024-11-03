@@ -12,9 +12,9 @@
 
 #include "tokens.h"
 #include "utils.h"
-#include "arr_utils.h"
+#include "../../include/libutils-rs/include/arr_utils.h"
 #include <stdio.h>
-#include "libft.h"
+#include "../../include/libft-rs/libft.h"
 #include "parser.h"
 
 char	**get_cmd_arr_token(t_token *token)

@@ -12,12 +12,12 @@
 
 #include <stddef.h>
 #include <sys/param.h>
-#include "arr_utils.h"
+#include "../../include/libutils-rs/include/arr_utils.h"
 #include "commands.h"
-#include "libft.h"
+#include "../../include/libft-rs/libft.h"
 #include "tokens.h"
 #include "utils.h"
-#include "libutils.h"
+#include "../../include/libutils-rs/include/libutils.h"
 #include "environment.h"
 #include "struct.h"
 #include "parser.h"

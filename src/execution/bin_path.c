@@ -11,12 +11,12 @@
 /* ************************************************************************** */
 
 #include "environment.h"
-#include "libft.h"
+#include "../../include/libft-rs/libft.h"
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
-#include "arr_utils.h"
-#include "libutils.h"
+#include "../../include/libutils-rs/include/arr_utils.h"
+#include "../../include/libutils-rs/include/libutils.h"
 #include "utils.h"
 
 static uint8_t	find_bin(const char **paths, const char *binprefix

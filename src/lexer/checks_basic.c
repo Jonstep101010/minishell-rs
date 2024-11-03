@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "lexer.h"
-#include "libft.h"
+#include "../../include/libft-rs/libft.h"
 #include <stdlib.h>
 #include "utils.h"
 

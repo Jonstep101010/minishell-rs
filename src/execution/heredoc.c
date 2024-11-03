@@ -17,7 +17,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
-#include "libft.h"
+#include "../../include/libft-rs/libft.h"
 #include "utils.h"
 #include "environment.h"
 

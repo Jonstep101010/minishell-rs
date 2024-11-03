@@ -14,7 +14,7 @@
 #include "tokens.h"
 #include "utils.h"
 #include "commands.h"
-#include "libft.h"
+#include "../../include/libft-rs/libft.h"
 
 void	set_cmd_func(const char *cmd, t_token *token)
 {

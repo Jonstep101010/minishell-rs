@@ -10,10 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "../../include/libft-rs/libft.h"
 #include <stddef.h>
 #include "utils.h"
-#include "arr_utils.h"
+#include "../../include/libutils-rs/include/arr_utils.h"
 
 void	rm_str_arr(char **arr, const char *s)
 {

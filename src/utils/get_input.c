@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
-#include "libutils.h"
+#include "../../include/libft-rs/libft.h"
+#include "../../include/libutils-rs/include/libutils.h"
 #include "tokens.h"
 #include "utils.h"
 

@@ -15,10 +15,10 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "tokens.h"
-#include "str_utils.h"
+#include "../../include/libutils-rs/include/str_utils.h"
 #include "utils.h"
 #include "commands.h"
-#include "libft.h"
+#include "../../include/libft-rs/libft.h"
 
 static int	declare_x_env_var(char *const *env)
 {

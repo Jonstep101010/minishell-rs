@@ -14,7 +14,7 @@
 #include "tokens.h"
 #include "utils.h"
 #include "struct.h"
-#include "libft.h"
+#include "../../include/libft-rs/libft.h"
 
 static bool	check_illegal_char(const char *str)
 {

@@ -13,8 +13,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "libft.h"
-#include "str_utils.h"
+#include "../../include/libft-rs/libft.h"
+#include "../../include/libutils-rs/include/str_utils.h"
 
 /**
  * only keeps if nested and not same as outer

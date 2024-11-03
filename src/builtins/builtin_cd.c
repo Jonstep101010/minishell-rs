@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libutils.h"
+#include "../../include/libutils-rs/include/libutils.h"
 #include "utils.h"
 #include "struct.h"
 #include "environment.h"
@@ -20,7 +20,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <err.h>
-#include "str_utils.h"
+#include "../../include/libutils-rs/include/str_utils.h"
 
 /**
  * @brief change directory to path, update PWD and OLDPWD

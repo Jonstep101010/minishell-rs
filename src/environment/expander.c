@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
-#include "str_utils.h"
+#include "../../include/libft-rs/libft.h"
+#include "../../include/libutils-rs/include/str_utils.h"
 #include "utils.h"
 #include "environment.h"
 

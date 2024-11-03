@@ -12,7 +12,7 @@
 
 #include "struct.h"
 #include "tokens.h"
-#include "libutils.h"
+#include "../../include/libutils-rs/include/libutils.h"
 
 void	destroy_all_tokens(t_shell *shell)
 {

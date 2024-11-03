@@ -12,8 +12,8 @@
 
 #include "lexer.h"
 #include "minishell.h"
-#include "libft.h"
-#include "libutils.h"
+#include "../../include/libft-rs/libft.h"
+#include "../../include/libutils-rs/include/libutils.h"
 #include "utils.h"
 
 static int	inner_while_quotes(
