@@ -1,4 +1,5 @@
 use ::libc;
+use crate::signals::signals::termios;
 extern "C" {
 	fn tcgetattr(__fd: libc::c_int, __termios_p: *mut termios) -> libc::c_int;
 	fn tcsetattr(
@@ -20,18 +21,7 @@ pub type __clock_t = libc::c_long;
 pub type cc_t = libc::c_uchar;
 pub type speed_t = libc::c_uint;
 pub type tcflag_t = libc::c_uint;
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct termios {
-	pub c_iflag: tcflag_t,
-	pub c_oflag: tcflag_t,
-	pub c_cflag: tcflag_t,
-	pub c_lflag: tcflag_t,
-	pub c_line: cc_t,
-	pub c_cc: [cc_t; 32],
-	pub c_ispeed: speed_t,
-	pub c_ospeed: speed_t,
-}
+
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct sigaction {

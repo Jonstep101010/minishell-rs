@@ -47,6 +47,18 @@ pub struct siginfo_t {
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
+pub struct termios {
+	pub c_iflag: tcflag_t,
+	pub c_oflag: tcflag_t,
+	pub c_cflag: tcflag_t,
+	pub c_lflag: tcflag_t,
+	pub c_line: cc_t,
+	pub c_cc: [cc_t; 32],
+	pub c_ispeed: speed_t,
+	pub c_ospeed: speed_t,
+}
+#[derive(Copy, Clone)]
+#[repr(C)]
 pub union C2RustUnnamed {
 	pub _pad: [libc::c_int; 28],
 	pub _kill: C2RustUnnamed_8,
@@ -139,18 +151,6 @@ pub type ssize_t = __ssize_t;
 pub type cc_t = libc::c_uchar;
 pub type speed_t = libc::c_uint;
 pub type tcflag_t = libc::c_uint;
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct termios {
-	pub c_iflag: tcflag_t,
-	pub c_oflag: tcflag_t,
-	pub c_cflag: tcflag_t,
-	pub c_lflag: tcflag_t,
-	pub c_line: cc_t,
-	pub c_cc: [cc_t; 32],
-	pub c_ispeed: speed_t,
-	pub c_ospeed: speed_t,
-}
 #[no_mangle]
 pub unsafe extern "C" fn check_signals(mut p_termios: *mut termios) {
 	tcgetattr(0 as libc::c_int, p_termios);
