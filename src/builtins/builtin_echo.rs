@@ -1,12 +1,13 @@
 use crate::t_shell;
 use ::libc;
+use libft_rs::ft_strncmp::ft_strncmp;
+use libutils_rs::src::array::arr_free::arr_free;
 extern "C" {
-	pub type s_shell;
-	fn arr_free(arr: *mut *mut libc::c_char);
+	// fn arr_free(arr: *mut *mut libc::c_char);
 	fn printf(_: *const libc::c_char, _: ...) -> libc::c_int;
 	fn write(__fd: libc::c_int, __buf: *const libc::c_void, __n: size_t) -> ssize_t;
-	fn ft_strncmp(s1: *const libc::c_char, s2: *const libc::c_char, n: size_t) -> libc::c_int;
-	fn get_cmd_arr_token(token: *mut t_token) -> *mut *mut libc::c_char;
+	// fn ft_strncmp(s1: *const libc::c_char, s2: *const libc::c_char, n: size_t) -> libc::c_int;
+	// fn get_cmd_arr_token(token: *mut t_token) -> *mut *mut libc::c_char;
 }
 pub type size_t = libc::c_ulong;
 pub type __ssize_t = libc::c_long;
@@ -83,8 +84,9 @@ unsafe extern "C" fn echo_default(mut cmd_args: *const *const libc::c_char) {
 	}
 }
 #[no_mangle]
-pub unsafe extern "C" fn echo(mut nullable: *mut t_shell, mut token: *mut t_token) -> libc::c_int {
-	let mut args: *mut *const libc::c_char = get_cmd_arr_token(token) as *mut *const libc::c_char;
+pub unsafe extern "C" fn echo(mut _nullable: *mut t_shell, mut token: *mut t_token) -> libc::c_int {
+	let mut args: *mut *const libc::c_char =
+		crate::tokenizer::build_command::get_cmd_arr_token(token) as *mut *const libc::c_char;
 	if !(*args.offset(1 as libc::c_int as isize)).is_null() {
 		echo_default(&mut *args.offset(1 as libc::c_int as isize));
 	} else {

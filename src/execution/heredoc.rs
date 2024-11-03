@@ -1,4 +1,6 @@
 use ::libc;
+use libft_rs::{ft_putendl_fd::ft_putendl_fd, ft_strchr::ft_strchr};
+use libutils_rs::src::string::str_equal::equal;
 extern "C" {
 	fn strerror(_: libc::c_int) -> *mut libc::c_char;
 	fn readline(_: *const libc::c_char) -> *mut libc::c_char;
@@ -9,14 +11,14 @@ extern "C" {
 	fn __errno_location() -> *mut libc::c_int;
 	fn free(_: *mut libc::c_void);
 	fn exit(_: libc::c_int) -> !;
-	fn ft_strchr(str: *const libc::c_char, c: libc::c_int) -> *mut libc::c_char;
-	fn ft_putendl_fd(s: *mut libc::c_char, fd: libc::c_int);
-	fn equal(expected: *const libc::c_char, actual: *const libc::c_char) -> *mut libc::c_char;
+	// fn ft_strchr(str: *const libc::c_char, c: libc::c_int) -> *mut libc::c_char;
+	// fn ft_putendl_fd(s: *mut libc::c_char, fd: libc::c_int);
+	// fn equal(expected: *const libc::c_char, actual: *const libc::c_char) -> *mut libc::c_char;
 	fn eprint(fmt: *const libc::c_char, _: ...);
-	fn expander(
-		input_expander: *const libc::c_char,
-		env: *const *mut libc::c_char,
-	) -> *mut libc::c_char;
+	// fn expander(
+	// 	input_expander: *const libc::c_char,
+	// 	env: *const *mut libc::c_char,
+	// ) -> *mut libc::c_char;
 }
 pub type size_t = libc::c_ulong;
 pub type __uint8_t = libc::c_uchar;
@@ -66,7 +68,7 @@ unsafe extern "C" fn heredoc_loop(
 			break;
 		} else {
 			if !(ft_strchr(line, '$' as i32)).is_null() {
-				expanded = expander(line, env);
+				expanded = crate::environment::expander::expander(line, env);
 				if !expanded.is_null() && (equal(expanded, line)).is_null() {
 					ft_putendl_fd(expanded, fd);
 				}

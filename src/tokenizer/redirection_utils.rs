@@ -1,10 +1,12 @@
 use ::libc;
+use libft_rs::{ft_strdup::ft_strdup, ft_strncmp::ft_strncmp};
+use libutils_rs::src::utils::{free_mem::free_null, memsize::memsize};
 extern "C" {
-	fn free_null(p: *mut libc::c_void);
-	fn memsize(arr: *mut libc::c_void, size: size_t) -> size_t;
+	// fn free_null(p: *mut libc::c_void);
+	// fn memsize(arr: *mut libc::c_void, size: size_t) -> size_t;
 	fn free(_: *mut libc::c_void);
-	fn ft_strncmp(s1: *const libc::c_char, s2: *const libc::c_char, n: size_t) -> libc::c_int;
-	fn ft_strdup(s: *const libc::c_char) -> *mut libc::c_char;
+	// fn ft_strncmp(s1: *const libc::c_char, s2: *const libc::c_char, n: size_t) -> libc::c_int;
+	// fn ft_strdup(s: *const libc::c_char) -> *mut libc::c_char;
 }
 pub type size_t = libc::c_ulong;
 use crate::t_arg;

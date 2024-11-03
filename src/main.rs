@@ -75,11 +75,11 @@ extern "C" {
 	fn readline(_: *const libc::c_char) -> *mut libc::c_char;
 	fn add_history(_: *const libc::c_char);
 	fn check_signals(p_termios: *mut termios);
-	fn lexer(shell: *mut t_shell, trimmed_line: *const libc::c_char) -> libc::c_int;
-	fn execute_commands(shell: *mut t_shell, token: *mut t_token);
-	fn init_shell(envp: *const *mut libc::c_char) -> *mut t_shell;
-	fn get_input(rl_prompt: *mut libc::c_char) -> *mut libc::c_char;
-	fn builtin_exit(shell: *mut t_shell, nullable: *mut t_token) -> libc::c_int;
+	// fn lexer(shell: *mut t_shell, trimmed_line: *const libc::c_char) -> libc::c_int;
+	// fn execute_commands(shell: *mut t_shell, token: *mut t_token);
+	// fn init_shell(envp: *const *mut libc::c_char) -> *mut t_shell;
+	// fn get_input(rl_prompt: *mut libc::c_char) -> *mut libc::c_char;
+	// fn builtin_exit(shell: *mut t_shell, nullable: *mut t_token) -> libc::c_int;
 }
 pub type size_t = libc::c_ulong;
 pub type __uint8_t = libc::c_uchar;
@@ -146,18 +146,19 @@ pub unsafe extern "C" fn minishell_loop(mut shell: *mut t_shell) {
 	loop {
 		readline_line = readline(b"minishell> \0" as *const u8 as *const libc::c_char);
 		if readline_line.is_null() {
-			builtin_exit(shell, 0 as *mut t_token);
+			builtins::builtin_exit::builtin_exit(shell, 0 as *mut t_token);
 		}
-		trimmed_line = get_input(readline_line);
+		trimmed_line = utils::get_input::get_input(readline_line);
 		if trimmed_line.is_null() {
 			continue;
 		}
 		add_history(trimmed_line);
-		if *trimmed_line == 0 || lexer(shell, trimmed_line) != 0 as libc::c_int {
+		if *trimmed_line == 0 || crate::lexer::lexer::lexer(shell, trimmed_line) != 0 as libc::c_int
+		{
 			continue;
 		}
 		if !((*shell).env).is_null() && !(*(*shell).env).is_null() && !((*shell).token).is_null() {
-			execute_commands(shell, (*shell).token);
+			execution::execute_commands::execute_commands(shell, (*shell).token);
 		}
 	}
 }
@@ -167,7 +168,7 @@ unsafe fn main_0(
 	mut envp: *mut *mut libc::c_char,
 ) -> libc::c_int {
 	let mut shell: *mut t_shell = 0 as *mut t_shell;
-	shell = init_shell(envp);
+	shell = utils::init_shell::init_shell(envp);
 	if shell.is_null() {
 		return 1 as libc::c_int;
 	}
