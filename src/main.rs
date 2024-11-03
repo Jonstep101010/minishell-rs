@@ -7,7 +7,7 @@
 	unused_assignments,
 	unused_mut
 )]
-use ::c2rust_out::*;
+use ::libminishell::*;
 extern "C" {
 	fn readline(_: *const libc::c_char) -> *mut libc::c_char;
 	fn add_history(_: *const libc::c_char);

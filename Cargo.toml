@@ -3,15 +3,15 @@ members = [
 ]
 [package]
 name = "minishell-rs"
-authors = ["C2Rust"]
+authors = ["Jonstep101010"]
 version = "0.0.0"
 publish = false
 edition = "2021"
 autobins = false
 
 [lib]
-name = "c2rust_out"
-path = "c2rust-lib.rs"
+name = "libminishell"
+path = "lib.rs"
 crate-type = ["staticlib", "rlib"]
 [[bin]]
 path = "src/main.rs"
