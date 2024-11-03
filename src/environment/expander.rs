@@ -32,7 +32,7 @@ unsafe extern "C" fn check_index_advance(
 	{
 		count += 1 as libc::c_int;
 	}
-	return count;
+	count
 }
 unsafe extern "C" fn expand_inside(
 	mut key: *mut libc::c_char,
@@ -40,8 +40,8 @@ unsafe extern "C" fn expand_inside(
 	mut i: *mut libc::c_int,
 ) -> *mut libc::c_char {
 	let len: size_t = ft_strlen(key);
-	let mut ret: *mut libc::c_char = 0 as *mut libc::c_char;
-	ret = 0 as *mut libc::c_char;
+	let mut ret: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
+	ret = std::ptr::null_mut::<libc::c_char>();
 	if *key != 0 {
 		ret = get_env(env, key);
 	}
@@ -50,10 +50,10 @@ unsafe extern "C" fn expand_inside(
 	}
 	free(key as *mut libc::c_void);
 	if ret.is_null() {
-		return 0 as *mut libc::c_char;
+		return std::ptr::null_mut::<libc::c_char>();
 	}
 	*i = (*i as libc::c_ulong).wrapping_add(len) as libc::c_int as libc::c_int;
-	return ret;
+	ret
 }
 unsafe extern "C" fn check_quotes(
 	mut s: *const libc::c_char,
@@ -79,15 +79,15 @@ unsafe extern "C" fn expand(
 	let mut i: libc::c_int = 0;
 	let mut expand_0: bool = false;
 	let mut double_quote: libc::c_int = 0;
-	let mut ret: *mut libc::c_char = 0 as *mut libc::c_char;
-	let mut key: *mut libc::c_char = 0 as *mut libc::c_char;
+	let mut ret: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
+	let mut key: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	i = -(1 as libc::c_int);
 	expand_0 = 1 as libc::c_int != 0;
 	double_quote = 0 as libc::c_int;
 	ret = ft_strdup(b"\0" as *const u8 as *const libc::c_char);
 	loop {
 		i += 1;
-		if !(*s.offset(i as isize) != 0) {
+		if *s.offset(i as isize) == 0 {
 			break;
 		}
 		check_quotes(&*s.offset(i as isize), &mut expand_0, &mut double_quote);
@@ -108,14 +108,14 @@ unsafe extern "C" fn expand(
 			if key.is_null() {
 				free(ret as *mut libc::c_void);
 				eprint(b"alloc fail!\0" as *const u8 as *const libc::c_char);
-				return 0 as *mut libc::c_void as *mut libc::c_char;
+				return std::ptr::null_mut::<libc::c_void>() as *mut libc::c_char;
 			}
 			ret = free_both_join(ret, expand_inside(key, env, &mut i));
 		} else {
 			ret = append_char_str(ret, *s.offset(i as isize));
 		}
 	}
-	return ret;
+	ret
 }
 #[no_mangle]
 pub unsafe extern "C" fn expander(
@@ -123,10 +123,10 @@ pub unsafe extern "C" fn expander(
 	mut env: *const *mut libc::c_char,
 ) -> *mut libc::c_char {
 	if input_expander.is_null() || env.is_null() || (*env).is_null() || *input_expander == 0 {
-		return 0 as *mut libc::c_char;
+		return std::ptr::null_mut::<libc::c_char>();
 	}
 	if (ft_strchr(input_expander, '$' as i32)).is_null() {
 		return ft_strdup(input_expander);
 	}
-	return expand(input_expander, env);
+	expand(input_expander, env)
 }

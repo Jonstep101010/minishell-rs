@@ -50,7 +50,7 @@ unsafe extern "C" fn check_illegal_char(mut str: *const libc::c_char) -> bool {
 		}
 		str = str.offset(1);
 	}
-	return 0 as libc::c_int != 0;
+	0 as libc::c_int != 0
 }
 unsafe extern "C" fn unset_internal(
 	mut args: *const *const libc::c_char,
@@ -71,7 +71,7 @@ unsafe extern "C" fn unset_internal(
 		}
 		args = args.offset(1);
 	}
-	return 0 as libc::c_int;
+	0 as libc::c_int
 }
 #[no_mangle]
 pub unsafe extern "C" fn builtin_unset(
@@ -92,5 +92,5 @@ pub unsafe extern "C" fn builtin_unset(
 	}
 	status = unset_internal(args.offset(1 as libc::c_int as isize), (*shell).env);
 	arr_free(args as *mut *mut libc::c_char);
-	return status;
+	status
 }

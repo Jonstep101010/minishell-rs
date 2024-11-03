@@ -72,7 +72,7 @@ unsafe extern "C" fn exec_last(
 	} else {
 		waitpid(cpid, &mut status, 0 as libc::c_int);
 		close(*prevpipe);
-		while wait(0 as *mut libc::c_int) > 0 as libc::c_int {}
+		while wait(std::ptr::null_mut::<libc::c_int>()) > 0 as libc::c_int {}
 		if status & 0x7f as libc::c_int == 0 as libc::c_int {
 			update_exit_status(shell, (status & 0xff00 as libc::c_int) >> 8 as libc::c_int);
 		}
@@ -117,12 +117,12 @@ unsafe extern "C" fn exec_pipe(
 pub unsafe extern "C" fn execute_pipes(mut shell: *mut t_shell, mut token_count: libc::c_int) {
 	let mut i: libc::c_int = 0;
 	let mut prevpipe: libc::c_int = 0;
-	let mut error_elem: *mut libc::c_char = 0 as *mut libc::c_char;
+	let mut error_elem: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	i = -(1 as libc::c_int);
 	prevpipe = dup(0 as libc::c_int);
 	loop {
 		i += 1;
-		if !(i < token_count - 1 as libc::c_int) {
+		if i >= token_count - 1 as libc::c_int {
 			break;
 		}
 		if (*((*shell).token).offset(i as isize)).has_redir as libc::c_int != 0
@@ -130,7 +130,7 @@ pub unsafe extern "C" fn execute_pipes(mut shell: *mut t_shell, mut token_count:
 		{
 			do_heredocs(
 				&mut *((*shell).token).offset(i as isize),
-				&mut prevpipe,
+				&prevpipe,
 				(*shell).env,
 			);
 		}

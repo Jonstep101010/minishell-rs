@@ -28,7 +28,7 @@ pub type t_lexer = s_lexer;
 #[no_mangle]
 pub unsafe extern "C" fn count_number(mut s: *const libc::c_char, mut input: *mut t_lexer) {
 	let data: t_lexer = {
-		let mut init = s_lexer {
+		s_lexer {
 			singlequotes: str_cchr(s, '\'' as i32 as libc::c_char),
 			doublequotes: str_cchr(s, '"' as i32 as libc::c_char),
 			open_curly_brackets: str_cchr(s, '{' as i32 as libc::c_char),
@@ -40,12 +40,11 @@ pub unsafe extern "C" fn count_number(mut s: *const libc::c_char, mut input: *mu
 			redir_greater: str_cchr(s, '>' as i32 as libc::c_char),
 			redir_smaller: str_cchr(s, '<' as i32 as libc::c_char),
 			pipes: str_cchr(s, '|' as i32 as libc::c_char),
-			ignore: 0 as *mut bool,
+			ignore: std::ptr::null_mut::<bool>(),
 			len: ft_strlen(s) as libc::c_int as size_t,
 			lexer: 0 as libc::c_int,
 			result: 0 as libc::c_int != 0,
-		};
-		init
+		}
 	};
 	ft_memcpy(
 		input as *mut libc::c_void,

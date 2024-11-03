@@ -6,20 +6,20 @@ pub type size_t = libc::c_ulong;
 #[no_mangle]
 pub unsafe extern "C" fn bool_arr_zeroing(mut len: size_t) -> *mut bool {
 	let mut i: size_t = 0;
-	let mut ignore: *mut bool = 0 as *mut bool;
+	let mut ignore: *mut bool = std::ptr::null_mut::<bool>();
 	i = 0 as libc::c_int as size_t;
 	ignore = ft_calloc(
 		len.wrapping_add(1 as libc::c_int as libc::c_ulong),
 		::core::mem::size_of::<bool>() as libc::c_ulong,
 	) as *mut bool;
 	if ignore.is_null() {
-		return 0 as *mut bool;
+		return std::ptr::null_mut::<bool>();
 	}
 	while i < len.wrapping_add(1 as libc::c_int as libc::c_ulong) {
 		*ignore.offset(i as isize) = 0 as libc::c_int != 0;
 		i = i.wrapping_add(1);
 	}
-	return ignore;
+	ignore
 }
 #[no_mangle]
 pub unsafe extern "C" fn range_ignore(

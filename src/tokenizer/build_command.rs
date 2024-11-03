@@ -48,11 +48,11 @@ pub const STRING: e_arg = 0;
 #[no_mangle]
 pub unsafe extern "C" fn get_cmd_arr_token(mut token: *mut t_token) -> *mut *mut libc::c_char {
 	let mut i: libc::c_int = 0;
-	let mut cmd_arr: *mut *mut libc::c_char = 0 as *mut *mut libc::c_char;
+	let mut cmd_arr: *mut *mut libc::c_char = std::ptr::null_mut::<*mut libc::c_char>();
 	i = 0 as libc::c_int;
-	cmd_arr = 0 as *mut *mut libc::c_char;
+	cmd_arr = std::ptr::null_mut::<*mut libc::c_char>();
 	if token.is_null() || ((*token).cmd_args).is_null() {
-		return 0 as *mut *mut libc::c_char;
+		return std::ptr::null_mut::<*mut libc::c_char>();
 	}
 	if !((*((*token).cmd_args).offset(0 as libc::c_int as isize)).elem).is_null() {
 		while !((*((*token).cmd_args).offset(i as isize)).elem).is_null() {
@@ -64,27 +64,27 @@ pub unsafe extern "C" fn get_cmd_arr_token(mut token: *mut t_token) -> *mut *mut
 					ft_strdup((*((*token).cmd_args).offset(i as isize)).elem),
 				);
 				if cmd_arr.is_null() {
-					return 0 as *mut *mut libc::c_char;
+					return std::ptr::null_mut::<*mut libc::c_char>();
 				}
 			}
 			i += 1;
 		}
 	}
-	return cmd_arr;
+	cmd_arr
 }
 #[no_mangle]
 pub unsafe extern "C" fn get_tokens(mut trimmed_line: *const libc::c_char) -> *mut t_token {
 	let mut i: libc::c_int = 0;
-	let mut split_pipes: *mut *mut libc::c_char = 0 as *mut *mut libc::c_char;
-	let mut token: *mut t_token = 0 as *mut t_token;
+	let mut split_pipes: *mut *mut libc::c_char = std::ptr::null_mut::<*mut libc::c_char>();
+	let mut token: *mut t_token = std::ptr::null_mut::<t_token>();
 	split_pipes = split_outside_quotes(trimmed_line, b"|\0" as *const u8 as *const libc::c_char);
 	if split_pipes.is_null() {
 		eprint(b"alloc fail!\0" as *const u8 as *const libc::c_char);
-		return 0 as *mut libc::c_void as *mut t_token;
+		return std::ptr::null_mut::<libc::c_void>() as *mut t_token;
 	}
 	if (*split_pipes).is_null() {
 		arr_free(split_pipes);
-		return 0 as *mut libc::c_void as *mut t_token;
+		return std::ptr::null_mut::<libc::c_void>() as *mut t_token;
 	}
 	token = init_token(arr_len(split_pipes));
 	if token.is_null() {
@@ -92,10 +92,10 @@ pub unsafe extern "C" fn get_tokens(mut trimmed_line: *const libc::c_char) -> *m
 	}
 	i = 0 as libc::c_int;
 	while !token.is_null() && !(*split_pipes.offset(i as isize)).is_null() {
-		let ref mut fresh0 = (*token.offset(i as isize)).split_pipes;
+		let fresh0 = &mut (*token.offset(i as isize)).split_pipes;
 		*fresh0 = *split_pipes.offset(i as isize);
 		i += 1;
 	}
 	free(split_pipes as *mut libc::c_void);
-	return token;
+	token
 }

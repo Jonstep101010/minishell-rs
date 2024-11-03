@@ -75,9 +75,8 @@ unsafe extern "C" fn inner_while_quotes(
 			(*check).flag_word = 1 as libc::c_int;
 		}
 		(*check).i = ((*check).i).wrapping_add(1);
-		(*check).i;
 	}
-	return 0 as libc::c_int;
+	0 as libc::c_int
 }
 unsafe extern "C" fn inner_if_quotes(
 	mut s: *const libc::c_char,
@@ -111,7 +110,7 @@ unsafe extern "C" fn inner_if_quotes(
 	if *s.offset((*check).i as isize) as libc::c_int == '|' as i32 {
 		(*check).ignore = 0 as libc::c_int != 0;
 	}
-	return 0 as libc::c_int;
+	0 as libc::c_int
 }
 unsafe extern "C" fn check_pipes_redirection_quotes(
 	mut s: *const libc::c_char,
@@ -119,12 +118,11 @@ unsafe extern "C" fn check_pipes_redirection_quotes(
 	mut check: *mut s_check_pipes,
 ) -> libc::c_int {
 	while (*check).i < (*input).len && !((*input).ignore).is_null() {
-		if !*((*input).ignore).offset((*check).i as isize) {
-			if inner_while_quotes(s, input, check) != 0 as libc::c_int
-				|| inner_if_quotes(s, input, check) != 0 as libc::c_int
-			{
-				return 2 as libc::c_int;
-			}
+		if !*((*input).ignore).offset((*check).i as isize)
+			&& (inner_while_quotes(s, input, check) != 0 as libc::c_int
+				|| inner_if_quotes(s, input, check) != 0 as libc::c_int)
+		{
+			return 2 as libc::c_int;
 		}
 		if *((*input).ignore).offset((*check).i as isize) {
 			(*check).ignore = 1 as libc::c_int != 0;
@@ -132,11 +130,9 @@ unsafe extern "C" fn check_pipes_redirection_quotes(
 				&& *((*input).ignore).offset((*check).i as isize) as libc::c_int != 0
 			{
 				(*check).i = ((*check).i).wrapping_add(1);
-				(*check).i;
 			}
 		} else {
 			(*check).i = ((*check).i).wrapping_add(1);
-			(*check).i;
 		}
 	}
 	if (*check).flag_redir != 0 && !(*check).ignore {
@@ -147,7 +143,7 @@ unsafe extern "C" fn check_pipes_redirection_quotes(
 		);
 		return 2 as libc::c_int;
 	}
-	return 0 as libc::c_int;
+	0 as libc::c_int
 }
 unsafe extern "C" fn inner_while_noquotes(
 	mut s: *const libc::c_char,
@@ -192,9 +188,8 @@ unsafe extern "C" fn inner_while_noquotes(
 			(*check).flag_word = 1 as libc::c_int;
 		}
 		(*check).i = ((*check).i).wrapping_add(1);
-		(*check).i;
 	}
-	return 0 as libc::c_int;
+	0 as libc::c_int
 }
 #[no_mangle]
 pub unsafe extern "C" fn check_pipes_redirection(
@@ -208,13 +203,12 @@ pub unsafe extern "C" fn check_pipes_redirection(
 		ignore: false,
 	};
 	check = {
-		let mut init = s_check_pipes {
+		s_check_pipes {
 			flag_redir: 0 as libc::c_int,
 			flag_word: 0 as libc::c_int,
 			i: 0 as libc::c_int as size_t,
 			ignore: 0 as libc::c_int != 0,
-		};
-		init
+		}
 	};
 	if *s as libc::c_int == '|' as i32
 		|| *s.offset(((*input).len).wrapping_sub(1 as libc::c_int as libc::c_ulong) as isize)
@@ -247,13 +241,12 @@ pub unsafe extern "C" fn check_pipes_redirection(
 	}
 	while check.i < (*input).len {
 		check = {
-			let mut init = s_check_pipes {
+			s_check_pipes {
 				flag_redir: 0,
 				flag_word: 0,
 				i: check.i,
 				ignore: false,
-			};
-			init
+			}
 		};
 		if inner_while_noquotes(s, &mut check) != 0 as libc::c_int {
 			return 2 as libc::c_int;
@@ -281,7 +274,6 @@ pub unsafe extern "C" fn check_pipes_redirection(
 			&& *s.offset(check.i as isize) as libc::c_int == '|' as i32
 		{
 			check.i = (check.i).wrapping_add(1);
-			check.i;
 		}
 	}
 	if check.flag_redir != 0 {
@@ -292,5 +284,5 @@ pub unsafe extern "C" fn check_pipes_redirection(
 		);
 		return 2 as libc::c_int;
 	}
-	return 0 as libc::c_int;
+	0 as libc::c_int
 }

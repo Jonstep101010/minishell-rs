@@ -46,7 +46,7 @@ pub const REDIR_REMOVED: e_arg = 2;
 pub const REDIR: e_arg = 1;
 pub const STRING: e_arg = 0;
 unsafe extern "C" fn forkable_builtin(mut token: *mut t_token) -> bool {
-	return (*token).cmd_func
+	(*token).cmd_func
 		!= Some(builtin_exit as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int)
 		&& (*token).cmd_func
 			!= Some(
@@ -54,13 +54,13 @@ unsafe extern "C" fn forkable_builtin(mut token: *mut t_token) -> bool {
 			) && (*token).cmd_func
 		!= Some(builtin_unset as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int)
 		&& (*token).cmd_func
-			!= Some(builtin_cd as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int);
+			!= Some(builtin_cd as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int)
 }
 #[no_mangle]
 pub unsafe extern "C" fn execute_commands(mut shell: *mut t_shell, mut token: *mut t_token) {
 	let mut token_count: libc::c_int = 0;
 	let mut redir_status: libc::c_int = 0;
-	let mut error_elem: *mut libc::c_char = 0 as *mut libc::c_char;
+	let mut error_elem: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	if token.is_null() {
 		return update_exit_status(shell, -(1 as libc::c_int));
 	}

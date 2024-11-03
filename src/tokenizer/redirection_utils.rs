@@ -56,7 +56,7 @@ pub unsafe extern "C" fn rm_prefix_redir_word(mut arg: *mut t_arg) {
 #[no_mangle]
 pub unsafe extern "C" fn parse_redir_types(mut arg: *mut t_arg) {
 	let mut i: libc::c_int = 0;
-	let mut tmp: *mut libc::c_char = 0 as *mut libc::c_char;
+	let mut tmp: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	i = -(1 as libc::c_int);
 	loop {
 		i += 1;
@@ -70,18 +70,16 @@ pub unsafe extern "C" fn parse_redir_types(mut arg: *mut t_arg) {
 				|| (*arg.offset(i as isize)).redir as libc::c_uint
 					== OUTPUT_REDIR as libc::c_int as libc::c_uint
 			{
-				tmp = ft_strdup(
-					&mut *((*arg.offset(i as isize)).elem).offset(1 as libc::c_int as isize),
-				);
+				tmp =
+					ft_strdup(&*((*arg.offset(i as isize)).elem).offset(1 as libc::c_int as isize));
 			} else {
-				tmp = ft_strdup(
-					&mut *((*arg.offset(i as isize)).elem).offset(2 as libc::c_int as isize),
-				);
+				tmp =
+					ft_strdup(&*((*arg.offset(i as isize)).elem).offset(2 as libc::c_int as isize));
 			}
 			free_null(
 				&mut (*arg.offset(i as isize)).elem as *mut *mut libc::c_char as *mut libc::c_void,
 			);
-			let ref mut fresh0 = (*arg.offset(i as isize)).elem;
+			let fresh0 = &mut (*arg.offset(i as isize)).elem;
 			*fresh0 = tmp;
 		}
 	}
@@ -149,5 +147,5 @@ pub unsafe extern "C" fn check_redirections(mut cmd_args: *mut t_arg) -> e_redir
 		}
 		ii = ii.wrapping_add(1);
 	}
-	return redir as e_redir;
+	redir as e_redir
 }

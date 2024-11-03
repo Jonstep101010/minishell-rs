@@ -11,11 +11,11 @@ pub unsafe extern "C" fn do_quote_bs(
 	mut s: *const libc::c_char,
 	mut quote: *mut libc::c_int,
 ) -> *mut libc::c_void {
-	let mut tmp: *mut libc::c_char = 0 as *mut libc::c_char;
+	let mut tmp: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	let mut len: size_t = 0;
 	let mut tmp_len: size_t = 0;
 	if s.is_null() {
-		return 0 as *mut libc::c_void;
+		return std::ptr::null_mut::<libc::c_void>();
 	}
 	len = ft_strlen(s);
 	tmp = ft_calloc(
@@ -23,7 +23,7 @@ pub unsafe extern "C" fn do_quote_bs(
 		::core::mem::size_of::<libc::c_char>() as libc::c_ulong,
 	) as *mut libc::c_char;
 	if tmp.is_null() {
-		return 0 as *mut libc::c_void;
+		return std::ptr::null_mut::<libc::c_void>();
 	}
 	while *s != 0 {
 		if *quote == 0 as libc::c_int
@@ -40,13 +40,13 @@ pub unsafe extern "C" fn do_quote_bs(
 		}
 		s = s.offset(1);
 	}
-	return tmp as *mut libc::c_void;
+	tmp as *mut libc::c_void
 }
 #[no_mangle]
 pub unsafe extern "C" fn interpret_quotes(mut cmd_arr: *mut *mut libc::c_char) -> bool {
 	let mut i: libc::c_int = 0;
 	let mut quote: libc::c_int = 0;
-	let mut tmp: *mut libc::c_char = 0 as *mut libc::c_char;
+	let mut tmp: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	i = 0 as libc::c_int;
 	quote = 0 as libc::c_int;
 	if cmd_arr.is_null() {
@@ -61,10 +61,10 @@ pub unsafe extern "C" fn interpret_quotes(mut cmd_arr: *mut *mut libc::c_char) -
 				return 0 as libc::c_int != 0;
 			}
 			free(*cmd_arr.offset(i as isize) as *mut libc::c_void);
-			let ref mut fresh0 = *cmd_arr.offset(i as isize);
+			let fresh0 = &mut (*cmd_arr.offset(i as isize));
 			*fresh0 = tmp;
 		}
 		i += 1;
 	}
-	return 1 as libc::c_int != 0;
+	1 as libc::c_int != 0
 }

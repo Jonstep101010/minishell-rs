@@ -87,7 +87,7 @@ pub unsafe extern "C" fn export_env(mut shell: *mut t_shell, mut key_val: *mut l
 		free(key_val as *mut libc::c_void);
 		(*shell).exit_status = 1 as libc::c_int as uint8_t;
 		eprint(b"fatal: invalid memory!\n\0" as *const u8 as *const libc::c_char);
-		builtin_exit(shell, 0 as *mut t_token);
+		builtin_exit(shell, std::ptr::null_mut::<t_token>());
 	}
 	index = get_index_env((*shell).env, key_val);
 	if index == -(1 as libc::c_int) {
@@ -98,7 +98,7 @@ pub unsafe extern "C" fn export_env(mut shell: *mut t_shell, mut key_val: *mut l
 	if ((*shell).env).is_null() {
 		(*shell).exit_status = 1 as libc::c_int as uint8_t;
 		eprint(b"fatal: environment invalidated\n\0" as *const u8 as *const libc::c_char);
-		builtin_exit(shell, 0 as *mut t_token);
+		builtin_exit(shell, std::ptr::null_mut::<t_token>());
 	}
 }
 #[no_mangle]

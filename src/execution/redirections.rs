@@ -53,7 +53,7 @@ unsafe extern "C" fn open_redir(
 	if *fd == -(1 as libc::c_int) {
 		return *__errno_location();
 	}
-	return 0 as libc::c_int;
+	0 as libc::c_int
 }
 #[no_mangle]
 pub unsafe extern "C" fn do_redirections(
@@ -90,5 +90,5 @@ pub unsafe extern "C" fn do_redirections(
 		}
 		i += 1;
 	}
-	return 0 as libc::c_int;
+	0 as libc::c_int
 }

@@ -37,16 +37,17 @@ pub const REDIR_REMOVED: e_arg = 2;
 pub const REDIR: e_arg = 1;
 pub const STRING: e_arg = 0;
 unsafe extern "C" fn init_env(mut envp: *const *mut libc::c_char) -> *mut *mut libc::c_char {
-	let mut env: *mut *mut libc::c_char = 0 as *mut *mut libc::c_char;
-	let mut pwd: *mut libc::c_char = 0 as *mut libc::c_char;
-	let mut path: *mut libc::c_char = 0 as *mut libc::c_char;
-	env = append_str_arr(envp, b"?=0\0" as *const u8 as *const libc::c_char);
-	pwd = get_env(env, b"PWD\0" as *const u8 as *const libc::c_char);
+	let mut env: *mut *mut libc::c_char =
+		append_str_arr(envp, b"?=0\0" as *const u8 as *const libc::c_char);
+	let mut pwd: *mut libc::c_char = get_env(env, b"PWD\0" as *const u8 as *const libc::c_char);
 	if pwd.is_null() && !env.is_null() {
-		pwd = getcwd(0 as *mut libc::c_char, 0 as libc::c_int as size_t);
+		pwd = getcwd(
+			std::ptr::null_mut::<libc::c_char>(),
+			0 as libc::c_int as size_t,
+		);
 		if pwd.is_null() {
 			arr_free(env);
-			return 0 as *mut libc::c_void as *mut *mut libc::c_char;
+			return std::ptr::null_mut::<libc::c_void>() as *mut *mut libc::c_char;
 		}
 		env = append_str_arr_free(
 			append_str_arr_free(
@@ -58,7 +59,7 @@ unsafe extern "C" fn init_env(mut envp: *const *mut libc::c_char) -> *mut *mut l
 	} else {
 		free_null(&mut pwd as *mut *mut libc::c_char as *mut libc::c_void);
 	}
-	path = get_env(env, b"PATH\0" as *const u8 as *const libc::c_char);
+	let mut path: *mut libc::c_char = get_env(env, b"PATH\0" as *const u8 as *const libc::c_char);
 	if path.is_null() {
 		env = append_str_arr_free(
 			env,
@@ -67,11 +68,11 @@ unsafe extern "C" fn init_env(mut envp: *const *mut libc::c_char) -> *mut *mut l
 	} else {
 		free_null(&mut path as *mut *mut libc::c_char as *mut libc::c_void);
 	}
-	return env;
+	env
 }
 #[no_mangle]
 pub unsafe extern "C" fn init_shell(mut envp: *const *mut libc::c_char) -> *mut t_shell {
-	let mut shell: *mut t_shell = 0 as *mut t_shell;
+	let mut shell: *mut t_shell = std::ptr::null_mut::<t_shell>();
 	shell = ft_calloc(
 		1 as libc::c_int as size_t,
 		::core::mem::size_of::<t_shell>() as libc::c_ulong,
@@ -80,7 +81,7 @@ pub unsafe extern "C" fn init_shell(mut envp: *const *mut libc::c_char) -> *mut 
 		exit(1 as libc::c_int);
 	}
 	(*shell).p_termios = {
-		let mut init = termios {
+		termios {
 			c_iflag: 0 as libc::c_int as tcflag_t,
 			c_oflag: 0,
 			c_cflag: 0,
@@ -89,13 +90,12 @@ pub unsafe extern "C" fn init_shell(mut envp: *const *mut libc::c_char) -> *mut 
 			c_cc: [0; 32],
 			c_ispeed: 0,
 			c_ospeed: 0,
-		};
-		init
+		}
 	};
 	(*shell).env = init_env(envp);
 	if ((*shell).env).is_null() {
 		free(shell as *mut libc::c_void);
-		return 0 as *mut t_shell;
+		return std::ptr::null_mut::<t_shell>();
 	}
-	return shell;
+	shell
 }

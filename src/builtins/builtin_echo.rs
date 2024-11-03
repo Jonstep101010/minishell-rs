@@ -33,7 +33,7 @@ unsafe extern "C" fn is_n_arg(mut arg: *const libc::c_char) -> libc::c_int {
 			}
 		}
 	}
-	return 0 as libc::c_int;
+	0 as libc::c_int
 }
 unsafe extern "C" fn echo_default(mut cmd_args: *const *const libc::c_char) {
 	let mut i: libc::c_int = 0;
@@ -84,7 +84,7 @@ pub unsafe extern "C" fn echo(mut _nullable: *mut t_shell, mut token: *mut t_tok
 	let mut args: *mut *const libc::c_char =
 		crate::tokenizer::build_command::get_cmd_arr_token(token) as *mut *const libc::c_char;
 	if !(*args.offset(1 as libc::c_int as isize)).is_null() {
-		echo_default(&mut *args.offset(1 as libc::c_int as isize));
+		echo_default(&*args.offset(1 as libc::c_int as isize));
 	} else {
 		write(
 			1 as libc::c_int,
@@ -93,5 +93,5 @@ pub unsafe extern "C" fn echo(mut _nullable: *mut t_shell, mut token: *mut t_tok
 		);
 	}
 	arr_free(args as *mut *mut libc::c_char);
-	return 0 as libc::c_int;
+	0 as libc::c_int
 }

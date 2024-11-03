@@ -45,9 +45,9 @@ unsafe extern "C" fn heredoc_loop(
 	mut fd: libc::c_int,
 	mut env: *mut *mut libc::c_char,
 ) {
-	let mut expanded: *mut libc::c_char = 0 as *mut libc::c_char;
-	let mut line: *mut libc::c_char = 0 as *mut libc::c_char;
-	line = 0 as *mut libc::c_char;
+	let mut expanded: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
+	let mut line: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
+	line = std::ptr::null_mut::<libc::c_char>();
 	g_ctrl_c = 0 as libc::c_int;
 	while 1 as libc::c_int != 0 && g_ctrl_c == 0 {
 		line = readline(b"> \0" as *const u8 as *const libc::c_char);

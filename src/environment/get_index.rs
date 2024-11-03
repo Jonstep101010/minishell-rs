@@ -23,7 +23,7 @@ unsafe extern "C" fn get_key_len(mut s: *const libc::c_char) -> size_t {
 	if key_len == len {
 		return key_len;
 	}
-	return -(1 as libc::c_int) as size_t;
+	-(1 as libc::c_int) as size_t
 }
 #[no_mangle]
 pub unsafe extern "C" fn get_index_env(
@@ -49,5 +49,5 @@ pub unsafe extern "C" fn get_index_env(
 		}
 		i = i.wrapping_add(1);
 	}
-	return -(1 as libc::c_int);
+	-(1 as libc::c_int)
 }

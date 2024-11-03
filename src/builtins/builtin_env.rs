@@ -43,5 +43,5 @@ pub unsafe extern "C" fn builtin_env(
 		printf(b"%s\n\0" as *const u8 as *const libc::c_char, *env);
 		env = env.offset(1);
 	}
-	return 0 as libc::c_int;
+	0 as libc::c_int
 }

@@ -10,7 +10,7 @@ pub unsafe extern "C" fn check_valid_key(mut s: *const libc::c_char) -> bool {
 	if *s as libc::c_int == '=' as i32
 		|| !(ft_isalpha(*s as libc::c_int) != 0 || *s as libc::c_int == '_' as i32)
 	{
-		return 0 as libc::c_int != 0;
+		return false;
 	}
 	while *s.offset(i as isize) as libc::c_int != 0
 		&& *s.offset(i as isize) as libc::c_int != '=' as i32
@@ -20,13 +20,9 @@ pub unsafe extern "C" fn check_valid_key(mut s: *const libc::c_char) -> bool {
 		{
 			i += 1;
 		} else {
-			return 0 as libc::c_int != 0;
+			return false;
 		}
 	}
-	if *s.offset(i as isize) as libc::c_int == '=' as i32
-		&& *s.offset((i + 1 as libc::c_int) as isize) as libc::c_int == '=' as i32
-	{
-		return 0 as libc::c_int != 0;
-	}
-	return 1 as libc::c_int != 0;
+	!(*s.offset(i as isize) as libc::c_int == '=' as i32
+		&& *s.offset((i + 1 as libc::c_int) as isize) as libc::c_int == '=' as i32)
 }

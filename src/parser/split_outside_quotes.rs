@@ -49,7 +49,7 @@ unsafe extern "C" fn split_loop(mut s: *mut t_splitter) -> *mut *mut libc::c_cha
 				),
 			);
 			if ((*s).arr).is_null() {
-				return 0 as *mut *mut libc::c_char;
+				return std::ptr::null_mut::<*mut libc::c_char>();
 			}
 			while *((*s).to_split)
 				.offset(i.wrapping_add(1 as libc::c_int as libc::c_ulong) as isize)
@@ -67,48 +67,47 @@ unsafe extern "C" fn split_loop(mut s: *mut t_splitter) -> *mut *mut libc::c_cha
 		}
 		i = i.wrapping_add(1);
 	}
-	return append_str_arr_free(
+	append_str_arr_free(
 		(*s).arr,
 		ft_substr(
-			&mut *((*s).to_split).offset((*s).start as isize),
+			&*((*s).to_split).offset((*s).start as isize),
 			0 as libc::c_int as libc::c_uint,
 			i.wrapping_sub((*s).start),
 		),
-	);
+	)
 }
 #[no_mangle]
 pub unsafe extern "C" fn split_outside_quotes(
 	mut to_split: *const libc::c_char,
 	mut set: *const libc::c_char,
 ) -> *mut *mut libc::c_char {
-	let mut ret: *mut *mut libc::c_char = 0 as *mut *mut libc::c_char;
+	let mut ret: *mut *mut libc::c_char = std::ptr::null_mut::<*mut libc::c_char>();
 	let mut s: t_splitter = t_splitter {
 		quote: 0,
 		start: 0,
 		len: 0,
-		arr: 0 as *mut *mut libc::c_char,
-		to_split: 0 as *mut libc::c_char,
-		set: 0 as *const libc::c_char,
+		arr: std::ptr::null_mut::<*mut libc::c_char>(),
+		to_split: std::ptr::null_mut::<libc::c_char>(),
+		set: std::ptr::null::<libc::c_char>(),
 	};
 	if to_split.is_null() {
-		return 0 as *mut *mut libc::c_char;
+		return std::ptr::null_mut::<*mut libc::c_char>();
 	}
 	s = {
-		let mut init = s_splitter {
+		s_splitter {
 			quote: 0 as libc::c_int,
 			start: 0 as libc::c_int as size_t,
 			len: 0 as libc::c_int as size_t,
-			arr: 0 as *mut *mut libc::c_char,
+			arr: std::ptr::null_mut::<*mut libc::c_char>(),
 			to_split: ft_strtrim(to_split, set),
-			set: set,
-		};
-		init
+			set,
+		}
 	};
 	if (s.to_split).is_null() {
-		return 0 as *mut *mut libc::c_char;
+		return std::ptr::null_mut::<*mut libc::c_char>();
 	}
 	s.len = ft_strlen(s.to_split);
 	ret = split_loop(&mut s);
 	free(s.to_split as *mut libc::c_void);
-	return ret;
+	ret
 }

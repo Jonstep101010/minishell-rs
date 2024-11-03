@@ -42,15 +42,15 @@ pub const REDIR_REMOVED: e_arg = 2;
 pub const REDIR: e_arg = 1;
 pub const STRING: e_arg = 0;
 unsafe extern "C" fn check_sign(mut exit_code: *const libc::c_char) -> bool {
-	if *exit_code as libc::c_int == '-' as i32 || *exit_code as libc::c_int == '+' as i32 {
-		if *exit_code.offset(1 as libc::c_int as isize) as libc::c_int == 0 as libc::c_int {
-			return 0 as libc::c_int != 0;
-		}
+	if (*exit_code as libc::c_int == '-' as i32 || *exit_code as libc::c_int == '+' as i32)
+		&& *exit_code.offset(1 as libc::c_int as isize) as libc::c_int == 0 as libc::c_int
+	{
+		return 0 as libc::c_int != 0;
 	}
-	return 1 as libc::c_int != 0;
+	1 as libc::c_int != 0
 }
 unsafe extern "C" fn check_exit_code(mut command: *mut *const libc::c_char) -> bool {
-	let mut exit_code: *const libc::c_char = 0 as *const libc::c_char;
+	let mut exit_code: *const libc::c_char = std::ptr::null::<libc::c_char>();
 	let mut i: libc::c_int = 0;
 	i = -(1 as libc::c_int);
 	if command.is_null() || (*command.offset(1 as libc::c_int as isize)).is_null() {
@@ -70,7 +70,7 @@ unsafe extern "C" fn check_exit_code(mut command: *mut *const libc::c_char) -> b
 	}
 	loop {
 		i += 1;
-		if !(*exit_code.offset(i as isize) != 0) {
+		if *exit_code.offset(i as isize) == 0 {
 			break;
 		}
 		if ft_isdigit(*exit_code.offset(i as isize) as libc::c_int) == 0 && i != 0 as libc::c_int {
@@ -82,7 +82,7 @@ unsafe extern "C" fn check_exit_code(mut command: *mut *const libc::c_char) -> b
 		eprint(b"exit: numeric argument required\0" as *const u8 as *const libc::c_char);
 		return 0 as libc::c_int != 0;
 	}
-	return 1 as libc::c_int != 0;
+	1 as libc::c_int != 0
 }
 unsafe extern "C" fn exit_free_internal(mut shell: *mut t_shell, mut exit_code: uint8_t) {
 	if !((*shell).env).is_null() {
@@ -122,5 +122,5 @@ pub unsafe extern "C" fn builtin_exit(
 	}
 	eprint_single(b"exit\n\0" as *const u8 as *const libc::c_char);
 	exit_free_internal(shell, exit_code);
-	return 0 as libc::c_int;
+	0 as libc::c_int
 }

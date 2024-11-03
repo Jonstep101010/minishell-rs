@@ -12,7 +12,7 @@ pub unsafe extern "C" fn get_env(
 ) -> *mut libc::c_char {
 	let mut index: libc::c_int = 0;
 	if env.is_null() || key.is_null() {
-		return 0 as *mut libc::c_char;
+		return std::ptr::null_mut::<libc::c_char>();
 	}
 	index = get_index_env(env, key);
 	if index != -(1 as libc::c_int) && !(*env.offset(index as isize)).is_null() {
@@ -24,5 +24,5 @@ pub unsafe extern "C" fn get_env(
 				.wrapping_add(1 as libc::c_int as libc::c_ulong),
 		);
 	}
-	return 0 as *mut libc::c_char;
+	std::ptr::null_mut::<libc::c_char>()
 }

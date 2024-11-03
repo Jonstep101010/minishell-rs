@@ -40,7 +40,7 @@ unsafe extern "C" fn ignore_quotes(
 	(*input).ignore = bool_arr_zeroing(ft_strlen(s));
 	range_ignore(s, (*input).ignore, '"' as i32 as libc::c_uchar);
 	range_ignore(s, (*input).ignore, '\'' as i32 as libc::c_uchar);
-	return 0 as libc::c_int;
+	0 as libc::c_int
 }
 unsafe extern "C" fn check_quotes(
 	mut s: *const libc::c_char,
@@ -67,11 +67,11 @@ unsafe extern "C" fn check_quotes(
 	if (*input).singlequotes > 0 as libc::c_int || (*input).doublequotes > 0 as libc::c_int {
 		ignore_quotes(s, input);
 	}
-	return 0 as libc::c_int;
+	0 as libc::c_int
 }
 #[no_mangle]
 pub unsafe extern "C" fn lexer_checks_basic(mut s: *const libc::c_char) -> *mut t_lexer {
-	let mut input: *mut t_lexer = 0 as *mut t_lexer;
+	let mut input: *mut t_lexer = std::ptr::null_mut::<t_lexer>();
 	input = ft_calloc(
 		::core::mem::size_of::<t_lexer>() as libc::c_ulong,
 		1 as libc::c_int as size_t,
@@ -92,5 +92,5 @@ pub unsafe extern "C" fn lexer_checks_basic(mut s: *const libc::c_char) -> *mut 
 	}
 	(*input).result = 1 as libc::c_int != 0;
 	free((*input).ignore as *mut libc::c_void);
-	return input;
+	input
 }

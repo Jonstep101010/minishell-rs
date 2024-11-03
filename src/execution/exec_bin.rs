@@ -112,5 +112,5 @@ pub unsafe extern "C" fn exec_bin(mut shell: *mut t_shell, mut token: *mut t_tok
 	}
 	arr_free(command as *mut *mut libc::c_char);
 	exit_free(shell, 0 as libc::c_int);
-	return 0 as libc::c_int;
+	0 as libc::c_int
 }

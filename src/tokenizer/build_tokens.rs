@@ -63,7 +63,7 @@ unsafe extern "C" fn expand_if_allowed(
 	mut ii: size_t,
 	mut env: *const *mut libc::c_char,
 ) -> *mut libc::c_void {
-	let mut tmp: *mut libc::c_char = 0 as *mut libc::c_char;
+	let mut tmp: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	if (*token).cmd_func
 		!= Some(builtin_env as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int)
 		&& str_cchr(
@@ -73,7 +73,7 @@ unsafe extern "C" fn expand_if_allowed(
 	{
 		tmp = expander((*((*token).cmd_args).offset(ii as isize)).elem, env);
 		if tmp.is_null() {
-			return 0 as *mut libc::c_void;
+			return std::ptr::null_mut::<libc::c_void>();
 		}
 		if ft_strncmp(
 			tmp,
@@ -88,11 +88,11 @@ unsafe extern "C" fn expand_if_allowed(
 			free(tmp as *mut libc::c_void);
 		} else {
 			free((*((*token).cmd_args).offset(ii as isize)).elem as *mut libc::c_void);
-			let ref mut fresh0 = (*((*token).cmd_args).offset(ii as isize)).elem;
+			let fresh0 = &mut (*((*token).cmd_args).offset(ii as isize)).elem;
 			*fresh0 = tmp;
 		}
 	}
-	return token as *mut libc::c_void;
+	token as *mut libc::c_void
 }
 unsafe extern "C" fn setup_token(
 	mut token: *mut t_token,
@@ -100,7 +100,7 @@ unsafe extern "C" fn setup_token(
 ) -> *mut libc::c_void {
 	let mut ii: size_t = 0;
 	if token.is_null() || ((*token).split_pipes).is_null() {
-		return 0 as *mut libc::c_void;
+		return std::ptr::null_mut::<libc::c_void>();
 	}
 	(*token).tmp_arr = split_outside_quotes(
 		(*token).split_pipes,
@@ -108,27 +108,27 @@ unsafe extern "C" fn setup_token(
 	);
 	free_null(&mut (*token).split_pipes as *mut *mut libc::c_char as *mut libc::c_void);
 	if ((*token).tmp_arr).is_null() {
-		return 0 as *mut libc::c_void;
+		return std::ptr::null_mut::<libc::c_void>();
 	}
 	(*token).cmd_args = init_cmdargs(arr_len((*token).tmp_arr));
 	if ((*token).cmd_args).is_null() {
 		arr_free((*token).tmp_arr);
-		return 0 as *mut libc::c_void;
+		return std::ptr::null_mut::<libc::c_void>();
 	}
 	ii = 0 as libc::c_int as size_t;
 	while !(*((*token).tmp_arr).offset(ii as isize)).is_null() {
-		let ref mut fresh1 = (*((*token).cmd_args).offset(ii as isize)).elem;
+		let fresh1 = &mut (*((*token).cmd_args).offset(ii as isize)).elem;
 		*fresh1 = *((*token).tmp_arr).offset(ii as isize);
 		if (expand_if_allowed(token, ii, env)).is_null() {
-			return 0 as *mut libc::c_void;
+			return std::ptr::null_mut::<libc::c_void>();
 		}
 		ii = ii.wrapping_add(1);
 	}
 	free_null(&mut (*token).tmp_arr as *mut *mut *mut libc::c_char as *mut libc::c_void);
-	return token as *mut libc::c_void;
+	token as *mut libc::c_void
 }
 unsafe extern "C" fn rm_quotes(mut cmd_arg: *mut t_arg) {
-	let mut tmp: *mut libc::c_char = 0 as *mut libc::c_char;
+	let mut tmp: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	let mut quote: libc::c_int = 0;
 	let mut i: libc::c_int = 0;
 	quote = 0 as libc::c_int;
@@ -145,7 +145,7 @@ unsafe extern "C" fn rm_quotes(mut cmd_arg: *mut t_arg) {
 		free_null(
 			&mut (*cmd_arg.offset(i as isize)).elem as *mut *mut libc::c_char as *mut libc::c_void,
 		);
-		let ref mut fresh2 = (*cmd_arg.offset(i as isize)).elem;
+		let fresh2 = &mut (*cmd_arg.offset(i as isize)).elem;
 		*fresh2 = tmp;
 	}
 }
@@ -158,8 +158,8 @@ unsafe extern "C" fn inner_loop(mut token: *mut t_token) -> *mut libc::c_void {
 	}
 	i = 0 as libc::c_int;
 	while !((*((*token).cmd_args).offset(i as isize)).elem).is_null() {
-		if !((*((*token).cmd_args).offset(i as isize)).type_0 as libc::c_uint
-			== REDIR as libc::c_int as libc::c_uint)
+		if (*((*token).cmd_args).offset(i as isize)).type_0 as libc::c_uint
+			!= REDIR as libc::c_int as libc::c_uint
 		{
 			break;
 		}
@@ -167,7 +167,7 @@ unsafe extern "C" fn inner_loop(mut token: *mut t_token) -> *mut libc::c_void {
 	}
 	set_cmd_func((*((*token).cmd_args).offset(i as isize)).elem, token);
 	rm_quotes((*token).cmd_args);
-	return token as *mut libc::c_void;
+	token as *mut libc::c_void
 }
 #[no_mangle]
 pub unsafe extern "C" fn tokenize(
@@ -179,19 +179,18 @@ pub unsafe extern "C" fn tokenize(
 	(*shell).token_len = 0 as libc::c_int as size_t;
 	(*shell).token = get_tokens(trimmed_line);
 	if ((*shell).token).is_null() {
-		return 0 as *mut libc::c_void;
+		return std::ptr::null_mut::<libc::c_void>();
 	}
 	while !((*((*shell).token).offset((*shell).token_len as isize)).split_pipes).is_null() {
 		(*shell).token_len = ((*shell).token_len).wrapping_add(1);
-		(*shell).token_len;
 	}
 	while i < (*shell).token_len {
 		if (setup_token(&mut *((*shell).token).offset(i as isize), (*shell).env)).is_null() {
 			destroy_all_tokens(shell);
-			return 0 as *mut libc::c_void;
+			return std::ptr::null_mut::<libc::c_void>();
 		}
 		inner_loop(&mut *((*shell).token).offset(i as isize));
 		i = i.wrapping_add(1);
 	}
-	return (*shell).token as *mut libc::c_void;
+	(*shell).token as *mut libc::c_void
 }

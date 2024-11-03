@@ -50,7 +50,7 @@ pub unsafe extern "C" fn exit_free(mut shell: *mut t_shell, mut exit_code: libc:
 }
 #[no_mangle]
 pub unsafe extern "C" fn exit_error(mut shell: *mut t_shell, mut error_elem: *mut libc::c_char) {
-	let mut error: *mut libc::c_char = 0 as *mut libc::c_char;
+	let mut error: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	error = strerror(*__errno_location());
 	if !error_elem.is_null() {
 		eprint(

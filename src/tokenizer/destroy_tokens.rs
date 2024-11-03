@@ -37,7 +37,7 @@ pub const REDIR: e_arg = 1;
 pub const STRING: e_arg = 0;
 #[no_mangle]
 pub unsafe extern "C" fn destroy_all_tokens(mut shell: *mut t_shell) {
-	let mut token: *mut t_token = 0 as *mut t_token;
+	let mut token: *mut t_token = std::ptr::null_mut::<t_token>();
 	let mut i: size_t = 0;
 	let mut ii: size_t = 0;
 	token = (*shell).token;

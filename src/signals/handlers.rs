@@ -172,11 +172,7 @@ unsafe extern "C" fn ctrl_bkslash_init() {
 	);
 	sig.sa_flags = 0x10000000 as libc::c_int;
 	sigemptyset(&mut sig.sa_mask);
-	sigaction(
-		3 as libc::c_int,
-		&mut sig,
-		std::ptr::null_mut::<sigaction>(),
-	);
+	sigaction(3 as libc::c_int, &sig, std::ptr::null_mut::<sigaction>());
 }
 unsafe extern "C" fn ctrl_c_init() {
 	let mut sig: sigaction = sigaction {
@@ -191,11 +187,7 @@ unsafe extern "C" fn ctrl_c_init() {
 	);
 	sig.sa_flags = 0x10000000 as libc::c_int;
 	sigemptyset(&mut sig.sa_mask);
-	sigaction(
-		2 as libc::c_int,
-		&mut sig,
-		std::ptr::null_mut::<sigaction>(),
-	);
+	sigaction(2 as libc::c_int, &sig, std::ptr::null_mut::<sigaction>());
 }
 unsafe extern "C" fn ctrl_c_handler(
 	mut sig: libc::c_int,
@@ -256,11 +248,7 @@ unsafe extern "C" fn ctrl_c_child() {
 	ctrl_c.__sigaction_handler.sa_handler = None;
 	ctrl_c.sa_flags = 0x10000000 as libc::c_int;
 	sigemptyset(&mut ctrl_c.sa_mask);
-	sigaction(
-		2 as libc::c_int,
-		&mut ctrl_c,
-		std::ptr::null_mut::<sigaction>(),
-	);
+	sigaction(2 as libc::c_int, &ctrl_c, std::ptr::null_mut::<sigaction>());
 }
 unsafe extern "C" fn ctrl_backslash_child() {
 	let mut ctrl_slash: sigaction = sigaction {
@@ -274,7 +262,7 @@ unsafe extern "C" fn ctrl_backslash_child() {
 	sigemptyset(&mut ctrl_slash.sa_mask);
 	sigaction(
 		3 as libc::c_int,
-		&mut ctrl_slash,
+		&ctrl_slash,
 		std::ptr::null_mut::<sigaction>(),
 	);
 }
