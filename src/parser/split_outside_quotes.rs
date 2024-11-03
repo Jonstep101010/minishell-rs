@@ -52,7 +52,8 @@ unsafe extern "C" fn split_loop(mut s: *mut t_splitter) -> *mut *mut libc::c_cha
 				return 0 as *mut *mut libc::c_char;
 			}
 			while *((*s).to_split)
-				.offset(i.wrapping_add(1 as libc::c_int as libc::c_ulong) as isize) as libc::c_int
+				.offset(i.wrapping_add(1 as libc::c_int as libc::c_ulong) as isize)
+				as libc::c_int
 				!= 0 && !(ft_strchr(
 				(*s).set,
 				*((*s).to_split).offset(i.wrapping_add(1 as libc::c_int as libc::c_ulong) as isize)

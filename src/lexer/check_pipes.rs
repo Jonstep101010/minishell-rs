@@ -51,9 +51,11 @@ unsafe extern "C" fn inner_while_quotes(
 		))
 		.is_null() && ((*check).flag_redir == 0
 			|| *s.offset(((*check).i).wrapping_sub(1 as libc::c_int as libc::c_ulong) as isize)
-				as libc::c_int != 0
-				&& *s.offset(((*check).i).wrapping_sub(1 as libc::c_int as libc::c_ulong) as isize)
-					as libc::c_int == *s.offset((*check).i as isize) as libc::c_int)
+				as libc::c_int
+				!= 0 && *s
+				.offset(((*check).i).wrapping_sub(1 as libc::c_int as libc::c_ulong) as isize)
+				as libc::c_int
+				== *s.offset((*check).i as isize) as libc::c_int)
 		{
 			(*check).flag_redir = 1 as libc::c_int;
 		} else if !(ft_strchr(
@@ -160,9 +162,11 @@ unsafe extern "C" fn inner_while_noquotes(
 		))
 		.is_null() && ((*check).flag_redir == 0
 			|| *s.offset(((*check).i).wrapping_sub(1 as libc::c_int as libc::c_ulong) as isize)
-				as libc::c_int != 0
-				&& *s.offset(((*check).i).wrapping_sub(1 as libc::c_int as libc::c_ulong) as isize)
-					as libc::c_int == *s.offset((*check).i as isize) as libc::c_int
+				as libc::c_int
+				!= 0 && *s
+				.offset(((*check).i).wrapping_sub(1 as libc::c_int as libc::c_ulong) as isize)
+				as libc::c_int
+				== *s.offset((*check).i as isize) as libc::c_int
 				&& (*s
 					.offset(((*check).i).wrapping_sub(2 as libc::c_int as libc::c_ulong) as isize)
 					== 0 || ft_isspace(
