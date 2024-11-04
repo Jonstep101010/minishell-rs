@@ -1,9 +1,7 @@
 use ::libc;
 
 use crate::{t_shell, t_token};
-extern "C" {
-	fn printf(_: *const libc::c_char, _: ...) -> libc::c_int;
-}
+use libc::printf;
 pub type size_t = libc::c_ulong;
 
 #[derive(Copy, Clone)]

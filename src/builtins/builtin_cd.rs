@@ -1,21 +1,21 @@
 use ::libc;
 
-use crate::t_shell;
 extern "C" {
-	fn arr_free(arr: *mut *mut libc::c_char);
-	fn free_first_join(s1: *mut libc::c_char, s2: *const libc::c_char) -> *mut libc::c_char;
-	fn free_second_join(s1: *const libc::c_char, s2: *mut libc::c_char) -> *mut libc::c_char;
-	fn free_null(p: *mut libc::c_void);
-	fn get_cmd_arr_token(token: *mut t_token) -> *mut *mut libc::c_char;
-	fn eprint(fmt: *const libc::c_char, _: ...);
-	fn get_env(env: *const *mut libc::c_char, key: *const libc::c_char) -> *mut libc::c_char;
-	fn export_env(shell: *mut t_shell, key_val: *mut libc::c_char);
 	fn __errno_location() -> *mut libc::c_int;
-	fn free(_: *mut libc::c_void);
-	fn strerror(_: libc::c_int) -> *mut libc::c_char;
-	fn chdir(__path: *const libc::c_char) -> libc::c_int;
-	fn getcwd(__buf: *mut libc::c_char, __size: size_t) -> *mut libc::c_char;
 }
+use crate::{
+	environment::{export_env::export_env, get_env::get_env},
+	t_shell,
+	tokenizer::build_command::get_cmd_arr_token,
+	utils::error::eprint,
+};
+use libutils_rs::src::{
+	array::arr_free::arr_free,
+	string::join_strings::{free_first_join, free_second_join},
+	utils::free_mem::free_null,
+};
+
+use libc::{chdir, free, getcwd, strerror};
 pub type size_t = libc::c_ulong;
 
 #[derive(Copy, Clone)]
@@ -54,7 +54,7 @@ unsafe extern "C" fn changedir(
 	let mut oldpwd: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	oldpwd = getcwd(
 		std::ptr::null_mut::<libc::c_char>(),
-		0 as libc::c_int as size_t,
+		0 as libc::c_int as usize,
 	);
 	if chdir(path) == -(1 as libc::c_int) {
 		eprint(
@@ -67,7 +67,7 @@ unsafe extern "C" fn changedir(
 	}
 	pwd = getcwd(
 		std::ptr::null_mut::<libc::c_char>(),
-		0 as libc::c_int as size_t,
+		0 as libc::c_int as usize,
 	);
 	if pwd.is_null() {
 		eprint(

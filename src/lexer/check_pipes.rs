@@ -1,10 +1,7 @@
+use crate::utils::error::eprint;
 use ::libc;
-extern "C" {
-	fn ft_isalnum(c: libc::c_int) -> libc::c_int;
-	fn ft_strchr(str: *const libc::c_char, c: libc::c_int) -> *mut libc::c_char;
-	fn ft_isspace(c: libc::c_int) -> libc::c_int;
-	fn eprint(fmt: *const libc::c_char, _: ...);
-}
+use libft_rs::{ft_isalnum::ft_isalnum, ft_strchr::ft_strchr};
+use libutils_rs::src::char::is_something::ft_isspace;
 pub type size_t = libc::c_ulong;
 #[derive(Copy, Clone)]
 #[repr(C)]
