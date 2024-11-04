@@ -18,13 +18,13 @@ extern crate libgnl_rs;
 extern crate libutils_rs;
 
 pub mod builtins {
-	pub mod builtin_cd;
-	pub mod builtin_echo;
-	pub mod builtin_env;
-	pub mod builtin_exit;
-	pub mod builtin_export;
-	pub mod builtin_pwd;
-	pub mod builtin_unset;
+	pub mod cd;
+	pub mod echo;
+	pub mod env;
+	pub mod exit;
+	pub mod export;
+	pub mod pwd;
+	pub mod unset;
 } // mod builtins
 pub mod environment {
 	pub mod check_key;
@@ -227,7 +227,7 @@ unsafe fn main_0(
 	loop {
 		readline_line = readline(b"minishell> \0" as *const u8 as *const libc::c_char);
 		if readline_line.is_null() {
-			builtins::builtin_exit::builtin_exit(shell, std::ptr::null_mut::<t_token>());
+			builtins::exit::builtin_exit(shell, std::ptr::null_mut::<t_token>());
 		}
 		trimmed_line = utils::get_input::get_input(readline_line);
 		if trimmed_line.is_null() {

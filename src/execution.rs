@@ -6,21 +6,18 @@ mod redirections;
 extern "C" {
 	fn __errno_location() -> *mut libc::c_int;
 }
-use crate::utils::error::eprint;
 use ::libc;
 use libc::strerror;
 pub type size_t = libc::c_ulong;
 use self::execute_pipes::execute_pipes;
 use self::redirections::do_redirections;
-use crate::libutils_rs::src::utils::memsize::memsize;
 use crate::{
-	builtins::{
-		builtin_cd::builtin_cd, builtin_exit::builtin_exit, builtin_export::builtin_export,
-		builtin_unset::builtin_unset,
-	},
+	builtins::{cd::builtin_cd, exit::builtin_exit, export::builtin_export, unset::builtin_unset},
 	environment::export_env::update_exit_status,
+	libutils_rs::src::utils::memsize::memsize,
 	t_shell,
 	tokenizer::destroy_tokens::destroy_all_tokens,
+	utils::error::eprint,
 };
 #[derive(Copy, Clone)]
 #[repr(C)]

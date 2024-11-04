@@ -1,7 +1,6 @@
 use ::libc;
 
-use crate::builtins::builtin_exit::builtin_exit;
-use crate::t_shell;
+use crate::{builtins::exit::builtin_exit, t_shell};
 extern "C" {
 	fn free(_: *mut libc::c_void);
 	fn ft_itoa(n: libc::c_int) -> *mut libc::c_char;
