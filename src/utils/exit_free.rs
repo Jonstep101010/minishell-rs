@@ -1,15 +1,14 @@
 use ::libc;
+use libc::{exit, free, strerror};
 
-use crate::t_shell;
 extern "C" {
-	fn arr_free(arr: *mut *mut libc::c_char);
-	fn destroy_all_tokens(shell: *mut t_shell);
 	fn __errno_location() -> *mut libc::c_int;
-	fn free(_: *mut libc::c_void);
-	fn exit(_: libc::c_int) -> !;
-	fn strerror(_: libc::c_int) -> *mut libc::c_char;
-	fn eprint(fmt: *const libc::c_char, _: ...);
 }
+
+use crate::{
+	libutils_rs::src::array::arr_free::arr_free, t_shell,
+	tokenizer::destroy_tokens::destroy_all_tokens, utils::error::eprint,
+};
 pub type size_t = libc::c_ulong;
 
 #[derive(Copy, Clone)]
