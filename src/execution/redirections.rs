@@ -49,7 +49,7 @@ pub unsafe extern "C" fn do_redirections(
 	while !((*cmd_args.offset(i as isize)).elem).is_null() {
 		let mut fd = 0 as libc::c_int;
 		if (*cmd_args.offset(i as isize)).type_0 as libc::c_uint
-			== REDIR as libc::c_int as libc::c_uint
+			== e_arg::REDIR as libc::c_int as libc::c_uint
 			&& (*cmd_args.offset(i as isize)).redir as libc::c_uint
 				!= e_redir::HEREDOC as libc::c_int as libc::c_uint
 		{

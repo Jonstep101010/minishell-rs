@@ -11,6 +11,7 @@ use crate::{
 	builtins::env::builtin_env,
 	environment::expander::expander,
 	parser::{interpret_quotes::do_quote_bs, split_outside_quotes::split_outside_quotes},
+	prelude::*,
 	size_t, t_arg, t_shell, t_token,
 };
 
@@ -118,7 +119,7 @@ unsafe extern "C" fn inner_loop(mut token: *mut t_token) -> *mut libc::c_void {
 	let mut i: libc::c_int = 0;
 	while !((*((*token).cmd_args).offset(i as isize)).elem).is_null() {
 		if (*((*token).cmd_args).offset(i as isize)).type_0 as libc::c_uint
-			!= crate::REDIR as libc::c_int as libc::c_uint
+			!= e_arg::REDIR as libc::c_int as libc::c_uint
 		{
 			break;
 		}

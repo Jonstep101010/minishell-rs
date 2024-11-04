@@ -16,10 +16,13 @@ pub enum e_redir {
 	APPEND = 3,
 	HEREDOC = 4,
 }
-pub type e_arg = libc::c_uint;
-pub const REDIR_REMOVED: e_arg = 2;
-pub const REDIR: e_arg = 1;
-pub const STRING: e_arg = 0;
+#[derive(Copy, Clone)]
+#[repr(C)]
+pub enum e_arg {
+	STRING = 0,
+	REDIR = 1,
+	REDIR_REMOVED = 2,
+}
 pub type __uint32_t = libc::c_uint;
 pub type __uid_t = libc::c_uint;
 pub type __pid_t = libc::c_int;

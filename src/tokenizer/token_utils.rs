@@ -102,7 +102,7 @@ pub unsafe extern "C" fn init_cmdargs(mut size: size_t) -> *mut t_arg {
 	let template: t_arg = {
 		t_arg {
 			elem: std::ptr::null_mut::<libc::c_char>(),
-			type_0: STRING,
+			type_0: e_arg::STRING,
 			redir: e_redir::NO_REDIR,
 		}
 	};

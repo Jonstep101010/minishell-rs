@@ -16,13 +16,13 @@ pub unsafe extern "C" fn rm_prefix_redir_word(mut arg: *mut t_arg) {
 	);
 	while !((*arg.offset(i as isize)).elem).is_null() {
 		if (*arg.offset(i as isize)).type_0 as libc::c_uint
-			== REDIR_REMOVED as libc::c_int as libc::c_uint
+			== e_arg::REDIR_REMOVED as libc::c_int as libc::c_uint
 			&& !((*arg.offset(i.wrapping_add(1 as libc::c_int as libc::c_ulong) as isize)).elem)
 				.is_null()
 		{
 			free((*arg.offset(i as isize)).elem as *mut libc::c_void);
 			(*arg.offset(i.wrapping_add(1 as libc::c_int as libc::c_ulong) as isize)).type_0 =
-				REDIR;
+				e_arg::REDIR;
 			(*arg.offset(i.wrapping_add(1 as libc::c_int as libc::c_ulong) as isize)).redir =
 				(*arg.offset(i as isize)).redir;
 			while i < len {
@@ -43,7 +43,8 @@ pub unsafe extern "C" fn parse_redir_types(mut arg: *mut t_arg) {
 		if ((*arg.offset(i as isize)).elem).is_null() {
 			break;
 		}
-		if (*arg.offset(i as isize)).type_0 as libc::c_uint == REDIR as libc::c_int as libc::c_uint
+		if (*arg.offset(i as isize)).type_0 as libc::c_uint
+			== e_arg::REDIR as libc::c_int as libc::c_uint
 		{
 			let tmp: *mut libc::c_char = {
 				if (*arg.offset(i as isize)).redir as libc::c_uint
@@ -69,18 +70,18 @@ unsafe extern "C" fn set_type_redir(mut cmd_arg: *mut t_arg) {
 		|| (*cmd_arg).redir as libc::c_uint == e_redir::HEREDOC as libc::c_int as libc::c_uint
 	{
 		if *((*cmd_arg).elem).offset(2 as libc::c_int as isize) == 0 {
-			(*cmd_arg).type_0 = REDIR_REMOVED;
+			(*cmd_arg).type_0 = e_arg::REDIR_REMOVED;
 		} else {
-			(*cmd_arg).type_0 = REDIR;
+			(*cmd_arg).type_0 = e_arg::REDIR;
 		}
 	} else if (*cmd_arg).redir as libc::c_uint
 		== e_redir::OUTPUT_REDIR as libc::c_int as libc::c_uint
 		|| (*cmd_arg).redir as libc::c_uint == e_redir::INPUT_REDIR as libc::c_int as libc::c_uint
 	{
 		if *((*cmd_arg).elem).offset(1 as libc::c_int as isize) == 0 {
-			(*cmd_arg).type_0 = REDIR_REMOVED;
+			(*cmd_arg).type_0 = e_arg::REDIR_REMOVED;
 		} else {
-			(*cmd_arg).type_0 = REDIR;
+			(*cmd_arg).type_0 = e_arg::REDIR;
 		}
 	}
 }

@@ -17,7 +17,7 @@ pub unsafe extern "C" fn get_cmd_arr_token(mut token: *mut t_token) -> *mut *mut
 	if !((*((*token).cmd_args).offset(0 as libc::c_int as isize)).elem).is_null() {
 		while !((*((*token).cmd_args).offset(i as isize)).elem).is_null() {
 			if (*((*token).cmd_args).offset(i as isize)).type_0 as libc::c_uint
-				!= crate::REDIR as libc::c_int as libc::c_uint
+				!= crate::e_arg::REDIR as libc::c_int as libc::c_uint
 			{
 				cmd_arr = append_str_arr_free(
 					cmd_arr,
