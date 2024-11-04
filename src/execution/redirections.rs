@@ -1,12 +1,6 @@
+use crate::{__errno_location, t_arg};
 use ::libc;
-extern "C" {
-	fn open(__file: *const libc::c_char, __oflag: libc::c_int, _: ...) -> libc::c_int;
-	fn access(__name: *const libc::c_char, __type: libc::c_int) -> libc::c_int;
-	fn close(__fd: libc::c_int) -> libc::c_int;
-	fn dup2(__fd: libc::c_int, __fd2: libc::c_int) -> libc::c_int;
-	fn __errno_location() -> *mut libc::c_int;
-}
-use crate::t_arg;
+use libc::{access, close, dup2, open};
 pub type e_redir = libc::c_uint;
 pub const HEREDOC: e_redir = 4;
 pub const APPEND: e_redir = 3;

@@ -1,25 +1,17 @@
 use ::libc;
+use libc::{exit, free, getcwd};
+use libft_rs::{ft_calloc::ft_calloc, ft_strdup::ft_strdup};
+use libutils_rs::src::{
+	array::{
+		append_str::{append_str_arr, append_str_arr_free},
+		arr_free::arr_free,
+	},
+	string::join_strings::free_second_join,
+	utils::free_mem::free_null,
+};
 
-use crate::{t_shell, termios};
-extern "C" {
-	fn free(_: *mut libc::c_void);
-	fn exit(_: libc::c_int) -> !;
-	fn getcwd(__buf: *mut libc::c_char, __size: size_t) -> *mut libc::c_char;
-	fn ft_calloc(nitems: size_t, size: size_t) -> *mut libc::c_void;
-	fn ft_strdup(s: *const libc::c_char) -> *mut libc::c_char;
-	fn append_str_arr(
-		arr: *const *mut libc::c_char,
-		s: *const libc::c_char,
-	) -> *mut *mut libc::c_char;
-	fn arr_free(arr: *mut *mut libc::c_char);
-	fn append_str_arr_free(
-		arr: *mut *mut libc::c_char,
-		s: *mut libc::c_char,
-	) -> *mut *mut libc::c_char;
-	fn get_env(env: *const *mut libc::c_char, key: *const libc::c_char) -> *mut libc::c_char;
-	fn free_second_join(s1: *const libc::c_char, s2: *mut libc::c_char) -> *mut libc::c_char;
-	fn free_null(p: *mut libc::c_void);
-}
+use crate::{environment::get_env::get_env, t_shell, termios};
+
 pub type size_t = libc::c_ulong;
 pub type speed_t = libc::c_uint;
 pub type cc_t = libc::c_uchar;
@@ -41,10 +33,7 @@ unsafe extern "C" fn init_env(mut envp: *const *mut libc::c_char) -> *mut *mut l
 		append_str_arr(envp, b"?=0\0" as *const u8 as *const libc::c_char);
 	let mut pwd: *mut libc::c_char = get_env(env, b"PWD\0" as *const u8 as *const libc::c_char);
 	if pwd.is_null() && !env.is_null() {
-		pwd = getcwd(
-			std::ptr::null_mut::<libc::c_char>(),
-			0 as libc::c_int as size_t,
-		);
+		pwd = getcwd(std::ptr::null_mut::<libc::c_char>(), 0);
 		if pwd.is_null() {
 			arr_free(env);
 			return std::ptr::null_mut::<libc::c_void>() as *mut *mut libc::c_char;

@@ -12,10 +12,12 @@ extern "C" {
 		__optional_actions: libc::c_int,
 		__termios_p: *const termios,
 	) -> libc::c_int;
-	fn write(__fd: libc::c_int, __buf: *const libc::c_void, __n: size_t) -> ssize_t;
 	static mut g_ctrl_c: libc::c_int;
 }
 use gnu_readline_sys::{rl_on_new_line, rl_redisplay, rl_replace_line};
+use libc::write;
+
+use crate::termios;
 pub type __uint32_t = libc::c_uint;
 pub type __uid_t = libc::c_uint;
 pub type __pid_t = libc::c_int;
@@ -46,18 +48,6 @@ pub struct siginfo_t {
 	pub si_code: libc::c_int,
 	pub __pad0: libc::c_int,
 	pub _sifields: C2RustUnnamed,
-}
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct termios {
-	pub c_iflag: tcflag_t,
-	pub c_oflag: tcflag_t,
-	pub c_cflag: tcflag_t,
-	pub c_lflag: tcflag_t,
-	pub c_line: cc_t,
-	pub c_cc: [cc_t; 32],
-	pub c_ispeed: speed_t,
-	pub c_ospeed: speed_t,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
@@ -197,7 +187,7 @@ unsafe extern "C" fn ctrl_c_handler(
 		write(
 			0 as libc::c_int,
 			b"\n\0" as *const u8 as *const libc::c_char as *const libc::c_void,
-			1 as libc::c_int as size_t,
+			1,
 		);
 		rl_on_new_line();
 		rl_replace_line(b"\0" as *const u8 as *const libc::c_char, 0 as libc::c_int);

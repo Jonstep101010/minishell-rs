@@ -5,11 +5,7 @@ use libc::{close, dup2, free, open, strerror, unlink};
 use libft_rs::{ft_putendl_fd::ft_putendl_fd, ft_strchr::ft_strchr};
 use libutils_rs::src::string::str_equal::equal;
 
-extern "C" {
-	fn __errno_location() -> *mut libc::c_int;
-}
-
-use crate::{t_token, utils::error::eprint};
+use crate::{__errno_location, t_token, utils::error::eprint};
 
 pub type size_t = libc::c_ulong;
 pub type __uint8_t = libc::c_uchar;

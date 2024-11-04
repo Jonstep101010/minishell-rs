@@ -1,7 +1,6 @@
 use ::libc;
-extern "C" {
-	fn ft_calloc(nitems: size_t, size: size_t) -> *mut libc::c_void;
-}
+use libft_rs::ft_calloc::ft_calloc;
+
 pub type size_t = libc::c_ulong;
 #[no_mangle]
 pub unsafe extern "C" fn bool_arr_zeroing(mut len: size_t) -> *mut bool {

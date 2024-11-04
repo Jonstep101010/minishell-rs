@@ -17,6 +17,13 @@ extern crate libftprintf_rs;
 extern crate libgnl_rs;
 extern crate libutils_rs;
 
+extern "C" {
+	fn __errno_location() -> *mut libc::c_int;
+	fn check_signals(p_termios: *mut termios);
+	// fn readline(_: *const libc::c_char) -> *mut libc::c_char;
+	// fn add_history(_: *const libc::c_char);
+}
+
 pub mod builtins {
 	pub mod cd;
 	pub mod echo;
@@ -138,20 +145,13 @@ pub mod tokenizer {
 	pub mod token_utils;
 } // mod tokenizer
 pub mod utils {
-	pub mod arr_utils;
 	pub mod bool_array;
 	pub mod error;
 	pub mod exit_free;
 	pub mod get_input;
 	pub mod init_shell;
-	pub mod str_equal;
 } // mod utils
 
-extern "C" {
-	// fn readline(_: *const libc::c_char) -> *mut libc::c_char;
-	// fn add_history(_: *const libc::c_char);
-	fn check_signals(p_termios: *mut termios);
-}
 use gnu_readline_sys::{add_history, readline};
 pub type size_t = libc::c_ulong;
 pub type __uint8_t = libc::c_uchar;

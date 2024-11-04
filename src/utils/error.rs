@@ -1,12 +1,6 @@
 use ::libc;
-extern "C" {
-	fn ft_vdprintf(
-		fd: libc::c_int,
-		format: *const libc::c_char,
-		args: ::core::ffi::VaList,
-	) -> libc::c_int;
-	fn write(__fd: libc::c_int, __buf: *const libc::c_void, __n: size_t) -> ssize_t;
-}
+use libc::write;
+use libftprintf_rs::ft_vdprintf::ft_vdprintf;
 pub type __builtin_va_list = __va_list;
 #[derive(Copy, Clone)]
 #[repr(C)]
@@ -28,13 +22,13 @@ pub unsafe extern "C" fn eprint(mut fmt: *const libc::c_char, mut args: ...) {
 	write(
 		2 as libc::c_int,
 		b"minishell: \0" as *const u8 as *const libc::c_char as *const libc::c_void,
-		11 as libc::c_int as size_t,
+		11,
 	);
 	ft_vdprintf(2 as libc::c_int, fmt, args_0.as_va_list());
 	write(
 		2 as libc::c_int,
 		b"\n\0" as *const u8 as *const libc::c_char as *const libc::c_void,
-		1 as libc::c_int as size_t,
+		1,
 	);
 }
 #[no_mangle]

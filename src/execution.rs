@@ -1,14 +1,11 @@
 mod bin_path;
-mod exec_bin;
+pub(crate) mod exec_bin;
 mod execute_pipes;
 mod heredoc;
 mod redirections;
-extern "C" {
-	fn __errno_location() -> *mut libc::c_int;
-}
-use self::execute_pipes::execute_pipes;
-use self::redirections::do_redirections;
+use self::{execute_pipes::execute_pipes, redirections::do_redirections};
 use crate::{
+	__errno_location,
 	builtins::{cd::builtin_cd, exit::builtin_exit, export::builtin_export, unset::builtin_unset},
 	environment::export_env::update_exit_status,
 	libutils_rs::src::utils::memsize::memsize,

@@ -1,22 +1,13 @@
-use ::libc;
-extern "C" {
-	fn do_heredocs(token: *mut t_token, target: *const libc::c_int, env: *mut *mut libc::c_char);
-	fn wait(__stat_loc: *mut libc::c_int) -> __pid_t;
-	fn waitpid(__pid: __pid_t, __stat_loc: *mut libc::c_int, __options: libc::c_int) -> __pid_t;
-	fn close(__fd: libc::c_int) -> libc::c_int;
-	fn pipe(__pipedes: *mut libc::c_int) -> libc::c_int;
-	fn dup(__fd: libc::c_int) -> libc::c_int;
-	fn dup2(__fd: libc::c_int, __fd2: libc::c_int) -> libc::c_int;
-	fn fork() -> __pid_t;
-	fn check_signals_child(p_termios_child: *mut termios);
-}
 use crate::{
 	environment::export_env::update_exit_status,
-	t_shell, t_token, termios,
+	signals::handlers::check_signals_child,
+	t_shell,
 	utils::exit_free::{exit_error, exit_free},
 };
+use ::libc;
+use libc::{close, dup, dup2, fork, pipe, wait, waitpid};
 
-use super::redirections::do_redirections;
+use super::{heredoc::do_heredocs, redirections::do_redirections};
 
 pub type size_t = libc::c_ulong;
 pub type speed_t = libc::c_uint;
@@ -130,7 +121,7 @@ pub unsafe extern "C" fn execute_pipes(mut shell: *mut t_shell, mut token_count:
 		{
 			do_heredocs(
 				&mut *((*shell).token).offset(i as isize),
-				&prevpipe,
+				&mut prevpipe,
 				(*shell).env,
 			);
 		}

@@ -1,19 +1,16 @@
 use ::libc;
+use libft_rs::{ft_calloc::ft_calloc, ft_memcpy::ft_memcpy};
+use libutils_rs::src::string::str_equal::equal;
 
-use crate::t_shell;
-extern "C" {
-	fn equal(expected: *const libc::c_char, actual: *const libc::c_char) -> *mut libc::c_char;
-	fn exec_bin(shell: *mut t_shell, token: *mut t_token) -> libc::c_int;
-	fn builtin_cd(shell: *mut t_shell, token: *mut t_token) -> libc::c_int;
-	fn builtin_export(shell: *mut t_shell, token: *mut t_token) -> libc::c_int;
-	fn builtin_unset(shell: *mut t_shell, token: *mut t_token) -> libc::c_int;
-	fn echo(nullable: *mut t_shell, token: *mut t_token) -> libc::c_int;
-	fn builtin_exit(shell: *mut t_shell, nullable: *mut t_token) -> libc::c_int;
-	fn builtin_env(shell: *mut t_shell, token: *mut t_token) -> libc::c_int;
-	fn builtin_pwd(shell: *mut t_shell, token: *mut t_token) -> libc::c_int;
-	fn ft_memcpy(dst: *mut libc::c_void, src: *const libc::c_void, n: size_t) -> *mut libc::c_void;
-	fn ft_calloc(nitems: size_t, size: size_t) -> *mut libc::c_void;
-}
+use crate::{
+	builtins::{
+		cd::builtin_cd, echo::echo, env::builtin_env, exit::builtin_exit, export::builtin_export,
+		pwd::builtin_pwd, unset::builtin_unset,
+	},
+	execution::exec_bin::exec_bin,
+	t_shell,
+};
+
 pub type __uint8_t = libc::c_uchar;
 pub type uint8_t = __uint8_t;
 pub type size_t = libc::c_ulong;

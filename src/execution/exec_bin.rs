@@ -2,17 +2,9 @@ use ::libc;
 use libc::{exit, free, strerror};
 use libft_rs::ft_strchr::ft_strchr;
 use libutils_rs::src::array::arr_free::arr_free;
-extern "C" {
-	fn execve(
-		__path: *const libc::c_char,
-		__argv: *const *mut libc::c_char,
-		__envp: *const *mut libc::c_char,
-	) -> libc::c_int;
-	fn __errno_location() -> *mut libc::c_int;
-}
 pub type size_t = libc::c_ulong;
 use crate::{
-	t_shell,
+	__errno_location, t_shell,
 	tokenizer::{build_command::get_cmd_arr_token, destroy_tokens::destroy_all_tokens},
 	utils::error::eprint,
 };
@@ -97,10 +89,10 @@ pub unsafe extern "C" fn exec_bin(mut shell: *mut t_shell, mut token: *mut t_tok
 		arr_free(command as *mut *mut libc::c_char);
 		exit_free(shell, access_status);
 	}
-	if execve(
+	if libc::execve(
 		(*token).bin,
-		command as *mut *mut libc::c_char as *const *mut libc::c_char,
-		(*shell).env as *const *mut libc::c_char,
+		command as *mut *mut libc::c_char as *const *const libc::c_char,
+		(*shell).env as *const *const libc::c_char,
 	) == -(1 as libc::c_int)
 	{
 		arr_free(command as *mut *mut libc::c_char);

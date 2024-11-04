@@ -1,12 +1,8 @@
 use ::libc;
 use libc::{exit, free, strerror};
 
-extern "C" {
-	fn __errno_location() -> *mut libc::c_int;
-}
-
 use crate::{
-	libutils_rs::src::array::arr_free::arr_free, t_shell,
+	__errno_location, libutils_rs::src::array::arr_free::arr_free, t_shell,
 	tokenizer::destroy_tokens::destroy_all_tokens, utils::error::eprint,
 };
 pub type size_t = libc::c_ulong;

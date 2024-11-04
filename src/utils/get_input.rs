@@ -1,11 +1,7 @@
 use ::libc;
-extern "C" {
-	fn free(_: *mut libc::c_void);
-	fn ft_isascii(c: libc::c_int) -> libc::c_int;
-	fn ft_strdup(s: *const libc::c_char) -> *mut libc::c_char;
-	fn ft_strtrim(s1: *const libc::c_char, set: *const libc::c_char) -> *mut libc::c_char;
-	fn append_char_str(s: *mut libc::c_char, c: libc::c_char) -> *mut libc::c_char;
-}
+use libc::free;
+use libft_rs::{ft_isascii::ft_isascii, ft_strdup::ft_strdup, ft_strtrim::ft_strtrim};
+use libutils_rs::src::string::append_char::append_char_str;
 unsafe extern "C" fn collect_as_ascii(mut readline_line: *mut libc::c_char) -> *mut libc::c_char {
 	let mut i: libc::c_int = 0;
 	let mut collected_line: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();

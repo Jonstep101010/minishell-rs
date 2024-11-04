@@ -1,9 +1,7 @@
 use ::libc;
 
-extern "C" {
-	fn __errno_location() -> *mut libc::c_int;
-}
 use crate::{
+	__errno_location,
 	environment::{export_env::export_env, get_env::get_env},
 	t_shell,
 	tokenizer::build_command::get_cmd_arr_token,
