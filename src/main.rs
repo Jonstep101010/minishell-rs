@@ -148,15 +148,11 @@ pub mod utils {
 } // mod utils
 
 extern "C" {
-	fn readline(_: *const libc::c_char) -> *mut libc::c_char;
-	fn add_history(_: *const libc::c_char);
+	// fn readline(_: *const libc::c_char) -> *mut libc::c_char;
+	// fn add_history(_: *const libc::c_char);
 	fn check_signals(p_termios: *mut termios);
-	// fn lexer(shell: *mut t_shell, trimmed_line: *const libc::c_char) -> libc::c_int;
-	// fn execute_commands(shell: *mut t_shell, token: *mut t_token);
-	// fn init_shell(envp: *const *mut libc::c_char) -> *mut t_shell;
-	// fn get_input(rl_prompt: *mut libc::c_char) -> *mut libc::c_char;
-	// fn builtin_exit(shell: *mut t_shell, nullable: *mut t_token) -> libc::c_int;
 }
+use gnu_readline_sys::{add_history, readline};
 pub type size_t = libc::c_ulong;
 pub type __uint8_t = libc::c_uchar;
 pub type cc_t = libc::c_uchar;

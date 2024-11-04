@@ -13,11 +13,9 @@ extern "C" {
 		__termios_p: *const termios,
 	) -> libc::c_int;
 	fn write(__fd: libc::c_int, __buf: *const libc::c_void, __n: size_t) -> ssize_t;
-	fn rl_redisplay();
-	fn rl_on_new_line() -> libc::c_int;
-	fn rl_replace_line(_: *const libc::c_char, _: libc::c_int);
 	static mut g_ctrl_c: libc::c_int;
 }
+use gnu_readline_sys::{rl_on_new_line, rl_redisplay, rl_replace_line};
 pub type __uint32_t = libc::c_uint;
 pub type __uid_t = libc::c_uint;
 pub type __pid_t = libc::c_int;

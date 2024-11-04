@@ -1,22 +1,12 @@
+use super::token_utils::init_token;
+use crate::{parser::split_outside_quotes::split_outside_quotes, t_token, utils::error::eprint};
 use ::libc;
-extern "C" {
-	fn init_token(size: size_t) -> *mut t_token;
-	fn arr_len(arr: *const *mut libc::c_char) -> size_t;
-	fn arr_free(arr: *mut *mut libc::c_char);
-	fn append_str_arr_free(
-		arr: *mut *mut libc::c_char,
-		s: *mut libc::c_char,
-	) -> *mut *mut libc::c_char;
-	fn eprint(fmt: *const libc::c_char, _: ...);
-	fn free(_: *mut libc::c_void);
-	fn ft_strdup(s: *const libc::c_char) -> *mut libc::c_char;
-	fn split_outside_quotes(
-		to_split: *const libc::c_char,
-		set: *const libc::c_char,
-	) -> *mut *mut libc::c_char;
-}
+use libc::free;
+use libft_rs::ft_strdup::ft_strdup;
+use libutils_rs::src::array::append_str::append_str_arr_free;
+use libutils_rs::src::array::arr_free::arr_free;
+use libutils_rs::src::array::arr_len::arr_len;
 pub type size_t = libc::c_ulong;
-use crate::t_token;
 
 #[derive(Copy, Clone)]
 #[repr(C)]
