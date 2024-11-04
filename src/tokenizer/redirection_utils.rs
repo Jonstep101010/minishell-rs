@@ -47,9 +47,9 @@ pub unsafe extern "C" fn parse_redir_types(mut arg: *mut t_arg) {
 		{
 			let tmp: *mut libc::c_char = {
 				if (*arg.offset(i as isize)).redir as libc::c_uint
-					== INPUT_REDIR as libc::c_int as libc::c_uint
+					== e_redir::INPUT_REDIR as libc::c_int as libc::c_uint
 					|| (*arg.offset(i as isize)).redir as libc::c_uint
-						== OUTPUT_REDIR as libc::c_int as libc::c_uint
+						== e_redir::OUTPUT_REDIR as libc::c_int as libc::c_uint
 				{
 					ft_strdup(&*((*arg.offset(i as isize)).elem).offset(1 as libc::c_int as isize))
 				} else {
@@ -65,16 +65,17 @@ pub unsafe extern "C" fn parse_redir_types(mut arg: *mut t_arg) {
 	}
 }
 unsafe extern "C" fn set_type_redir(mut cmd_arg: *mut t_arg) {
-	if (*cmd_arg).redir as libc::c_uint == APPEND as libc::c_int as libc::c_uint
-		|| (*cmd_arg).redir as libc::c_uint == HEREDOC as libc::c_int as libc::c_uint
+	if (*cmd_arg).redir as libc::c_uint == e_redir::APPEND as libc::c_int as libc::c_uint
+		|| (*cmd_arg).redir as libc::c_uint == e_redir::HEREDOC as libc::c_int as libc::c_uint
 	{
 		if *((*cmd_arg).elem).offset(2 as libc::c_int as isize) == 0 {
 			(*cmd_arg).type_0 = REDIR_REMOVED;
 		} else {
 			(*cmd_arg).type_0 = REDIR;
 		}
-	} else if (*cmd_arg).redir as libc::c_uint == OUTPUT_REDIR as libc::c_int as libc::c_uint
-		|| (*cmd_arg).redir as libc::c_uint == INPUT_REDIR as libc::c_int as libc::c_uint
+	} else if (*cmd_arg).redir as libc::c_uint
+		== e_redir::OUTPUT_REDIR as libc::c_int as libc::c_uint
+		|| (*cmd_arg).redir as libc::c_uint == e_redir::INPUT_REDIR as libc::c_int as libc::c_uint
 	{
 		if *((*cmd_arg).elem).offset(1 as libc::c_int as isize) == 0 {
 			(*cmd_arg).type_0 = REDIR_REMOVED;
@@ -84,7 +85,7 @@ unsafe extern "C" fn set_type_redir(mut cmd_arg: *mut t_arg) {
 	}
 }
 #[no_mangle]
-pub unsafe extern "C" fn check_redirections(mut cmd_args: *mut t_arg) -> e_redir {
+pub unsafe extern "C" fn check_redirections(mut cmd_args: *mut t_arg) -> bool {
 	let mut ii: size_t = 0;
 	let mut redir: bool = false;
 	while !((*cmd_args.offset(ii as isize)).elem).is_null() {
@@ -94,36 +95,36 @@ pub unsafe extern "C" fn check_redirections(mut cmd_args: *mut t_arg) -> e_redir
 			2 as libc::c_int as size_t,
 		) == 0 as libc::c_int
 		{
-			(*cmd_args.offset(ii as isize)).redir = APPEND;
+			(*cmd_args.offset(ii as isize)).redir = e_redir::APPEND;
 		} else if ft_strncmp(
 			(*cmd_args.offset(ii as isize)).elem,
 			b">\0" as *const u8 as *const libc::c_char,
 			1 as libc::c_int as size_t,
 		) == 0 as libc::c_int
 		{
-			(*cmd_args.offset(ii as isize)).redir = OUTPUT_REDIR;
+			(*cmd_args.offset(ii as isize)).redir = e_redir::OUTPUT_REDIR;
 		} else if ft_strncmp(
 			(*cmd_args.offset(ii as isize)).elem,
 			b"<<\0" as *const u8 as *const libc::c_char,
 			2 as libc::c_int as size_t,
 		) == 0 as libc::c_int
 		{
-			(*cmd_args.offset(ii as isize)).redir = HEREDOC;
+			(*cmd_args.offset(ii as isize)).redir = e_redir::HEREDOC;
 		} else if ft_strncmp(
 			(*cmd_args.offset(ii as isize)).elem,
 			b"<\0" as *const u8 as *const libc::c_char,
 			1 as libc::c_int as size_t,
 		) == 0 as libc::c_int
 		{
-			(*cmd_args.offset(ii as isize)).redir = INPUT_REDIR;
+			(*cmd_args.offset(ii as isize)).redir = e_redir::INPUT_REDIR;
 		}
 		if (*cmd_args.offset(ii as isize)).redir as libc::c_uint
-			!= NO_REDIR as libc::c_int as libc::c_uint
+			!= e_redir::NO_REDIR as libc::c_int as libc::c_uint
 		{
 			set_type_redir(&mut *cmd_args.offset(ii as isize));
 			redir = 1 as libc::c_int != 0;
 		}
 		ii = ii.wrapping_add(1);
 	}
-	redir as e_redir
+	redir
 }

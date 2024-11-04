@@ -8,7 +8,7 @@ unsafe extern "C" fn open_redir(
 	mut redir: e_redir,
 	mut fd: *mut libc::c_int,
 ) -> libc::c_int {
-	if redir as libc::c_uint == INPUT_REDIR as libc::c_int as libc::c_uint {
+	if redir as libc::c_uint == e_redir::INPUT_REDIR as libc::c_int as libc::c_uint {
 		let mut perm = access(file, 0 as libc::c_int);
 		if perm != 0 as libc::c_int {
 			return 127 as libc::c_int;
@@ -18,13 +18,13 @@ unsafe extern "C" fn open_redir(
 			return 126 as libc::c_int;
 		}
 		*fd = open(file, 0 as libc::c_int);
-	} else if redir as libc::c_uint == OUTPUT_REDIR as libc::c_int as libc::c_uint {
+	} else if redir as libc::c_uint == e_redir::OUTPUT_REDIR as libc::c_int as libc::c_uint {
 		*fd = open(
 			file,
 			0o1 as libc::c_int | 0o100 as libc::c_int | 0o1000 as libc::c_int,
 			0o644 as libc::c_int,
 		);
-	} else if redir as libc::c_uint == APPEND as libc::c_int as libc::c_uint {
+	} else if redir as libc::c_uint == e_redir::APPEND as libc::c_int as libc::c_uint {
 		let mut perm = access(file, 2 as libc::c_int);
 		if perm != 0 as libc::c_int {
 			return *__errno_location();
@@ -51,7 +51,7 @@ pub unsafe extern "C" fn do_redirections(
 		if (*cmd_args.offset(i as isize)).type_0 as libc::c_uint
 			== REDIR as libc::c_int as libc::c_uint
 			&& (*cmd_args.offset(i as isize)).redir as libc::c_uint
-				!= HEREDOC as libc::c_int as libc::c_uint
+				!= e_redir::HEREDOC as libc::c_int as libc::c_uint
 		{
 			if open_redir(
 				(*cmd_args.offset(i as isize)).elem,
@@ -63,7 +63,7 @@ pub unsafe extern "C" fn do_redirections(
 				return *__errno_location();
 			}
 			if (*cmd_args.offset(i as isize)).redir as libc::c_uint
-				!= INPUT_REDIR as libc::c_int as libc::c_uint
+				!= e_redir::INPUT_REDIR as libc::c_int as libc::c_uint
 			{
 				dup2(fd, 1 as libc::c_int);
 			} else {

@@ -103,7 +103,7 @@ pub unsafe extern "C" fn init_cmdargs(mut size: size_t) -> *mut t_arg {
 		t_arg {
 			elem: std::ptr::null_mut::<libc::c_char>(),
 			type_0: STRING,
-			redir: NO_REDIR,
+			redir: e_redir::NO_REDIR,
 		}
 	};
 	let mut args: *mut t_arg = ft_calloc(

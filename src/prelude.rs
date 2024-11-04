@@ -7,12 +7,15 @@ pub type cc_t = libc::c_uchar;
 pub type speed_t = libc::c_uint;
 pub type tcflag_t = libc::c_uint;
 pub type uint8_t = __uint8_t;
-pub type e_redir = libc::c_uint;
-pub const HEREDOC: e_redir = 4;
-pub const APPEND: e_redir = 3;
-pub const OUTPUT_REDIR: e_redir = 2;
-pub const INPUT_REDIR: e_redir = 1;
-pub const NO_REDIR: e_redir = 0;
+#[derive(Copy, Clone)]
+#[repr(C)]
+pub enum e_redir {
+	NO_REDIR = 0,
+	INPUT_REDIR = 1,
+	OUTPUT_REDIR = 2,
+	APPEND = 3,
+	HEREDOC = 4,
+}
 pub type e_arg = libc::c_uint;
 pub const REDIR_REMOVED: e_arg = 2;
 pub const REDIR: e_arg = 1;

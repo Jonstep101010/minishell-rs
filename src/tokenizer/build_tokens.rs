@@ -110,7 +110,7 @@ unsafe extern "C" fn rm_quotes(mut cmd_arg: *mut t_arg) {
 	}
 }
 unsafe extern "C" fn inner_loop(mut token: *mut t_token) -> *mut libc::c_void {
-	if check_redirections((*token).cmd_args) as u64 != 0 {
+	if check_redirections((*token).cmd_args) {
 		(*token).has_redir = 1 as libc::c_int != 0;
 		parse_redir_types((*token).cmd_args);
 		rm_prefix_redir_word((*token).cmd_args);
