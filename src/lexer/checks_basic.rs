@@ -8,7 +8,7 @@ use crate::utils::{
 };
 
 use super::{check_pipes::check_pipes_redirection, lexer_support::count_number, t_lexer};
-pub type size_t = libc::c_ulong;
+
 unsafe extern "C" fn ignore_quotes(
 	mut s: *const libc::c_char,
 	mut input: *mut t_lexer,
@@ -53,7 +53,7 @@ pub unsafe extern "C" fn lexer_checks_basic(mut s: *const libc::c_char) -> *mut 
 	let mut input: *mut t_lexer = std::ptr::null_mut::<t_lexer>();
 	input = ft_calloc(
 		::core::mem::size_of::<t_lexer>() as libc::c_ulong,
-		1 as libc::c_int as size_t,
+		1 as libc::c_int as crate::size_t,
 	) as *mut t_lexer;
 	count_number(s, input);
 	(*input).lexer = check_quotes(s, input);

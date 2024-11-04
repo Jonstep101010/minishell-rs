@@ -2,7 +2,9 @@ use ::libc;
 use libc::free;
 use libft_rs::{ft_calloc::ft_calloc, ft_strlen::ft_strlen};
 use libutils_rs::src::string::str_cchr::str_cchr;
-pub type size_t = libc::c_ulong;
+
+use crate::size_t;
+
 #[no_mangle]
 pub unsafe extern "C" fn do_quote_bs(
 	mut s: *const libc::c_char,

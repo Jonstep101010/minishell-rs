@@ -6,9 +6,10 @@ use libft_rs::{
 };
 use libutils_rs::src::string::{append_char::append_char_str, join_strings::free_both_join};
 
+use crate::size_t;
+
 use super::get_env::get_env;
 
-pub type size_t = libc::c_ulong;
 unsafe extern "C" fn check_index_advance(
 	mut s: *const libc::c_char,
 	mut i: libc::c_int,

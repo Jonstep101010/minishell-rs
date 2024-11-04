@@ -9,8 +9,7 @@ use libft_rs::ft_itoa::ft_itoa;
 use libutils_rs::src::{
 	array::append_str::append_str_arr_free, string::join_strings::free_second_join,
 };
-pub type __uint8_t = libc::c_uchar;
-pub type uint8_t = __uint8_t;
+
 unsafe extern "C" fn update_var(mut env: *mut *mut libc::c_char, mut key_val: *mut libc::c_char) {
 	if key_val.is_null() || env.is_null() || (*env).is_null() || *key_val == 0 {
 		return;
@@ -32,7 +31,7 @@ pub unsafe extern "C" fn export_env(mut shell: *mut t_shell, mut key_val: *mut l
 		|| **(*shell).env == 0
 	{
 		free(key_val as *mut libc::c_void);
-		(*shell).exit_status = 1 as libc::c_int as uint8_t;
+		(*shell).exit_status = 1 as libc::c_int as u8;
 		eprint(b"fatal: invalid memory!\n\0" as *const u8 as *const libc::c_char);
 		builtin_exit(shell, std::ptr::null_mut::<t_token>());
 	}
@@ -43,7 +42,7 @@ pub unsafe extern "C" fn export_env(mut shell: *mut t_shell, mut key_val: *mut l
 		update_var(&mut *((*shell).env).offset(index as isize), key_val);
 	}
 	if ((*shell).env).is_null() {
-		(*shell).exit_status = 1 as libc::c_int as uint8_t;
+		(*shell).exit_status = 1 as libc::c_int as u8;
 		eprint(b"fatal: environment invalidated\n\0" as *const u8 as *const libc::c_char);
 		builtin_exit(shell, std::ptr::null_mut::<t_token>());
 	}
@@ -54,5 +53,5 @@ pub unsafe extern "C" fn update_exit_status(mut shell: *mut t_shell, mut status:
 		shell,
 		free_second_join(b"?=\0" as *const u8 as *const libc::c_char, ft_itoa(status)),
 	);
-	(*shell).exit_status = status as uint8_t;
+	(*shell).exit_status = status as u8;
 }

@@ -4,10 +4,12 @@ use libft_rs::{
 	ft_strchr::ft_strchr, ft_strlen::ft_strlen, ft_strtrim::ft_strtrim, ft_substr::ft_substr,
 };
 use libutils_rs::src::array::append_str::append_str_arr_free;
-pub type size_t = libc::c_ulong;
+
+use crate::size_t;
+
 #[derive(Copy, Clone)]
 #[repr(C)]
-pub struct s_splitter {
+pub struct t_splitter {
 	pub quote: libc::c_int,
 	pub start: size_t,
 	pub len: size_t,
@@ -15,7 +17,6 @@ pub struct s_splitter {
 	pub to_split: *mut libc::c_char,
 	pub set: *const libc::c_char,
 }
-pub type t_splitter = s_splitter;
 unsafe extern "C" fn split_loop(mut s: *mut t_splitter) -> *mut *mut libc::c_char {
 	let mut i: size_t = 0;
 	i = 0 as libc::c_int as size_t;
@@ -88,7 +89,7 @@ pub unsafe extern "C" fn split_outside_quotes(
 		return std::ptr::null_mut::<*mut libc::c_char>();
 	}
 	s = {
-		s_splitter {
+		t_splitter {
 			quote: 0 as libc::c_int,
 			start: 0 as libc::c_int as size_t,
 			len: 0 as libc::c_int as size_t,

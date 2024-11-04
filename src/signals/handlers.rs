@@ -17,15 +17,7 @@ extern "C" {
 use gnu_readline_sys::{rl_on_new_line, rl_redisplay, rl_replace_line};
 use libc::write;
 
-use crate::termios;
-pub type __uint32_t = libc::c_uint;
-pub type __uid_t = libc::c_uint;
-pub type __pid_t = libc::c_int;
-pub type __clock_t = libc::c_long;
-pub type __ssize_t = libc::c_long;
-pub type cc_t = libc::c_uchar;
-pub type speed_t = libc::c_uint;
-pub type tcflag_t = libc::c_uint;
+use crate::{prelude::*, termios};
 
 #[derive(Copy, Clone)]
 #[repr(C)]
@@ -138,8 +130,6 @@ pub union C2RustUnnamed_10 {
 	pub sa_sigaction:
 		Option<unsafe extern "C" fn(libc::c_int, *mut siginfo_t, *mut libc::c_void) -> ()>,
 }
-pub type size_t = libc::c_ulong;
-pub type ssize_t = __ssize_t;
 #[no_mangle]
 pub unsafe extern "C" fn check_signals(mut p_termios: *mut termios) {
 	tcgetattr(0 as libc::c_int, p_termios);

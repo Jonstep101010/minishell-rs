@@ -1,21 +1,9 @@
+use crate::prelude::*;
 use crate::{t_shell, t_token};
 use ::libc;
 use libc::{printf, write};
 use libft_rs::ft_strncmp::ft_strncmp;
 use libutils_rs::src::array::arr_free::arr_free;
-pub type size_t = libc::c_ulong;
-pub type __ssize_t = libc::c_long;
-pub type ssize_t = __ssize_t;
-pub type e_redir = libc::c_uint;
-pub const HEREDOC: e_redir = 4;
-pub const APPEND: e_redir = 3;
-pub const OUTPUT_REDIR: e_redir = 2;
-pub const INPUT_REDIR: e_redir = 1;
-pub const NO_REDIR: e_redir = 0;
-pub type e_arg = libc::c_uint;
-pub const REDIR_REMOVED: e_arg = 2;
-pub const REDIR: e_arg = 1;
-pub const STRING: e_arg = 0;
 unsafe extern "C" fn is_n_arg(mut arg: *const libc::c_char) -> libc::c_int {
 	if *arg as libc::c_int == '-' as i32 {
 		arg = arg.offset(1);

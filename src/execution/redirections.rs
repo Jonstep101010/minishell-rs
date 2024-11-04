@@ -1,16 +1,8 @@
+use crate::prelude::*;
 use crate::{__errno_location, t_arg};
 use ::libc;
 use libc::{access, close, dup2, open};
-pub type e_redir = libc::c_uint;
-pub const HEREDOC: e_redir = 4;
-pub const APPEND: e_redir = 3;
-pub const OUTPUT_REDIR: e_redir = 2;
-pub const INPUT_REDIR: e_redir = 1;
-pub const NO_REDIR: e_redir = 0;
-pub type e_arg = libc::c_uint;
-pub const REDIR_REMOVED: e_arg = 2;
-pub const REDIR: e_arg = 1;
-pub const STRING: e_arg = 0;
+
 unsafe extern "C" fn open_redir(
 	mut file: *const libc::c_char,
 	mut redir: e_redir,

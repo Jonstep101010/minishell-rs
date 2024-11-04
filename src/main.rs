@@ -17,12 +17,17 @@ extern crate libftprintf_rs;
 extern crate libgnl_rs;
 extern crate libutils_rs;
 
+use gnu_readline_sys::{add_history, readline};
+
 extern "C" {
 	fn __errno_location() -> *mut libc::c_int;
 	fn check_signals(p_termios: *mut termios);
 	// fn readline(_: *const libc::c_char) -> *mut libc::c_char;
 	// fn add_history(_: *const libc::c_char);
 }
+
+mod prelude;
+use prelude::*;
 
 pub mod builtins {
 	pub mod cd;
@@ -42,12 +47,14 @@ pub mod environment {
 } // mod environment
 pub mod execution; // mod execution
 pub mod lexer {
-	use crate::environment::export_env::update_exit_status;
-	use crate::tokenizer::{build_tokens::tokenize, destroy_tokens::destroy_all_tokens};
-	use crate::{t_shell, utils::get_input::get_input};
+	use crate::{
+		environment::export_env::update_exit_status,
+		size_t, t_shell,
+		tokenizer::{build_tokens::tokenize, destroy_tokens::destroy_all_tokens},
+		utils::get_input::get_input,
+	};
 	use ::libc::{self, free};
 
-	pub type size_t = libc::c_ulong;
 	#[derive(Copy, Clone)]
 	#[repr(C)]
 	pub struct t_lexer {
@@ -68,35 +75,6 @@ pub mod lexer {
 		pub result: bool,
 	}
 	use checks_basic::lexer_checks_basic;
-
-	#[derive(Copy, Clone)]
-	#[repr(C)]
-	pub struct termios {
-		pub c_iflag: tcflag_t,
-		pub c_oflag: tcflag_t,
-		pub c_cflag: tcflag_t,
-		pub c_lflag: tcflag_t,
-		pub c_line: cc_t,
-		pub c_cc: [cc_t; 32],
-		pub c_ispeed: speed_t,
-		pub c_ospeed: speed_t,
-	}
-	pub type speed_t = libc::c_uint;
-	pub type cc_t = libc::c_uchar;
-	pub type tcflag_t = libc::c_uint;
-	pub type uint8_t = __uint8_t;
-	pub type __uint8_t = libc::c_uchar;
-	use crate::t_token;
-	pub type e_redir = libc::c_uint;
-	pub const HEREDOC: e_redir = 4;
-	pub const APPEND: e_redir = 3;
-	pub const OUTPUT_REDIR: e_redir = 2;
-	pub const INPUT_REDIR: e_redir = 1;
-	pub const NO_REDIR: e_redir = 0;
-	pub type e_arg = libc::c_uint;
-	pub const REDIR_REMOVED: e_arg = 2;
-	pub const REDIR: e_arg = 1;
-	pub const STRING: e_arg = 0;
 	#[no_mangle]
 	pub unsafe extern "C" fn run(
 		mut shell: *mut t_shell,
@@ -114,7 +92,7 @@ pub mod lexer {
 			return 1 as libc::c_int;
 		}
 		free(lex as *mut libc::c_void);
-		(*shell).token = tokenize(shell, trimmed_line) as *mut t_token;
+		(*shell).token = tokenize(shell, trimmed_line) as *mut crate::t_token;
 		get_input(std::ptr::null_mut::<libc::c_char>());
 		if ((*shell).token).is_null() {
 			return -(1 as libc::c_int);
@@ -152,12 +130,6 @@ pub mod utils {
 	pub mod init_shell;
 } // mod utils
 
-use gnu_readline_sys::{add_history, readline};
-pub type size_t = libc::c_ulong;
-pub type __uint8_t = libc::c_uchar;
-pub type cc_t = libc::c_uchar;
-pub type speed_t = libc::c_uint;
-pub type tcflag_t = libc::c_uint;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct termios {
@@ -189,7 +161,6 @@ pub struct t_shell {
 	pub token_len: size_t,
 	pub p_termios: termios,
 }
-pub type uint8_t = __uint8_t;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct t_arg {
@@ -197,19 +168,6 @@ pub struct t_arg {
 	pub type_0: e_arg,
 	pub redir: e_redir,
 }
-pub type e_redir = libc::c_uint;
-pub const HEREDOC: e_redir = 4;
-pub const APPEND: e_redir = 3;
-pub const OUTPUT_REDIR: e_redir = 2;
-pub const INPUT_REDIR: e_redir = 1;
-pub const NO_REDIR: e_redir = 0;
-pub type e_arg = libc::c_uint;
-pub const REDIR_REMOVED: e_arg = 2;
-pub const REDIR: e_arg = 1;
-pub const STRING: e_arg = 0;
-
-pub type __pid_t = libc::c_int;
-pub type pid_t = __pid_t;
 
 unsafe fn main_0(
 	mut _ac: libc::c_int,

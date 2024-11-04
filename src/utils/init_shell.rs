@@ -10,24 +10,8 @@ use libutils_rs::src::{
 	utils::free_mem::free_null,
 };
 
-use crate::{environment::get_env::get_env, t_shell, termios};
+use crate::{environment::get_env::get_env, prelude::tcflag_t, t_shell, termios};
 
-pub type size_t = libc::c_ulong;
-pub type speed_t = libc::c_uint;
-pub type cc_t = libc::c_uchar;
-pub type tcflag_t = libc::c_uint;
-pub type uint8_t = __uint8_t;
-pub type __uint8_t = libc::c_uchar;
-pub type e_redir = libc::c_uint;
-pub const HEREDOC: e_redir = 4;
-pub const APPEND: e_redir = 3;
-pub const OUTPUT_REDIR: e_redir = 2;
-pub const INPUT_REDIR: e_redir = 1;
-pub const NO_REDIR: e_redir = 0;
-pub type e_arg = libc::c_uint;
-pub const REDIR_REMOVED: e_arg = 2;
-pub const REDIR: e_arg = 1;
-pub const STRING: e_arg = 0;
 unsafe extern "C" fn init_env(mut envp: *const *mut libc::c_char) -> *mut *mut libc::c_char {
 	let mut env: *mut *mut libc::c_char =
 		append_str_arr(envp, b"?=0\0" as *const u8 as *const libc::c_char);
@@ -63,7 +47,7 @@ unsafe extern "C" fn init_env(mut envp: *const *mut libc::c_char) -> *mut *mut l
 pub unsafe extern "C" fn init_shell(mut envp: *const *mut libc::c_char) -> *mut t_shell {
 	let mut shell: *mut t_shell = std::ptr::null_mut::<t_shell>();
 	shell = ft_calloc(
-		1 as libc::c_int as size_t,
+		1 as libc::c_int as crate::size_t,
 		::core::mem::size_of::<t_shell>() as libc::c_ulong,
 	) as *mut t_shell;
 	if shell.is_null() {

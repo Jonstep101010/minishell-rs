@@ -1,7 +1,8 @@
 use ::libc;
 use libft_rs::{ft_strlen::ft_strlen, ft_strncmp::ft_strncmp};
 
-pub type size_t = libc::c_ulong;
+use crate::size_t;
+
 unsafe extern "C" fn get_key_len(mut s: *const libc::c_char) -> size_t {
 	let mut len: size_t = 0;
 	let mut key_len: size_t = 0;

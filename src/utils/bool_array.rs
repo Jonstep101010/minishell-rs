@@ -1,7 +1,8 @@
 use ::libc;
 use libft_rs::ft_calloc::ft_calloc;
 
-pub type size_t = libc::c_ulong;
+use crate::size_t;
+
 #[no_mangle]
 pub unsafe extern "C" fn bool_arr_zeroing(mut len: size_t) -> *mut bool {
 	let mut i: size_t = 0;

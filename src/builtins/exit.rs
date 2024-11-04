@@ -10,34 +10,6 @@ use libft_rs::{ft_isdigit::ft_isdigit, ft_strlen::ft_strlen};
 use libutils_rs::src::array::arr_free::arr_free;
 use libutils_rs::src::string::ft_atol::ft_atol;
 
-pub type size_t = libc::c_ulong;
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct termios {
-	pub c_iflag: tcflag_t,
-	pub c_oflag: tcflag_t,
-	pub c_cflag: tcflag_t,
-	pub c_lflag: tcflag_t,
-	pub c_line: cc_t,
-	pub c_cc: [cc_t; 32],
-	pub c_ispeed: speed_t,
-	pub c_ospeed: speed_t,
-}
-pub type speed_t = libc::c_uint;
-pub type cc_t = libc::c_uchar;
-pub type tcflag_t = libc::c_uint;
-pub type uint8_t = __uint8_t;
-pub type __uint8_t = libc::c_uchar;
-pub type e_redir = libc::c_uint;
-pub const HEREDOC: e_redir = 4;
-pub const APPEND: e_redir = 3;
-pub const OUTPUT_REDIR: e_redir = 2;
-pub const INPUT_REDIR: e_redir = 1;
-pub const NO_REDIR: e_redir = 0;
-pub type e_arg = libc::c_uint;
-pub const REDIR_REMOVED: e_arg = 2;
-pub const REDIR: e_arg = 1;
-pub const STRING: e_arg = 0;
 unsafe extern "C" fn check_sign(mut exit_code: *const libc::c_char) -> bool {
 	if (*exit_code as libc::c_int == '-' as i32 || *exit_code as libc::c_int == '+' as i32)
 		&& *exit_code.offset(1 as libc::c_int as isize) as libc::c_int == 0 as libc::c_int
@@ -81,7 +53,7 @@ unsafe extern "C" fn check_exit_code(mut command: *mut *const libc::c_char) -> b
 	}
 	1 as libc::c_int != 0
 }
-unsafe extern "C" fn exit_free_internal(mut shell: *mut t_shell, mut exit_code: uint8_t) {
+unsafe extern "C" fn exit_free_internal(mut shell: *mut t_shell, mut exit_code: u8) {
 	if !((*shell).env).is_null() {
 		arr_free((*shell).env);
 	}
@@ -94,7 +66,7 @@ pub unsafe extern "C" fn builtin_exit(
 	mut shell: *mut t_shell,
 	mut code_nullable: *mut t_token,
 ) -> libc::c_int {
-	let mut exit_code: uint8_t = 0;
+	let mut exit_code: u8 = 0;
 	let mut command: *mut *const libc::c_char =
 		get_cmd_arr_token(code_nullable) as *mut *const libc::c_char;
 	exit_code = (*shell).exit_status;
@@ -113,7 +85,7 @@ pub unsafe extern "C" fn builtin_exit(
 				arr_free(command as *mut *mut libc::c_char);
 				return 1 as libc::c_int;
 			}
-			exit_code = ft_atol(*command.offset(1 as libc::c_int as isize)) as uint8_t;
+			exit_code = ft_atol(*command.offset(1 as libc::c_int as isize)) as u8;
 		}
 		arr_free(command as *mut *mut libc::c_char);
 	}

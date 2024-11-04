@@ -12,9 +12,7 @@ pub struct __va_list {
 	pub __vr_offs: libc::c_int,
 }
 pub type va_list = __builtin_va_list;
-pub type size_t = libc::c_ulong;
-pub type __ssize_t = libc::c_long;
-pub type ssize_t = __ssize_t;
+
 #[no_mangle]
 pub unsafe extern "C" fn eprint(mut fmt: *const libc::c_char, mut args: ...) {
 	let mut args_0: ::core::ffi::VaListImpl;

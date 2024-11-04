@@ -7,22 +7,6 @@ use libutils_rs::src::string::str_equal::equal;
 
 use crate::{__errno_location, t_token, utils::error::eprint};
 
-pub type size_t = libc::c_ulong;
-pub type __uint8_t = libc::c_uchar;
-pub type speed_t = libc::c_uint;
-pub type cc_t = libc::c_uchar;
-pub type tcflag_t = libc::c_uint;
-pub type uint8_t = __uint8_t;
-pub type e_redir = libc::c_uint;
-pub const HEREDOC: e_redir = 4;
-pub const APPEND: e_redir = 3;
-pub const OUTPUT_REDIR: e_redir = 2;
-pub const INPUT_REDIR: e_redir = 1;
-pub const NO_REDIR: e_redir = 0;
-pub type e_arg = libc::c_uint;
-pub const REDIR_REMOVED: e_arg = 2;
-pub const REDIR: e_arg = 1;
-pub const STRING: e_arg = 0;
 #[no_mangle]
 pub static mut g_ctrl_c: libc::c_int = 0 as libc::c_int;
 unsafe extern "C" fn heredoc_loop(
@@ -69,7 +53,7 @@ pub unsafe extern "C" fn do_heredocs(
 			break;
 		}
 		if (*((*token).cmd_args).offset(i as isize)).redir as libc::c_uint
-			== HEREDOC as libc::c_int as libc::c_uint
+			== crate::HEREDOC as libc::c_int as libc::c_uint
 		{
 			fd = open(
 				b".heredoc.txt\0" as *const u8 as *const libc::c_char,

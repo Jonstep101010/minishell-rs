@@ -3,7 +3,7 @@ use libft_rs::{ft_memcpy::ft_memcpy, ft_strlen::ft_strlen};
 use libutils_rs::src::string::str_cchr::str_cchr;
 
 use super::t_lexer;
-pub type size_t = libc::c_ulong;
+
 #[no_mangle]
 pub unsafe extern "C" fn count_number(mut s: *const libc::c_char, mut input: *mut t_lexer) {
 	let data: t_lexer = {
@@ -20,7 +20,7 @@ pub unsafe extern "C" fn count_number(mut s: *const libc::c_char, mut input: *mu
 			redir_smaller: str_cchr(s, '<' as i32 as libc::c_char),
 			pipes: str_cchr(s, '|' as i32 as libc::c_char),
 			ignore: std::ptr::null_mut::<bool>(),
-			len: ft_strlen(s) as libc::c_int as size_t,
+			len: ft_strlen(s) as libc::c_int as crate::size_t,
 			lexer: 0 as libc::c_int,
 			result: 0 as libc::c_int != 0,
 		}

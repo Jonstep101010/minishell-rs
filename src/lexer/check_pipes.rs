@@ -1,10 +1,10 @@
-use crate::utils::error::eprint;
+use crate::{size_t, utils::error::eprint};
 use ::libc;
 use libft_rs::{ft_isalnum::ft_isalnum, ft_strchr::ft_strchr};
 use libutils_rs::src::char::is_something::ft_isspace;
 
 use super::t_lexer;
-pub type size_t = libc::c_ulong;
+
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct s_check_pipes {

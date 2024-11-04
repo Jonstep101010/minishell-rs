@@ -3,19 +3,7 @@ use libc::free;
 use libft_rs::{ft_strdup::ft_strdup, ft_strncmp::ft_strncmp};
 use libutils_rs::src::utils::{free_mem::free_null, memsize::memsize};
 
-use crate::t_arg;
-
-pub type size_t = libc::c_ulong;
-pub type e_redir = libc::c_uint;
-pub const HEREDOC: e_redir = 4;
-pub const APPEND: e_redir = 3;
-pub const OUTPUT_REDIR: e_redir = 2;
-pub const INPUT_REDIR: e_redir = 1;
-pub const NO_REDIR: e_redir = 0;
-pub type e_arg = libc::c_uint;
-pub const REDIR_REMOVED: e_arg = 2;
-pub const REDIR: e_arg = 1;
-pub const STRING: e_arg = 0;
+use crate::{prelude::*, size_t, t_arg};
 #[no_mangle]
 pub unsafe extern "C" fn rm_prefix_redir_word(mut arg: *mut t_arg) {
 	let mut i: size_t = 0;

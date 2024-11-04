@@ -5,28 +5,10 @@ use crate::{
 	utils::exit_free::{exit_error, exit_free},
 };
 use ::libc;
-use libc::{close, dup, dup2, fork, pipe, wait, waitpid};
+use libc::{close, dup, dup2, fork, pid_t, pipe, wait, waitpid};
 
 use super::{heredoc::do_heredocs, redirections::do_redirections};
 
-pub type size_t = libc::c_ulong;
-pub type speed_t = libc::c_uint;
-pub type cc_t = libc::c_uchar;
-pub type tcflag_t = libc::c_uint;
-pub type uint8_t = __uint8_t;
-pub type __uint8_t = libc::c_uchar;
-pub type e_redir = libc::c_uint;
-pub const HEREDOC: e_redir = 4;
-pub const APPEND: e_redir = 3;
-pub const OUTPUT_REDIR: e_redir = 2;
-pub const INPUT_REDIR: e_redir = 1;
-pub const NO_REDIR: e_redir = 0;
-pub type e_arg = libc::c_uint;
-pub const REDIR_REMOVED: e_arg = 2;
-pub const REDIR: e_arg = 1;
-pub const STRING: e_arg = 0;
-pub type __pid_t = libc::c_int;
-pub type pid_t = __pid_t;
 unsafe extern "C" fn exec_last(
 	mut shell: *mut t_shell,
 	mut i: libc::c_int,
