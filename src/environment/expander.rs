@@ -1,15 +1,13 @@
 use ::libc;
-extern "C" {
-	fn free(_: *mut libc::c_void);
-	fn ft_strlen(str: *const libc::c_char) -> size_t;
-	fn ft_strchr(str: *const libc::c_char, c: libc::c_int) -> *mut libc::c_char;
-	fn ft_strdup(s: *const libc::c_char) -> *mut libc::c_char;
-	fn ft_substr(s: *const libc::c_char, start: libc::c_uint, len: size_t) -> *mut libc::c_char;
-	fn free_both_join(s1: *mut libc::c_char, s2: *mut libc::c_char) -> *mut libc::c_char;
-	fn append_char_str(s: *mut libc::c_char, c: libc::c_char) -> *mut libc::c_char;
-	fn eprint(fmt: *const libc::c_char, _: ...);
-	fn get_env(env: *const *mut libc::c_char, key: *const libc::c_char) -> *mut libc::c_char;
-}
+use libc::free;
+
+use libft_rs::{
+	ft_strchr::ft_strchr, ft_strdup::ft_strdup, ft_strlen::ft_strlen, ft_substr::ft_substr,
+};
+use libutils_rs::src::string::{append_char::append_char_str, join_strings::free_both_join};
+
+use super::get_env::get_env;
+
 pub type size_t = libc::c_ulong;
 unsafe extern "C" fn check_index_advance(
 	mut s: *const libc::c_char,
@@ -107,7 +105,7 @@ unsafe extern "C" fn expand(
 			);
 			if key.is_null() {
 				free(ret as *mut libc::c_void);
-				eprint(b"alloc fail!\0" as *const u8 as *const libc::c_char);
+				crate::utils::error::eprint(b"alloc fail!\0" as *const u8 as *const libc::c_char);
 				return std::ptr::null_mut::<libc::c_void>() as *mut libc::c_char;
 			}
 			ret = free_both_join(ret, expand_inside(key, env, &mut i));

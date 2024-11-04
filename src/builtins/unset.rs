@@ -1,14 +1,15 @@
-use crate::{t_shell, t_token};
 use ::libc;
-extern "C" {
-	fn get_cmd_arr_token(token: *mut t_token) -> *mut *mut libc::c_char;
-	fn get_index_env(env: *const *mut libc::c_char, substr: *const libc::c_char) -> libc::c_int;
-	fn check_valid_key(s: *const libc::c_char) -> bool;
-	fn rm_str_arr(arr: *mut *mut libc::c_char, s: *const libc::c_char);
-	fn arr_free(arr: *mut *mut libc::c_char);
-	fn eprint(fmt: *const libc::c_char, _: ...);
-	fn ft_strchr(str: *const libc::c_char, c: libc::c_int) -> *mut libc::c_char;
-}
+
+use libft_rs::ft_strchr::ft_strchr;
+use libutils_rs::src::array::{arr_free::arr_free, remove_str::rm_str_arr};
+
+use crate::{
+	environment::{check_key::check_valid_key, get_index::get_index_env},
+	t_shell, t_token,
+	tokenizer::build_command::get_cmd_arr_token,
+	utils::error::eprint,
+};
+
 pub type size_t = libc::c_ulong;
 
 #[derive(Copy, Clone)]

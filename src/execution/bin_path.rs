@@ -1,16 +1,12 @@
 use ::libc;
-extern "C" {
-	fn get_env(env: *const *mut libc::c_char, key: *const libc::c_char) -> *mut libc::c_char;
-	fn free(_: *mut libc::c_void);
-	fn access(__name: *const libc::c_char, __type: libc::c_int) -> libc::c_int;
-	fn ft_strchr(str: *const libc::c_char, c: libc::c_int) -> *mut libc::c_char;
-	fn ft_strdup(s: *const libc::c_char) -> *mut libc::c_char;
-	fn ft_strjoin(s1: *const libc::c_char, s2: *const libc::c_char) -> *mut libc::c_char;
-	fn ft_split(s: *const libc::c_char, c: libc::c_char) -> *mut *mut libc::c_char;
-	fn arr_free(arr: *mut *mut libc::c_char);
-	fn free_null(p: *mut libc::c_void);
-	fn eprint(fmt: *const libc::c_char, _: ...);
-}
+use libc::{access, free};
+
+use libft_rs::{
+	ft_split::ft_split, ft_strchr::ft_strchr, ft_strdup::ft_strdup, ft_strjoin::ft_strjoin,
+};
+use libutils_rs::src::{array::arr_free::arr_free, utils::free_mem::free_null};
+
+use crate::{environment::get_env::get_env, utils::error::eprint};
 pub type uint8_t = __uint8_t;
 pub type __uint8_t = libc::c_uchar;
 unsafe extern "C" fn find_bin(

@@ -1,28 +1,21 @@
 use ::libc;
+use libc::{exit, free, strerror};
+use libft_rs::ft_strchr::ft_strchr;
+use libutils_rs::src::array::arr_free::arr_free;
 extern "C" {
-	fn get_cmd_arr_token(token: *mut t_token) -> *mut *mut libc::c_char;
-	fn destroy_all_tokens(shell: *mut t_shell);
-	fn set_binpath(
-		env: *const *mut libc::c_char,
-		bin: *const libc::c_char,
-		binpath_buf: *mut *mut libc::c_char,
-	) -> uint8_t;
-	fn free(_: *mut libc::c_void);
-	fn exit(_: libc::c_int) -> !;
-	fn strerror(_: libc::c_int) -> *mut libc::c_char;
 	fn execve(
 		__path: *const libc::c_char,
 		__argv: *const *mut libc::c_char,
 		__envp: *const *mut libc::c_char,
 	) -> libc::c_int;
-	fn ft_strchr(str: *const libc::c_char, c: libc::c_int) -> *mut libc::c_char;
-	fn arr_free(arr: *mut *mut libc::c_char);
-	fn eprint(fmt: *const libc::c_char, _: ...);
-	fn exit_free(shell: *mut t_shell, exit_code: libc::c_int);
 	fn __errno_location() -> *mut libc::c_int;
 }
 pub type size_t = libc::c_ulong;
-use crate::t_shell;
+use crate::{
+	t_shell,
+	tokenizer::{build_command::get_cmd_arr_token, destroy_tokens::destroy_all_tokens},
+	utils::error::eprint,
+};
 
 #[derive(Copy, Clone)]
 #[repr(C)]
@@ -42,6 +35,9 @@ pub type tcflag_t = libc::c_uint;
 pub type uint8_t = __uint8_t;
 pub type __uint8_t = libc::c_uchar;
 use crate::t_token;
+use crate::utils::exit_free::exit_free;
+
+use super::bin_path::set_binpath;
 pub type e_redir = libc::c_uint;
 pub const HEREDOC: e_redir = 4;
 pub const APPEND: e_redir = 3;

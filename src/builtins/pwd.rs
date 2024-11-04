@@ -1,13 +1,9 @@
 use ::libc;
-extern "C" {
-	fn get_env(env: *const *mut libc::c_char, key: *const libc::c_char) -> *mut libc::c_char;
-	fn printf(_: *const libc::c_char, _: ...) -> libc::c_int;
-	fn free(_: *mut libc::c_void);
-	fn getcwd(__buf: *mut libc::c_char, __size: size_t) -> *mut libc::c_char;
-}
-pub type size_t = libc::c_ulong;
-use crate::{t_shell, t_token};
+use libc::{free, getcwd, printf};
 
+use crate::{environment::get_env::get_env, t_shell, t_token};
+
+pub type size_t = libc::c_ulong;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct termios {
@@ -42,10 +38,7 @@ pub unsafe extern "C" fn builtin_pwd(
 ) -> libc::c_int {
 	let mut tmp: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	let mut env_pwd: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
-	tmp = getcwd(
-		std::ptr::null_mut::<libc::c_char>(),
-		0 as libc::c_int as size_t,
-	);
+	tmp = getcwd(std::ptr::null_mut::<libc::c_char>(), 0);
 	env_pwd = get_env((*shell).env, b"PWD\0" as *const u8 as *const libc::c_char);
 	if env_pwd.is_null() {
 		printf(b"%s\n\0" as *const u8 as *const libc::c_char, tmp);

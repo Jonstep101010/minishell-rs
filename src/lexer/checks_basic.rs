@@ -1,38 +1,17 @@
 use ::libc;
-extern "C" {
-	fn check_pipes_redirection(s: *const libc::c_char, input: *mut t_lexer) -> libc::c_int;
-	fn count_number(s: *const libc::c_char, input: *mut s_lexer);
-	fn bool_arr_zeroing(len: size_t) -> *mut bool;
-	fn range_ignore(s: *const libc::c_char, ignore: *mut bool, c: libc::c_uchar);
-	fn free(_: *mut libc::c_void);
-	fn ft_calloc(nitems: size_t, size: size_t) -> *mut libc::c_void;
-	fn ft_strlen(str: *const libc::c_char) -> size_t;
-	fn eprint_single(fmt: *const libc::c_char, _: ...);
-}
+use libc::free;
+use libft_rs::{ft_calloc::ft_calloc, ft_strlen::ft_strlen};
+
+use crate::utils::{
+	bool_array::{bool_arr_zeroing, range_ignore},
+	error::eprint_single,
+};
+
+use super::{check_pipes::check_pipes_redirection, lexer_support::count_number, t_lexer};
 pub type size_t = libc::c_ulong;
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct s_lexer {
-	pub singlequotes: libc::c_int,
-	pub doublequotes: libc::c_int,
-	pub open_curly_brackets: libc::c_int,
-	pub close_curly_brackets: libc::c_int,
-	pub open_square_brackets: libc::c_int,
-	pub close_square_brackets: libc::c_int,
-	pub open_parentheses: libc::c_int,
-	pub close_parentheses: libc::c_int,
-	pub redir_greater: libc::c_int,
-	pub redir_smaller: libc::c_int,
-	pub pipes: libc::c_int,
-	pub ignore: *mut bool,
-	pub len: size_t,
-	pub lexer: libc::c_int,
-	pub result: bool,
-}
-pub type t_lexer = s_lexer;
 unsafe extern "C" fn ignore_quotes(
 	mut s: *const libc::c_char,
-	mut input: *mut s_lexer,
+	mut input: *mut t_lexer,
 ) -> libc::c_int {
 	if s.is_null() || input.is_null() {
 		return 1 as libc::c_int;
@@ -44,7 +23,7 @@ unsafe extern "C" fn ignore_quotes(
 }
 unsafe extern "C" fn check_quotes(
 	mut s: *const libc::c_char,
-	mut input: *mut s_lexer,
+	mut input: *mut t_lexer,
 ) -> libc::c_int {
 	if (*input).singlequotes == 1 as libc::c_int {
 		eprint_single(

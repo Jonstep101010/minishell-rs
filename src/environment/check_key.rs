@@ -1,8 +1,5 @@
 use ::libc;
-extern "C" {
-	fn ft_isalpha(c: libc::c_int) -> libc::c_int;
-	fn ft_isalnum(c: libc::c_int) -> libc::c_int;
-}
+use libft_rs::{ft_isalnum::ft_isalnum, ft_isalpha::ft_isalpha};
 #[no_mangle]
 pub unsafe extern "C" fn check_valid_key(mut s: *const libc::c_char) -> bool {
 	let mut i: libc::c_int = 0;

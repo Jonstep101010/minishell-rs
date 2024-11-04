@@ -6,19 +6,18 @@ mod redirections;
 extern "C" {
 	fn __errno_location() -> *mut libc::c_int;
 }
-use ::libc;
-use libc::strerror;
-pub type size_t = libc::c_ulong;
 use self::execute_pipes::execute_pipes;
 use self::redirections::do_redirections;
 use crate::{
 	builtins::{cd::builtin_cd, exit::builtin_exit, export::builtin_export, unset::builtin_unset},
 	environment::export_env::update_exit_status,
 	libutils_rs::src::utils::memsize::memsize,
-	t_shell,
+	t_shell, t_token,
 	tokenizer::destroy_tokens::destroy_all_tokens,
 	utils::error::eprint,
 };
+use ::libc;
+use libc::strerror;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct termios {
@@ -36,7 +35,6 @@ pub type cc_t = libc::c_uchar;
 pub type tcflag_t = libc::c_uint;
 pub type uint8_t = __uint8_t;
 pub type __uint8_t = libc::c_uchar;
-use crate::t_token;
 pub type e_redir = libc::c_uint;
 pub const HEREDOC: e_redir = 4;
 pub const APPEND: e_redir = 3;

@@ -1,9 +1,5 @@
 use ::libc;
 extern "C" {
-	fn update_exit_status(shell: *mut t_shell, status: libc::c_int);
-	fn exit_free(shell: *mut t_shell, exit_code: libc::c_int);
-	fn exit_error(shell: *mut t_shell, error_elem: *mut libc::c_char);
-	fn do_redirections(cmd_args: *mut t_arg, error_elem: *mut *mut libc::c_char) -> libc::c_int;
 	fn do_heredocs(token: *mut t_token, target: *const libc::c_int, env: *mut *mut libc::c_char);
 	fn wait(__stat_loc: *mut libc::c_int) -> __pid_t;
 	fn waitpid(__pid: __pid_t, __stat_loc: *mut libc::c_int, __options: libc::c_int) -> __pid_t;
@@ -14,16 +10,20 @@ extern "C" {
 	fn fork() -> __pid_t;
 	fn check_signals_child(p_termios_child: *mut termios);
 }
+use crate::{
+	environment::export_env::update_exit_status,
+	t_shell, t_token, termios,
+	utils::exit_free::{exit_error, exit_free},
+};
+
+use super::redirections::do_redirections;
+
 pub type size_t = libc::c_ulong;
-use crate::t_shell;
 pub type speed_t = libc::c_uint;
 pub type cc_t = libc::c_uchar;
 pub type tcflag_t = libc::c_uint;
 pub type uint8_t = __uint8_t;
 pub type __uint8_t = libc::c_uchar;
-use crate::t_arg;
-use crate::t_token;
-use crate::termios;
 pub type e_redir = libc::c_uint;
 pub const HEREDOC: e_redir = 4;
 pub const APPEND: e_redir = 3;

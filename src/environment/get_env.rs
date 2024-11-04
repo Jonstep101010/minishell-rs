@@ -1,9 +1,7 @@
 use ::libc;
-extern "C" {
-	fn ft_strlen(str: *const libc::c_char) -> size_t;
-	fn ft_substr(s: *const libc::c_char, start: libc::c_uint, len: size_t) -> *mut libc::c_char;
-	fn get_index_env(env: *const *mut libc::c_char, substr: *const libc::c_char) -> libc::c_int;
-}
+use libft_rs::{ft_strlen::ft_strlen, ft_substr::ft_substr};
+
+use super::get_index::get_index_env;
 pub type size_t = libc::c_ulong;
 #[no_mangle]
 pub unsafe extern "C" fn get_env(

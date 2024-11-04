@@ -1,32 +1,26 @@
 use ::libc;
+use libc::free;
+use libft_rs::{ft_strlen::ft_strlen, ft_strncmp::ft_strncmp};
+use libutils_rs::src::{
+	array::{arr_free::arr_free, arr_len::arr_len},
+	string::str_cchr::str_cchr,
+	utils::free_mem::free_null,
+};
 
-use crate::t_shell;
-extern "C" {
-	fn arr_len(arr: *const *mut libc::c_char) -> size_t;
-	fn arr_free(arr: *mut *mut libc::c_char);
-	fn set_cmd_func(cmd: *const libc::c_char, token: *mut t_token);
-	fn get_tokens(trimmed_line: *const libc::c_char) -> *mut t_token;
-	fn destroy_all_tokens(shell: *mut t_shell);
-	fn init_cmdargs(size: size_t) -> *mut t_arg;
-	fn rm_prefix_redir_word(arg: *mut t_arg);
-	fn parse_redir_types(arg: *mut t_arg);
-	fn check_redirections(cmd_args: *mut t_arg) -> e_redir;
-	fn builtin_env(shell: *mut t_shell, token: *mut t_token) -> libc::c_int;
-	fn free(_: *mut libc::c_void);
-	fn ft_strlen(str: *const libc::c_char) -> size_t;
-	fn ft_strncmp(s1: *const libc::c_char, s2: *const libc::c_char, n: size_t) -> libc::c_int;
-	fn str_cchr(s: *const libc::c_char, c: libc::c_char) -> libc::c_int;
-	fn free_null(p: *mut libc::c_void);
-	fn expander(
-		input_expander: *const libc::c_char,
-		env: *const *mut libc::c_char,
-	) -> *mut libc::c_char;
-	fn split_outside_quotes(
-		to_split: *const libc::c_char,
-		set: *const libc::c_char,
-	) -> *mut *mut libc::c_char;
-	fn do_quote_bs(s: *const libc::c_char, quote: *mut libc::c_int) -> *mut libc::c_void;
-}
+use crate::{
+	builtins::env::builtin_env,
+	environment::expander::expander,
+	parser::{interpret_quotes::do_quote_bs, split_outside_quotes::split_outside_quotes},
+	t_arg, t_shell, t_token,
+};
+
+use super::{
+	build_command::get_tokens,
+	destroy_tokens::destroy_all_tokens,
+	redirection_utils::{check_redirections, parse_redir_types, rm_prefix_redir_word},
+	token_utils::{init_cmdargs, set_cmd_func},
+};
+
 pub type size_t = libc::c_ulong;
 pub type __uint8_t = libc::c_uchar;
 
@@ -46,8 +40,7 @@ pub type speed_t = libc::c_uint;
 pub type cc_t = libc::c_uchar;
 pub type tcflag_t = libc::c_uint;
 pub type uint8_t = __uint8_t;
-use crate::t_arg;
-use crate::t_token;
+
 pub type e_redir = libc::c_uint;
 pub const HEREDOC: e_redir = 4;
 pub const APPEND: e_redir = 3;

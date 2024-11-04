@@ -1,19 +1,16 @@
+use crate::{
+	t_shell, t_token,
+	tokenizer::{build_command::get_cmd_arr_token, destroy_tokens::destroy_all_tokens},
+	utils::error::{eprint, eprint_single},
+};
 use ::libc;
-extern "C" {
-	fn get_cmd_arr_token(token: *mut t_token) -> *mut *mut libc::c_char;
-	fn destroy_all_tokens(shell: *mut t_shell);
-	fn arr_free(arr: *mut *mut libc::c_char);
-	fn ft_atol(s: *const libc::c_char) -> libc::c_long;
-	fn free(_: *mut libc::c_void);
-	fn exit(_: libc::c_int) -> !;
-	fn eprint(fmt: *const libc::c_char, _: ...);
-	fn eprint_single(fmt: *const libc::c_char, _: ...);
-	fn ft_isdigit(c: libc::c_int) -> libc::c_int;
-	fn ft_strlen(str: *const libc::c_char) -> size_t;
-}
-pub type size_t = libc::c_ulong;
-use crate::{t_shell, t_token};
+use libc::{exit, free};
 
+use libft_rs::{ft_isdigit::ft_isdigit, ft_strlen::ft_strlen};
+use libutils_rs::src::array::arr_free::arr_free;
+use libutils_rs::src::string::ft_atol::ft_atol;
+
+pub type size_t = libc::c_ulong;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct termios {

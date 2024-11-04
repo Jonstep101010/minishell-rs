@@ -1,15 +1,9 @@
 use ::libc;
-extern "C" {
-	fn free(_: *mut libc::c_void);
-	fn ft_strlen(str: *const libc::c_char) -> size_t;
-	fn ft_strchr(str: *const libc::c_char, c: libc::c_int) -> *mut libc::c_char;
-	fn ft_substr(s: *const libc::c_char, start: libc::c_uint, len: size_t) -> *mut libc::c_char;
-	fn ft_strtrim(s1: *const libc::c_char, set: *const libc::c_char) -> *mut libc::c_char;
-	fn append_str_arr_free(
-		arr: *mut *mut libc::c_char,
-		s: *mut libc::c_char,
-	) -> *mut *mut libc::c_char;
-}
+use libc::free;
+use libft_rs::{
+	ft_strchr::ft_strchr, ft_strlen::ft_strlen, ft_strtrim::ft_strtrim, ft_substr::ft_substr,
+};
+use libutils_rs::src::array::append_str::append_str_arr_free;
 pub type size_t = libc::c_ulong;
 #[derive(Copy, Clone)]
 #[repr(C)]

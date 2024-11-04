@@ -1,17 +1,16 @@
+use crate::{
+	environment::{check_key::check_valid_key, export_env::export_env},
+	t_shell, t_token,
+	tokenizer::build_command::get_cmd_arr_token,
+	utils::error::eprint,
+};
 use ::libc;
-extern "C" {
-	fn get_cmd_arr_token(token: *mut t_token) -> *mut *mut libc::c_char;
-	fn check_valid_key(s: *const libc::c_char) -> bool;
-	fn export_env(shell: *mut t_shell, key_val: *mut libc::c_char);
-	fn printf(_: *const libc::c_char, _: ...) -> libc::c_int;
-	fn str_cchr(s: *const libc::c_char, c: libc::c_char) -> libc::c_int;
-	fn arr_free(arr: *mut *mut libc::c_char);
-	fn eprint(fmt: *const libc::c_char, _: ...);
-	fn ft_strdup(s: *const libc::c_char) -> *mut libc::c_char;
-}
-pub type size_t = libc::c_ulong;
-use crate::{t_shell, t_token};
+use libc::printf;
 
+use libft_rs::ft_strdup::ft_strdup;
+use libutils_rs::src::{array::arr_free::arr_free, string::str_cchr::str_cchr};
+
+pub type size_t = libc::c_ulong;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct termios {

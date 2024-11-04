@@ -1,9 +1,8 @@
 use ::libc;
+use libutils_rs::src::utils::free_mem::free_null;
 
-use crate::t_shell;
-extern "C" {
-	fn free_null(p: *mut libc::c_void);
-}
+use crate::{t_arg, t_shell, t_token};
+
 pub type size_t = libc::c_ulong;
 
 #[derive(Copy, Clone)]
@@ -23,8 +22,6 @@ pub type cc_t = libc::c_uchar;
 pub type tcflag_t = libc::c_uint;
 pub type uint8_t = __uint8_t;
 pub type __uint8_t = libc::c_uchar;
-use crate::t_arg;
-use crate::t_token;
 pub type e_redir = libc::c_uint;
 pub const HEREDOC: e_redir = 4;
 pub const APPEND: e_redir = 3;

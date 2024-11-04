@@ -1,10 +1,7 @@
 use ::libc;
-extern "C" {
-	fn free(_: *mut libc::c_void);
-	fn ft_calloc(nitems: size_t, size: size_t) -> *mut libc::c_void;
-	fn ft_strlen(str: *const libc::c_char) -> size_t;
-	fn str_cchr(s: *const libc::c_char, c: libc::c_char) -> libc::c_int;
-}
+use libc::free;
+use libft_rs::{ft_calloc::ft_calloc, ft_strlen::ft_strlen};
+use libutils_rs::src::string::str_cchr::str_cchr;
 pub type size_t = libc::c_ulong;
 #[no_mangle]
 pub unsafe extern "C" fn do_quote_bs(

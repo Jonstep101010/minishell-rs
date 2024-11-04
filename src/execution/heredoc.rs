@@ -1,33 +1,22 @@
 use ::libc;
+use gnu_readline_sys::readline;
+use libc::{close, dup2, free, open, strerror, unlink};
+
 use libft_rs::{ft_putendl_fd::ft_putendl_fd, ft_strchr::ft_strchr};
 use libutils_rs::src::string::str_equal::equal;
+
 extern "C" {
-	fn strerror(_: libc::c_int) -> *mut libc::c_char;
-	fn readline(_: *const libc::c_char) -> *mut libc::c_char;
-	fn open(__file: *const libc::c_char, __oflag: libc::c_int, _: ...) -> libc::c_int;
-	fn close(__fd: libc::c_int) -> libc::c_int;
-	fn dup2(__fd: libc::c_int, __fd2: libc::c_int) -> libc::c_int;
-	fn unlink(__name: *const libc::c_char) -> libc::c_int;
 	fn __errno_location() -> *mut libc::c_int;
-	fn free(_: *mut libc::c_void);
-	fn exit(_: libc::c_int) -> !;
-	// fn ft_strchr(str: *const libc::c_char, c: libc::c_int) -> *mut libc::c_char;
-	// fn ft_putendl_fd(s: *mut libc::c_char, fd: libc::c_int);
-	// fn equal(expected: *const libc::c_char, actual: *const libc::c_char) -> *mut libc::c_char;
-	fn eprint(fmt: *const libc::c_char, _: ...);
-	// fn expander(
-	// 	input_expander: *const libc::c_char,
-	// 	env: *const *mut libc::c_char,
-	// ) -> *mut libc::c_char;
 }
+
+use crate::{t_token, utils::error::eprint};
+
 pub type size_t = libc::c_ulong;
 pub type __uint8_t = libc::c_uchar;
-
 pub type speed_t = libc::c_uint;
 pub type cc_t = libc::c_uchar;
 pub type tcflag_t = libc::c_uint;
 pub type uint8_t = __uint8_t;
-use crate::t_token;
 pub type e_redir = libc::c_uint;
 pub const HEREDOC: e_redir = 4;
 pub const APPEND: e_redir = 3;

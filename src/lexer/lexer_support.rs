@@ -1,34 +1,13 @@
 use ::libc;
-extern "C" {
-	fn ft_memcpy(dst: *mut libc::c_void, src: *const libc::c_void, n: size_t) -> *mut libc::c_void;
-	fn ft_strlen(str: *const libc::c_char) -> size_t;
-	fn str_cchr(s: *const libc::c_char, c: libc::c_char) -> libc::c_int;
-}
+use libft_rs::{ft_memcpy::ft_memcpy, ft_strlen::ft_strlen};
+use libutils_rs::src::string::str_cchr::str_cchr;
+
+use super::t_lexer;
 pub type size_t = libc::c_ulong;
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct s_lexer {
-	pub singlequotes: libc::c_int,
-	pub doublequotes: libc::c_int,
-	pub open_curly_brackets: libc::c_int,
-	pub close_curly_brackets: libc::c_int,
-	pub open_square_brackets: libc::c_int,
-	pub close_square_brackets: libc::c_int,
-	pub open_parentheses: libc::c_int,
-	pub close_parentheses: libc::c_int,
-	pub redir_greater: libc::c_int,
-	pub redir_smaller: libc::c_int,
-	pub pipes: libc::c_int,
-	pub ignore: *mut bool,
-	pub len: size_t,
-	pub lexer: libc::c_int,
-	pub result: bool,
-}
-pub type t_lexer = s_lexer;
 #[no_mangle]
 pub unsafe extern "C" fn count_number(mut s: *const libc::c_char, mut input: *mut t_lexer) {
 	let data: t_lexer = {
-		s_lexer {
+		t_lexer {
 			singlequotes: str_cchr(s, '\'' as i32 as libc::c_char),
 			doublequotes: str_cchr(s, '"' as i32 as libc::c_char),
 			open_curly_brackets: str_cchr(s, '{' as i32 as libc::c_char),
