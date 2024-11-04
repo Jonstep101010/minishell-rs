@@ -50,8 +50,7 @@ unsafe extern "C" fn check_quotes(
 }
 #[no_mangle]
 pub unsafe extern "C" fn lexer_checks_basic(mut s: *const libc::c_char) -> *mut t_lexer {
-	let mut input: *mut t_lexer = std::ptr::null_mut::<t_lexer>();
-	input = ft_calloc(
+	let mut input: *mut t_lexer = ft_calloc(
 		::core::mem::size_of::<t_lexer>() as libc::c_ulong,
 		1 as libc::c_int as crate::size_t,
 	) as *mut t_lexer;

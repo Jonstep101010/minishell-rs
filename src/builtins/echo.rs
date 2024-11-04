@@ -19,9 +19,6 @@ unsafe extern "C" fn is_n_arg(mut arg: *const libc::c_char) -> libc::c_int {
 unsafe extern "C" fn echo_default(mut cmd_args: *const *const libc::c_char) {
 	let mut i: libc::c_int = 0;
 	let mut flag: libc::c_int = 0;
-	let mut n_pos: libc::c_int = 0;
-	i = 0 as libc::c_int;
-	flag = 0 as libc::c_int;
 	while !(*cmd_args.offset(i as isize)).is_null()
 		&& is_n_arg(*cmd_args.offset(i as isize)) == 1 as libc::c_int
 	{
@@ -33,7 +30,7 @@ unsafe extern "C" fn echo_default(mut cmd_args: *const *const libc::c_char) {
 	if i > 0 as libc::c_int {
 		flag = 1 as libc::c_int;
 	}
-	n_pos = i;
+	let mut n_pos: libc::c_int = i;
 	while !(*cmd_args.offset(i as isize)).is_null() {
 		if flag == 1 as libc::c_int
 			&& ft_strncmp(

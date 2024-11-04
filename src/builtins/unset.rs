@@ -28,7 +28,6 @@ unsafe extern "C" fn unset_internal(
 	mut args: *const *const libc::c_char,
 	mut env: *mut *mut libc::c_char,
 ) -> libc::c_int {
-	let mut index: libc::c_int = 0;
 	while !(*args).is_null() {
 		if !check_valid_key(*args) || check_illegal_char(*args) as libc::c_int != 0 {
 			eprint(
@@ -37,7 +36,7 @@ unsafe extern "C" fn unset_internal(
 			);
 			return 1 as libc::c_int;
 		}
-		index = get_index_env(env, *args);
+		let index = get_index_env(env, *args);
 		if index >= 0 as libc::c_int && !(*env.offset(index as isize)).is_null() {
 			rm_str_arr(env, *env.offset(index as isize));
 		}
@@ -50,7 +49,6 @@ pub unsafe extern "C" fn builtin_unset(
 	mut shell: *mut t_shell,
 	mut token: *mut t_token,
 ) -> libc::c_int {
-	let mut status: libc::c_int = 0;
 	let mut args: *mut *const libc::c_char = get_cmd_arr_token(token) as *mut *const libc::c_char;
 	if ((*shell).env).is_null() || args.is_null() || (*(*shell).env).is_null() {
 		return 0 as libc::c_int;
@@ -62,7 +60,8 @@ pub unsafe extern "C" fn builtin_unset(
 		arr_free(args as *mut *mut libc::c_char);
 		return 0 as libc::c_int;
 	}
-	status = unset_internal(args.offset(1 as libc::c_int as isize), (*shell).env);
+	let mut status: libc::c_int =
+		unset_internal(args.offset(1 as libc::c_int as isize), (*shell).env);
 	arr_free(args as *mut *mut libc::c_char);
 	status
 }

@@ -22,4 +22,3 @@ pub type __uid_t = libc::c_uint;
 pub type __pid_t = libc::c_int;
 pub type __clock_t = libc::c_long;
 pub type __ssize_t = libc::c_long;
-pub type ssize_t = __ssize_t;

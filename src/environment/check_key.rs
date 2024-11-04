@@ -3,7 +3,6 @@ use libft_rs::{ft_isalnum::ft_isalnum, ft_isalpha::ft_isalpha};
 #[no_mangle]
 pub unsafe extern "C" fn check_valid_key(mut s: *const libc::c_char) -> bool {
 	let mut i: libc::c_int = 0;
-	i = 0 as libc::c_int;
 	if *s as libc::c_int == '=' as i32
 		|| !(ft_isalpha(*s as libc::c_int) != 0 || *s as libc::c_int == '_' as i32)
 	{

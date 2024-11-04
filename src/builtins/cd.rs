@@ -19,9 +19,7 @@ unsafe extern "C" fn changedir(
 	mut path: *const libc::c_char,
 	mut shell: *mut t_shell,
 ) -> libc::c_int {
-	let mut pwd: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
-	let mut oldpwd: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
-	oldpwd = getcwd(
+	let mut oldpwd: *mut libc::c_char = getcwd(
 		std::ptr::null_mut::<libc::c_char>(),
 		0 as libc::c_int as usize,
 	);
@@ -34,7 +32,7 @@ unsafe extern "C" fn changedir(
 		free(oldpwd as *mut libc::c_void);
 		return -(1 as libc::c_int);
 	}
-	pwd = getcwd(
+	let mut pwd: *mut libc::c_char = getcwd(
 		std::ptr::null_mut::<libc::c_char>(),
 		0 as libc::c_int as usize,
 	);
@@ -61,10 +59,9 @@ unsafe extern "C" fn cd_internal(
 	mut cmd_args: *mut *const libc::c_char,
 	mut shell: *mut t_shell,
 ) -> libc::c_int {
-	let mut path: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
-	let mut oldpwd: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
-	path = get_env((*shell).env, b"HOME\0" as *const u8 as *const libc::c_char);
-	oldpwd = get_env(
+	let mut path: *mut libc::c_char =
+		get_env((*shell).env, b"HOME\0" as *const u8 as *const libc::c_char);
+	let mut oldpwd: *mut libc::c_char = get_env(
 		(*shell).env,
 		b"OLDPWD\0" as *const u8 as *const libc::c_char,
 	);
@@ -113,10 +110,9 @@ pub unsafe extern "C" fn builtin_cd(
 	mut shell: *mut t_shell,
 	mut token: *mut t_token,
 ) -> libc::c_int {
-	let mut status: libc::c_int = 0;
 	let mut command: *mut *const libc::c_char =
 		get_cmd_arr_token(token) as *mut *const libc::c_char;
-	status = cd_internal(command, shell);
+	let status = cd_internal(command, shell);
 	arr_free(command as *mut *mut libc::c_char);
 	status
 }

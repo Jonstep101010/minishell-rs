@@ -197,18 +197,6 @@ pub unsafe extern "C" fn check_signals_child(mut p_termios_child: *mut termios) 
 		c_ispeed: 0,
 		c_ospeed: 0,
 	};
-	attr = {
-		termios {
-			c_iflag: 0 as libc::c_int as tcflag_t,
-			c_oflag: 0,
-			c_cflag: 0,
-			c_lflag: 0,
-			c_line: 0,
-			c_cc: [0; 32],
-			c_ispeed: 0,
-			c_ospeed: 0,
-		}
-	};
 	tcgetattr(0 as libc::c_int, p_termios_child);
 	tcgetattr(0 as libc::c_int, &mut attr);
 	attr.c_lflag &= !(0o1000 as libc::c_int) as libc::c_uint;

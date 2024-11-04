@@ -19,7 +19,6 @@ pub struct t_splitter {
 }
 unsafe extern "C" fn split_loop(mut s: *mut t_splitter) -> *mut *mut libc::c_char {
 	let mut i: size_t = 0;
-	i = 0 as libc::c_int as size_t;
 	while i < (*s).len {
 		if (*s).quote != 0 && *((*s).to_split).offset(i as isize) as libc::c_int == (*s).quote {
 			(*s).quote = 0 as libc::c_int;
@@ -76,19 +75,10 @@ pub unsafe extern "C" fn split_outside_quotes(
 	mut to_split: *const libc::c_char,
 	mut set: *const libc::c_char,
 ) -> *mut *mut libc::c_char {
-	let mut ret: *mut *mut libc::c_char = std::ptr::null_mut::<*mut libc::c_char>();
-	let mut s: t_splitter = t_splitter {
-		quote: 0,
-		start: 0,
-		len: 0,
-		arr: std::ptr::null_mut::<*mut libc::c_char>(),
-		to_split: std::ptr::null_mut::<libc::c_char>(),
-		set: std::ptr::null::<libc::c_char>(),
-	};
 	if to_split.is_null() {
 		return std::ptr::null_mut::<*mut libc::c_char>();
 	}
-	s = {
+	let mut s = {
 		t_splitter {
 			quote: 0 as libc::c_int,
 			start: 0 as libc::c_int as size_t,
@@ -102,7 +92,7 @@ pub unsafe extern "C" fn split_outside_quotes(
 		return std::ptr::null_mut::<*mut libc::c_char>();
 	}
 	s.len = ft_strlen(s.to_split);
-	ret = split_loop(&mut s);
+	let mut ret: *mut *mut libc::c_char = split_loop(&mut s);
 	free(s.to_split as *mut libc::c_void);
 	ret
 }

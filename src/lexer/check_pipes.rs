@@ -182,14 +182,6 @@ pub unsafe extern "C" fn check_pipes_redirection(
 		i: 0,
 		ignore: false,
 	};
-	check = {
-		s_check_pipes {
-			flag_redir: 0 as libc::c_int,
-			flag_word: 0 as libc::c_int,
-			i: 0 as libc::c_int as size_t,
-			ignore: 0 as libc::c_int != 0,
-		}
-	};
 	if *s as libc::c_int == '|' as i32
 		|| *s.offset(((*input).len).wrapping_sub(1 as libc::c_int as libc::c_ulong) as isize)
 			as libc::c_int

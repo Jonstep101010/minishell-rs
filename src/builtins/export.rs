@@ -27,8 +27,7 @@ pub unsafe extern "C" fn builtin_export(
 ) -> libc::c_int {
 	let mut command: *mut *const libc::c_char =
 		get_cmd_arr_token(token) as *mut *const libc::c_char;
-	let mut i: size_t = 0;
-	i = 1 as libc::c_int as size_t;
+	let mut i: size_t = 1;
 	if command.is_null() || (*command.offset(i as isize)).is_null() {
 		arr_free(command as *mut *mut libc::c_char);
 		return declare_x_env_var((*shell).env);

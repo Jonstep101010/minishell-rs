@@ -26,7 +26,6 @@ unsafe extern "C" fn expand_if_allowed(
 	mut ii: size_t,
 	mut env: *const *mut libc::c_char,
 ) -> *mut libc::c_void {
-	let mut tmp: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	if (*token).cmd_func
 		!= Some(builtin_env as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int)
 		&& str_cchr(
@@ -34,7 +33,8 @@ unsafe extern "C" fn expand_if_allowed(
 			'$' as i32 as libc::c_char,
 		) != 0 as libc::c_int
 	{
-		tmp = expander((*((*token).cmd_args).offset(ii as isize)).elem, env);
+		let mut tmp: *mut libc::c_char =
+			expander((*((*token).cmd_args).offset(ii as isize)).elem, env);
 		if tmp.is_null() {
 			return std::ptr::null_mut::<libc::c_void>();
 		}
@@ -61,7 +61,6 @@ unsafe extern "C" fn setup_token(
 	mut token: *mut t_token,
 	mut env: *const *mut libc::c_char,
 ) -> *mut libc::c_void {
-	let mut ii: size_t = 0;
 	if token.is_null() || ((*token).split_pipes).is_null() {
 		return std::ptr::null_mut::<libc::c_void>();
 	}
@@ -78,7 +77,7 @@ unsafe extern "C" fn setup_token(
 		arr_free((*token).tmp_arr);
 		return std::ptr::null_mut::<libc::c_void>();
 	}
-	ii = 0 as libc::c_int as size_t;
+	let mut ii: size_t = 0;
 	while !(*((*token).tmp_arr).offset(ii as isize)).is_null() {
 		let fresh1 = &mut (*((*token).cmd_args).offset(ii as isize)).elem;
 		*fresh1 = *((*token).tmp_arr).offset(ii as isize);
@@ -91,17 +90,15 @@ unsafe extern "C" fn setup_token(
 	token as *mut libc::c_void
 }
 unsafe extern "C" fn rm_quotes(mut cmd_arg: *mut t_arg) {
-	let mut tmp: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	let mut quote: libc::c_int = 0;
-	let mut i: libc::c_int = 0;
-	quote = 0 as libc::c_int;
-	i = -(1 as libc::c_int);
+	let mut i: libc::c_int = -1;
 	loop {
 		i += 1;
 		if ((*cmd_arg.offset(i as isize)).elem).is_null() {
 			break;
 		}
-		tmp = do_quote_bs((*cmd_arg.offset(i as isize)).elem, &mut quote) as *mut libc::c_char;
+		let mut tmp: *mut libc::c_char =
+			do_quote_bs((*cmd_arg.offset(i as isize)).elem, &mut quote) as *mut libc::c_char;
 		if tmp.is_null() {
 			return;
 		}
@@ -113,13 +110,12 @@ unsafe extern "C" fn rm_quotes(mut cmd_arg: *mut t_arg) {
 	}
 }
 unsafe extern "C" fn inner_loop(mut token: *mut t_token) -> *mut libc::c_void {
-	let mut i: libc::c_int = 0;
 	if check_redirections((*token).cmd_args) as u64 != 0 {
 		(*token).has_redir = 1 as libc::c_int != 0;
 		parse_redir_types((*token).cmd_args);
 		rm_prefix_redir_word((*token).cmd_args);
 	}
-	i = 0 as libc::c_int;
+	let mut i: libc::c_int = 0;
 	while !((*((*token).cmd_args).offset(i as isize)).elem).is_null() {
 		if (*((*token).cmd_args).offset(i as isize)).type_0 as libc::c_uint
 			!= crate::REDIR as libc::c_int as libc::c_uint
@@ -138,7 +134,6 @@ pub unsafe extern "C" fn tokenize(
 	mut trimmed_line: *const libc::c_char,
 ) -> *mut libc::c_void {
 	let mut i: size_t = 0;
-	i = 0 as libc::c_int as size_t;
 	(*shell).token_len = 0 as libc::c_int as size_t;
 	(*shell).token = get_tokens(trimmed_line);
 	if ((*shell).token).is_null() {

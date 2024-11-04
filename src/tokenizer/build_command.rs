@@ -11,8 +11,6 @@ use libutils_rs::src::array::arr_len::arr_len;
 pub unsafe extern "C" fn get_cmd_arr_token(mut token: *mut t_token) -> *mut *mut libc::c_char {
 	let mut i: libc::c_int = 0;
 	let mut cmd_arr: *mut *mut libc::c_char = std::ptr::null_mut::<*mut libc::c_char>();
-	i = 0 as libc::c_int;
-	cmd_arr = std::ptr::null_mut::<*mut libc::c_char>();
 	if token.is_null() || ((*token).cmd_args).is_null() {
 		return std::ptr::null_mut::<*mut libc::c_char>();
 	}
@@ -36,10 +34,8 @@ pub unsafe extern "C" fn get_cmd_arr_token(mut token: *mut t_token) -> *mut *mut
 }
 #[no_mangle]
 pub unsafe extern "C" fn get_tokens(mut trimmed_line: *const libc::c_char) -> *mut t_token {
-	let mut i: libc::c_int = 0;
-	let mut split_pipes: *mut *mut libc::c_char = std::ptr::null_mut::<*mut libc::c_char>();
-	let mut token: *mut t_token = std::ptr::null_mut::<t_token>();
-	split_pipes = split_outside_quotes(trimmed_line, b"|\0" as *const u8 as *const libc::c_char);
+	let mut split_pipes: *mut *mut libc::c_char =
+		split_outside_quotes(trimmed_line, b"|\0" as *const u8 as *const libc::c_char);
 	if split_pipes.is_null() {
 		eprint(b"alloc fail!\0" as *const u8 as *const libc::c_char);
 		return std::ptr::null_mut::<libc::c_void>() as *mut t_token;
@@ -48,11 +44,11 @@ pub unsafe extern "C" fn get_tokens(mut trimmed_line: *const libc::c_char) -> *m
 		arr_free(split_pipes);
 		return std::ptr::null_mut::<libc::c_void>() as *mut t_token;
 	}
-	token = init_token(arr_len(split_pipes));
+	let mut token: *mut t_token = init_token(arr_len(split_pipes));
 	if token.is_null() {
 		eprint(b"alloc fail token\0" as *const u8 as *const libc::c_char);
 	}
-	i = 0 as libc::c_int;
+	let mut i: libc::c_int = 0;
 	while !token.is_null() && !(*split_pipes.offset(i as isize)).is_null() {
 		let fresh0 = &mut (*token.offset(i as isize)).split_pipes;
 		*fresh0 = *split_pipes.offset(i as isize);

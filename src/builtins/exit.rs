@@ -19,9 +19,7 @@ unsafe extern "C" fn check_sign(mut exit_code: *const libc::c_char) -> bool {
 	1 as libc::c_int != 0
 }
 unsafe extern "C" fn check_exit_code(mut command: *mut *const libc::c_char) -> bool {
-	let mut exit_code: *const libc::c_char = std::ptr::null::<libc::c_char>();
-	let mut i: libc::c_int = 0;
-	i = -(1 as libc::c_int);
+	let mut i: libc::c_int = -1;
 	if command.is_null() || (*command.offset(1 as libc::c_int as isize)).is_null() {
 		return 1 as libc::c_int != 0;
 	}
@@ -31,7 +29,7 @@ unsafe extern "C" fn check_exit_code(mut command: *mut *const libc::c_char) -> b
 		eprint(b"exit: too many arguments\0" as *const u8 as *const libc::c_char);
 		return 0 as libc::c_int != 0;
 	}
-	exit_code = *command.offset(1 as libc::c_int as isize);
+	let mut exit_code: *const libc::c_char = *command.offset(1 as libc::c_int as isize);
 	if ft_strlen(exit_code) == 1 as libc::c_int as libc::c_ulong
 		&& *exit_code as libc::c_int == '0' as i32
 	{
@@ -66,10 +64,9 @@ pub unsafe extern "C" fn builtin_exit(
 	mut shell: *mut t_shell,
 	mut code_nullable: *mut t_token,
 ) -> libc::c_int {
-	let mut exit_code: u8 = 0;
 	let mut command: *mut *const libc::c_char =
 		get_cmd_arr_token(code_nullable) as *mut *const libc::c_char;
-	exit_code = (*shell).exit_status;
+	let mut exit_code: u8 = (*shell).exit_status;
 	if !code_nullable.is_null() && !command.is_null() {
 		if !(*command.offset(1 as libc::c_int as isize)).is_null() {
 			if **command.offset(1 as libc::c_int as isize) == 0 {

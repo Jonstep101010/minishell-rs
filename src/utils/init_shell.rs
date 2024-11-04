@@ -45,8 +45,7 @@ unsafe extern "C" fn init_env(mut envp: *const *mut libc::c_char) -> *mut *mut l
 }
 #[no_mangle]
 pub unsafe extern "C" fn init_shell(mut envp: *const *mut libc::c_char) -> *mut t_shell {
-	let mut shell: *mut t_shell = std::ptr::null_mut::<t_shell>();
-	shell = ft_calloc(
+	let mut shell: *mut t_shell = ft_calloc(
 		1 as libc::c_int as crate::size_t,
 		::core::mem::size_of::<t_shell>() as libc::c_ulong,
 	) as *mut t_shell;

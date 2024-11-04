@@ -1,10 +1,8 @@
 #![allow(
-	dead_code,
 	mutable_transmutes,
 	non_camel_case_types,
 	non_snake_case,
 	non_upper_case_globals,
-	unused_assignments,
 	unused_mut,
 	clippy::missing_safety_doc
 )]
@@ -174,20 +172,17 @@ unsafe fn main_0(
 	mut _av: *mut *mut libc::c_char,
 	mut envp: *mut *mut libc::c_char,
 ) -> libc::c_int {
-	let mut shell: *mut t_shell = std::ptr::null_mut::<t_shell>();
-	shell = utils::init_shell::init_shell(envp);
+	let mut shell: *mut t_shell = utils::init_shell::init_shell(envp);
 	if shell.is_null() {
 		return 1 as libc::c_int;
 	}
-	let mut trimmed_line: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
-	let mut readline_line: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	check_signals(&mut (*shell).p_termios);
 	loop {
-		readline_line = readline(b"minishell> \0" as *const u8 as *const libc::c_char);
+		let mut readline_line = readline(b"minishell> \0" as *const u8 as *const libc::c_char);
 		if readline_line.is_null() {
 			builtins::exit::builtin_exit(shell, std::ptr::null_mut::<t_token>());
 		}
-		trimmed_line = utils::get_input::get_input(readline_line);
+		let mut trimmed_line = utils::get_input::get_input(readline_line);
 		if trimmed_line.is_null() {
 			continue;
 		}

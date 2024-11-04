@@ -4,10 +4,8 @@ use libft_rs::{ft_strlen::ft_strlen, ft_strncmp::ft_strncmp};
 use crate::size_t;
 
 unsafe extern "C" fn get_key_len(mut s: *const libc::c_char) -> size_t {
-	let mut len: size_t = 0;
 	let mut key_len: size_t = 0;
-	key_len = 0 as libc::c_int as size_t;
-	len = ft_strlen(s);
+	let mut len: size_t = ft_strlen(s);
 	if *s as libc::c_int == '=' as i32 {
 		return -(1 as libc::c_int) as size_t;
 	}
@@ -29,13 +27,11 @@ pub unsafe extern "C" fn get_index_env(
 	mut env: *const *mut libc::c_char,
 	mut substr: *const libc::c_char,
 ) -> libc::c_int {
-	let mut i: size_t = 0;
-	let mut key_len: size_t = 0;
 	if env.is_null() || substr.is_null() {
 		return -(1 as libc::c_int);
 	}
-	i = 0 as libc::c_int as size_t;
-	key_len = get_key_len(substr);
+	let mut i: size_t = 0;
+	let mut key_len: size_t = get_key_len(substr);
 	if key_len <= 0 as libc::c_int as libc::c_ulong {
 		return -(1 as libc::c_int);
 	}

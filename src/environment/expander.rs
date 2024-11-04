@@ -15,7 +15,6 @@ unsafe extern "C" fn check_index_advance(
 	mut i: libc::c_int,
 ) -> libc::c_int {
 	let mut count: libc::c_int = 0;
-	count = 0 as libc::c_int;
 	while *s.offset((i + count) as isize) as libc::c_int != 0
 		&& *s.offset((i + count + 1 as libc::c_int) as isize) as libc::c_int != 0
 		&& (ft_strchr(
@@ -40,7 +39,6 @@ unsafe extern "C" fn expand_inside(
 ) -> *mut libc::c_char {
 	let len: size_t = ft_strlen(key);
 	let mut ret: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
-	ret = std::ptr::null_mut::<libc::c_char>();
 	if *key != 0 {
 		ret = get_env(env, key);
 	}
@@ -75,15 +73,10 @@ unsafe extern "C" fn expand(
 	mut s: *const libc::c_char,
 	mut env: *const *mut libc::c_char,
 ) -> *mut libc::c_char {
-	let mut i: libc::c_int = 0;
+	let mut i: libc::c_int = -1;
 	let mut expand_0: bool = false;
 	let mut double_quote: libc::c_int = 0;
-	let mut ret: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
-	let mut key: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
-	i = -(1 as libc::c_int);
-	expand_0 = 1 as libc::c_int != 0;
-	double_quote = 0 as libc::c_int;
-	ret = ft_strdup(b"\0" as *const u8 as *const libc::c_char);
+	let mut ret: *mut libc::c_char = ft_strdup(b"\0" as *const u8 as *const libc::c_char);
 	loop {
 		i += 1;
 		if *s.offset(i as isize) == 0 {
@@ -99,7 +92,7 @@ unsafe extern "C" fn expand(
 				))
 				.is_null())
 		{
-			key = ft_substr(
+			let mut key: *mut libc::c_char = ft_substr(
 				s,
 				(i + 1 as libc::c_int) as libc::c_uint,
 				check_index_advance(s, i) as size_t,

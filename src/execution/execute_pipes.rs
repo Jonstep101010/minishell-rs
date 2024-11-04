@@ -5,7 +5,7 @@ use crate::{
 	utils::exit_free::{exit_error, exit_free},
 };
 use ::libc;
-use libc::{close, dup, dup2, fork, pid_t, pipe, wait, waitpid};
+use libc::{close, dup, dup2, fork, pipe, wait, waitpid};
 
 use super::{heredoc::do_heredocs, redirections::do_redirections};
 
@@ -15,10 +15,8 @@ unsafe extern "C" fn exec_last(
 	mut prevpipe: *mut libc::c_int,
 	mut error_elem: *mut *mut libc::c_char,
 ) {
-	let mut cpid: pid_t = 0;
 	let mut status: libc::c_int = 0;
-	cpid = fork();
-	status = 0 as libc::c_int;
+	let mut cpid = fork();
 	if cpid == 0 as libc::c_int {
 		check_signals_child(&mut (*shell).p_termios);
 		if (*((*shell).token).offset(i as isize)).has_redir {
@@ -58,9 +56,8 @@ unsafe extern "C" fn exec_pipe(
 	mut error_elem: *mut *mut libc::c_char,
 ) {
 	let mut pipefd: [libc::c_int; 2] = [0; 2];
-	let mut cpid: pid_t = 0;
 	pipe(pipefd.as_mut_ptr());
-	cpid = fork();
+	let mut cpid = fork();
 	if cpid == 0 as libc::c_int {
 		check_signals_child(&mut (*shell).p_termios);
 		close(pipefd[0 as libc::c_int as usize]);
@@ -88,11 +85,9 @@ unsafe extern "C" fn exec_pipe(
 }
 #[no_mangle]
 pub unsafe extern "C" fn execute_pipes(mut shell: *mut t_shell, mut token_count: libc::c_int) {
-	let mut i: libc::c_int = 0;
-	let mut prevpipe: libc::c_int = 0;
+	let mut i: libc::c_int = -1;
 	let mut error_elem: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
-	i = -(1 as libc::c_int);
-	prevpipe = dup(0 as libc::c_int);
+	let mut prevpipe = dup(0 as libc::c_int);
 	loop {
 		i += 1;
 		if i >= token_count - 1 as libc::c_int {

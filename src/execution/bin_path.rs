@@ -35,7 +35,6 @@ unsafe extern "C" fn get_bin(
 ) -> u8 {
 	let mut bin_prefix: *const libc::c_char =
 		ft_strjoin(b"/\0" as *const u8 as *const libc::c_char, bin);
-	let mut status: u8 = 0;
 	if bin_prefix.is_null() {
 		arr_free(paths as *mut *mut libc::c_char);
 		return 1 as libc::c_int as u8;
@@ -46,7 +45,7 @@ unsafe extern "C" fn get_bin(
 		arr_free(paths as *mut *mut libc::c_char);
 		return 127 as libc::c_int as u8;
 	}
-	status = find_bin(paths, bin_prefix, binpath_buf);
+	let mut status: u8 = find_bin(paths, bin_prefix, binpath_buf);
 	arr_free(paths as *mut *mut libc::c_char);
 	free(bin_prefix as *mut libc::c_char as *mut libc::c_void);
 	if status as libc::c_int == 0 as libc::c_int
@@ -90,8 +89,6 @@ pub unsafe extern "C" fn set_binpath(
 	mut bin: *const libc::c_char,
 	mut binpath_buf: *mut *mut libc::c_char,
 ) -> u8 {
-	let mut path: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
-	let mut paths: *mut *const libc::c_char = std::ptr::null_mut::<*const libc::c_char>();
 	if bin.is_null() {
 		return 1 as libc::c_int as u8;
 	}
@@ -124,8 +121,9 @@ pub unsafe extern "C" fn set_binpath(
 		}
 		return 0 as libc::c_int as u8;
 	}
-	path = get_env(env, b"PATH\0" as *const u8 as *const libc::c_char);
-	paths = ft_split(path, ':' as i32 as libc::c_char) as *mut *const libc::c_char;
+	let mut path: *mut libc::c_char = get_env(env, b"PATH\0" as *const u8 as *const libc::c_char);
+	let mut paths: *mut *const libc::c_char =
+		ft_split(path, ':' as i32 as libc::c_char) as *mut *const libc::c_char;
 	free(path as *mut libc::c_void);
 	get_bin(paths, bin, binpath_buf)
 }

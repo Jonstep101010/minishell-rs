@@ -6,13 +6,11 @@ use libutils_rs::src::utils::{free_mem::free_null, memsize::memsize};
 use crate::{prelude::*, size_t, t_arg};
 #[no_mangle]
 pub unsafe extern "C" fn rm_prefix_redir_word(mut arg: *mut t_arg) {
-	let mut i: size_t = 0;
-	let mut len: size_t = 0;
 	if arg.is_null() {
 		return;
 	}
-	i = 0 as libc::c_int as size_t;
-	len = memsize(
+	let mut i: size_t = 0;
+	let mut len: size_t = memsize(
 		arg as *mut libc::c_void,
 		::core::mem::size_of::<t_arg>() as libc::c_ulong,
 	);
@@ -39,9 +37,8 @@ pub unsafe extern "C" fn rm_prefix_redir_word(mut arg: *mut t_arg) {
 }
 #[no_mangle]
 pub unsafe extern "C" fn parse_redir_types(mut arg: *mut t_arg) {
-	let mut i: libc::c_int = 0;
+	let mut i: libc::c_int = -1;
 	let mut tmp: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
-	i = -(1 as libc::c_int);
 	loop {
 		i += 1;
 		if ((*arg.offset(i as isize)).elem).is_null() {
@@ -91,8 +88,6 @@ unsafe extern "C" fn set_type_redir(mut cmd_arg: *mut t_arg) {
 pub unsafe extern "C" fn check_redirections(mut cmd_args: *mut t_arg) -> e_redir {
 	let mut ii: size_t = 0;
 	let mut redir: bool = false;
-	ii = 0 as libc::c_int as size_t;
-	redir = 0 as libc::c_int != 0;
 	while !((*cmd_args.offset(ii as isize)).elem).is_null() {
 		if ft_strncmp(
 			(*cmd_args.offset(ii as isize)).elem,

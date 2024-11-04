@@ -14,9 +14,7 @@ unsafe extern "C" fn heredoc_loop(
 	mut fd: libc::c_int,
 	mut env: *mut *mut libc::c_char,
 ) {
-	let mut expanded: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	let mut line: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
-	line = std::ptr::null_mut::<libc::c_char>();
 	g_ctrl_c = 0 as libc::c_int;
 	while 1 as libc::c_int != 0 && g_ctrl_c == 0 {
 		line = readline(b"> \0" as *const u8 as *const libc::c_char);
@@ -25,7 +23,8 @@ unsafe extern "C" fn heredoc_loop(
 			break;
 		} else {
 			if !(ft_strchr(line, '$' as i32)).is_null() {
-				expanded = crate::environment::expander::expander(line, env);
+				let mut expanded: *mut libc::c_char =
+					crate::environment::expander::expander(line, env);
 				if !expanded.is_null() && (equal(expanded, line)).is_null() {
 					ft_putendl_fd(expanded, fd);
 				}
@@ -44,9 +43,7 @@ pub unsafe extern "C" fn do_heredocs(
 	mut target: *mut libc::c_int,
 	mut env: *mut *mut libc::c_char,
 ) {
-	let mut fd: libc::c_int = 0;
-	let mut i: libc::c_int = 0;
-	i = -(1 as libc::c_int);
+	let mut i: libc::c_int = -1;
 	loop {
 		i += 1;
 		if ((*((*token).cmd_args).offset(i as isize)).elem).is_null() {
@@ -55,7 +52,7 @@ pub unsafe extern "C" fn do_heredocs(
 		if (*((*token).cmd_args).offset(i as isize)).redir as libc::c_uint
 			== crate::HEREDOC as libc::c_int as libc::c_uint
 		{
-			fd = open(
+			let mut fd = open(
 				b".heredoc.txt\0" as *const u8 as *const libc::c_char,
 				0o2 as libc::c_int | 0o100 as libc::c_int | 0o1000 as libc::c_int,
 				0o644 as libc::c_int,

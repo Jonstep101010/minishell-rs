@@ -8,11 +8,10 @@ pub unsafe extern "C" fn get_env(
 	mut env: *const *mut libc::c_char,
 	mut key: *const libc::c_char,
 ) -> *mut libc::c_char {
-	let mut index: libc::c_int = 0;
 	if env.is_null() || key.is_null() {
 		return std::ptr::null_mut::<libc::c_char>();
 	}
-	index = get_index_env(env, key);
+	let mut index: libc::c_int = get_index_env(env, key);
 	if index != -(1 as libc::c_int) && !(*env.offset(index as isize)).is_null() {
 		return ft_substr(
 			*env.offset(index as isize),

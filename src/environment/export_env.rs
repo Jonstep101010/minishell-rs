@@ -19,7 +19,6 @@ unsafe extern "C" fn update_var(mut env: *mut *mut libc::c_char, mut key_val: *m
 }
 #[no_mangle]
 pub unsafe extern "C" fn export_env(mut shell: *mut t_shell, mut key_val: *mut libc::c_char) {
-	let mut index: libc::c_int = 0;
 	if key_val.is_null() || *key_val == 0 {
 		return eprint(
 			b"export: malloc fail creating key_val\n\0" as *const u8 as *const libc::c_char,
@@ -35,7 +34,7 @@ pub unsafe extern "C" fn export_env(mut shell: *mut t_shell, mut key_val: *mut l
 		eprint(b"fatal: invalid memory!\n\0" as *const u8 as *const libc::c_char);
 		builtin_exit(shell, std::ptr::null_mut::<t_token>());
 	}
-	index = get_index_env((*shell).env, key_val);
+	let mut index: libc::c_int = get_index_env((*shell).env, key_val);
 	if index == -(1 as libc::c_int) {
 		(*shell).env = append_str_arr_free((*shell).env, key_val);
 	} else {

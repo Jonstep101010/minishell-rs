@@ -28,13 +28,12 @@ unsafe extern "C" fn execve_fail(mut shell: *mut t_shell, mut cmd: *mut libc::c_
 }
 #[no_mangle]
 pub unsafe extern "C" fn exec_bin(mut shell: *mut t_shell, mut token: *mut t_token) -> libc::c_int {
-	let mut access_status: libc::c_int = 0;
 	let mut command: *mut *const libc::c_char =
 		get_cmd_arr_token(token) as *mut *const libc::c_char;
 	if command.is_null() {
 		exit_free(shell, 0 as libc::c_int);
 	}
-	access_status = set_binpath((*shell).env, *command, &mut (*token).bin) as libc::c_int;
+	let mut access_status = set_binpath((*shell).env, *command, &mut (*token).bin) as libc::c_int;
 	if access_status == 1 as libc::c_int
 		|| access_status == 2 as libc::c_int
 		|| access_status == 126 as libc::c_int

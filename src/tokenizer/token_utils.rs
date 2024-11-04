@@ -22,7 +22,6 @@ pub struct s_func {
 }
 #[no_mangle]
 pub unsafe extern "C" fn set_cmd_func(mut cmd: *const libc::c_char, mut token: *mut t_token) {
-	let mut i: uint8_t = 0;
 	let cmds: [s_func; 8] = [
 		{
 			s_func {
@@ -87,7 +86,7 @@ pub unsafe extern "C" fn set_cmd_func(mut cmd: *const libc::c_char, mut token: *
 			}
 		},
 	];
-	i = 0 as libc::c_int as uint8_t;
+	let mut i: uint8_t = 0;
 	while !(cmds[i as usize].name).is_null() {
 		if !(equal(cmd, cmds[i as usize].name)).is_null() {
 			(*token).cmd_func = cmds[i as usize].cmd;
@@ -100,7 +99,6 @@ pub unsafe extern "C" fn set_cmd_func(mut cmd: *const libc::c_char, mut token: *
 }
 #[no_mangle]
 pub unsafe extern "C" fn init_cmdargs(mut size: size_t) -> *mut t_arg {
-	let mut args: *mut t_arg = std::ptr::null_mut::<t_arg>();
 	let template: t_arg = {
 		t_arg {
 			elem: std::ptr::null_mut::<libc::c_char>(),
@@ -108,7 +106,7 @@ pub unsafe extern "C" fn init_cmdargs(mut size: size_t) -> *mut t_arg {
 			redir: NO_REDIR,
 		}
 	};
-	args = ft_calloc(
+	let mut args: *mut t_arg = ft_calloc(
 		size.wrapping_add(1 as libc::c_int as libc::c_ulong),
 		::core::mem::size_of::<t_arg>() as libc::c_ulong,
 	) as *mut t_arg;
@@ -127,7 +125,6 @@ pub unsafe extern "C" fn init_cmdargs(mut size: size_t) -> *mut t_arg {
 }
 #[no_mangle]
 pub unsafe extern "C" fn init_token(mut size: size_t) -> *mut t_token {
-	let mut token: *mut t_token = std::ptr::null_mut::<t_token>();
 	let template: t_token = {
 		t_token {
 			cmd_args: std::ptr::null_mut::<t_arg>(),
@@ -140,7 +137,7 @@ pub unsafe extern "C" fn init_token(mut size: size_t) -> *mut t_token {
 			),
 		}
 	};
-	token = ft_calloc(
+	let mut token: *mut t_token = ft_calloc(
 		size.wrapping_add(1 as libc::c_int as libc::c_ulong),
 		::core::mem::size_of::<t_token>() as libc::c_ulong,
 	) as *mut t_token;
