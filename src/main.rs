@@ -4,7 +4,8 @@
 	non_snake_case,
 	non_upper_case_globals,
 	unused_mut,
-	clippy::missing_safety_doc
+	clippy::missing_safety_doc,
+	clippy::upper_case_acronyms
 )]
 #![feature(c_variadic)]
 #![feature(extern_types)]
@@ -143,28 +144,28 @@ pub struct termios {
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct t_token {
-	pub cmd_args: *mut t_arg,
+	pub cmd_args: *mut t_arg, // Vec<t_arg>
 	pub has_redir: bool,
-	pub split_pipes: *mut libc::c_char,
-	pub tmp_arr: *mut *mut libc::c_char,
-	pub bin: *mut libc::c_char,
-	pub cmd_func: Option<unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int>,
+	pub split_pipes: *mut libc::c_char,  // String
+	pub tmp_arr: *mut *mut libc::c_char, // Vec<String>
+	pub bin: *mut libc::c_char,          // String
+	pub cmd_func: Option<unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int>, // fn
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct t_shell {
-	pub exit_status: uint8_t,
-	pub env: *mut *mut libc::c_char,
-	pub token: *mut t_token,
+	pub exit_status: uint8_t,        // u8
+	pub env: *mut *mut libc::c_char, // Vec<String>
+	pub token: *mut t_token,         // Vec<t_token>
 	pub token_len: size_t,
-	pub p_termios: termios,
+	pub p_termios: termios, // some rust stuff?
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct t_arg {
-	pub elem: *mut libc::c_char,
-	pub type_0: e_arg,
-	pub redir: e_redir,
+	pub elem: *mut libc::c_char, // String
+	pub type_0: e_arg,           // wrapped enum attribute
+	pub redir: e_redir,          // enum wrapping string
 }
 
 unsafe fn main_0(

@@ -19,14 +19,10 @@ fn changedir(mut rust_path: &str, mut shell: *mut t_shell) -> bool {
 					let pwd_prefixed = String::from("PWD=") + p.to_str().unwrap();
 					let old_prefixed = String::from("OLDPWD=") + oldpwd.to_str().unwrap();
 					unsafe {
-						export_env(
-							shell,
-							ft_strdup(CString::new(pwd_prefixed).unwrap().as_ptr()),
-						);
-						export_env(
-							shell,
-							ft_strdup(CString::new(old_prefixed).unwrap().as_ptr()),
-						);
+						let new_pwd = CString::new(pwd_prefixed).unwrap();
+						export_env(shell, ft_strdup(new_pwd.as_ptr()));
+						let old_pwd = CString::new(old_prefixed).unwrap();
+						export_env(shell, ft_strdup(old_pwd.as_ptr()));
 					}
 					true
 				}
@@ -42,13 +38,9 @@ fn changedir(mut rust_path: &str, mut shell: *mut t_shell) -> bool {
 		}
 	}
 }
-unsafe extern "C" fn cd_internal(mut opt_cmd_args: Option<&CStr>, mut shell: *mut t_shell) -> i32 {
-	let mut path: *mut libc::c_char =
-		get_env((*shell).env, b"HOME\0" as *const u8 as *const libc::c_char);
-	let mut oldpwd: *mut libc::c_char = get_env(
-		(*shell).env,
-		b"OLDPWD\0" as *const u8 as *const libc::c_char,
-	);
+unsafe fn cd_internal(mut opt_cmd_args: Option<&CStr>, mut shell: *mut t_shell) -> i32 {
+	let mut path = get_env((*shell).env, c"HOME".as_ptr());
+	let mut oldpwd = get_env((*shell).env, c"OLDPWD".as_ptr());
 	if opt_cmd_args.is_none() && path.is_null() {
 		free_null(&mut oldpwd as *mut *mut libc::c_char as *mut libc::c_void);
 		eprintln!("cd: HOME not set");
