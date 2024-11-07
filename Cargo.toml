@@ -12,6 +12,9 @@ autobins = false
 [[bin]]
 path = "src/main.rs"
 name = "minishell-rs"
+[lib]
+path = "src/rust-core/lib.rs"
+name = "rust_core"
 [dependencies]
 libc= "0.2"
 gnu-readline-sys = "0.1.0"
