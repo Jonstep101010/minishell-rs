@@ -18,37 +18,101 @@ pub struct Environment {
 impl Environment {
 	///
 	/// uses host environment variables
-	fn new() -> Self {
-		Environment {
-			vars: {
-				let mut vars = HashMap::new();
-				for (key, value) in std::env::vars() {
-					vars.insert(key, value);
-				}
-				if !vars.contains_key("PWD") {
-					vars.insert(
-						"PWD".to_string(),
-						std::env::current_dir()
-							.unwrap()
-							.to_str()
-							.unwrap()
-							.to_string(),
-					);
-				}
-				vars
-			},
+	pub fn new() -> Self {
+		Self {
+			vars: HashMap::new(),
 		}
 	}
 	fn get(&self, key: &str) -> Option<&String> {
 		self.vars.get(key)
 	}
 
-	fn set(&mut self, key: String, value: String) {
-		self.vars.insert(key, value);
+	fn set(&mut self, key: String, value: String) -> Option<String> {
+		self.vars.insert(key, value)
 	}
 
 	fn remove(&mut self, key: &str) {
 		self.vars.remove(key);
+	}
+	fn is_empty(&self) -> bool {
+		self.vars.is_empty()
+	}
+}
+
+#[cfg(test)]
+mod tests_environment {
+	use std::env;
+
+	use super::*;
+
+	#[test]
+	fn test_env_new() {
+		let env = Environment::new();
+		assert!(env.vars.is_empty());
+	}
+	#[test]
+	fn test_env_set() {
+		let mut env = Environment::new();
+		env.set("HOME".to_string(), "/home".to_string());
+		assert_eq!(env.vars.len(), 1);
+		assert_eq!(env.get("HOME"), Some(&"/home".to_string()));
+	}
+	#[test]
+	fn test_env_remove() {
+		let mut env = Environment::new();
+		env.set("HOME".to_string(), "/home".to_string());
+		env.remove("HOME");
+		assert!(env.vars.is_empty());
+	}
+	#[test]
+	fn test_env_is_empty_get_none() {
+		let env = Environment::new();
+		assert!(env.is_empty());
+		assert_eq!(env.vars.len(), 0);
+		assert_eq!(env.get("HOME"), None);
+	}
+	#[test]
+	fn test_env_not_empty_get() {
+		let mut env = Environment::new();
+		env.set("HOME".to_string(), "/home".to_string());
+		assert!(!env.is_empty());
+		assert_eq!(env.get("HOME"), Some(&"/home".to_string()));
+	}
+	#[test]
+	fn test_env_not_empty_default() {
+		let env = Environment::default();
+		assert!(!env.is_empty());
+	}
+	#[test]
+	fn test_env_not_empty_default_update() {
+		let mut env = Environment::default();
+		assert_ne!(env.set("HOME".to_string(), "/home".to_string()), None);
+		let mut env = Environment::default();
+		let home = std::env::var("HOME").unwrap();
+		assert_eq!(env.set("HOME".to_string(), "/home".to_string()), Some(home));
+		assert!(!env.is_empty());
+		let mut env = Environment::new();
+		assert_eq!(env.set("HOME".to_string(), "/home".to_string()), None);
+		assert!(!env.is_empty());
+	}
+}
+impl Default for Environment {
+	fn default() -> Self {
+		let mut vars = HashMap::new();
+		for (key, value) in std::env::vars() {
+			vars.insert(key, value);
+		}
+		if !vars.contains_key("PWD") {
+			vars.insert(
+				"PWD".to_string(),
+				std::env::current_dir()
+					.unwrap()
+					.to_str()
+					.unwrap()
+					.to_string(),
+			);
+		}
+		Self { vars }
 	}
 }
 impl fmt::Display for Environment {
@@ -59,7 +123,6 @@ impl fmt::Display for Environment {
 		Ok(())
 	}
 }
-
 
 // logics for redirections: something like this
 // pub enum Option<T> {
@@ -112,6 +175,12 @@ impl Token {
 	}
 }
 
+impl Default for Token {
+	fn default() -> Self {
+		Self::new()
+	}
+}
+
 ///
 /// new tokens get created when new commands are entered
 #[derive(Debug, Clone)]
@@ -143,8 +212,18 @@ impl Shell {
 	}
 }
 
+impl Default for Shell {
+	fn default() -> Self {
+		Self {
+			exit_status: 0,
+			env: Environment::default(),
+			tokens: None,
+		}
+	}
+}
+
 #[cfg(test)]
-mod tests {
+mod tests_shell {
 	use super::*;
 
 	#[test]
@@ -152,7 +231,12 @@ mod tests {
 		let mut shell = Shell::new();
 		shell.env.set("HOME".to_string(), "/home".to_string());
 		assert_eq!(shell.get_env("HOME"), Some(&"/home".to_string()));
-		assert_eq!(shell.env.get("HOME"), Some(&"/home".to_string()));
+	}
+	#[test]
+	fn test_shell_env_unset() {
+		let shell = Shell::new();
+		assert!(shell.env.is_empty());
+		assert_eq!(shell.get_env("HOME"), None);
 	}
 	#[test]
 	fn test_shell_exit_status() {
