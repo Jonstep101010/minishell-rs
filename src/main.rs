@@ -198,33 +198,45 @@ unsafe fn main_0(
 }
 
 use rust_core::data::*;
-pub fn main() {
+use rustyline::{error::ReadlineError, DefaultEditor};
+pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let shell = Shell::new();
-	dbg!(shell);
-	// let mut args: Vec<*mut libc::c_char> = Vec::new();
-	// for arg in ::std::env::args() {
-	// 	args.push(
-	// 		(::std::ffi::CString::new(arg))
-	// 			.expect("Failed to convert argument into CString.")
-	// 			.into_raw(),
-	// 	);
-	// }
-	// args.push(::core::ptr::null_mut());
-	// let mut vars: Vec<*mut libc::c_char> = Vec::new();
-	// for (var_name, var_value) in ::std::env::vars() {
-	// 	let var: String = format!("{}={}", var_name, var_value);
-	// 	vars.push(
-	// 		(::std::ffi::CString::new(var))
-	// 			.expect("Failed to convert environment variable into CString.")
-	// 			.into_raw(),
-	// 	);
-	// }
-	// vars.push(::core::ptr::null_mut());
-	// unsafe {
-	// 	::std::process::exit(main_0(
-	// 		(args.len() - 1) as libc::c_int,
-	// 		args.as_mut_ptr(),
-	// 		vars.as_mut_ptr(),
-	// 	) as i32)
-	// }
+	dbg!(shell.clone());
+	let mut rl = DefaultEditor::new()?;
+	loop {
+		let readline = rl.readline("core-rs>> ");
+		match readline {
+			Ok(line) => {
+				let _ = rl.add_history_entry(line.as_str());
+				match line.as_str() {
+					"exit" => {
+						todo!("exit");
+					}
+					"env" => {
+						print!("{}", shell.env);
+					}
+					"pwd" => {
+						let pwd = shell.get_env("PWD");
+						println!("{}", pwd.unwrap());
+					}
+					_ => {
+						println!("Line: {}", line);
+						todo!("run lexer, tokenizer, parser");
+					}
+				}
+			}
+			Err(ReadlineError::Interrupted) => {
+				println!("CTRL-C");
+				break;
+			}
+			Err(ReadlineError::Eof) => {
+				continue;
+			}
+			Err(err) => {
+				println!("Error: {:?}", err);
+				break;
+			}
+		}
+	}
+	Ok(())
 }

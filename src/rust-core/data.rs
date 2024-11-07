@@ -5,11 +5,14 @@
 	clippy::upper_case_acronyms
 )]
 
-use std::collections::HashMap;
+use std::{
+	collections::HashMap,
+	fmt::{self, Formatter},
+};
 
 #[derive(Debug, Clone)]
-struct Environment {
-	vars: HashMap<String, String>,
+pub struct Environment {
+	pub vars: HashMap<String, String>,
 }
 
 impl Environment {
@@ -21,6 +24,16 @@ impl Environment {
 				let mut vars = HashMap::new();
 				for (key, value) in std::env::vars() {
 					vars.insert(key, value);
+				}
+				if !vars.contains_key("PWD") {
+					vars.insert(
+						"PWD".to_string(),
+						std::env::current_dir()
+							.unwrap()
+							.to_str()
+							.unwrap()
+							.to_string(),
+					);
 				}
 				vars
 			},
@@ -38,6 +51,15 @@ impl Environment {
 		self.vars.remove(key);
 	}
 }
+impl fmt::Display for Environment {
+	fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
+		for (key, value) in &self.vars {
+			writeln!(f, "{}: {}", key, value)?;
+		}
+		Ok(())
+	}
+}
+
 
 // logics for redirections: something like this
 // pub enum Option<T> {
@@ -95,7 +117,7 @@ impl Token {
 #[derive(Debug, Clone)]
 pub struct Shell {
 	exit_status: u8,
-	pub(self) env: Environment,
+	pub env: Environment,
 	tokens: Option<Vec<Token>>,
 }
 
@@ -107,13 +129,35 @@ impl Shell {
 			tokens: None,
 		}
 	}
+
+	///
+	/// update the exit status of the shell
 	fn update_exit_status(&mut self, status: u8) {
 		self.exit_status = status;
 	}
 
 	///
-	/// can also use Shell.env.get(key)
-	fn get_env(&self, key: &str) -> Option<&String> {
+	/// get the value of an environment variable
+	pub fn get_env(&self, key: &str) -> Option<&String> {
 		self.env.get(key)
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn test_shell_env() {
+		let mut shell = Shell::new();
+		shell.env.set("HOME".to_string(), "/home".to_string());
+		assert_eq!(shell.get_env("HOME"), Some(&"/home".to_string()));
+		assert_eq!(shell.env.get("HOME"), Some(&"/home".to_string()));
+	}
+	#[test]
+	fn test_shell_exit_status() {
+		let mut shell = Shell::new();
+		shell.update_exit_status(1);
+		assert_eq!(shell.exit_status, 1);
 	}
 }
