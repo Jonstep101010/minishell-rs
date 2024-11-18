@@ -18,6 +18,7 @@ extern crate libutils_rs;
 
 use gnu_readline_sys::{add_history, readline};
 
+#[allow(dead_code)]
 extern "C" {
 	fn __errno_location() -> *mut libc::c_int;
 	fn check_signals(p_termios: *mut termios);
@@ -168,6 +169,7 @@ pub struct t_arg {
 	pub redir: e_redir,          // enum wrapping string
 }
 
+#[allow(dead_code)]
 unsafe fn main_0(
 	mut _ac: libc::c_int,
 	mut _av: *mut *mut libc::c_char,
@@ -200,7 +202,7 @@ unsafe fn main_0(
 use rust_core::data::*;
 use rustyline::{error::ReadlineError, DefaultEditor};
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
-	let shell = Shell::new();
+	let mut shell = Shell::default();
 	dbg!(shell.clone());
 	let mut rl = DefaultEditor::new()?;
 	loop {
@@ -208,22 +210,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 		match readline {
 			Ok(line) => {
 				let _ = rl.add_history_entry(line.as_str());
-				match line.as_str() {
-					"exit" => {
-						todo!("exit");
-					}
-					"env" => {
-						print!("{}", shell.env);
-					}
-					"pwd" => {
-						let pwd = shell.get_env("PWD");
-						println!("{}", pwd.unwrap());
-					}
-					_ => {
-						println!("Line: {}", line);
-						todo!("run lexer, tokenizer, parser");
-					}
-				}
+				shell.process_line(&line);
 			}
 			Err(ReadlineError::Interrupted) => {
 				println!("CTRL-C");

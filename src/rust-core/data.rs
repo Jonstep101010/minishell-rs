@@ -41,9 +41,7 @@ impl Environment {
 
 #[cfg(test)]
 mod tests_environment {
-	use std::env;
-
-	use super::*;
+	use crate::data::Environment;
 
 	#[test]
 	fn test_env_new() {
@@ -185,7 +183,7 @@ impl Default for Token {
 /// new tokens get created when new commands are entered
 #[derive(Debug, Clone)]
 pub struct Shell {
-	exit_status: u8,
+	exit_status: i32,
 	pub env: Environment,
 	tokens: Option<Vec<Token>>,
 }
@@ -200,8 +198,14 @@ impl Shell {
 	}
 
 	///
+	/// simple implementation: does not accept arguments
+	pub fn exit(&self) -> ! {
+		std::process::exit(self.exit_status);
+	}
+
+	///
 	/// update the exit status of the shell
-	fn update_exit_status(&mut self, status: u8) {
+	fn update_exit_status(&mut self, status: i32) {
 		self.exit_status = status;
 	}
 
@@ -209,6 +213,66 @@ impl Shell {
 	/// get the value of an environment variable
 	pub fn get_env(&self, key: &str) -> Option<&String> {
 		self.env.get(key)
+	}
+
+	fn echo(&self, line: &str) {
+		if line.len() > 5 {
+			println!("{}", &line[5..]);
+		} else {
+			println!();
+		}
+	}
+
+	///
+	/// not currently implemented
+	fn exec(&mut self, line: &str) -> i32 {
+		let mut parts = line.split_whitespace();
+		if let Some(command) = parts.next() {
+			let args: Vec<&str> = parts.collect();
+			let status = std::process::Command::new(command)
+				.args(&args)
+				.status()
+				.expect("failed to execute process");
+			self.update_exit_status(status.code().unwrap_or(1));
+			return status.code().unwrap_or(1);
+		}
+		1
+	}
+
+	pub fn process_line(&mut self, line: &str) {
+		match line {
+			"exit" => {
+				self.exit();
+			}
+			"env" => {
+				print!("{}", self.env);
+			}
+			"pwd" => {
+				let pwd = self.get_env("PWD");
+				println!("{}", pwd.unwrap());
+			}
+			_ => {
+				// lexer: check syntax
+				// expand variables
+				// tokenize with pipes (not in quotes)
+				// split tokens by whitespaces
+				// execute
+				// we do not care about pipes for now
+				// cur line is a command and its arguments, this will be replaced by a token
+				let cur_line = line.trim();
+				if cur_line.starts_with("echo") {
+					self.echo(cur_line);
+				} else if cur_line.starts_with("export") {
+					todo!("export");
+				} else if cur_line.starts_with("unset") {
+					todo!("unset");
+				} else if cur_line.starts_with("cd") {
+					todo!("cd");
+				} else if self.exec(line) == 1 {
+					println!("Command not found/error: {}", cur_line);
+				}
+			}
+		}
 	}
 }
 
