@@ -181,7 +181,7 @@ impl Default for Token {
 
 ///
 /// new tokens get created when new commands are entered
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Shell {
 	exit_status: i32,
 	pub env: Environment,
@@ -272,16 +272,6 @@ impl Shell {
 					println!("Command not found/error: {}", cur_line);
 				}
 			}
-		}
-	}
-}
-
-impl Default for Shell {
-	fn default() -> Self {
-		Self {
-			exit_status: 0,
-			env: Environment::default(),
-			tokens: None,
 		}
 	}
 }
