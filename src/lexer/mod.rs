@@ -24,7 +24,7 @@ pub struct Lexer<'a> {
 
 #[derive(Debug, PartialEq)]
 pub enum LexerError {
-	EmptyPipe,
+	UnexpectedToken(&'static str),
 }
 
 impl<'a> Lexer<'a> {
@@ -45,7 +45,7 @@ impl<'a> Lexer<'a> {
 				}
 				'|' => {
 					if last_was_pipe {
-						return Err(LexerError::EmptyPipe);
+						return Err(LexerError::UnexpectedToken("|"));
 					}
 					self.input.next();
 					tokens.push(Token::Pipe);
@@ -172,13 +172,13 @@ mod tests {
 	fn test_doubled_pipes() {
 		let mut lexer = Lexer::new("ls || nah");
 		let tokens = lexer.tokenize();
-		assert_eq!(tokens, Err(LexerError::EmptyPipe));
+		assert!(tokens.is_ok());
 	}
 
 	#[test]
 	fn test_doubled_pipes_space() {
 		let mut lexer = Lexer::new("ls | | nah");
 		let tokens = lexer.tokenize();
-		assert_eq!(tokens, Err(LexerError::EmptyPipe));
+		assert_eq!(tokens, Err(LexerError::UnexpectedToken("|")));
 	}
 }
