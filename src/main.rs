@@ -26,6 +26,7 @@ extern "C" {
 	// fn add_history(_: *const libc::c_char);
 }
 
+pub mod lexer;
 mod prelude;
 use prelude::*;
 
