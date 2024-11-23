@@ -22,6 +22,11 @@ pub struct Lexer<'a> {
 	input: Peekable<Chars<'a>>,
 }
 
+#[derive(Debug, PartialEq)]
+pub enum LexerError {
+	EmptyPipe,
+}
+
 impl<'a> Lexer<'a> {
 	pub fn new(input: &'a str) -> Self {
 		Lexer {
@@ -29,8 +34,9 @@ impl<'a> Lexer<'a> {
 		}
 	}
 
-	pub fn tokenize(&mut self) -> Vec<Token> {
+	pub fn tokenize(&mut self) -> Result<Vec<Token>, LexerError> {
 		let mut tokens = Vec::new();
+		let mut last_was_pipe = false;
 
 		while let Some(&ch) = self.input.peek() {
 			match ch {
@@ -38,23 +44,30 @@ impl<'a> Lexer<'a> {
 					self.input.next();
 				}
 				'|' => {
+					if last_was_pipe {
+						return Err(LexerError::EmptyPipe);
+					}
 					self.input.next();
 					tokens.push(Token::Pipe);
+					last_was_pipe = true;
 				}
 				'<' | '>' => {
 					tokens.push(self.parse_redirection());
+					last_was_pipe = false;
 				}
 				'\'' | '"' => {
 					tokens.push(Token::Word(self.parse_quoted()));
+					last_was_pipe = false;
 				}
 				_ => {
 					tokens.push(Token::Word(self.parse_word()));
+					last_was_pipe = false;
 				}
 			}
 		}
 
 		tokens.push(Token::EndOfInput);
-		tokens
+		Ok(tokens)
 	}
 
 	fn parse_word(&mut self) -> String {
@@ -109,7 +122,7 @@ mod tests {
 	#[test]
 	fn test_simple_commands() {
 		let mut lexer = Lexer::new("ls -la | grep 'txt'");
-		let tokens = lexer.tokenize();
+		let tokens = lexer.tokenize().unwrap();
 		assert_eq!(
 			tokens,
 			vec![
@@ -126,7 +139,7 @@ mod tests {
 	#[test]
 	fn test_redirections() {
 		let mut lexer = Lexer::new("echo \"Hello World\" > output.txt");
-		let tokens = lexer.tokenize();
+		let tokens = lexer.tokenize().unwrap();
 		assert_eq!(
 			tokens,
 			vec![
@@ -142,7 +155,7 @@ mod tests {
 	#[test]
 	fn test_append_redirection() {
 		let mut lexer = Lexer::new("echo 'Append this' >> file.txt");
-		let tokens = lexer.tokenize();
+		let tokens = lexer.tokenize().unwrap();
 		assert_eq!(
 			tokens,
 			vec![
@@ -153,5 +166,19 @@ mod tests {
 				Token::EndOfInput
 			]
 		);
+	}
+
+	#[test]
+	fn test_doubled_pipes() {
+		let mut lexer = Lexer::new("ls || nah");
+		let tokens = lexer.tokenize();
+		assert_eq!(tokens, Err(LexerError::EmptyPipe));
+	}
+
+	#[test]
+	fn test_doubled_pipes_space() {
+		let mut lexer = Lexer::new("ls | | nah");
+		let tokens = lexer.tokenize();
+		assert_eq!(tokens, Err(LexerError::EmptyPipe));
 	}
 }
