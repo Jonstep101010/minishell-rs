@@ -31,6 +31,14 @@ impl Environment {
 		self.vars.insert(key, value)
 	}
 
+	fn append(&mut self, key: String, value: String) -> Option<String> {
+		if let Some(old_value) = self.vars.get(&key) {
+			self.vars.insert(key, format!("{}{}", old_value, value))
+		} else {
+			None
+		}
+	}
+
 	fn remove(&mut self, key: &str) {
 		self.vars.remove(key);
 	}
@@ -92,6 +100,13 @@ mod tests_environment {
 		let mut env = Environment::new();
 		assert_eq!(env.set("HOME".to_string(), "/home".to_string()), None);
 		assert!(!env.is_empty());
+	}
+	#[test]
+	fn test_env_append() {
+		let mut env = Environment::new();
+		env.set("HOME".to_string(), "/home".to_string());
+		env.append("HOME".to_string(), "/user".to_string());
+		assert_eq!(env.get("HOME"), Some(&"/home/user".to_string()));
 	}
 }
 impl Default for Environment {
