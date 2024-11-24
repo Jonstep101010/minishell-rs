@@ -10,6 +10,8 @@ use std::{
 	fmt::{self, Formatter},
 };
 
+use crate::lexer;
+
 #[derive(Debug, Clone)]
 pub struct Environment {
 	pub vars: HashMap<String, String>,
@@ -162,37 +164,37 @@ pub enum RedirType {
 	Input,
 }
 
-#[derive(Debug, Clone)]
-pub struct Command_Args {
-	elem: String,
-	arg_type: Option<RedirType>,
-}
+// #[derive(Debug, Clone)]
+// pub struct Command_Args {
+// 	elem: String,
+// 	arg_type: Option<RedirType>,
+// }
 
-///
-/// a token is a command with its arguments (split by pipes)
-#[derive(Debug, Clone)]
-pub struct Token {
-	cmd_args: Vec<Command_Args>,
-	// we could use std::process::Command instead of this
-	bin: Option<String>,
-	builtin_func: Option<fn(&mut Shell, &Token) -> u8>,
-}
+//
+// a token is a command with its arguments (split by pipes)
+// #[derive(Debug, Clone)]
+// pub struct Token {
+// 	cmd_args: Vec<Command_Args>,
+// 	// we could use std::process::Command instead of this
+// 	bin: Option<String>,
+// 	builtin_func: Option<fn(&mut Shell, &Token) -> u8>,
+// }
 
-impl Token {
-	pub fn new() -> Self {
-		Token {
-			cmd_args: Vec::new(),
-			bin: None,
-			builtin_func: None,
-		}
-	}
-}
+// impl Token {
+// 	pub fn new() -> Self {
+// 		Token {
+// 			cmd_args: Vec::new(),
+// 			bin: None,
+// 			builtin_func: None,
+// 		}
+// 	}
+// }
 
-impl Default for Token {
-	fn default() -> Self {
-		Self::new()
-	}
-}
+// impl Default for Token {
+// 	fn default() -> Self {
+// 		Self::new()
+// 	}
+// }
 
 ///
 /// new tokens get created when new commands are entered
@@ -200,7 +202,7 @@ impl Default for Token {
 pub struct Shell {
 	exit_status: i32,
 	pub env: Environment,
-	tokens: Option<Vec<Token>>,
+	// tokens: Option<Vec<Token>>,
 }
 
 impl Shell {
@@ -208,7 +210,7 @@ impl Shell {
 		Shell {
 			exit_status: 0,
 			env: Environment::new(),
-			tokens: None,
+			// tokens: None,
 		}
 	}
 
