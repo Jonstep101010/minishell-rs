@@ -47,11 +47,62 @@ impl Environment {
 	fn is_empty(&self) -> bool {
 		self.vars.is_empty()
 	}
+
+	pub fn expand(&self, line: &str) -> String {
+		let mut expanded = String::new();
+		let mut chars = line.chars().peekable();
+		while let Some(ch) = chars.next() {
+			if ch == '$' {
+				if let Some(next_ch) = chars.peek() {
+					if *next_ch == '{' {
+						chars.next(); // consume '{'
+						let mut key = String::new();
+						while let Some(ch) = chars.next() {
+							if ch == '}' {
+								break;
+							}
+							key.push(ch);
+						}
+						if let Some(value) = self.vars.get(&key) {
+							expanded.push_str(value);
+						}
+					} else {
+						let mut key = String::new();
+						while let Some(ch) = chars.peek() {
+							if !ch.is_alphanumeric() && *ch != '_' {
+								break;
+							}
+							key.push(*ch);
+							chars.next();
+						}
+						if let Some(value) = self.vars.get(&key) {
+							expanded.push_str(value);
+						}
+					}
+				}
+			} else {
+				expanded.push(ch);
+			}
+		}
+		expanded
+	}
 }
 
 #[cfg(test)]
 mod tests_environment {
 	use crate::data::Environment;
+
+	#[test]
+	fn test_env_expand() {
+		let mut env = Environment::new();
+		env.set("HOME".to_string(), "/home".to_string());
+		assert_eq!(env.expand("$"), "");
+		assert_eq!(env.expand("$HOME"), "/home");
+		assert_eq!(env.expand("cd $HOME "), "cd /home ");
+		assert_eq!(env.expand("${HOME}"), "/home");
+		assert_eq!(env.expand("$HOME/Downloads"), "/home/Downloads");
+		assert_eq!(env.expand("${HOME}/Downloads"), "/home/Downloads");
+	}
 
 	#[test]
 	fn test_env_new() {
