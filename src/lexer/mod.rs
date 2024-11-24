@@ -27,6 +27,14 @@ pub enum LexerError {
 	UnexpectedToken(&'static str),
 }
 
+impl std::fmt::Display for LexerError {
+	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+		match self {
+			LexerError::UnexpectedToken(token) => write!(f, "near unexpected token: `{}'", token),
+		}
+	}
+}
+
 impl<'a> Lexer<'a> {
 	pub fn new(input: &'a str) -> Self {
 		Lexer {
@@ -34,6 +42,9 @@ impl<'a> Lexer<'a> {
 		}
 	}
 
+	// TODO: handle trailing pipes
+	// TODO: handle >, <
+	// TODO: handle logic operators (&&, ||)
 	pub fn tokenize(&mut self) -> Result<Vec<Token>, LexerError> {
 		let mut tokens = Vec::new();
 		let mut last_was_pipe = false;

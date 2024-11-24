@@ -270,6 +270,12 @@ impl Shell {
 			}
 			_ => {
 				// lexer: check syntax
+				let lexer_tokens = lexer::Lexer::new(line).tokenize();
+				if lexer_tokens.is_err() {
+					println!("syntax error {}", lexer_tokens.err().unwrap());
+					self.update_exit_status(258);
+					return;
+				}
 				// expand variables
 				// tokenize with pipes (not in quotes)
 				// split tokens by whitespaces
