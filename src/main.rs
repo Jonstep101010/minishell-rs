@@ -1,12 +1,4 @@
-#![allow(
-	mutable_transmutes,
-	non_camel_case_types,
-	non_snake_case,
-	non_upper_case_globals,
-	unused_mut,
-	clippy::missing_safety_doc,
-	clippy::upper_case_acronyms
-)]
+#![allow(non_camel_case_types, non_snake_case, non_upper_case_globals)]
 
 use msh::data::*;
 use rustyline::{error::ReadlineError, DefaultEditor};
