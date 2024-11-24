@@ -4,7 +4,7 @@ members = [
 [package]
 name = "minishell-rs"
 authors = ["Jonstep101010"]
-version = "0.0.0"
+version = "0.0.1"
 publish = false
 edition = "2021"
 autobins = false
@@ -12,10 +12,9 @@ autobins = false
 [[bin]]
 path = "src/main.rs"
 name = "minishell-rs"
+[lib]
+path = "src/lib.rs"
+name = "msh"
 [dependencies]
-libc= "0.2"
 gnu-readline-sys = "0.1.0"
-libft_rs = { package = "libft_rs", git= "https://github.com/Jonstep101010/libft-rs", branch = "main" }
-libutils_rs = { package = "libutils_rs", git= "https://github.com/Jonstep101010/libutils-rs", branch = "main" }
-libftprintf_rs = { package = "libftprintf_rs", git= "https://github.com/Jonstep101010/libftprintf-rs", branch = "main" }
-libgnl_rs = { package = "libgnl_rs", git= "https://github.com/Jonstep101010/libgnl-rs", branch = "main" }
+rustyline = "14.0.0"
