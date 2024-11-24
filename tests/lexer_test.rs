@@ -15,6 +15,8 @@ fn test_result_ok() {
 		"echo < outfile",
 		"> outfile",
 		"< outfile",
+		"cd && ls",
+		"cd && ",
 	];
 	for input in inputs {
 		let mut lexer = Lexer::new(input);
@@ -29,13 +31,14 @@ fn test_result_err() {
 		"> |",                   // `|'
 		"< |",                   // `|'
 		"|",                     // `|'
+		" |",                    // `|'
 		" | hello",              // `|'
+		"<",                     // `<'
 		"< <",                   // `<'
 		"< < <",                 // `<'
+		">",                     // `>'
 		"> >",                   // `>'
 		"> > >",                 // `>'
-		"<",                     // `newline'
-		">",                     // `newline'
 		"< ",                    // `newline'
 		"> ",                    // `newline'
 		">>",                    // `newline'
@@ -44,14 +47,21 @@ fn test_result_err() {
 		"<|",                    // `newline'
 		"> tmpfile > midfile >", // `newline'
 		"tmpfile > midfile >",   // `newline'
+		"&&",                    // `&&'
+		"&& cd",                 // `&&'
 	];
 	let expected = vec![
-		"|", "|", "|", "|", "<", "<", ">", ">", "newline", "newline", "newline", "newline",
-		"newline", "newline", "newline", "newline", "newline", "newline",
+		"|", "|", "|", "|", "|", "<", "<", "<", ">", ">", ">", "newline", "newline", "newline",
+		"newline", "newline", "newline", "newline", "newline", "&&", "&&",
 	];
+	assert_eq!(inputs.len(), expected.len());
 	for (input, expected) in inputs.iter().zip(expected.iter()) {
 		let mut lexer = Lexer::new(input);
 		let result = lexer.tokenize();
-		assert_eq!(result, Err(LexerError::UnexpectedToken(expected)));
+		dbg!(input);
+		assert_eq!(
+			Err(LexerError::UnexpectedToken(expected.to_string())),
+			result
+		);
 	}
 }
