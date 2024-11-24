@@ -21,7 +21,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 				continue;
 			}
 			Err(err) => {
-				println!("Error: {:?}", err);
+				println!("Error: {err:?}");
 				break;
 			}
 		}
