@@ -190,23 +190,6 @@ impl fmt::Display for Environment {
 	}
 }
 
-// logics for redirections: something like this
-// pub enum Option<T> {
-//     None,
-//     Some( /* … */ ),
-// }
-// first, we need to know if we have a redirection
-// then, we need to know what type of redirection we have
-// otherwise, we do not want to have to check
-// the redirection type again
-
-// try using option instead of this (e_type)
-// #[derive(Debug, Clone)]
-// pub enum ArgType {
-//     String,
-//     Redirection,
-//     RemovedRedirection,
-// }
 #[derive(Debug, Clone)]
 pub enum RedirType {
 	Append,
@@ -214,38 +197,6 @@ pub enum RedirType {
 	Heredoc,
 	Input,
 }
-
-// #[derive(Debug, Clone)]
-// pub struct Command_Args {
-// 	elem: String,
-// 	arg_type: Option<RedirType>,
-// }
-
-//
-// a token is a command with its arguments (split by pipes)
-// #[derive(Debug, Clone)]
-// pub struct Token {
-// 	cmd_args: Vec<Command_Args>,
-// 	// we could use std::process::Command instead of this
-// 	bin: Option<String>,
-// 	builtin_func: Option<fn(&mut Shell, &Token) -> u8>,
-// }
-
-// impl Token {
-// 	pub fn new() -> Self {
-// 		Token {
-// 			cmd_args: Vec::new(),
-// 			bin: None,
-// 			builtin_func: None,
-// 		}
-// 	}
-// }
-
-// impl Default for Token {
-// 	fn default() -> Self {
-// 		Self::new()
-// 	}
-// }
 
 ///
 /// new tokens get created when new commands are entered
