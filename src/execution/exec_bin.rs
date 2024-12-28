@@ -4,21 +4,23 @@ use libft_rs::ft_strchr::ft_strchr;
 use libutils_rs::src::array::arr_free::arr_free;
 
 use crate::{
-	__errno_location, t_shell,
+	__errno_location,
+	prelude::*,
+	t_shell,
 	tokenizer::{build_command::get_cmd_arr_token, destroy_tokens::destroy_all_tokens},
-	utils::error::eprint,
 };
 
 use crate::t_token;
 use crate::utils::exit_free::exit_free;
 
 use super::bin_path::set_binpath;
+#[allow(unused)]
 unsafe extern "C" fn execve_fail(mut shell: *mut t_shell, mut cmd: *mut libc::c_char) {
-	eprint(
-		b"%s: %s\0" as *const u8 as *const libc::c_char,
-		cmd,
-		strerror(*__errno_location()),
-	);
+	// @audit
+	let cmd = stringify!(cmd);
+	let err = stringify!(strerror(*__errno_location()));
+	eprint_msh!("{}{}", cmd, err);
+	// @audit
 	if !((*shell).env).is_null() {
 		arr_free((*shell).env);
 	}
@@ -28,6 +30,7 @@ unsafe extern "C" fn execve_fail(mut shell: *mut t_shell, mut cmd: *mut libc::c_
 }
 #[no_mangle]
 pub unsafe extern "C" fn exec_bin(mut shell: *mut t_shell, mut token: *mut t_token) -> libc::c_int {
+	// @note this might be a good candidate for implementing a rust version of the function
 	let mut command: *mut *const libc::c_char =
 		get_cmd_arr_token(token) as *mut *const libc::c_char;
 	if command.is_null() {
@@ -46,14 +49,14 @@ pub unsafe extern "C" fn exec_bin(mut shell: *mut t_shell, mut token: *mut t_tok
 			))
 			.is_null()
 		{
-			eprint(
+			crate::utils::error::eprint_msh_c(
 				b"%s: %s\0" as *const u8 as *const libc::c_char,
 				*command,
 				strerror(*__errno_location()),
 			);
 		}
 		if access_status == 127 as libc::c_int {
-			eprint(
+			crate::utils::error::eprint_msh_c(
 				b"%s: command not found\0" as *const u8 as *const libc::c_char,
 				*command,
 			);

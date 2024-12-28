@@ -5,7 +5,7 @@ use libc::{close, dup2, free, open, strerror, unlink};
 use libft_rs::{ft_putendl_fd::ft_putendl_fd, ft_strchr::ft_strchr};
 use libutils_rs::src::string::str_equal::equal;
 
-use crate::{__errno_location, e_redir, t_token, utils::error::eprint};
+use crate::{__errno_location, e_redir, t_token};
 
 #[no_mangle]
 pub static mut g_ctrl_c: libc::c_int = 0 as libc::c_int;
@@ -58,7 +58,7 @@ pub unsafe extern "C" fn do_heredocs(
 				0o644 as libc::c_int,
 			);
 			if fd == -(1 as libc::c_int) {
-				eprint(
+				crate::utils::error::eprint_msh_c(
 					b"%s\0" as *const u8 as *const libc::c_char,
 					strerror(*__errno_location()),
 				);

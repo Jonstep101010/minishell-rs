@@ -1,12 +1,12 @@
+use crate::prelude::*;
 use ::libc;
 use libc::{access, free};
-
 use libft_rs::{
 	ft_split::ft_split, ft_strchr::ft_strchr, ft_strdup::ft_strdup, ft_strjoin::ft_strjoin,
 };
 use libutils_rs::src::{array::arr_free::arr_free, utils::free_mem::free_null};
 
-use crate::{environment::get_env::get_env, utils::error::eprint};
+use crate::environment::get_env::get_env;
 unsafe extern "C" fn find_bin(
 	mut paths: *mut *const libc::c_char,
 	mut binprefix: *const libc::c_char,
@@ -62,23 +62,23 @@ pub unsafe extern "C" fn set_single(
 	mut binpath_buf: *mut *mut libc::c_char,
 ) -> u8 {
 	if bin as libc::c_int == '/' as i32 {
-		eprint(b"/: Is a directory\0" as *const u8 as *const libc::c_char);
+		eprint_msh!("/: Is a directory");
 		return 126 as libc::c_int as u8;
 	}
 	if bin as libc::c_int == '.' as i32 {
-		eprint(
-			b".: filename argument required\0" as *const u8 as *const libc::c_char,
-			*binpath_buf,
+		eprint_msh!(
+			".: filename argument required {}",
+			i8const_str(binpath_buf as *const *const c_char, 0)
 		);
 		return 2 as libc::c_int as u8;
 	}
 	*binpath_buf = get_env(env, b"HOME\0" as *const u8 as *const libc::c_char);
 	if (*binpath_buf).is_null() {
-		eprint(b"/home/minishell: Is a directory\0" as *const u8 as *const libc::c_char);
+		eprint_msh!("/home/minishell: Is a directory");
 	} else {
-		eprint(
-			b"%s: Is a directory\0" as *const u8 as *const libc::c_char,
-			*binpath_buf,
+		eprint_msh!(
+			"{}: Is a directory",
+			i8const_str(binpath_buf as *const *const c_char, 0)
 		);
 	}
 	126 as libc::c_int as u8

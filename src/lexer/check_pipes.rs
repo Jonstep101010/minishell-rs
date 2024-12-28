@@ -1,4 +1,4 @@
-use crate::{size_t, utils::error::eprint};
+use crate::{eprint_msh, size_t};
 use ::libc;
 use libft_rs::{ft_isalnum::ft_isalnum, ft_strchr::ft_strchr};
 use libutils_rs::src::char::is_something::ft_isspace;
@@ -44,11 +44,7 @@ unsafe extern "C" fn inner_while_quotes(
 		))
 		.is_null()
 		{
-			eprint(
-				b"%s %s\0" as *const u8 as *const libc::c_char,
-				b"syntax error near unexpected token \0" as *const u8 as *const libc::c_char,
-				b"`newline'\0" as *const u8 as *const libc::c_char,
-			);
+			eprint_msh!("syntax error near unexpected token `newline'");
 			return 2 as libc::c_int;
 		} else if ft_isalnum(*s.offset((*check).i as isize) as libc::c_int) != 0 {
 			(*check).flag_redir = 0 as libc::c_int;
@@ -68,22 +64,14 @@ unsafe extern "C" fn inner_if_quotes(
 		&& !(*check).ignore
 	{
 		if (*check).flag_word == 0 {
-			eprint(
-				b"%s %s\0" as *const u8 as *const libc::c_char,
-				b"syntax error near unexpected token \0" as *const u8 as *const libc::c_char,
-				b"`|'\0" as *const u8 as *const libc::c_char,
-			);
+			eprint_msh!("syntax error near unexpected token `|'");
 			return 2 as libc::c_int;
 		}
 		if (*s.offset((*check).i as isize) == 0
 			|| *s.offset((*check).i as isize) as libc::c_int == '|' as i32)
 			&& ((*check).flag_redir != 0 || (*check).flag_word == 0)
 		{
-			eprint(
-				b"%s %s\0" as *const u8 as *const libc::c_char,
-				b"syntax error near unexpected token \0" as *const u8 as *const libc::c_char,
-				b"`|'\0" as *const u8 as *const libc::c_char,
-			);
+			eprint_msh!("syntax error near unexpected token `|'");
 			return 2 as libc::c_int;
 		}
 	}
@@ -116,11 +104,7 @@ unsafe extern "C" fn check_pipes_redirection_quotes(
 		}
 	}
 	if (*check).flag_redir != 0 && !(*check).ignore {
-		eprint(
-			b"%s %s\0" as *const u8 as *const libc::c_char,
-			b"syntax error near unexpected token \0" as *const u8 as *const libc::c_char,
-			b"`newline'\0" as *const u8 as *const libc::c_char,
-		);
+		eprint_msh!("syntax error near unexpected token `newline'");
 		return 2 as libc::c_int;
 	}
 	0 as libc::c_int
@@ -157,11 +141,7 @@ unsafe extern "C" fn inner_while_noquotes(
 		))
 		.is_null()
 		{
-			eprint(
-				b"%s %s\0" as *const u8 as *const libc::c_char,
-				b"syntax error near unexpected token \0" as *const u8 as *const libc::c_char,
-				b"`newline'\0" as *const u8 as *const libc::c_char,
-			);
+			eprint_msh!("syntax error near unexpected token `newline'");
 			return 2 as libc::c_int;
 		} else if ft_isalnum(*s.offset((*check).i as isize) as libc::c_int) != 0 {
 			(*check).flag_redir = 0 as libc::c_int;
@@ -187,11 +167,7 @@ pub unsafe extern "C" fn check_pipes_redirection(
 			as libc::c_int
 			== '|' as i32
 	{
-		eprint(
-			b"%s %s\0" as *const u8 as *const libc::c_char,
-			b"syntax error near unexpected token \0" as *const u8 as *const libc::c_char,
-			b"`|'\0" as *const u8 as *const libc::c_char,
-		);
+		eprint_msh!("syntax error near unexpected token `|'");
 		return 2 as libc::c_int;
 	}
 	if !(ft_strchr(
@@ -201,11 +177,7 @@ pub unsafe extern "C" fn check_pipes_redirection(
 	))
 	.is_null()
 	{
-		eprint(
-			b"%s %s\0" as *const u8 as *const libc::c_char,
-			b"syntax error near unexpected token \0" as *const u8 as *const libc::c_char,
-			b"`newline'\0" as *const u8 as *const libc::c_char,
-		);
+		eprint_msh!("syntax error near unexpected token `newline'");
 		return 2 as libc::c_int;
 	}
 	if !((*input).ignore).is_null() {
@@ -224,22 +196,14 @@ pub unsafe extern "C" fn check_pipes_redirection(
 			return 2 as libc::c_int;
 		}
 		if check.flag_word == 0 {
-			eprint(
-				b"%s %s\0" as *const u8 as *const libc::c_char,
-				b"syntax error near unexpected token \0" as *const u8 as *const libc::c_char,
-				b"`|'\0" as *const u8 as *const libc::c_char,
-			);
+			eprint_msh!("syntax error near unexpected token `|'");
 			return 2 as libc::c_int;
 		}
 		if (*s.offset(check.i as isize) == 0
 			|| *s.offset(check.i as isize) as libc::c_int == '|' as i32)
 			&& (check.flag_redir != 0 || check.flag_word == 0)
 		{
-			eprint(
-				b"%s %s\0" as *const u8 as *const libc::c_char,
-				b"syntax error near unexpected token \0" as *const u8 as *const libc::c_char,
-				b"`|'\0" as *const u8 as *const libc::c_char,
-			);
+			eprint_msh!("syntax error near unexpected token `|'");
 			return 2 as libc::c_int;
 		}
 		while *s.offset(check.i as isize) as libc::c_int != 0
@@ -249,11 +213,7 @@ pub unsafe extern "C" fn check_pipes_redirection(
 		}
 	}
 	if check.flag_redir != 0 {
-		eprint(
-			b"%s %s\0" as *const u8 as *const libc::c_char,
-			b"syntax error near unexpected token \0" as *const u8 as *const libc::c_char,
-			b"`newline'\0" as *const u8 as *const libc::c_char,
-		);
+		crate::eprint_msh!("syntax error near unexpected token `newline'");
 		return 2 as libc::c_int;
 	}
 	0 as libc::c_int

@@ -6,7 +6,7 @@ use libft_rs::{
 };
 use libutils_rs::src::string::{append_char::append_char_str, join_strings::free_both_join};
 
-use crate::size_t;
+use crate::{eprint_msh, size_t};
 
 use super::get_env::get_env;
 
@@ -99,7 +99,8 @@ unsafe extern "C" fn expand(
 			);
 			if key.is_null() {
 				free(ret as *mut libc::c_void);
-				crate::utils::error::eprint(b"alloc fail!\0" as *const u8 as *const libc::c_char);
+				eprint_msh!("alloc fail!");
+				// panic!("alloc fail!");
 				return std::ptr::null_mut::<libc::c_void>() as *mut libc::c_char;
 			}
 			ret = free_both_join(ret, expand_inside(key, env, &mut i));

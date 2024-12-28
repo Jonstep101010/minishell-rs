@@ -3,8 +3,10 @@ use libc::{exit, free, strerror};
 
 use crate::{
 	__errno_location, libutils_rs::src::array::arr_free::arr_free, t_shell,
-	tokenizer::destroy_tokens::destroy_all_tokens, utils::error::eprint,
+	tokenizer::destroy_tokens::destroy_all_tokens,
 };
+
+use super::error::eprint_msh_c;
 
 #[no_mangle]
 pub unsafe extern "C" fn exit_free(mut shell: *mut t_shell, mut exit_code: libc::c_int) {
@@ -19,7 +21,7 @@ pub unsafe extern "C" fn exit_free(mut shell: *mut t_shell, mut exit_code: libc:
 pub unsafe extern "C" fn exit_error(mut shell: *mut t_shell, mut error_elem: *mut libc::c_char) {
 	let mut error: *mut libc::c_char = strerror(*__errno_location());
 	if !error_elem.is_null() {
-		eprint(
+		eprint_msh_c(
 			b"%s: %s\0" as *const u8 as *const libc::c_char,
 			error_elem,
 			error,

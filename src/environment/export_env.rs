@@ -1,8 +1,9 @@
 use ::libc;
 
+#[allow(unused_imports)]
 use crate::{
-	builtins::exit::builtin_exit, environment::get_index::get_index_env, t_shell, t_token,
-	utils::error::eprint,
+	builtins::exit::builtin_exit, environment::get_index::get_index_env, prelude::*, t_shell,
+	t_token,
 };
 use libc::free;
 use libft_rs::ft_itoa::ft_itoa;
@@ -20,9 +21,8 @@ unsafe extern "C" fn update_var(mut env: *mut *mut libc::c_char, mut key_val: *m
 #[no_mangle]
 pub unsafe extern "C" fn export_env(mut shell: *mut t_shell, mut key_val: *mut libc::c_char) {
 	if key_val.is_null() || *key_val == 0 {
-		return eprint(
-			b"export: malloc fail creating key_val\n\0" as *const u8 as *const libc::c_char,
-		);
+		eprint_msh!("export: malloc fail creating key_val");
+		return;
 	}
 	if shell.is_null()
 		|| ((*shell).env).is_null()
@@ -31,8 +31,8 @@ pub unsafe extern "C" fn export_env(mut shell: *mut t_shell, mut key_val: *mut l
 	{
 		free(key_val as *mut libc::c_void);
 		(*shell).exit_status = 1 as libc::c_int as u8;
-		eprint(b"fatal: invalid memory!\n\0" as *const u8 as *const libc::c_char);
-		builtin_exit(shell, std::ptr::null_mut::<t_token>());
+		// builtin_exit(shell, std::ptr::null_mut::<t_token>());
+		unreachable!("invalid memory");
 	}
 	let mut index: libc::c_int = get_index_env((*shell).env, key_val);
 	if index == -(1 as libc::c_int) {
@@ -42,8 +42,9 @@ pub unsafe extern "C" fn export_env(mut shell: *mut t_shell, mut key_val: *mut l
 	}
 	if ((*shell).env).is_null() {
 		(*shell).exit_status = 1 as libc::c_int as u8;
-		eprint(b"fatal: environment invalidated\n\0" as *const u8 as *const libc::c_char);
-		builtin_exit(shell, std::ptr::null_mut::<t_token>());
+		// eprint_msh!("fatal: environment invalidated");
+		// builtin_exit(shell, std::ptr::null_mut::<t_token>());
+		panic!("fatal: environment invalidated");
 	}
 }
 #[no_mangle]

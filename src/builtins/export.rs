@@ -1,9 +1,9 @@
 use crate::{
 	environment::{check_key::check_valid_key, export_env::export_env},
-	size_t, t_shell, t_token,
+	eprint_msh, size_t, t_shell, t_token,
 	tokenizer::build_command::get_cmd_arr_token,
-	utils::error::eprint,
 };
+use crate::prelude::*;
 use ::libc;
 use libc::printf;
 
@@ -34,10 +34,10 @@ pub unsafe extern "C" fn builtin_export(
 	}
 	while !(*command.offset(i as isize)).is_null() {
 		if !check_valid_key(*command.offset(i as isize)) {
-			eprint(
-				b"export: `%s': not a valid identifier\0" as *const u8 as *const libc::c_char,
-				*command.offset(i as isize),
-			);
+			// @audit does this work?
+			let faulty_identifier = i8const_str(command, i);
+
+			eprint_msh!("export: `{}': not a valid identifier", faulty_identifier);
 			arr_free(command as *mut *mut libc::c_char);
 			return 1 as libc::c_int;
 		}
