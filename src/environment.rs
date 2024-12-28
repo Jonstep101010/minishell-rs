@@ -47,19 +47,15 @@ impl Env {
 			.map(|s| s.to_string())
 			.collect()
 	}
-	// fn as_ptr_array(&self) -> Vec<*mut libc::c_char> {
-	// 	let mut ptrs = Vec::new();
-	// 	for (key, value) in &self.map {
-	// 		let var: String = format!("{}={}", key, value);
-	// 		ptrs.push(
-	// 			(::std::ffi::CString::new(var))
-	// 				.expect("Failed to convert environment variable into CString.")
-	// 				.into_raw(),
-	// 		);
-	// 	}
-	// 	ptrs.push(::core::ptr::null_mut());
-	// 	ptrs
-	// }
+	pub fn as_ptr_array(&self) -> Vec<*const i8> {
+		let mut ptrs = Vec::new();
+		for (key, value) in &self.map {
+			let var: String = format!("{}={}", key, value);
+			ptrs.push(var.as_ptr() as *const i8);
+		}
+		ptrs.push(::core::ptr::null_mut());
+		ptrs
+	}
 	// fn destroy_ptr_array(ptrs: Vec<*mut libc::c_char>) {
 	// 	for ptr in ptrs {
 	// 		unsafe {
