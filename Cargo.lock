@@ -1563,6 +1563,7 @@ dependencies = [
  "libft_rs",
  "libgnl_rs",
  "libutils_rs",
+ "nix",
 ]
 
 [[package]]
