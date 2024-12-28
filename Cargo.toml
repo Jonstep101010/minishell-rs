@@ -1,6 +1,5 @@
 [workspace]
-members = [
-]
+members = []
 [package]
 name = "minishell-rs"
 authors = ["Jonstep101010"]
@@ -13,9 +12,10 @@ autobins = false
 path = "src/main.rs"
 name = "minishell-rs"
 [dependencies]
-libc= "0.2"
+libc = "0.2"
 gnu-readline-sys = "0.1.0"
-libft_rs = { package = "libft_rs", git= "https://github.com/Jonstep101010/libft-rs", branch = "main" }
-libutils_rs = { package = "libutils_rs", git= "https://github.com/Jonstep101010/libutils-rs", branch = "main" }
-libgnl_rs = { package = "libgnl_rs", git= "https://github.com/Jonstep101010/libgnl-rs", branch = "main" }
+libft_rs = { package = "libft_rs", git = "https://github.com/Jonstep101010/libft-rs", branch = "main" }
+libutils_rs = { package = "libutils_rs", git = "https://github.com/Jonstep101010/libutils-rs", branch = "main" }
+libgnl_rs = { package = "libgnl_rs", git = "https://github.com/Jonstep101010/libgnl-rs", branch = "main" }
 bacon = "3.7.0"
+nix = { version = "0.29.0", features = ["fs"] }
