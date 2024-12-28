@@ -42,6 +42,13 @@ impl Env {
 		}
 		Self { map: host_env }
 	}
+	pub fn get_paths(&self) -> Vec<String> {
+		self.get("PATH")
+			.unwrap()
+			.split(':')
+			.map(|s| s.to_string())
+			.collect()
+	}
 	// fn as_ptr_array(&self) -> Vec<*mut libc::c_char> {
 	// 	let mut ptrs = Vec::new();
 	// 	for (key, value) in &self.map {
