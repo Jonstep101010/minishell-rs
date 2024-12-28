@@ -47,7 +47,7 @@ pub unsafe extern "C" fn builtin_unset(
 	mut token: *mut t_token,
 ) -> libc::c_int {
 	let mut args: *mut *const libc::c_char = get_cmd_arr_token(token) as *mut *const libc::c_char;
-	if ((*shell).env).is_null() || args.is_null() || (*(*shell).env).is_null() {
+	if args.is_null() {
 		return 0 as libc::c_int;
 	}
 	if (*args).is_null()

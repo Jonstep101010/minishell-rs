@@ -65,9 +65,5 @@ pub unsafe extern "C" fn init_shell(mut envp: *const *mut libc::c_char) -> *mut 
 		}
 	};
 	(*shell).env = init_env(envp);
-	if ((*shell).env).is_null() {
-		free(shell as *mut libc::c_void);
-		return std::ptr::null_mut::<t_shell>();
-	}
 	shell
 }
