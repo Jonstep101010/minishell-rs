@@ -1,5 +1,4 @@
 use crate::{
-	environment::export_env::update_exit_status,
 	signals::handlers::check_signals_child,
 	t_shell,
 	utils::exit_free::{exit_error, exit_free},

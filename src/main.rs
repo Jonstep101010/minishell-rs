@@ -39,7 +39,6 @@ pub mod environment; // mod environment
 pub mod execution; // mod execution
 pub mod lexer {
 	use crate::{
-		environment::export_env::update_exit_status,
 		size_t, t_shell,
 		tokenizer::{build_tokens::tokenize, destroy_tokens::destroy_all_tokens},
 		utils::get_input::get_input,
@@ -154,6 +153,18 @@ pub struct t_shell {
 	pub token: *mut t_token, // Vec<t_token>
 	pub token_len: size_t,
 	pub p_termios: termios, // some rust stuff?
+}
+
+impl t_shell {
+	pub fn export(&mut self, key: &str, value: String) {
+		self.env.export(key.to_string(), value);
+	}
+	pub fn unset(&mut self, key: &str) {
+		self.env.unset(&key);
+	}
+	pub fn get_var(&self, key: &str) -> Option<&String> {
+		self.env.get(key)
+	}
 }
 #[derive(Copy, Clone)]
 #[repr(C)]

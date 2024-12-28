@@ -1,9 +1,7 @@
 use crate::prelude::*;
 use crate::{
-	environment::Env,
-	environment::{check_key::check_valid_key, export_env::export_env},
-	eprint_msh, size_t, t_shell, t_token,
-	tokenizer::build_command::get_cmd_arr_token,
+	environment::check_key::check_valid_key, environment::Env, eprint_msh, size_t, t_shell,
+	t_token, tokenizer::build_command::get_cmd_arr_token,
 };
 use ::libc;
 
@@ -39,7 +37,9 @@ pub unsafe extern "C" fn builtin_export(
 			return 1 as libc::c_int;
 		}
 		if str_cchr(*command.offset(i as isize), '=' as i32 as libc::c_char) >= 1 as libc::c_int {
-			export_env(shell, ft_strdup(*command.offset(i as isize)));
+			let kv = i8const_str(command, i);
+			let (key, value) = kv.split_once('=').unwrap();
+			(*shell).env.export(key, value.to_string())
 		}
 		i = i.wrapping_add(1);
 	}

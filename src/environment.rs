@@ -1,6 +1,5 @@
 pub mod check_key;
 pub mod expander;
-pub mod export_env;
 pub mod get_env;
 pub mod get_index;
 use std::{collections::HashMap, fmt::Display};
@@ -19,7 +18,7 @@ impl Display for Env {
 	}
 }
 
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 impl Deref for Env {
 	type Target = HashMap<String, String>;
 
@@ -63,12 +62,20 @@ impl Env {
 	// 		}
 	// 	}
 	// }
-	fn export(&mut self, key: String, value: String) {
+	// @todo implement builtins in environment
+	pub fn export(&mut self, key: &str, value: String) {
 		if key != "?" {
-			self.map.insert(key, value);
+			self.map.insert(key.to_string(), value);
 		}
 	}
-	fn unset(&mut self, key: &str) {
+	// @todo implement builtins in environment
+	pub fn unset(&mut self, key: &str) {
 		self.map.remove(key);
+	}
+}
+
+impl DerefMut for Env {
+	fn deref_mut(&mut self) -> &mut Self::Target {
+		&mut self.map
 	}
 }
