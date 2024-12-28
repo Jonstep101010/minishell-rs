@@ -3,6 +3,7 @@ use libft_rs::{ft_strlen::ft_strlen, ft_substr::ft_substr};
 
 use super::get_index::get_index_env;
 
+#[deprecated]
 #[no_mangle]
 pub unsafe extern "C" fn get_env(
 	mut env: *const *mut libc::c_char,
