@@ -8,7 +8,6 @@ use self::{execute_pipes::execute_pipes, redirections::do_redirections};
 use crate::{
 	__errno_location,
 	builtins::{cd::builtin_cd, exit::builtin_exit, export::builtin_export, unset::builtin_unset},
-	environment::export_env::update_exit_status,
 	eprint_msh,
 	libutils_rs::src::utils::memsize::memsize,
 	t_shell, t_token,
