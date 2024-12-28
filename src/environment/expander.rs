@@ -8,8 +8,6 @@ use libutils_rs::src::string::{append_char::append_char_str, join_strings::free_
 
 use crate::{eprint_msh, size_t};
 
-use super::get_env::get_env;
-
 unsafe extern "C" fn check_index_advance(
 	mut s: *const libc::c_char,
 	mut i: libc::c_int,
@@ -34,13 +32,14 @@ unsafe extern "C" fn check_index_advance(
 }
 unsafe extern "C" fn expand_inside(
 	mut key: *mut libc::c_char,
-	mut env: *const *mut libc::c_char,
+	env: *const *const libc::c_char,
 	mut i: *mut libc::c_int,
 ) -> *mut libc::c_char {
 	let len: size_t = ft_strlen(key);
 	let mut ret: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	if *key != 0 {
-		ret = get_env(env, key);
+		// ret = get_env(env, key);
+		todo!("need to create interface for expansion")
 	}
 	if ret.is_null() {
 		ret = ft_strdup(b"\0" as *const u8 as *const libc::c_char);
@@ -71,7 +70,7 @@ unsafe extern "C" fn check_quotes(
 }
 unsafe extern "C" fn expand(
 	mut s: *const libc::c_char,
-	mut env: *const *mut libc::c_char,
+	env: *const *const libc::c_char,
 ) -> *mut libc::c_char {
 	let mut i: libc::c_int = -1;
 	let mut expand_0: bool = false;
@@ -113,7 +112,7 @@ unsafe extern "C" fn expand(
 #[no_mangle]
 pub unsafe extern "C" fn expander(
 	mut input_expander: *const libc::c_char,
-	mut env: *const *mut libc::c_char,
+	env: *const *const libc::c_char,
 ) -> *mut libc::c_char {
 	if input_expander.is_null() || env.is_null() || (*env).is_null() || *input_expander == 0 {
 		return std::ptr::null_mut::<libc::c_char>();

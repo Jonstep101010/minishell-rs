@@ -62,7 +62,7 @@ pub unsafe extern "C" fn exec_bin(mut shell: *mut t_shell, mut token: *mut t_tok
 		if libc::execve(
 			(*token).bin.as_ptr(),
 			command as *mut *mut libc::c_char as *const *const libc::c_char,
-			(*shell).env as *const *const libc::c_char,
+			(*shell).env.as_ptr_array().as_ptr(),
 		) == -(1 as libc::c_int)
 		{
 			arr_free(command as *mut *mut libc::c_char);
@@ -72,7 +72,7 @@ pub unsafe extern "C" fn exec_bin(mut shell: *mut t_shell, mut token: *mut t_tok
 		exit_free(shell, 0 as libc::c_int);
 		return 0 as libc::c_int;
 	}
-		arr_free(command as *mut *mut libc::c_char);
-		exit_free(shell, 1);
+	arr_free(command as *mut *mut libc::c_char);
+	exit_free(shell, 1);
 	return 1 as libc::c_int;
 }

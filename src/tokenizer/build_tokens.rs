@@ -25,7 +25,7 @@ use super::{
 unsafe extern "C" fn expand_if_allowed(
 	mut token: *mut t_token,
 	mut ii: size_t,
-	mut env: *const *mut libc::c_char,
+	env: *const *const libc::c_char,
 ) -> *mut libc::c_void {
 	if (*token).cmd_func
 		!= Some(builtin_env as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int)
@@ -60,7 +60,7 @@ unsafe extern "C" fn expand_if_allowed(
 }
 unsafe extern "C" fn setup_token(
 	mut token: *mut t_token,
-	mut env: *const *mut libc::c_char,
+	env: *const *const libc::c_char,
 ) -> *mut libc::c_void {
 	if token.is_null() || ((*token).split_pipes).is_null() {
 		return std::ptr::null_mut::<libc::c_void>();
@@ -144,7 +144,12 @@ pub unsafe extern "C" fn tokenize(
 		(*shell).token_len = ((*shell).token_len).wrapping_add(1);
 	}
 	while i < (*shell).token_len {
-		if (setup_token(&mut *((*shell).token).offset(i as isize), (*shell).env)).is_null() {
+		if setup_token(
+			&mut *((*shell).token).offset(i as isize),
+			(*shell).env.as_ptr_array().as_ptr(),
+		)
+		.is_null()
+		{
 			destroy_all_tokens(shell);
 			return std::ptr::null_mut::<libc::c_void>();
 		}
