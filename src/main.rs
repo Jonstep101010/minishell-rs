@@ -151,12 +151,13 @@ pub struct t_token {
 	pub bin: *mut libc::c_char,          // String
 	pub cmd_func: Option<unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int>, // fn
 }
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 #[repr(C)]
 pub struct t_shell {
-	pub exit_status: uint8_t,        // u8
-	pub env: *mut *mut libc::c_char, // Vec<String>
-	pub token: *mut t_token,         // Vec<t_token>
+	pub exit_status: uint8_t, // u8
+	// pub env: Vec<String>,    // Vec<String>
+	env: *mut *mut libc::c_char, // Vec<String>
+	pub token: *mut t_token,  // Vec<t_token>
 	pub token_len: size_t,
 	pub p_termios: termios, // some rust stuff?
 }
@@ -191,7 +192,7 @@ unsafe fn main_0(
 		if *trimmed_line == 0 || crate::lexer::run(shell, trimmed_line) != 0 as libc::c_int {
 			continue;
 		}
-		if !((*shell).env).is_null() && !(*(*shell).env).is_null() && !((*shell).token).is_null() {
+		if !((*shell).token).is_null() {
 			execution::execute_commands(shell, (*shell).token);
 		}
 	}

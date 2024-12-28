@@ -49,9 +49,6 @@ unsafe extern "C" fn check_exit_code(mut command: *mut *const libc::c_char) -> b
 	1 as libc::c_int != 0
 }
 unsafe extern "C" fn exit_free_internal(mut shell: *mut t_shell, mut exit_code: u8) {
-	if !((*shell).env).is_null() {
-		arr_free((*shell).env);
-	}
 	destroy_all_tokens(shell);
 	free(shell as *mut libc::c_void);
 	exit(exit_code as libc::c_int);

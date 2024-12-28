@@ -22,9 +22,6 @@ unsafe extern "C" fn execve_fail(mut shell: *mut t_shell, mut cmd: *mut libc::c_
 	let err = stringify!(strerror(*__errno_location()));
 	eprint_msh!("{}{}", cmd, err);
 	// @audit
-	if !((*shell).env).is_null() {
-		arr_free((*shell).env);
-	}
 	destroy_all_tokens(shell);
 	free(shell as *mut libc::c_void);
 	exit(*__errno_location());
