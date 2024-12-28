@@ -2,10 +2,7 @@ use ::libc;
 use libc::free;
 use libft_rs::{ft_calloc::ft_calloc, ft_strlen::ft_strlen};
 
-use crate::utils::{
-	bool_array::{bool_arr_zeroing, range_ignore},
-	error::eprint_single_c,
-};
+use crate::utils::bool_array::{bool_arr_zeroing, range_ignore};
 
 use super::{check_pipes::check_pipes_redirection, lexer_support::count_number, t_lexer};
 
@@ -26,21 +23,17 @@ unsafe extern "C" fn check_quotes(
 	mut input: *mut t_lexer,
 ) -> libc::c_int {
 	if (*input).singlequotes == 1 as libc::c_int {
-		eprint_single_c(
-			b"syntax error near unexpected token '''\n\0" as *const u8 as *const libc::c_char,
-		);
+		eprintln!("syntax error near unexpected token '''");
 		return 1 as libc::c_int;
 	}
 	if (*input).doublequotes == 1 as libc::c_int {
-		eprint_single_c(
-			b"syntax error near unexpected token '\"'\n\0" as *const u8 as *const libc::c_char,
-		);
+		eprintln!("syntax error near unexpected token '\"'");
 		return 1 as libc::c_int;
 	}
 	if (*input).singlequotes % 2 as libc::c_int != 0 as libc::c_int
 		|| (*input).doublequotes % 2 as libc::c_int != 0 as libc::c_int
 	{
-		eprint_single_c(b"error: quotes not closed\0" as *const u8 as *const libc::c_char);
+		eprintln!("error: quotes not closed");
 		return 1 as libc::c_int;
 	}
 	if (*input).singlequotes > 0 as libc::c_int || (*input).doublequotes > 0 as libc::c_int {

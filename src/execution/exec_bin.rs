@@ -1,4 +1,5 @@
 use ::libc;
+#[allow(unused_imports)]
 use libc::{exit, free, strerror};
 use libft_rs::ft_strchr::ft_strchr;
 use libutils_rs::src::array::arr_free::arr_free;
@@ -49,17 +50,14 @@ pub unsafe extern "C" fn exec_bin(mut shell: *mut t_shell, mut token: *mut t_tok
 			))
 			.is_null()
 		{
-			crate::utils::error::eprint_msh_c(
-				b"%s: %s\0" as *const u8 as *const libc::c_char,
-				*command,
-				strerror(*__errno_location()),
-			);
+			let cmd = i8const_str(command, 0);
+			// @audit
+			let err = stringify!(strerror(*__errno_location()));
+			// @audit
+			eprint_msh!("{}: {}", cmd, err);
 		}
 		if access_status == 127 as libc::c_int {
-			crate::utils::error::eprint_msh_c(
-				b"%s: command not found\0" as *const u8 as *const libc::c_char,
-				*command,
-			);
+			eprint_msh!("{}: command not found", i8const_str(command, 0));
 		}
 		arr_free(command as *mut *mut libc::c_char);
 		exit_free(shell, access_status);
