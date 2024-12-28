@@ -1,7 +1,5 @@
 pub mod check_key;
 pub mod expander;
-pub mod get_env;
-pub mod get_index;
 use std::{collections::HashMap, fmt::Display};
 
 #[derive(Clone, Debug)]
