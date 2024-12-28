@@ -1,16 +1,8 @@
 use ::libc;
-use libc::{exit, free, getcwd};
-use libft_rs::{ft_calloc::ft_calloc, ft_strdup::ft_strdup};
-use libutils_rs::src::{
-	array::{
-		append_str::{append_str_arr, append_str_arr_free},
-		arr_free::arr_free,
-	},
-	string::join_strings::free_second_join,
-	utils::free_mem::free_null,
-};
+use libc::exit;
+use libft_rs::ft_calloc::ft_calloc;
 
-use crate::{environment::get_env::get_env, prelude::tcflag_t, t_shell, termios};
+use crate::{prelude::tcflag_t, t_shell, termios};
 
 #[no_mangle]
 pub unsafe extern "C" fn init_shell() -> *mut t_shell {

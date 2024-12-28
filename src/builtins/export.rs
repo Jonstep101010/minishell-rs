@@ -5,7 +5,6 @@ use crate::{
 };
 use ::libc;
 
-use libft_rs::ft_strdup::ft_strdup;
 use libutils_rs::src::{array::arr_free::arr_free, string::str_cchr::str_cchr};
 
 fn declare_x(env: &Env) {
