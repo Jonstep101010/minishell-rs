@@ -149,7 +149,6 @@ pub struct t_token {
 pub struct t_shell {
 	pub exit_status: uint8_t, // u8
 	env: environment::Env,
-	// env: *mut *mut libc::c_char, // Vec<String>
 	pub token: *mut t_token, // Vec<t_token>
 	pub token_len: size_t,
 	pub p_termios: termios, // some rust stuff?
