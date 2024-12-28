@@ -133,14 +133,14 @@ pub struct termios {
 	pub c_ispeed: speed_t,
 	pub c_ospeed: speed_t,
 }
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 #[repr(C)]
 pub struct t_token {
 	pub cmd_args: *mut t_arg, // Vec<t_arg>
 	pub has_redir: bool,
 	pub split_pipes: *mut libc::c_char,  // String
 	pub tmp_arr: *mut *mut libc::c_char, // Vec<String>
-	pub bin: *mut libc::c_char,          // String
+	pub bin: std::ffi::CString,          // String
 	pub cmd_func: Option<unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int>, // fn
 }
 
@@ -157,7 +157,7 @@ pub struct t_shell {
 
 impl t_shell {
 	pub fn export(&mut self, key: &str, value: String) {
-		self.env.export(key.to_string(), value);
+		self.env.export(key, value);
 	}
 	pub fn unset(&mut self, key: &str) {
 		self.env.unset(&key);

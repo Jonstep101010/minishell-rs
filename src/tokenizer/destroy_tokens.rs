@@ -21,11 +21,12 @@ pub unsafe extern "C" fn destroy_all_tokens(mut shell: *mut t_shell) {
 				&mut (*token.offset(i as isize)).cmd_args as *mut *mut t_arg as *mut libc::c_void,
 			);
 		}
-		if !((*token.offset(i as isize)).bin).is_null() {
-			free_null(
-				&mut (*token.offset(i as isize)).bin as *mut *mut libc::c_char as *mut libc::c_void,
-			);
-		}
+		// if !((*token.offset(i as isize)).bin).is_null() {
+		// @audit CString::from_raw?
+		// free_null(
+		// 	&mut (*token.offset(i as isize)).bin as *mut *mut libc::c_char as *mut libc::c_void,
+		// );
+		// }
 		i = i.wrapping_add(1);
 	}
 	free_null(&mut (*shell).token as *mut *mut t_token as *mut libc::c_void);
