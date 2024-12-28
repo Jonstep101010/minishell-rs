@@ -11,13 +11,6 @@ use libutils_rs::src::{
 	array::append_str::append_str_arr_free, string::join_strings::free_second_join,
 };
 
-unsafe extern "C" fn update_var(mut env: *mut *mut libc::c_char, mut key_val: *mut libc::c_char) {
-	if key_val.is_null() || env.is_null() || (*env).is_null() || *key_val == 0 {
-		return;
-	}
-	free(*env as *mut libc::c_void);
-	*env = key_val;
-}
 #[no_mangle]
 pub unsafe extern "C" fn export_env(mut shell: *mut t_shell, mut key_val: *mut libc::c_char) {
 	if key_val.is_null() || *key_val == 0 {
@@ -38,7 +31,15 @@ pub unsafe extern "C" fn export_env(mut shell: *mut t_shell, mut key_val: *mut l
 	if index == -(1 as libc::c_int) {
 		(*shell).env = append_str_arr_free((*shell).env, key_val);
 	} else {
-		update_var(&mut *((*shell).env).offset(index as isize), key_val);
+		{
+			let mut env: *mut *mut libc::c_char = &mut *((*shell).env).offset(index as isize);
+			let mut key_val = key_val;
+			if key_val.is_null() || env.is_null() || (*env).is_null() || *key_val == 0 {
+				return;
+			}
+			free(*env as *mut libc::c_void);
+			*env = key_val;
+		};
 	}
 	if ((*shell).env).is_null() {
 		(*shell).exit_status = 1 as libc::c_int as u8;
