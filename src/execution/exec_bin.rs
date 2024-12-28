@@ -1,3 +1,5 @@
+use std::ffi::CStr;
+
 use ::libc;
 #[allow(unused_imports)]
 use libc::{exit, free, strerror};
@@ -13,13 +15,10 @@ use crate::{
 };
 
 use super::bin_path::get_path_prefixed;
-#[allow(unused)]
-unsafe extern "C" fn execve_fail(mut shell: *mut t_shell, mut cmd: *mut libc::c_char) {
-	// @audit
-	let cmd = stringify!(cmd);
-	let err = stringify!(strerror(*__errno_location()));
-	eprint_msh!("{}{}", cmd, err);
-	// @audit
+unsafe fn execve_fail(mut shell: *mut t_shell, cmd: &CStr) {
+	let err = CStr::from_ptr(strerror(*__errno_location()));
+	let err: &str = err.to_str().unwrap();
+	eprint_msh!("{}{}", cmd.to_str().unwrap(), err);
 	destroy_all_tokens(shell);
 	free(shell as *mut libc::c_void);
 	exit(*__errno_location());
@@ -61,19 +60,19 @@ pub unsafe extern "C" fn exec_bin(mut shell: *mut t_shell, mut token: *mut t_tok
 			exit_free(shell, access_status.into());
 		}
 		if libc::execve(
-			(*token).bin,
+			(*token).bin.as_ptr(),
 			command as *mut *mut libc::c_char as *const *const libc::c_char,
 			(*shell).env as *const *const libc::c_char,
 		) == -(1 as libc::c_int)
 		{
 			arr_free(command as *mut *mut libc::c_char);
-			execve_fail(shell, (*token).bin);
+			execve_fail(shell, (*token).bin.as_c_str());
 		}
 		arr_free(command as *mut *mut libc::c_char);
 		exit_free(shell, 0 as libc::c_int);
-		0 as libc::c_int
-	} else {
+		return 0 as libc::c_int;
+	}
 		arr_free(command as *mut *mut libc::c_char);
 		exit_free(shell, 1);
-	}
+	return 1 as libc::c_int;
 }
