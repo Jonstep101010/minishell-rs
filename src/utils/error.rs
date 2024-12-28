@@ -13,8 +13,22 @@ pub struct __va_list {
 }
 pub type va_list = __builtin_va_list;
 
+#[macro_export]
+macro_rules! eprint_msh {
+    ($($arg:tt)*) => {
+        {
+            use std::io::Write;
+            let stderr = std::io::stderr();
+            let mut handle = stderr.lock();
+            write!(handle, "minishell: ").unwrap();
+            write!(handle, $($arg)*).unwrap();
+            writeln!(handle).unwrap();
+        }
+    };
+}
+
 #[no_mangle]
-pub unsafe extern "C" fn eprint(mut fmt: *const libc::c_char, mut args: ...) {
+pub unsafe extern "C" fn eprint_msh_c(mut fmt: *const libc::c_char, mut args: ...) {
 	let mut args_0: ::core::ffi::VaListImpl;
 	args_0 = args.clone();
 	write(
@@ -30,7 +44,7 @@ pub unsafe extern "C" fn eprint(mut fmt: *const libc::c_char, mut args: ...) {
 	);
 }
 #[no_mangle]
-pub unsafe extern "C" fn eprint_single(mut fmt: *const libc::c_char, mut args: ...) {
+pub unsafe extern "C" fn eprint_single_c(mut fmt: *const libc::c_char, mut args: ...) {
 	let mut args_0: ::core::ffi::VaListImpl;
 	args_0 = args.clone();
 	ft_vdprintf(2 as libc::c_int, fmt, args_0.as_va_list());

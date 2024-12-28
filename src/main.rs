@@ -127,6 +127,7 @@ pub mod utils {
 	pub mod exit_free;
 	pub mod get_input;
 	pub mod init_shell;
+	pub mod interop;
 } // mod utils
 
 #[derive(Copy, Clone)]

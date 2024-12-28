@@ -5,9 +5,8 @@ use libutils_rs::src::array::{arr_free::arr_free, remove_str::rm_str_arr};
 
 use crate::{
 	environment::{check_key::check_valid_key, get_index::get_index_env},
-	t_shell, t_token,
+	eprint_msh, i8const_str, t_shell, t_token,
 	tokenizer::build_command::get_cmd_arr_token,
-	utils::error::eprint,
 };
 
 unsafe extern "C" fn check_illegal_char(mut str: *const libc::c_char) -> bool {
@@ -30,10 +29,8 @@ unsafe extern "C" fn unset_internal(
 ) -> libc::c_int {
 	while !(*args).is_null() {
 		if !check_valid_key(*args) || check_illegal_char(*args) as libc::c_int != 0 {
-			eprint(
-				b"unset: `%s': not a valid identifier\0" as *const u8 as *const libc::c_char,
-				*args,
-			);
+			let faulty = i8const_str(args, 0);
+			eprint_msh!("unset: `%s': not a valid identifier {faulty}");
 			return 1 as libc::c_int;
 		}
 		let index = get_index_env(env, *args);
