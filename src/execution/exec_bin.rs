@@ -7,14 +7,12 @@ use libutils_rs::src::array::arr_free::arr_free;
 use crate::{
 	__errno_location,
 	prelude::*,
-	t_shell,
+	t_shell, t_token,
 	tokenizer::{build_command::get_cmd_arr_token, destroy_tokens::destroy_all_tokens},
+	utils::exit_free::exit_free,
 };
 
-use crate::t_token;
-use crate::utils::exit_free::exit_free;
-
-use super::bin_path::set_binpath;
+use super::bin_path::get_path_prefixed;
 #[allow(unused)]
 unsafe extern "C" fn execve_fail(mut shell: *mut t_shell, mut cmd: *mut libc::c_char) {
 	// @audit
@@ -32,43 +30,50 @@ pub unsafe extern "C" fn exec_bin(mut shell: *mut t_shell, mut token: *mut t_tok
 	let mut command: *mut *const libc::c_char =
 		get_cmd_arr_token(token) as *mut *const libc::c_char;
 	if command.is_null() {
-		exit_free(shell, 0 as libc::c_int);
+		exit_free(shell, 0);
 	}
-	let mut access_status = set_binpath((*shell).env, *command, &mut (*token).bin) as libc::c_int;
-	if access_status == 1 as libc::c_int
-		|| access_status == 2 as libc::c_int
-		|| access_status == 126 as libc::c_int
-		|| access_status == 127 as libc::c_int
-	{
-		if access_status == 126 as libc::c_int
-			&& (ft_strchr(
-				b"~/\0" as *const u8 as *const libc::c_char,
-				**command as libc::c_int,
-			))
-			.is_null()
+	let env = &(*shell).env;
+	if !(*command).is_null() {
+		let (mut access_status, path_prefixed_bin) =
+			get_path_prefixed(env, std::ffi::CStr::from_ptr(*command));
+		if path_prefixed_bin.is_some() {
+			(*token).bin = path_prefixed_bin.unwrap();
+		}
+		if access_status == 1 || access_status == 2 || access_status == 126 || access_status == 127
 		{
-			let cmd = i8const_str(command, 0);
-			// @audit
-			let err = stringify!(strerror(*__errno_location()));
-			// @audit
-			eprint_msh!("{}: {}", cmd, err);
+			if access_status == 126
+				&& (ft_strchr(
+					b"~/\0" as *const u8 as *const libc::c_char,
+					**command as libc::c_int,
+				))
+				.is_null()
+			{
+				let cmd = i8const_str(command, 0);
+				// @audit
+				let err = stringify!(strerror(*__errno_location()));
+				// @audit
+				eprint_msh!("{}: {}", cmd, err);
+			}
+			if access_status == 127 {
+				eprint_msh!("{}: command not found", i8const_str(command, 0));
+			}
+			arr_free(command as *mut *mut libc::c_char);
+			exit_free(shell, access_status.into());
 		}
-		if access_status == 127 as libc::c_int {
-			eprint_msh!("{}: command not found", i8const_str(command, 0));
+		if libc::execve(
+			(*token).bin,
+			command as *mut *mut libc::c_char as *const *const libc::c_char,
+			(*shell).env as *const *const libc::c_char,
+		) == -(1 as libc::c_int)
+		{
+			arr_free(command as *mut *mut libc::c_char);
+			execve_fail(shell, (*token).bin);
 		}
 		arr_free(command as *mut *mut libc::c_char);
-		exit_free(shell, access_status);
-	}
-	if libc::execve(
-		(*token).bin,
-		command as *mut *mut libc::c_char as *const *const libc::c_char,
-		(*shell).env as *const *const libc::c_char,
-	) == -(1 as libc::c_int)
-	{
+		exit_free(shell, 0 as libc::c_int);
+		0 as libc::c_int
+	} else {
 		arr_free(command as *mut *mut libc::c_char);
-		execve_fail(shell, (*token).bin);
+		exit_free(shell, 1);
 	}
-	arr_free(command as *mut *mut libc::c_char);
-	exit_free(shell, 0 as libc::c_int);
-	0 as libc::c_int
 }
