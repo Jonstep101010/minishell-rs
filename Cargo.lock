@@ -1473,14 +1473,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "libftprintf_rs"
-version = "0.0.0"
-source = "git+https://github.com/Jonstep101010/libftprintf-rs?branch=main#1a6232542eee8080b1bd2c21de123d7a34267927"
-dependencies = [
- "libc",
-]
-
-[[package]]
 name = "libgnl_rs"
 version = "0.0.0"
 source = "git+https://github.com/Jonstep101010/libgnl-rs?branch=main#bb9a846a78947562f29e3594ee2d92de12d4eb36"
@@ -1569,7 +1561,6 @@ dependencies = [
  "gnu-readline-sys",
  "libc",
  "libft_rs",
- "libftprintf_rs",
  "libgnl_rs",
  "libutils_rs",
 ]

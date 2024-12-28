@@ -12,7 +12,6 @@
 
 extern crate libc;
 extern crate libft_rs;
-extern crate libftprintf_rs;
 extern crate libgnl_rs;
 extern crate libutils_rs;
 

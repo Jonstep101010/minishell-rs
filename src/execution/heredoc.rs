@@ -1,11 +1,13 @@
 use ::libc;
 use gnu_readline_sys::readline;
+#[allow(unused_imports)]
 use libc::{close, dup2, free, open, strerror, unlink};
 
 use libft_rs::{ft_putendl_fd::ft_putendl_fd, ft_strchr::ft_strchr};
 use libutils_rs::src::string::str_equal::equal;
 
-use crate::{__errno_location, e_redir, t_token};
+#[allow(unused_imports)]
+use crate::{__errno_location, e_redir, prelude::*, t_token};
 
 #[no_mangle]
 pub static mut g_ctrl_c: libc::c_int = 0 as libc::c_int;
@@ -58,10 +60,8 @@ pub unsafe extern "C" fn do_heredocs(
 				0o644 as libc::c_int,
 			);
 			if fd == -(1 as libc::c_int) {
-				crate::utils::error::eprint_msh_c(
-					b"%s\0" as *const u8 as *const libc::c_char,
-					strerror(*__errno_location()),
-				);
+				let err = stringify!(strerror(*__errno_location()));
+				eprint_msh!("{}", err);
 				panic!("i/o error");
 			}
 			heredoc_loop((*((*token).cmd_args).offset(i as isize)).elem, fd, env);
