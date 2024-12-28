@@ -44,7 +44,7 @@ unsafe extern "C" fn exec_last(
 		close(*prevpipe);
 		while wait(std::ptr::null_mut::<libc::c_int>()) > 0 as libc::c_int {}
 		if status & 0x7f as libc::c_int == 0 as libc::c_int {
-			update_exit_status(shell, (status & 0xff00 as libc::c_int) >> 8 as libc::c_int);
+			(*shell).exit_status = ((status & 0xff00 as libc::c_int) >> 8 as libc::c_int) as u8;
 		}
 	};
 }

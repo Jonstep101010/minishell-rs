@@ -76,7 +76,7 @@ pub mod lexer {
 		}
 		let mut lex = lexer_checks_basic(trimmed_line);
 		if !(*lex).result {
-			update_exit_status(shell, (*lex).lexer);
+			(*shell).exit_status = (*lex).lexer as u8;
 			get_input(std::ptr::null_mut::<libc::c_char>());
 			free(lex as *mut libc::c_void);
 			return 1 as libc::c_int;
