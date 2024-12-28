@@ -8,5 +8,6 @@ pub unsafe extern "C" fn builtin_env(
 	mut _token: *mut t_token,
 ) -> libc::c_int {
 	print!("{}", (*shell).env);
+	println!("?={}", (*shell).exit_status);
 	0 as libc::c_int
 }
