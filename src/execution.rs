@@ -32,7 +32,8 @@ unsafe extern "C" fn forkable_builtin(mut token: *mut t_token) -> bool {
 pub unsafe extern "C" fn execute_commands(mut shell: *mut t_shell, mut token: *mut t_token) {
 	let mut error_elem: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	if token.is_null() {
-		return update_exit_status(shell, -(1 as libc::c_int));
+		(*shell).exit_status = -(1 as libc::c_int) as u8;
+		return;
 	}
 	let mut token_count = memsize(
 		(*shell).token as *mut libc::c_void,
@@ -50,12 +51,11 @@ pub unsafe extern "C" fn execute_commands(mut shell: *mut t_shell, mut token: *m
 				eprint_msh!("{}: {}", error_elem, err);
 				// @audit
 			};
-			return update_exit_status(shell, redir_status);
+			(*shell).exit_status = redir_status as u8;
+			return;
 		}
-		update_exit_status(
-			shell,
-			((*token).cmd_func).expect("non-null function pointer")(shell, token),
-		);
+		(*shell).exit_status =
+			((*token).cmd_func).expect("non-null function pointer")(shell, token) as u8;
 	} else {
 		execute_pipes(shell, token_count);
 	}
