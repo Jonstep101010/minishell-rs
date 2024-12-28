@@ -3,6 +3,7 @@ use libft_rs::{ft_strlen::ft_strlen, ft_strncmp::ft_strncmp};
 
 use crate::size_t;
 
+#[deprecated]
 unsafe extern "C" fn get_key_len(mut s: *const libc::c_char) -> size_t {
 	let mut key_len: size_t = 0;
 	let mut len: size_t = ft_strlen(s);
@@ -22,6 +23,7 @@ unsafe extern "C" fn get_key_len(mut s: *const libc::c_char) -> size_t {
 	}
 	-(1 as libc::c_int) as size_t
 }
+#[deprecated]
 #[no_mangle]
 pub unsafe extern "C" fn get_index_env(
 	mut env: *const *mut libc::c_char,
