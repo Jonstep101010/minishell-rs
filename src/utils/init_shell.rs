@@ -12,39 +12,8 @@ use libutils_rs::src::{
 
 use crate::{environment::get_env::get_env, prelude::tcflag_t, t_shell, termios};
 
-unsafe extern "C" fn init_env(mut envp: *const *mut libc::c_char) -> *mut *mut libc::c_char {
-	let mut env: *mut *mut libc::c_char =
-		append_str_arr(envp, b"?=0\0" as *const u8 as *const libc::c_char);
-	let mut pwd: *mut libc::c_char = get_env(env, b"PWD\0" as *const u8 as *const libc::c_char);
-	if pwd.is_null() && !env.is_null() {
-		pwd = getcwd(std::ptr::null_mut::<libc::c_char>(), 0);
-		if pwd.is_null() {
-			arr_free(env);
-			return std::ptr::null_mut::<libc::c_void>() as *mut *mut libc::c_char;
-		}
-		env = append_str_arr_free(
-			append_str_arr_free(
-				env,
-				free_second_join(b"PWD=\0" as *const u8 as *const libc::c_char, pwd),
-			),
-			ft_strdup(b"OLDPWD=''\0" as *const u8 as *const libc::c_char),
-		);
-	} else {
-		free_null(&mut pwd as *mut *mut libc::c_char as *mut libc::c_void);
-	}
-	let mut path: *mut libc::c_char = get_env(env, b"PATH\0" as *const u8 as *const libc::c_char);
-	if path.is_null() {
-		env = append_str_arr_free(
-			env,
-			ft_strdup(b"PATH=/bin:/usr/bin:/sbin/:/usr/sbin\0" as *const u8 as *const libc::c_char),
-		);
-	} else {
-		free_null(&mut path as *mut *mut libc::c_char as *mut libc::c_void);
-	}
-	env
-}
 #[no_mangle]
-pub unsafe extern "C" fn init_shell(mut envp: *const *mut libc::c_char) -> *mut t_shell {
+pub unsafe extern "C" fn init_shell() -> *mut t_shell {
 	let mut shell: *mut t_shell = ft_calloc(
 		1 as libc::c_int as crate::size_t,
 		::core::mem::size_of::<t_shell>() as libc::c_ulong,
@@ -64,6 +33,6 @@ pub unsafe extern "C" fn init_shell(mut envp: *const *mut libc::c_char) -> *mut 
 			c_ospeed: 0,
 		}
 	};
-	(*shell).env = init_env(envp);
+	(*shell).env = crate::environment::Env::new();
 	shell
 }

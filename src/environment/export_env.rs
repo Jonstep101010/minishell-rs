@@ -11,6 +11,7 @@ use libutils_rs::src::{
 	array::append_str::append_str_arr_free, string::join_strings::free_second_join,
 };
 
+#[deprecated]
 #[no_mangle]
 pub unsafe extern "C" fn export_env(mut shell: *mut t_shell, mut key_val: *mut libc::c_char) {
 	if key_val.is_null() || *key_val == 0 {
@@ -40,9 +41,6 @@ pub unsafe extern "C" fn export_env(mut shell: *mut t_shell, mut key_val: *mut l
 }
 #[no_mangle]
 pub unsafe extern "C" fn update_exit_status(mut shell: *mut t_shell, mut status: libc::c_int) {
-	export_env(
-		shell,
-		free_second_join(b"?=\0" as *const u8 as *const libc::c_char, ft_itoa(status)),
-	);
+	(*shell).env.export("?".to_string(), status.to_string());
 	(*shell).exit_status = status as u8;
 }

@@ -7,7 +7,6 @@
 	clippy::missing_safety_doc,
 	clippy::upper_case_acronyms
 )]
-#![feature(c_variadic)]
 #![feature(extern_types)]
 
 extern crate libc;
@@ -36,13 +35,7 @@ pub mod builtins {
 	pub mod pwd;
 	pub mod unset;
 } // mod builtins
-pub mod environment {
-	pub mod check_key;
-	pub mod expander;
-	pub mod export_env;
-	pub mod get_env;
-	pub mod get_index;
-} // mod environment
+pub mod environment; // mod environment
 pub mod execution; // mod execution
 pub mod lexer {
 	use crate::{
@@ -151,13 +144,14 @@ pub struct t_token {
 	pub bin: *mut libc::c_char,          // String
 	pub cmd_func: Option<unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int>, // fn
 }
+
 #[derive(Clone)]
 #[repr(C)]
 pub struct t_shell {
 	pub exit_status: uint8_t, // u8
-	// pub env: Vec<String>,    // Vec<String>
-	env: *mut *mut libc::c_char, // Vec<String>
-	pub token: *mut t_token,  // Vec<t_token>
+	env: environment::Env,
+	// env: *mut *mut libc::c_char, // Vec<String>
+	pub token: *mut t_token, // Vec<t_token>
 	pub token_len: size_t,
 	pub p_termios: termios, // some rust stuff?
 }
@@ -169,12 +163,8 @@ pub struct t_arg {
 	pub redir: e_redir,          // enum wrapping string
 }
 
-unsafe fn main_0(
-	mut _ac: libc::c_int,
-	mut _av: *mut *mut libc::c_char,
-	mut envp: *mut *mut libc::c_char,
-) -> libc::c_int {
-	let mut shell: *mut t_shell = utils::init_shell::init_shell(envp);
+unsafe fn main_0() -> libc::c_int {
+	let mut shell: *mut t_shell = utils::init_shell::init_shell();
 	if shell.is_null() {
 		return 1 as libc::c_int;
 	}
@@ -198,30 +188,5 @@ unsafe fn main_0(
 	}
 }
 pub fn main() {
-	let mut args: Vec<*mut libc::c_char> = Vec::new();
-	for arg in ::std::env::args() {
-		args.push(
-			(::std::ffi::CString::new(arg))
-				.expect("Failed to convert argument into CString.")
-				.into_raw(),
-		);
-	}
-	args.push(::core::ptr::null_mut());
-	let mut vars: Vec<*mut libc::c_char> = Vec::new();
-	for (var_name, var_value) in ::std::env::vars() {
-		let var: String = format!("{}={}", var_name, var_value);
-		vars.push(
-			(::std::ffi::CString::new(var))
-				.expect("Failed to convert environment variable into CString.")
-				.into_raw(),
-		);
-	}
-	vars.push(::core::ptr::null_mut());
-	unsafe {
-		::std::process::exit(main_0(
-			(args.len() - 1) as libc::c_int,
-			args.as_mut_ptr(),
-			vars.as_mut_ptr(),
-		) as i32)
-	}
+	unsafe { ::std::process::exit(main_0() as i32) }
 }
