@@ -1,25 +1,21 @@
+use crate::prelude::*;
 use crate::{
+	environment::Env,
 	environment::{check_key::check_valid_key, export_env::export_env},
 	eprint_msh, size_t, t_shell, t_token,
 	tokenizer::build_command::get_cmd_arr_token,
 };
-use crate::prelude::*;
 use ::libc;
-use libc::printf;
 
 use libft_rs::ft_strdup::ft_strdup;
 use libutils_rs::src::{array::arr_free::arr_free, string::str_cchr::str_cchr};
 
-unsafe extern "C" fn declare_x_env_var(mut env: *const *mut libc::c_char) -> libc::c_int {
-	while !(*env).is_null() {
-		printf(
-			b"declare -x %s\n\0" as *const u8 as *const libc::c_char,
-			*env,
-		);
-		env = env.offset(1);
+fn declare_x(env: &Env) {
+	for (key, value) in env.iter() {
+		println!("declare -x {}={}", key, value);
 	}
-	0 as libc::c_int
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn builtin_export(
 	mut shell: *mut t_shell,
@@ -30,7 +26,8 @@ pub unsafe extern "C" fn builtin_export(
 	let mut i: size_t = 1;
 	if command.is_null() || (*command.offset(i as isize)).is_null() {
 		arr_free(command as *mut *mut libc::c_char);
-		return declare_x_env_var((*shell).env);
+		declare_x(&(*shell).env);
+		return 0;
 	}
 	while !(*command.offset(i as isize)).is_null() {
 		if !check_valid_key(*command.offset(i as isize)) {
