@@ -10,7 +10,7 @@ pub struct Env {
 impl Display for Env {
 	fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
 		for (key, value) in &self.map {
-			write!(f, "{}={}\n", key, value)?;
+			writeln!(f, "{}={}", key, value)?;
 		}
 		Ok(())
 	}
@@ -31,8 +31,8 @@ impl Env {
 		let mut host_env: HashMap<String, String> = std::env::vars().collect();
 		// @note we will only expand the exit status when needed using shell
 		// we panic if we can't get the current working directory
-		assert!(host_env.get("PWD").is_some());
-		if host_env.get("PATH").is_none() {
+		assert!(host_env.contains_key("PWD"));
+		if !host_env.contains_key("PATH") {
 			host_env.insert(
 				"PATH".to_string(),
 				"/bin:/usr/bin:/sbin/:/usr/sbin".to_string(),
@@ -72,6 +72,12 @@ impl Env {
 	// @todo implement builtins in environment
 	pub fn unset(&mut self, key: &str) {
 		self.map.remove(key);
+	}
+}
+
+impl Default for Env {
+	fn default() -> Self {
+		Self::new()
 	}
 }
 
