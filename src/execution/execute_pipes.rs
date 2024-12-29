@@ -1,5 +1,4 @@
 use crate::{
-	environment::export_env::update_exit_status,
 	signals::handlers::check_signals_child,
 	t_shell,
 	utils::exit_free::{exit_error, exit_free},
@@ -23,7 +22,7 @@ unsafe extern "C" fn exec_last(
 			do_heredocs(
 				&mut *((*shell).token).offset(i as isize),
 				prevpipe,
-				(*shell).env,
+				&(*shell).env,
 			);
 		}
 		if do_redirections((*((*shell).token).offset(i as isize)).cmd_args, error_elem)
@@ -45,7 +44,7 @@ unsafe extern "C" fn exec_last(
 		close(*prevpipe);
 		while wait(std::ptr::null_mut::<libc::c_int>()) > 0 as libc::c_int {}
 		if status & 0x7f as libc::c_int == 0 as libc::c_int {
-			update_exit_status(shell, (status & 0xff00 as libc::c_int) >> 8 as libc::c_int);
+			(*shell).exit_status = ((status & 0xff00 as libc::c_int) >> 8 as libc::c_int) as u8;
 		}
 	};
 }
@@ -99,7 +98,7 @@ pub unsafe extern "C" fn execute_pipes(mut shell: *mut t_shell, mut token_count:
 			do_heredocs(
 				&mut *((*shell).token).offset(i as isize),
 				&mut prevpipe,
-				(*shell).env,
+				&(*shell).env,
 			);
 		}
 		exec_pipe(shell, i, &mut prevpipe, &mut error_elem);

@@ -1,5 +1,5 @@
 use super::token_utils::init_token;
-use crate::{parser::split_outside_quotes::split_outside_quotes, t_token, utils::error::eprint};
+use crate::{parser::split_outside_quotes::split_outside_quotes, t_token};
 use ::libc;
 use libc::free;
 use libft_rs::ft_strdup::ft_strdup;
@@ -37,7 +37,7 @@ pub unsafe extern "C" fn get_tokens(mut trimmed_line: *const libc::c_char) -> *m
 	let mut split_pipes: *mut *mut libc::c_char =
 		split_outside_quotes(trimmed_line, b"|\0" as *const u8 as *const libc::c_char);
 	if split_pipes.is_null() {
-		eprint(b"alloc fail!\0" as *const u8 as *const libc::c_char);
+		crate::eprint_msh!("alloc fail!");
 		return std::ptr::null_mut::<libc::c_void>() as *mut t_token;
 	}
 	if (*split_pipes).is_null() {
@@ -46,7 +46,7 @@ pub unsafe extern "C" fn get_tokens(mut trimmed_line: *const libc::c_char) -> *m
 	}
 	let mut token: *mut t_token = init_token(arr_len(split_pipes));
 	if token.is_null() {
-		eprint(b"alloc fail token\0" as *const u8 as *const libc::c_char);
+		crate::eprint_msh!("alloc fail token");
 	}
 	let mut i: libc::c_int = 0;
 	while !token.is_null() && !(*split_pipes.offset(i as isize)).is_null() {

@@ -7,12 +7,11 @@
 	clippy::missing_safety_doc,
 	clippy::upper_case_acronyms
 )]
-#![feature(c_variadic)]
+#![feature(let_chains)]
 #![feature(extern_types)]
 
 extern crate libc;
 extern crate libft_rs;
-extern crate libftprintf_rs;
 extern crate libgnl_rs;
 extern crate libutils_rs;
 
@@ -37,17 +36,10 @@ pub mod builtins {
 	pub mod pwd;
 	pub mod unset;
 } // mod builtins
-pub mod environment {
-	pub mod check_key;
-	pub mod expander;
-	pub mod export_env;
-	pub mod get_env;
-	pub mod get_index;
-} // mod environment
+pub mod environment; // mod environment
 pub mod execution; // mod execution
 pub mod lexer {
 	use crate::{
-		environment::export_env::update_exit_status,
 		size_t, t_shell,
 		tokenizer::{build_tokens::tokenize, destroy_tokens::destroy_all_tokens},
 		utils::get_input::get_input,
@@ -85,7 +77,7 @@ pub mod lexer {
 		}
 		let mut lex = lexer_checks_basic(trimmed_line);
 		if !(*lex).result {
-			update_exit_status(shell, (*lex).lexer);
+			(*shell).exit_status = (*lex).lexer as u8;
 			get_input(std::ptr::null_mut::<libc::c_char>());
 			free(lex as *mut libc::c_void);
 			return 1 as libc::c_int;
@@ -127,6 +119,7 @@ pub mod utils {
 	pub mod exit_free;
 	pub mod get_input;
 	pub mod init_shell;
+	pub mod interop;
 } // mod utils
 
 #[derive(Copy, Clone)]
@@ -141,24 +134,37 @@ pub struct termios {
 	pub c_ispeed: speed_t,
 	pub c_ospeed: speed_t,
 }
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 #[repr(C)]
 pub struct t_token {
 	pub cmd_args: *mut t_arg, // Vec<t_arg>
 	pub has_redir: bool,
 	pub split_pipes: *mut libc::c_char,  // String
 	pub tmp_arr: *mut *mut libc::c_char, // Vec<String>
-	pub bin: *mut libc::c_char,          // String
+	pub bin: std::ffi::CString,          // String
 	pub cmd_func: Option<unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int>, // fn
 }
-#[derive(Copy, Clone)]
+
+#[derive(Clone)]
 #[repr(C)]
 pub struct t_shell {
-	pub exit_status: uint8_t,        // u8
-	pub env: *mut *mut libc::c_char, // Vec<String>
-	pub token: *mut t_token,         // Vec<t_token>
+	pub exit_status: uint8_t, // u8
+	env: environment::Env,
+	pub token: *mut t_token, // Vec<t_token>
 	pub token_len: size_t,
 	pub p_termios: termios, // some rust stuff?
+}
+
+impl t_shell {
+	pub fn export(&mut self, key: &str, value: String) {
+		self.env.export(key, value);
+	}
+	pub fn unset(&mut self, key: &str) {
+		self.env.unset(key);
+	}
+	pub fn get_var(&self, key: &str) -> Option<&String> {
+		self.env.get(key)
+	}
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
@@ -168,12 +174,8 @@ pub struct t_arg {
 	pub redir: e_redir,          // enum wrapping string
 }
 
-unsafe fn main_0(
-	mut _ac: libc::c_int,
-	mut _av: *mut *mut libc::c_char,
-	mut envp: *mut *mut libc::c_char,
-) -> libc::c_int {
-	let mut shell: *mut t_shell = utils::init_shell::init_shell(envp);
+unsafe fn main_0() -> libc::c_int {
+	let mut shell: *mut t_shell = utils::init_shell::init_shell();
 	if shell.is_null() {
 		return 1 as libc::c_int;
 	}
@@ -191,36 +193,11 @@ unsafe fn main_0(
 		if *trimmed_line == 0 || crate::lexer::run(shell, trimmed_line) != 0 as libc::c_int {
 			continue;
 		}
-		if !((*shell).env).is_null() && !(*(*shell).env).is_null() && !((*shell).token).is_null() {
+		if !((*shell).token).is_null() {
 			execution::execute_commands(shell, (*shell).token);
 		}
 	}
 }
 pub fn main() {
-	let mut args: Vec<*mut libc::c_char> = Vec::new();
-	for arg in ::std::env::args() {
-		args.push(
-			(::std::ffi::CString::new(arg))
-				.expect("Failed to convert argument into CString.")
-				.into_raw(),
-		);
-	}
-	args.push(::core::ptr::null_mut());
-	let mut vars: Vec<*mut libc::c_char> = Vec::new();
-	for (var_name, var_value) in ::std::env::vars() {
-		let var: String = format!("{}={}", var_name, var_value);
-		vars.push(
-			(::std::ffi::CString::new(var))
-				.expect("Failed to convert environment variable into CString.")
-				.into_raw(),
-		);
-	}
-	vars.push(::core::ptr::null_mut());
-	unsafe {
-		::std::process::exit(main_0(
-			(args.len() - 1) as libc::c_int,
-			args.as_mut_ptr(),
-			vars.as_mut_ptr(),
-		) as i32)
-	}
+	unsafe { ::std::process::exit(main_0() as i32) }
 }

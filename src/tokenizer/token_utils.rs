@@ -131,7 +131,7 @@ pub unsafe extern "C" fn init_token(mut size: size_t) -> *mut t_token {
 			has_redir: 0 as libc::c_int != 0,
 			split_pipes: std::ptr::null_mut::<libc::c_char>(),
 			tmp_arr: std::ptr::null_mut::<*mut libc::c_char>(),
-			bin: std::ptr::null_mut::<libc::c_char>(),
+			bin: std::ffi::CString::new("").unwrap(),
 			cmd_func: Some(
 				exec_bin as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int,
 			),

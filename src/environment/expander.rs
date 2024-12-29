@@ -1,124 +1,110 @@
-use ::libc;
-use libc::free;
+#![warn(clippy::pedantic)]
+#![forbid(unsafe_code)]
+use super::Env;
+use std::ffi::{CStr, CString};
 
-use libft_rs::{
-	ft_strchr::ft_strchr, ft_strdup::ft_strdup, ft_strlen::ft_strlen, ft_substr::ft_substr,
-};
-use libutils_rs::src::string::{append_char::append_char_str, join_strings::free_both_join};
-
-use crate::size_t;
-
-use super::get_env::get_env;
-
-unsafe extern "C" fn check_index_advance(
-	mut s: *const libc::c_char,
-	mut i: libc::c_int,
-) -> libc::c_int {
-	let mut count: libc::c_int = 0;
-	while *s.offset((i + count) as isize) as libc::c_int != 0
-		&& *s.offset((i + count + 1 as libc::c_int) as isize) as libc::c_int != 0
-		&& (ft_strchr(
-			b"$\"'/? )(\0" as *const u8 as *const libc::c_char,
-			*s.offset((i + count + 1 as libc::c_int) as isize) as libc::c_int,
-		))
-		.is_null()
+const CHARMATCH: &[u8; 9] = b"$\"'/? )(\0";
+fn check_index_advance(bytes_s: &[u8], mut i: usize) -> usize {
+	let mut count: usize = 0;
+	while bytes_s[i + count] != b'\0'
+		&& bytes_s[i + count + 1] != b'\0'
+		&& !CHARMATCH.iter().any(|&x| x == bytes_s[i + count + 1])
 	{
 		count += 1;
 	}
-	if *s.offset((i + count) as isize) as libc::c_int != 0
-		&& *s.offset((i + count + 1 as libc::c_int) as isize) as libc::c_int == '?' as i32
-	{
-		count += 1 as libc::c_int;
+	if bytes_s[i + count] != b'\0' && bytes_s[i + count + 1] == b'?' {
+		count += 1;
 	}
 	count
 }
-unsafe extern "C" fn expand_inside(
-	mut key: *mut libc::c_char,
-	mut env: *const *mut libc::c_char,
-	mut i: *mut libc::c_int,
-) -> *mut libc::c_char {
-	let len: size_t = ft_strlen(key);
-	let mut ret: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
-	if *key != 0 {
-		ret = get_env(env, key);
-	}
-	if ret.is_null() {
-		ret = ft_strdup(b"\0" as *const u8 as *const libc::c_char);
-	}
-	free(key as *mut libc::c_void);
-	if ret.is_null() {
-		return std::ptr::null_mut::<libc::c_char>();
-	}
-	*i = (*i as libc::c_ulong).wrapping_add(len) as libc::c_int as libc::c_int;
+fn expand_inside(key_c_str: &CStr, env: &Env, mut i: &mut usize) -> String {
+	let mut ret: String = {
+		if !key_c_str.is_empty()
+			&& let Some(expansion) = env.get(key_c_str.to_str().unwrap())
+		{
+			expansion.to_string()
+		} else {
+			String::new()
+		}
+	};
+	*i = (*i).wrapping_add(key_c_str.count_bytes());
 	ret
 }
-unsafe extern "C" fn check_quotes(
-	mut s: *const libc::c_char,
-	mut expand_0: *mut bool,
-	mut double_quote: *mut libc::c_int,
-) {
-	if *s as libc::c_int == '"' as i32 && *double_quote == 0 as libc::c_int {
-		*double_quote = 1 as libc::c_int;
-	} else if *s as libc::c_int == '"' as i32 && *double_quote == 1 as libc::c_int {
-		*double_quote = 0 as libc::c_int;
+fn check_quotes(c: &[u8], mut expand_0: &mut bool, mut double_quote: &mut i32) {
+	if c[0] == b'"' && *double_quote == 0 {
+		*double_quote = 1;
+	} else if c[0] == b'"' && *double_quote == 1 {
+		*double_quote = 0;
 	}
-	if *s as libc::c_int == '\'' as i32
-		&& *double_quote == 0 as libc::c_int
-		&& *s.offset(check_index_advance(s, 0 as libc::c_int) as isize) as libc::c_int != '"' as i32
-	{
+	if c[0] == b'\'' && *double_quote == 0 && c[check_index_advance(c, 0)] != b'"' {
 		*expand_0 = !*expand_0;
 	}
 }
-unsafe extern "C" fn expand(
-	mut s: *const libc::c_char,
-	mut env: *const *mut libc::c_char,
-) -> *mut libc::c_char {
-	let mut i: libc::c_int = -1;
+const EXP_CHARS: &[u8; 4] = b"$()\0";
+fn expand(s: &CStr, env: &Env) -> CString {
+	let mut i: usize = 0;
 	let mut expand_0: bool = false;
-	let mut double_quote: libc::c_int = 0;
-	let mut ret: *mut libc::c_char = ft_strdup(b"\0" as *const u8 as *const libc::c_char);
+	let mut double_quote = 0;
+	let mut ret = String::new();
 	loop {
-		i += 1;
-		if *s.offset(i as isize) == 0 {
+		let bytes_s = s.to_bytes_with_nul();
+		if bytes_s[0] == b'\0' {
 			break;
 		}
-		check_quotes(&*s.offset(i as isize), &mut expand_0, &mut double_quote);
-		if expand_0 as libc::c_int != 0
-			&& (*s.offset(i as isize) as libc::c_int == '$' as i32
-				&& *s.offset((i + 1 as libc::c_int) as isize) as libc::c_int != 0
-				&& (ft_strchr(
-					b"$()\0" as *const u8 as *const libc::c_char,
-					*s.offset((i + 1 as libc::c_int) as isize) as libc::c_int,
-				))
-				.is_null())
+		check_quotes(s.to_bytes_with_nul(), &mut expand_0, &mut double_quote);
+		if !expand_0
+			&& bytes_s[i] == b'$'
+			&& bytes_s[i + 1] != b'\0'
+			&& !EXP_CHARS.iter().any(|&x| x == bytes_s[i + 1])
 		{
-			let mut key: *mut libc::c_char = ft_substr(
-				s,
-				(i + 1 as libc::c_int) as libc::c_uint,
-				check_index_advance(s, i) as size_t,
-			);
-			if key.is_null() {
-				free(ret as *mut libc::c_void);
-				crate::utils::error::eprint(b"alloc fail!\0" as *const u8 as *const libc::c_char);
-				return std::ptr::null_mut::<libc::c_void>() as *mut libc::c_char;
-			}
-			ret = free_both_join(ret, expand_inside(key, env, &mut i));
+			let start = i + 1;
+			let len = check_index_advance(s.to_bytes_with_nul(), i);
+			let key =
+				CStr::from_bytes_with_nul(&s.to_bytes_with_nul()[start..=(start + len)]).unwrap();
+			let expansion = expand_inside(key, env, &mut i);
+			ret.push_str(&expansion);
+		} else if i < bytes_s.len() - 1 {
+			ret.push(bytes_s[i] as char);
 		} else {
-			ret = append_char_str(ret, *s.offset(i as isize));
+			break;
 		}
+		i += 1;
 	}
-	ret
+	CString::new(ret).unwrap()
 }
-#[no_mangle]
-pub unsafe extern "C" fn expander(
-	mut input_expander: *const libc::c_char,
-	mut env: *const *mut libc::c_char,
-) -> *mut libc::c_char {
-	if input_expander.is_null() || env.is_null() || (*env).is_null() || *input_expander == 0 {
-		return std::ptr::null_mut::<libc::c_char>();
+
+/// Expand the input string using the environment variables stored in the `env` struct.
+///
+/// # Arguments
+/// `input_expander` - A `CStr` reference to the input string to be expanded.
+#[must_use]
+pub fn expander(input_expander: &CStr, env: &Env) -> Option<CString> {
+	if input_expander.is_empty() {
+		return None;
 	}
-	if (ft_strchr(input_expander, '$' as i32)).is_null() {
-		return ft_strdup(input_expander);
+	Some(expand(input_expander, env))
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use std::ffi::CString;
+
+	#[test]
+	fn test_expander() {
+		let env = Env::new();
+		let input = CString::new("Hello $USER").unwrap();
+		let output = expander(&input, &env).unwrap();
+		assert_eq!(
+			output.to_str().unwrap(),
+			format!("Hello {}", std::env::var("USER").unwrap())
+		);
 	}
-	expand(input_expander, env)
+	#[test]
+	fn test_expander_two() {
+		let env = Env::new();
+		let input = CString::new("$USER").unwrap();
+		let output = expander(&input, &env).unwrap();
+		assert_eq!(output.to_str().unwrap(), std::env::var("USER").unwrap());
+	}
 }

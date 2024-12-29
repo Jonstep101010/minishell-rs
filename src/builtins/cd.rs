@@ -1,79 +1,57 @@
 use ::libc;
-use libft_rs::ft_strdup::ft_strdup;
 
-use crate::{
-	environment::{export_env::export_env, get_env::get_env},
-	t_shell, t_token,
-	tokenizer::build_command::get_cmd_arr_token,
-};
-use libutils_rs::src::{array::arr_free::arr_free, utils::free_mem::free_null};
-use std::ffi::{CStr, CString};
+use crate::{environment::Env, t_shell, t_token, tokenizer::build_command::get_cmd_arr_token};
+use libutils_rs::src::array::arr_free::arr_free;
+use std::{ffi::CStr, path::Path};
 
-fn changedir(mut rust_path: &str, mut shell: *mut t_shell) -> bool {
+fn changedir(mut path_string: &str, mut env: &mut Env) -> bool {
 	let oldpwd = std::env::current_dir().unwrap();
-	match std::env::set_current_dir(std::path::Path::new(rust_path)) {
+	let rust_path = Path::new(path_string);
+	match std::env::set_current_dir(rust_path) {
 		Ok(_) => {
 			let pwd = std::env::current_dir();
 			match pwd {
 				Ok(p) => {
-					let pwd_prefixed = String::from("PWD=") + p.to_str().unwrap();
-					let old_prefixed = String::from("OLDPWD=") + oldpwd.to_str().unwrap();
-					unsafe {
-						let new_pwd = CString::new(pwd_prefixed).unwrap();
-						export_env(shell, ft_strdup(new_pwd.as_ptr()));
-						let old_pwd = CString::new(old_prefixed).unwrap();
-						export_env(shell, ft_strdup(old_pwd.as_ptr()));
-					}
+					env.export("PWD", p.to_str().unwrap().to_string());
+					env.export("OLDPWD", oldpwd.to_str().unwrap().to_string());
 					true
 				}
 				Err(e) => {
-					eprintln!("cd: {}: {}", rust_path, e);
+					eprintln!("cd: {}: {}", path_string, e);
 					false
 				}
 			}
 		}
 		Err(e) => {
-			eprintln!("cd: {}: {}", rust_path, e);
+			eprintln!("cd: {}: {}", path_string, e);
 			false
 		}
 	}
 }
-unsafe fn cd_internal(mut opt_cmd_args: Option<&CStr>, mut shell: *mut t_shell) -> i32 {
-	let mut path = get_env((*shell).env, c"HOME".as_ptr());
-	let mut oldpwd = get_env((*shell).env, c"OLDPWD".as_ptr());
-	if opt_cmd_args.is_none() && path.is_null() {
-		free_null(&mut oldpwd as *mut *mut libc::c_char as *mut libc::c_void);
-		eprintln!("cd: HOME not set");
-		return 1;
-	}
-	if opt_cmd_args.is_none() && !path.is_null() {
-		let strref = CStr::from_ptr(path).to_str().unwrap();
-		changedir(strref, shell);
-	} else if !path.is_null() && opt_cmd_args.unwrap().to_bytes() == b"~" {
-		let strref = CStr::from_ptr(path).to_str().unwrap();
-		println!("{}", strref);
-		if !changedir(strref, shell) {
-			libc::free(path as *mut libc::c_void);
-			libc::free(oldpwd as *mut libc::c_void);
-			return 1 as libc::c_int;
+
+fn cd_internal(mut opt_cmd_args: Option<&str>, mut env: &mut Env) -> bool {
+	if opt_cmd_args.is_none() {
+		let env_path = env.get("HOME");
+		if env_path.is_none() {
+			eprintln!("cd: HOME not set");
+			false
+		} else {
+			let env_path = env.get("HOME").unwrap().clone();
+			changedir(&env_path, env);
+			true
 		}
-	} else if opt_cmd_args.unwrap().to_bytes() == b"-" && !oldpwd.is_null() {
-		let strref = CStr::from_ptr(oldpwd).to_str().unwrap();
-		println!("{}", strref);
-		if !changedir(strref, shell) {
-			libc::free(path as *mut libc::c_void);
-			libc::free(oldpwd as *mut libc::c_void);
-			return 1 as libc::c_int;
-		}
-	} else if !changedir(opt_cmd_args.unwrap().to_str().unwrap(), shell) {
-		libc::free(path as *mut libc::c_void);
-		libc::free(oldpwd as *mut libc::c_void);
-		return 1;
+	} else if let Some(env_path) = env.get("HOME")
+		&& opt_cmd_args.unwrap().as_bytes() == b"~"
+	{
+		changedir(&env_path.clone(), env)
+	} else if opt_cmd_args.unwrap().as_bytes() == b"-" && env.get("OLDPWD").is_some() {
+		let oldpwd = env.get("OLDPWD").unwrap().clone();
+		changedir(&oldpwd, env)
+	} else {
+		changedir(opt_cmd_args.unwrap(), env)
 	}
-	libc::free(path as *mut libc::c_void);
-	libc::free(oldpwd as *mut libc::c_void);
-	0
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn builtin_cd(
 	mut shell: *mut t_shell,
@@ -86,9 +64,10 @@ pub unsafe extern "C" fn builtin_cd(
 	let opt_cmd_args = if cmd_args.is_null() {
 		None
 	} else {
-		Some(CStr::from_ptr(cmd_args))
+		Some(CStr::from_ptr(cmd_args).to_str().unwrap())
 	};
-	let status = cd_internal(opt_cmd_args, shell);
+	let mut shell_env: &mut Env = &mut (*shell).env;
+	let status = cd_internal(opt_cmd_args, shell_env);
 	arr_free(command as *mut *mut libc::c_char);
-	status
+	!status as libc::c_int
 }

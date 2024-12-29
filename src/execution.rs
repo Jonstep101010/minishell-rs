@@ -4,16 +4,17 @@ mod execute_pipes;
 mod heredoc;
 mod redirections;
 use self::{execute_pipes::execute_pipes, redirections::do_redirections};
+#[allow(unused_imports)]
 use crate::{
 	__errno_location,
 	builtins::{cd::builtin_cd, exit::builtin_exit, export::builtin_export, unset::builtin_unset},
-	environment::export_env::update_exit_status,
+	eprint_msh,
 	libutils_rs::src::utils::memsize::memsize,
 	t_shell, t_token,
 	tokenizer::destroy_tokens::destroy_all_tokens,
-	utils::error::eprint,
 };
 use ::libc;
+#[allow(unused_imports)]
 use libc::strerror;
 
 unsafe extern "C" fn forkable_builtin(mut token: *mut t_token) -> bool {
@@ -31,7 +32,8 @@ unsafe extern "C" fn forkable_builtin(mut token: *mut t_token) -> bool {
 pub unsafe extern "C" fn execute_commands(mut shell: *mut t_shell, mut token: *mut t_token) {
 	let mut error_elem: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	if token.is_null() {
-		return update_exit_status(shell, -(1 as libc::c_int));
+		(*shell).exit_status = -(1 as libc::c_int) as u8;
+		return;
 	}
 	let mut token_count = memsize(
 		(*shell).token as *mut libc::c_void,
@@ -40,17 +42,20 @@ pub unsafe extern "C" fn execute_commands(mut shell: *mut t_shell, mut token: *m
 	if token_count == 1 as libc::c_int && !forkable_builtin(token) {
 		let mut redir_status = do_redirections((*token).cmd_args, &mut error_elem);
 		if redir_status != 0 as libc::c_int {
-			eprint(
-				b"%s: %s\0" as *const u8 as *const libc::c_char,
-				error_elem,
-				strerror(*__errno_location()),
-			);
-			return update_exit_status(shell, redir_status);
+			if error_elem.is_null() {
+				panic!("error_elem is null");
+			} else {
+				// @audit
+				let error_elem = stringify!(error_elem);
+				let err = stringify!(strerror(*__errno_location()));
+				eprint_msh!("{}: {}", error_elem, err);
+				// @audit
+			};
+			(*shell).exit_status = redir_status as u8;
+			return;
 		}
-		update_exit_status(
-			shell,
-			((*token).cmd_func).expect("non-null function pointer")(shell, token),
-		);
+		(*shell).exit_status =
+			((*token).cmd_func).expect("non-null function pointer")(shell, token) as u8;
 	} else {
 		execute_pipes(shell, token_count);
 	}
