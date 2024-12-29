@@ -3,7 +3,7 @@ members = []
 [package]
 name = "minishell-rs"
 authors = ["Jonstep101010"]
-version = "0.0.0"
+version = "0.0.1"
 publish = false
 edition = "2021"
 autobins = false
@@ -11,6 +11,9 @@ autobins = false
 [[bin]]
 path = "src/main.rs"
 name = "minishell-rs"
+[lib]
+path = "src/lib.rs"
+name = "msh"
 [dependencies]
 libc = "0.2"
 gnu-readline-sys = "0.1.0"

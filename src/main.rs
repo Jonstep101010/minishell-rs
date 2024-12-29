@@ -181,9 +181,23 @@ unsafe fn main_0() -> libc::c_int {
 	}
 	check_signals(&mut (*shell).p_termios);
 	loop {
-		let mut readline_line = readline(b"minishell> \0" as *const u8 as *const libc::c_char);
-		if readline_line.is_null() {
-			builtins::exit::builtin_exit(shell, std::ptr::null_mut::<t_token>());
+		let readline = rl.readline("core-rs>> ");
+		match readline {
+			Ok(line) => {
+				let _ = rl.add_history_entry(line.as_str());
+				shell.process_line(&line);
+			}
+			Err(ReadlineError::Interrupted) => {
+				println!("CTRL-C");
+				break;
+			}
+			Err(ReadlineError::Eof) => {
+				continue;
+			}
+			Err(err) => {
+				println!("Error: {err:?}");
+				break;
+			}
 		}
 		let mut trimmed_line = utils::get_input::get_input(readline_line);
 		if trimmed_line.is_null() {
@@ -197,6 +211,7 @@ unsafe fn main_0() -> libc::c_int {
 			execution::execute_commands(shell, (*shell).token);
 		}
 	}
+	Ok(())
 }
 pub fn main() {
 	unsafe { ::std::process::exit(main_0() as i32) }
