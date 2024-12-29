@@ -1,3 +1,5 @@
+use std::ffi::{CStr, CString};
+
 use ::libc;
 use gnu_readline_sys::readline;
 #[allow(unused_imports)]
@@ -6,16 +8,13 @@ use libc::{close, dup2, free, open, strerror, unlink};
 use libft_rs::{ft_putendl_fd::ft_putendl_fd, ft_strchr::ft_strchr};
 use libutils_rs::src::string::str_equal::equal;
 
+use crate::environment::Env;
 #[allow(unused_imports)]
 use crate::{__errno_location, e_redir, prelude::*, t_token};
 
 #[no_mangle]
 pub static mut g_ctrl_c: libc::c_int = 0 as libc::c_int;
-unsafe extern "C" fn heredoc_loop(
-	mut delim: *mut libc::c_char,
-	mut fd: libc::c_int,
-	env: *const *const libc::c_char,
-) {
+unsafe extern "C" fn heredoc_loop(mut delim: *mut libc::c_char, mut fd: libc::c_int, env: &Env) {
 	let mut line: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	g_ctrl_c = 0 as libc::c_int;
 	while 1 as libc::c_int != 0 && g_ctrl_c == 0 {
@@ -25,14 +24,17 @@ unsafe extern "C" fn heredoc_loop(
 			break;
 		} else {
 			if !(ft_strchr(line, '$' as i32)).is_null() {
-				let mut expanded: *mut libc::c_char =
-					crate::environment::expander::expander(line, env);
-				if !expanded.is_null() && (equal(expanded, line)).is_null() {
-					ft_putendl_fd(expanded, fd);
+				if let Some(expanded) =
+					crate::environment::expander::expander(CStr::from_ptr(line), env)
+				{
+					if (equal(expanded.as_ptr(), line)).is_null() {
+						let raw_ptr = expanded.into_raw();
+						ft_putendl_fd(raw_ptr, fd);
+						let _ = CString::from_raw(raw_ptr);
+					} else {
+						ft_putendl_fd(line, fd);
+					}
 				}
-				free(expanded as *mut libc::c_void);
-			} else {
-				ft_putendl_fd(line, fd);
 			}
 			free(line as *mut libc::c_void);
 		}
@@ -43,7 +45,7 @@ unsafe extern "C" fn heredoc_loop(
 pub unsafe extern "C" fn do_heredocs(
 	mut token: *mut t_token,
 	mut target: *mut libc::c_int,
-	env: *const *const libc::c_char,
+	env: &Env,
 ) {
 	let mut i: libc::c_int = -1;
 	loop {

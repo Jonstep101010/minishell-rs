@@ -1,3 +1,6 @@
+#[allow(unused_imports)]
+use std::ffi::{CStr, CString};
+
 use ::libc;
 use libc::free;
 use libft_rs::{ft_strlen::ft_strlen, ft_strncmp::ft_strncmp};
@@ -9,7 +12,7 @@ use libutils_rs::src::{
 
 use crate::{
 	builtins::env::builtin_env,
-	environment::expander::expander,
+	environment::{expander::expander, Env},
 	parser::{interpret_quotes::do_quote_bs, split_outside_quotes::split_outside_quotes},
 	prelude::*,
 	size_t, t_arg, t_shell, t_token,
@@ -25,7 +28,7 @@ use super::{
 unsafe extern "C" fn expand_if_allowed(
 	mut token: *mut t_token,
 	mut ii: size_t,
-	env: *const *const libc::c_char,
+	env: &Env,
 ) -> *mut libc::c_void {
 	if (*token).cmd_func
 		!= Some(builtin_env as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int)
@@ -34,34 +37,36 @@ unsafe extern "C" fn expand_if_allowed(
 			'$' as i32 as libc::c_char,
 		) != 0 as libc::c_int
 	{
-		let mut tmp: *mut libc::c_char =
-			expander((*((*token).cmd_args).offset(ii as isize)).elem, env);
-		if tmp.is_null() {
+		// we know this is non-null
+		let c_str = CStr::from_ptr((*((*token).cmd_args).offset(ii as isize)).elem);
+		let mut tmp = expander(c_str, env);
+		if tmp.is_none() {
 			return std::ptr::null_mut::<libc::c_void>();
 		}
+		let tmp = tmp.unwrap();
 		if ft_strncmp(
-			tmp,
+			tmp.as_ptr(),
 			(*((*token).cmd_args).offset(ii as isize)).elem,
-			((if ft_strlen(tmp) > ft_strlen((*((*token).cmd_args).offset(ii as isize)).elem) {
-				ft_strlen(tmp)
+			((if ft_strlen(tmp.as_ptr())
+				> ft_strlen((*((*token).cmd_args).offset(ii as isize)).elem)
+			{
+				ft_strlen(tmp.as_ptr())
 			} else {
 				ft_strlen((*((*token).cmd_args).offset(ii as isize)).elem)
 			}) == 0 as libc::c_int as libc::c_ulong) as libc::c_int as size_t,
 		) != 0
 		{
-			free(tmp as *mut libc::c_void);
+			// we need to make sure we do not free using free @audit
+			// free(tmp as *mut libc::c_void);
 		} else {
 			free((*((*token).cmd_args).offset(ii as isize)).elem as *mut libc::c_void);
 			let fresh0 = &mut (*((*token).cmd_args).offset(ii as isize)).elem;
-			*fresh0 = tmp;
+			*fresh0 = tmp.into_raw();
 		}
 	}
 	token as *mut libc::c_void
 }
-unsafe extern "C" fn setup_token(
-	mut token: *mut t_token,
-	env: *const *const libc::c_char,
-) -> *mut libc::c_void {
+unsafe extern "C" fn setup_token(mut token: *mut t_token, env: &Env) -> *mut libc::c_void {
 	if token.is_null() || ((*token).split_pipes).is_null() {
 		return std::ptr::null_mut::<libc::c_void>();
 	}
@@ -143,13 +148,9 @@ pub unsafe extern "C" fn tokenize(
 	while !((*((*shell).token).offset((*shell).token_len as isize)).split_pipes).is_null() {
 		(*shell).token_len = ((*shell).token_len).wrapping_add(1);
 	}
+	let shell_env = &(*shell).env;
 	while i < (*shell).token_len {
-		if setup_token(
-			&mut *((*shell).token).offset(i as isize),
-			(*shell).env.as_ptr_array().as_ptr(),
-		)
-		.is_null()
-		{
+		if setup_token(&mut *((*shell).token).offset(i as isize), shell_env).is_null() {
 			destroy_all_tokens(shell);
 			return std::ptr::null_mut::<libc::c_void>();
 		}
