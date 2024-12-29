@@ -22,7 +22,7 @@ unsafe extern "C" fn exec_last(
 			do_heredocs(
 				&mut *((*shell).token).offset(i as isize),
 				prevpipe,
-				(*shell).env.as_ptr_array().as_ptr(),
+				&(*shell).env,
 			);
 		}
 		if do_redirections((*((*shell).token).offset(i as isize)).cmd_args, error_elem)
@@ -98,7 +98,7 @@ pub unsafe extern "C" fn execute_pipes(mut shell: *mut t_shell, mut token_count:
 			do_heredocs(
 				&mut *((*shell).token).offset(i as isize),
 				&mut prevpipe,
-				(*shell).env.as_ptr_array().as_ptr(),
+				&(*shell).env,
 			);
 		}
 		exec_pipe(shell, i, &mut prevpipe, &mut error_elem);

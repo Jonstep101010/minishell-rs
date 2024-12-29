@@ -7,6 +7,7 @@
 	clippy::missing_safety_doc,
 	clippy::upper_case_acronyms
 )]
+#![feature(let_chains)]
 #![feature(extern_types)]
 
 extern crate libc;
@@ -159,7 +160,7 @@ impl t_shell {
 		self.env.export(key, value);
 	}
 	pub fn unset(&mut self, key: &str) {
-		self.env.unset(&key);
+		self.env.unset(key);
 	}
 	pub fn get_var(&self, key: &str) -> Option<&String> {
 		self.env.get(key)
