@@ -37,29 +37,18 @@ fn cd_internal(mut opt_cmd_args: Option<&str>, mut env: &mut Env) -> bool {
 			false
 		} else {
 			let env_path = env.get("HOME").unwrap().clone();
-			changedir(&env_path, &mut env);
+			changedir(&env_path, env);
 			true
 		}
+	} else if let Some(env_path) = env.get("HOME")
+		&& opt_cmd_args.unwrap().as_bytes() == b"~"
+	{
+		changedir(&env_path.clone(), env)
+	} else if opt_cmd_args.unwrap().as_bytes() == b"-" && env.get("OLDPWD").is_some() {
+		let oldpwd = env.get("OLDPWD").unwrap().clone();
+		changedir(&oldpwd, env)
 	} else {
-		let env_path = env.get("HOME");
-		if env_path.is_some() && opt_cmd_args.unwrap().as_bytes() == b"~" {
-			if !changedir(&env_path.unwrap().clone(), &mut env) {
-				false
-			} else {
-				true
-			}
-		} else if opt_cmd_args.unwrap().as_bytes() == b"-" && env.get("OLDPWD").is_some() {
-			let oldpwd = env.get("OLDPWD").unwrap().clone();
-			if !changedir(&oldpwd, &mut env) {
-				false
-			} else {
-				true
-			}
-		} else if !changedir(&opt_cmd_args.unwrap().to_string(), &mut env) {
-			false
-		} else {
-			true
-		}
+		changedir(opt_cmd_args.unwrap(), env)
 	}
 }
 
