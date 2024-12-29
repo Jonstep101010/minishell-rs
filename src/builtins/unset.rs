@@ -46,7 +46,7 @@ pub unsafe extern "C" fn builtin_unset(
 		while !(*args).is_null() {
 			if !check_valid_key(*args) || check_illegal_char(*args) as libc::c_int != 0 {
 				let faulty = i8const_str(args, 0);
-				eprint_msh!("unset: `%s': not a valid identifier {faulty}");
+				eprint_msh!("unset: `{faulty}': not a valid identifier");
 				return 1 as libc::c_int;
 			}
 			let rm_key = i8const_str(args, 0);
