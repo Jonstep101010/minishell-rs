@@ -13,7 +13,7 @@ fn changedir(mut path_string: &str, mut env: &mut Env) -> bool {
 			match pwd {
 				Ok(p) => {
 					env.export("PWD", p.to_str().unwrap().to_string());
-					env.export("PWD", oldpwd.to_str().unwrap().to_string());
+					env.export("OLDPWD", oldpwd.to_str().unwrap().to_string());
 					true
 				}
 				Err(e) => {
