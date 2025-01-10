@@ -2,7 +2,7 @@ use ::libc;
 
 use crate::{t_shell, t_token};
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn builtin_env(
 	mut shell: *mut t_shell,
 	mut _token: *mut t_token,

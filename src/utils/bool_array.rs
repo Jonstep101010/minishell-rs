@@ -3,7 +3,7 @@ use libft_rs::ft_calloc::ft_calloc;
 
 use crate::size_t;
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bool_arr_zeroing(mut len: size_t) -> *mut bool {
 	let mut i: size_t = 0;
 	let mut ignore: *mut bool = ft_calloc(
@@ -19,7 +19,7 @@ pub unsafe extern "C" fn bool_arr_zeroing(mut len: size_t) -> *mut bool {
 	}
 	ignore
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn range_ignore(
 	mut s: *const libc::c_char,
 	mut ignore: *mut bool,

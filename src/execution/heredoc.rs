@@ -12,8 +12,8 @@ use crate::environment::Env;
 #[allow(unused_imports)]
 use crate::{__errno_location, e_redir, prelude::*, t_token};
 
-#[no_mangle]
 pub static mut g_ctrl_c: libc::c_int = 0 as libc::c_int;
+#[unsafe(no_mangle)]
 unsafe extern "C" fn heredoc_loop(mut delim: *mut libc::c_char, mut fd: libc::c_int, env: &Env) {
 	let mut line: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	g_ctrl_c = 0 as libc::c_int;
@@ -41,7 +41,7 @@ unsafe extern "C" fn heredoc_loop(mut delim: *mut libc::c_char, mut fd: libc::c_
 	}
 	free(line as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn do_heredocs(
 	mut token: *mut t_token,
 	mut target: *mut libc::c_int,

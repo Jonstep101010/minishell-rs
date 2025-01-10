@@ -82,7 +82,7 @@ unsafe extern "C" fn exec_pipe(
 		*prevpipe = pipefd[0 as libc::c_int as usize];
 	};
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn execute_pipes(mut shell: *mut t_shell, mut token_count: libc::c_int) {
 	let mut i: libc::c_int = -1;
 	let mut error_elem: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();

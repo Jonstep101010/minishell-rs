@@ -24,7 +24,7 @@ unsafe extern "C" fn check_illegal_char(mut str: *const libc::c_char) -> bool {
 	0 as libc::c_int != 0
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn builtin_unset(
 	mut shell: *mut t_shell,
 	mut token: *mut t_token,

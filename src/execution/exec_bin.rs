@@ -23,7 +23,7 @@ unsafe fn execve_fail(mut shell: *mut t_shell, cmd: &CStr) {
 	free(shell as *mut libc::c_void);
 	exit(*__errno_location());
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn exec_bin(mut shell: *mut t_shell, mut token: *mut t_token) -> libc::c_int {
 	// @note this might be a good candidate for implementing a rust version of the function
 	let mut command: *mut *const libc::c_char =

@@ -40,7 +40,7 @@ unsafe extern "C" fn open_redir(
 	}
 	0 as libc::c_int
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn do_redirections(
 	mut cmd_args: *mut t_arg,
 	mut error_elem: *mut *mut libc::c_char,

@@ -20,7 +20,7 @@ pub struct s_func {
 	pub name: *mut libc::c_char,
 	pub cmd: t_cmd_func_builtin,
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn set_cmd_func(mut cmd: *const libc::c_char, mut token: *mut t_token) {
 	let cmds: [s_func; 8] = [
 		{
@@ -97,7 +97,7 @@ pub unsafe extern "C" fn set_cmd_func(mut cmd: *const libc::c_char, mut token: *
 	(*token).cmd_func =
 		Some(exec_bin as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn init_cmdargs(mut size: size_t) -> *mut t_arg {
 	let template: t_arg = {
 		t_arg {
@@ -123,7 +123,7 @@ pub unsafe extern "C" fn init_cmdargs(mut size: size_t) -> *mut t_arg {
 	}
 	args
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn init_token(mut size: size_t) -> *mut t_token {
 	let template: t_token = {
 		t_token {

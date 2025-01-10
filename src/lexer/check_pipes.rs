@@ -151,7 +151,7 @@ unsafe extern "C" fn inner_while_noquotes(
 	}
 	0 as libc::c_int
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn check_pipes_redirection(
 	mut s: *const libc::c_char,
 	mut input: *mut t_lexer,

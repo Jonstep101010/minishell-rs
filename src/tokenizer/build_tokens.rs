@@ -134,7 +134,7 @@ unsafe extern "C" fn inner_loop(mut token: *mut t_token) -> *mut libc::c_void {
 	rm_quotes((*token).cmd_args);
 	token as *mut libc::c_void
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn tokenize(
 	mut shell: *mut t_shell,
 	mut trimmed_line: *const libc::c_char,

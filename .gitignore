@@ -16,3 +16,4 @@ compile_commands.json
 *.tmp
 bullshit ascii.txt
 target/
+asan.txt

@@ -8,13 +8,13 @@ use crate::{
 	tokenizer::destroy_tokens::destroy_all_tokens,
 };
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn exit_free(mut shell: *mut t_shell, mut exit_code: libc::c_int) {
 	destroy_all_tokens(shell);
 	free(shell as *mut libc::c_void);
 	exit(exit_code);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn exit_error(mut shell: *mut t_shell, mut error_elem: *mut libc::c_char) {
 	if !error_elem.is_null() {
 		let error_elem = stringify!(error_elem);

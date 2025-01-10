@@ -70,7 +70,7 @@ unsafe extern "C" fn split_loop(mut s: *mut t_splitter) -> *mut *mut libc::c_cha
 		),
 	)
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn split_outside_quotes(
 	mut to_split: *const libc::c_char,
 	mut set: *const libc::c_char,

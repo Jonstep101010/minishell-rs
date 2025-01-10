@@ -13,7 +13,7 @@ fn declare_x(env: &Env) {
 	}
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn builtin_export(
 	mut shell: *mut t_shell,
 	mut token: *mut t_token,

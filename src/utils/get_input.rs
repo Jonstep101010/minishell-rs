@@ -24,7 +24,7 @@ unsafe extern "C" fn collect_as_ascii(mut readline_line: *mut libc::c_char) -> *
 	}
 	collected_line
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn get_input(mut rl_prompt: *mut libc::c_char) -> *mut libc::c_char {
 	static mut trim: *mut libc::c_char = 0 as *const libc::c_char as *mut libc::c_char;
 	if rl_prompt.is_null() {

@@ -53,7 +53,7 @@ unsafe extern "C" fn exit_free_internal(mut shell: *mut t_shell, mut exit_code: 
 	free(shell as *mut libc::c_void);
 	exit(exit_code as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn builtin_exit(
 	mut shell: *mut t_shell,
 	mut code_nullable: *mut t_token,

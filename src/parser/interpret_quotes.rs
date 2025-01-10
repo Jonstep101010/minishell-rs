@@ -5,7 +5,7 @@ use libutils_rs::src::string::str_cchr::str_cchr;
 
 use crate::size_t;
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn do_quote_bs(
 	mut s: *const libc::c_char,
 	mut quote: *mut libc::c_int,
@@ -38,7 +38,7 @@ pub unsafe extern "C" fn do_quote_bs(
 	}
 	tmp as *mut libc::c_void
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn interpret_quotes(mut cmd_arr: *mut *mut libc::c_char) -> bool {
 	let mut i: libc::c_int = 0;
 	let mut quote: libc::c_int = 0;

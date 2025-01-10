@@ -1,5 +1,5 @@
 use ::libc;
-extern "C" {
+unsafe extern "C" {
 	fn sigemptyset(__set: *mut sigset_t) -> libc::c_int;
 	fn sigaction(
 		__sig: libc::c_int,
@@ -130,7 +130,7 @@ pub union C2RustUnnamed_10 {
 	pub sa_sigaction:
 		Option<unsafe extern "C" fn(libc::c_int, *mut siginfo_t, *mut libc::c_void) -> ()>,
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn check_signals(mut p_termios: *mut termios) {
 	tcgetattr(0 as libc::c_int, p_termios);
 	(*p_termios).c_lflag &= !(0o1000 as libc::c_int) as libc::c_uint;
@@ -185,7 +185,7 @@ unsafe extern "C" fn ctrl_c_handler(
 	}
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn check_signals_child(mut p_termios_child: *mut termios) {
 	let mut attr: termios = termios {
 		c_iflag: 0,

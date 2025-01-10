@@ -4,7 +4,7 @@ use libft_rs::ft_calloc::ft_calloc;
 
 use crate::{prelude::tcflag_t, t_shell, termios};
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn init_shell() -> *mut t_shell {
 	let mut shell: *mut t_shell = ft_calloc(
 		1 as libc::c_int as crate::size_t,

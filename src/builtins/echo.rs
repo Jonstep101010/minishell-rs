@@ -57,7 +57,7 @@ unsafe extern "C" fn echo_default(mut cmd_args: *const *const libc::c_char) {
 		printf(b"\n\0" as *const u8 as *const libc::c_char);
 	}
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn echo(mut _nullable: *mut t_shell, mut token: *mut t_token) -> libc::c_int {
 	let mut args: *mut *const libc::c_char =
 		crate::tokenizer::build_command::get_cmd_arr_token(token) as *mut *const libc::c_char;

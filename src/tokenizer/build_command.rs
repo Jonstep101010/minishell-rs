@@ -7,7 +7,7 @@ use libutils_rs::src::array::append_str::append_str_arr_free;
 use libutils_rs::src::array::arr_free::arr_free;
 use libutils_rs::src::array::arr_len::arr_len;
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn get_cmd_arr_token(mut token: *mut t_token) -> *mut *mut libc::c_char {
 	let mut i: libc::c_int = 0;
 	let mut cmd_arr: *mut *mut libc::c_char = std::ptr::null_mut::<*mut libc::c_char>();
@@ -32,7 +32,7 @@ pub unsafe extern "C" fn get_cmd_arr_token(mut token: *mut t_token) -> *mut *mut
 	}
 	cmd_arr
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn get_tokens(mut trimmed_line: *const libc::c_char) -> *mut t_token {
 	let mut split_pipes: *mut *mut libc::c_char =
 		split_outside_quotes(trimmed_line, b"|\0" as *const u8 as *const libc::c_char);

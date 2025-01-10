@@ -28,7 +28,7 @@ unsafe extern "C" fn forkable_builtin(mut token: *mut t_token) -> bool {
 		&& (*token).cmd_func
 			!= Some(builtin_cd as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int)
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn execute_commands(mut shell: *mut t_shell, mut token: *mut t_token) {
 	let mut error_elem: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	if token.is_null() {

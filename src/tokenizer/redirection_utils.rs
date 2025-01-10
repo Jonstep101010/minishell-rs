@@ -4,7 +4,7 @@ use libft_rs::{ft_strdup::ft_strdup, ft_strncmp::ft_strncmp};
 use libutils_rs::src::utils::{free_mem::free_null, memsize::memsize};
 
 use crate::{prelude::*, size_t, t_arg};
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn rm_prefix_redir_word(mut arg: *mut t_arg) {
 	if arg.is_null() {
 		return;
@@ -35,7 +35,7 @@ pub unsafe extern "C" fn rm_prefix_redir_word(mut arg: *mut t_arg) {
 		i = i.wrapping_add(1);
 	}
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn parse_redir_types(mut arg: *mut t_arg) {
 	let mut i: libc::c_int = -1;
 	loop {
@@ -85,7 +85,7 @@ unsafe extern "C" fn set_type_redir(mut cmd_arg: *mut t_arg) {
 		}
 	}
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn check_redirections(mut cmd_args: *mut t_arg) -> bool {
 	let mut ii: size_t = 0;
 	let mut redir: bool = false;

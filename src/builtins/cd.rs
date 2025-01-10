@@ -52,7 +52,7 @@ fn cd_internal(mut opt_cmd_args: Option<&str>, mut env: &mut Env) -> bool {
 	}
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn builtin_cd(
 	mut shell: *mut t_shell,
 	mut token: *mut t_token,

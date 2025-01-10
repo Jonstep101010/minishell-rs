@@ -9,6 +9,7 @@
 )]
 #![feature(let_chains)]
 #![feature(extern_types)]
+#![allow(unsafe_op_in_unsafe_fn)]
 
 extern crate libc;
 extern crate libft_rs;
@@ -17,7 +18,7 @@ extern crate libutils_rs;
 
 use gnu_readline_sys::{add_history, readline};
 
-extern "C" {
+unsafe extern "C" {
 	fn __errno_location() -> *mut libc::c_int;
 	fn check_signals(p_termios: *mut termios);
 	// fn readline(_: *const libc::c_char) -> *mut libc::c_char;
@@ -66,7 +67,7 @@ pub mod lexer {
 		pub result: bool,
 	}
 	use checks_basic::lexer_checks_basic;
-	#[no_mangle]
+	#[unsafe(no_mangle)]
 	pub unsafe extern "C" fn run(
 		mut shell: *mut t_shell,
 		mut trimmed_line: *const libc::c_char,

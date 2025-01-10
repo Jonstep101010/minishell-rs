@@ -3,7 +3,7 @@ use libutils_rs::src::utils::free_mem::free_null;
 
 use crate::{size_t, t_arg, t_shell, t_token};
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn destroy_all_tokens(mut shell: *mut t_shell) {
 	let mut i: size_t = 0;
 	let mut token: *mut t_token = (*shell).token;

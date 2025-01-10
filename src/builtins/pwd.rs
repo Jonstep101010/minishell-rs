@@ -1,6 +1,6 @@
 use crate::{t_shell, t_token};
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn builtin_pwd(
 	mut shell: *mut t_shell,
 	mut _token_nullable: *mut t_token,
