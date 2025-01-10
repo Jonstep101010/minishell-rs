@@ -1,3 +1,5 @@
+use std::io;
+
 use ::libc;
 unsafe extern "C" {
 	fn sigemptyset(__set: *mut sigset_t) -> libc::c_int;
@@ -15,7 +17,8 @@ unsafe extern "C" {
 	static mut g_ctrl_c: libc::c_int;
 }
 use gnu_readline_sys::{rl_on_new_line, rl_redisplay, rl_replace_line};
-use libc::write;
+use libc::{ECHOCTL, write};
+use nix::sys::termios::{LocalFlags, Termios};
 
 use crate::{prelude::*, termios};
 
@@ -132,41 +135,50 @@ pub union C2RustUnnamed_10 {
 }
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn check_signals(mut p_termios: *mut termios) {
-	tcgetattr(0 as libc::c_int, p_termios);
-	(*p_termios).c_lflag &= !(0o1000 as libc::c_int) as libc::c_uint;
-	tcsetattr(0 as libc::c_int, 2 as libc::c_int, p_termios);
-	ctrl_c_init();
-	ctrl_bkslash_init();
-}
-unsafe extern "C" fn ctrl_bkslash_init() {
-	let mut sig: sigaction = sigaction {
-		__sigaction_handler: C2RustUnnamed_10 { sa_handler: None },
-		sa_mask: __sigset_t { __val: [0; 16] },
-		sa_flags: 0,
-		sa_restorer: None,
+	// tcgetattr(0 as libc::c_int, p_termios);
+	let mut sigstruct = nix::sys::termios::tcgetattr(io::stdin()).unwrap();
+	sigstruct.local_flags &= LocalFlags::ECHOCTL;
+	// (*p_termios).c_lflag &= !(0o1000 as libc::c_int) as libc::c_uint;
+	// tcsetattr(0 as libc::c_int, 2 as libc::c_int, p_termios);
+	nix::sys::termios::tcsetattr(
+		std::io::stdin(),
+		nix::sys::termios::SetArg::TCSAFLUSH,
+		&sigstruct,
+	)
+	.unwrap();
+	// ctrl-c-init
+	{
+		let mut sig: sigaction = sigaction {
+			__sigaction_handler: C2RustUnnamed_10 { sa_handler: None },
+			sa_mask: __sigset_t { __val: [0; 16] },
+			sa_flags: 0,
+			sa_restorer: None,
+		};
+		sig.__sigaction_handler.sa_sigaction = Some(
+			ctrl_c_handler
+				as unsafe extern "C" fn(libc::c_int, *mut siginfo_t, *mut libc::c_void) -> (),
+		);
+		sig.sa_flags = 0x10000000 as libc::c_int;
+		sigemptyset(&mut sig.sa_mask);
+		sigaction(2 as libc::c_int, &sig, std::ptr::null_mut::<sigaction>());
 	};
-	sig.__sigaction_handler.sa_handler = ::core::mem::transmute::<libc::intptr_t, __sighandler_t>(
-		1 as libc::c_int as libc::intptr_t,
-	);
-	sig.sa_flags = 0x10000000 as libc::c_int;
-	sigemptyset(&mut sig.sa_mask);
-	sigaction(3 as libc::c_int, &sig, std::ptr::null_mut::<sigaction>());
-}
-unsafe extern "C" fn ctrl_c_init() {
-	let mut sig: sigaction = sigaction {
-		__sigaction_handler: C2RustUnnamed_10 { sa_handler: None },
-		sa_mask: __sigset_t { __val: [0; 16] },
-		sa_flags: 0,
-		sa_restorer: None,
+	// ctrl-bkslash-init
+	{
+		let mut sig: sigaction = sigaction {
+			__sigaction_handler: C2RustUnnamed_10 { sa_handler: None },
+			sa_mask: __sigset_t { __val: [0; 16] },
+			sa_flags: 0,
+			sa_restorer: None,
+		};
+		sig.__sigaction_handler.sa_handler = ::core::mem::transmute::<libc::intptr_t, __sighandler_t>(
+			1 as libc::c_int as libc::intptr_t,
+		);
+		sig.sa_flags = 0x10000000 as libc::c_int;
+		sigemptyset(&mut sig.sa_mask);
+		sigaction(3 as libc::c_int, &sig, std::ptr::null_mut::<sigaction>());
 	};
-	sig.__sigaction_handler.sa_sigaction = Some(
-		ctrl_c_handler
-			as unsafe extern "C" fn(libc::c_int, *mut siginfo_t, *mut libc::c_void) -> (),
-	);
-	sig.sa_flags = 0x10000000 as libc::c_int;
-	sigemptyset(&mut sig.sa_mask);
-	sigaction(2 as libc::c_int, &sig, std::ptr::null_mut::<sigaction>());
 }
+
 unsafe extern "C" fn ctrl_c_handler(
 	mut sig: libc::c_int,
 	mut _info: *mut siginfo_t,
