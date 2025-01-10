@@ -4,7 +4,7 @@ use libft_rs::ft_strchr::ft_strchr;
 use libutils_rs::src::array::arr_free::arr_free;
 
 use crate::{
-	environment::{check_key::check_valid_key, Env},
+	environment::{Env, check_key::check_valid_key},
 	eprint_msh, i8const_str, t_shell, t_token,
 	tokenizer::build_command::get_cmd_arr_token,
 };

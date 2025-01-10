@@ -1,6 +1,6 @@
 use ::libc;
 use libc::free;
-use libft_rs::{ft_isascii::ft_isascii, ft_strdup::ft_strdup, ft_strtrim::ft_strtrim};
+use libft_rs::{ft_strdup::ft_strdup, ft_strtrim::ft_strtrim};
 use libutils_rs::src::string::append_char::append_char_str;
 unsafe extern "C" fn collect_as_ascii(mut readline_line: *mut libc::c_char) -> *mut libc::c_char {
 	let mut i: libc::c_int = 0;
@@ -10,7 +10,7 @@ unsafe extern "C" fn collect_as_ascii(mut readline_line: *mut libc::c_char) -> *
 		return ft_strdup(b"\0" as *const u8 as *const libc::c_char);
 	}
 	while !readline_line.is_null() && *readline_line.offset(i as isize) as libc::c_int != 0 {
-		if ft_isascii(*readline_line.offset(i as isize) as libc::c_int) != 0 {
+		if !libft_rs::ft_isascii::is_ascii_char(*readline_line.offset(i as isize) as u8 as char) {
 			collected_line = append_char_str(collected_line, *readline_line.offset(i as isize));
 			if collected_line.is_null() {
 				free(readline_line as *mut libc::c_void);

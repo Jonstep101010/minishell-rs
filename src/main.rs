@@ -13,20 +13,16 @@
 
 extern crate libc;
 extern crate libft_rs;
-extern crate libgnl_rs;
 extern crate libutils_rs;
-
-use gnu_readline_sys::{add_history, readline};
 
 unsafe extern "C" {
 	fn __errno_location() -> *mut libc::c_int;
 	fn check_signals(p_termios: *mut termios);
-	// fn readline(_: *const libc::c_char) -> *mut libc::c_char;
-	// fn add_history(_: *const libc::c_char);
 }
 
 mod prelude;
 use prelude::*;
+use utils::rust_readline::{str_add_history, str_readline};
 
 pub mod builtins {
 	pub mod cd;
@@ -121,6 +117,7 @@ pub mod utils {
 	pub mod get_input;
 	pub mod init_shell;
 	pub mod interop;
+	pub mod rust_readline;
 } // mod utils
 
 #[derive(Copy, Clone)]
@@ -182,20 +179,25 @@ unsafe fn main_0() -> libc::c_int {
 	}
 	check_signals(&mut (*shell).p_termios);
 	loop {
-		let mut readline_line = readline(b"minishell> \0" as *const u8 as *const libc::c_char);
-		if readline_line.is_null() {
+		if let Some(readline_line) = str_readline("minishell> ") {
+			// b" \t\n\r\x0B\x0C\0"
+			let mut trimmed_line = readline_line.trim_ascii();
+			if trimmed_line.is_empty() {
+				continue;
+			}
+			str_add_history(trimmed_line);
+			if crate::lexer::run(
+				shell,
+				std::ffi::CString::new(trimmed_line).unwrap().as_ptr(),
+			) != 0 as libc::c_int
+			{
+				continue;
+			}
+			if !((*shell).token).is_null() {
+				execution::execute_commands(shell, (*shell).token);
+			}
+		} else {
 			builtins::exit::builtin_exit(shell, std::ptr::null_mut::<t_token>());
-		}
-		let mut trimmed_line = utils::get_input::get_input(readline_line);
-		if trimmed_line.is_null() {
-			continue;
-		}
-		add_history(trimmed_line);
-		if *trimmed_line == 0 || crate::lexer::run(shell, trimmed_line) != 0 as libc::c_int {
-			continue;
-		}
-		if !((*shell).token).is_null() {
-			execution::execute_commands(shell, (*shell).token);
 		}
 	}
 }

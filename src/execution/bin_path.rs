@@ -15,14 +15,15 @@ fn find_bin(bin_prefix: &str, paths: Vec<String>) -> Option<CString> {
 fn get_bin(bin: &CStr, paths: Vec<String>) -> (u8, Option<CString>) {
 	// prefix bin with /: format will panic if input invalid
 	let bin_prefix = format!("{}{}", "/", bin.to_str().unwrap());
-	if let Some(bin_path) = find_bin(&bin_prefix, paths) {
-		if nix::unistd::access(bin_path.as_c_str(), AccessFlags::X_OK).is_err() {
-			(126, None)
-		} else {
-			(0, Some(bin_path))
+	match find_bin(&bin_prefix, paths) {
+		Some(bin_path) => {
+			if nix::unistd::access(bin_path.as_c_str(), AccessFlags::X_OK).is_err() {
+				(126, None)
+			} else {
+				(0, Some(bin_path))
+			}
 		}
-	} else {
-		(127, None)
+		_ => (127, None),
 	}
 }
 

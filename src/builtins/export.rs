@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use crate::{
-	environment::check_key::check_valid_key, environment::Env, eprint_msh, size_t, t_shell,
+	environment::Env, environment::check_key::check_valid_key, eprint_msh, size_t, t_shell,
 	t_token, tokenizer::build_command::get_cmd_arr_token,
 };
 use ::libc;

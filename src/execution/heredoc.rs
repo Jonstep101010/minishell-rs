@@ -1,45 +1,44 @@
-use std::ffi::{CStr, CString};
+use std::ffi::CString;
 
 use ::libc;
-use gnu_readline_sys::readline;
-#[allow(unused_imports)]
-use libc::{close, dup2, free, open, strerror, unlink};
+use libc::{close, dup2};
 
-use libft_rs::{ft_putendl_fd::ft_putendl_fd, ft_strchr::ft_strchr};
+use libft_rs::ft_putendl_fd::ft_putendl_fd;
 use libutils_rs::src::string::str_equal::equal;
+use nix::{fcntl::OFlag, sys::stat::Mode};
 
 use crate::environment::Env;
-#[allow(unused_imports)]
-use crate::{__errno_location, e_redir, prelude::*, t_token};
+use crate::{e_redir, prelude::*, t_token};
 
+#[unsafe(no_mangle)]
 pub static mut g_ctrl_c: libc::c_int = 0 as libc::c_int;
 #[unsafe(no_mangle)]
 unsafe extern "C" fn heredoc_loop(mut delim: *mut libc::c_char, mut fd: libc::c_int, env: &Env) {
-	let mut line: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	g_ctrl_c = 0 as libc::c_int;
 	while 1 as libc::c_int != 0 && g_ctrl_c == 0 {
-		line = readline(b"> \0" as *const u8 as *const libc::c_char);
-		if !(equal(delim, line)).is_null() || line.is_null() || g_ctrl_c != 0 {
+		let line = crate::utils::rust_readline::str_readline("> ");
+		if line.is_none() {
 			g_ctrl_c = 0 as libc::c_int;
 			break;
-		} else {
-			if !(ft_strchr(line, '$' as i32)).is_null() {
-				if let Some(expanded) =
-					crate::environment::expander::expander(CStr::from_ptr(line), env)
-				{
-					if (equal(expanded.as_ptr(), line)).is_null() {
-						let raw_ptr = expanded.into_raw();
-						ft_putendl_fd(raw_ptr, fd);
-						let _ = CString::from_raw(raw_ptr);
-					} else {
-						ft_putendl_fd(line, fd);
-					}
-				}
+		}
+		let line = line.unwrap();
+		let cstr_line = CString::new(line).unwrap();
+		if !(equal(delim, cstr_line.as_ptr())).is_null() || g_ctrl_c != 0 {
+			g_ctrl_c = 0 as libc::c_int;
+			break;
+		}
+		if let Some(expanded) = crate::environment::expander::expander(&cstr_line, env) {
+			if (equal(expanded.as_ptr(), cstr_line.as_ptr())).is_null() {
+				let raw_ptr = expanded.into_raw();
+				ft_putendl_fd(raw_ptr, fd);
+				let _ = CString::from_raw(raw_ptr);
+			} else {
+				let raw = cstr_line.into_raw();
+				ft_putendl_fd(raw, fd);
+				let _ = CString::from_raw(raw);
 			}
-			free(line as *mut libc::c_void);
 		}
 	}
-	free(line as *mut libc::c_void);
 }
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn do_heredocs(
@@ -56,25 +55,22 @@ pub unsafe extern "C" fn do_heredocs(
 		if (*((*token).cmd_args).offset(i as isize)).redir as libc::c_uint
 			== e_redir::HEREDOC as libc::c_int as libc::c_uint
 		{
-			let mut fd = open(
-				b".heredoc.txt\0" as *const u8 as *const libc::c_char,
-				0o2 as libc::c_int | 0o100 as libc::c_int | 0o1000 as libc::c_int,
-				0o644 as libc::c_int,
-			);
-			if fd == -(1 as libc::c_int) {
-				let err = stringify!(strerror(*__errno_location()));
-				eprint_msh!("{}", err);
-				panic!("i/o error");
+			let oflags = OFlag::O_RDWR | OFlag::O_CREAT | OFlag::O_TRUNC;
+			let mode = Mode::from_bits(0o644).expect("Invalid mode");
+			match nix::fcntl::open(c".heredoc.txt", oflags, mode) {
+				Ok(mut fd) => {
+					heredoc_loop((*((*token).cmd_args).offset(i as isize)).elem, fd, env);
+					close(fd);
+					fd = nix::fcntl::open(c".heredoc.txt", OFlag::O_RDONLY, Mode::empty()).unwrap();
+					dup2(fd, *target);
+					close(fd);
+					let _ = nix::unistd::unlink(c".heredoc.txt");
+				}
+				Err(e) => {
+					eprint_msh!("{}", e);
+					panic!("i/o error");
+				}
 			}
-			heredoc_loop((*((*token).cmd_args).offset(i as isize)).elem, fd, env);
-			close(fd);
-			fd = open(
-				b".heredoc.txt\0" as *const u8 as *const libc::c_char,
-				0 as libc::c_int,
-			);
-			dup2(fd, *target);
-			close(fd);
-			unlink(b".heredoc.txt\0" as *const u8 as *const libc::c_char);
 		}
 	}
 }

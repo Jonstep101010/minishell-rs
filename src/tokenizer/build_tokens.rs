@@ -12,7 +12,7 @@ use libutils_rs::src::{
 
 use crate::{
 	builtins::env::builtin_env,
-	environment::{expander::expander, Env},
+	environment::{Env, expander::expander},
 	parser::{interpret_quotes::do_quote_bs, split_outside_quotes::split_outside_quotes},
 	prelude::*,
 	size_t, t_arg, t_shell, t_token,
