@@ -4,7 +4,7 @@ use crate::{environment::Env, t_shell, t_token, tokenizer::build_command::get_cm
 use libutils_rs::src::array::arr_free::arr_free;
 use std::{ffi::CStr, path::Path};
 
-fn changedir(mut path_string: &str, mut env: &mut Env) -> bool {
+fn changedir(path_string: &str, env: &mut Env) -> bool {
 	let oldpwd = std::env::current_dir().unwrap();
 	let rust_path = Path::new(path_string);
 	match std::env::set_current_dir(rust_path) {
@@ -29,7 +29,7 @@ fn changedir(mut path_string: &str, mut env: &mut Env) -> bool {
 	}
 }
 
-fn cd_internal(mut opt_cmd_args: Option<&str>, mut env: &mut Env) -> bool {
+fn cd_internal(opt_cmd_args: Option<&str>, env: &mut Env) -> bool {
 	if opt_cmd_args.is_none() {
 		let env_path = env.get("HOME");
 		if env_path.is_none() {
@@ -52,6 +52,7 @@ fn cd_internal(mut opt_cmd_args: Option<&str>, mut env: &mut Env) -> bool {
 	}
 }
 
+#[allow(unused_mut)]
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn builtin_cd(
 	mut shell: *mut t_shell,
