@@ -1,5 +1,4 @@
 #![warn(clippy::pedantic)]
-#![forbid(unsafe_code)]
 use super::Env;
 use std::ffi::{CStr, CString};
 
@@ -59,10 +58,13 @@ fn expand(s: &CStr, env: &Env) -> CString {
 		{
 			let start = i + 1;
 			let len = check_index_advance(s.to_bytes_with_nul(), i);
-			let key =
-				CStr::from_bytes_with_nul(&s.to_bytes_with_nul()[start..=(start + len)]).unwrap();
-			let expansion = expand_inside(key, env, &mut i);
-			ret.push_str(&expansion);
+			unsafe {
+				let key = CStr::from_bytes_with_nul_unchecked(
+					&s.to_bytes_with_nul()[start..=(start + len)],
+				);
+				let expansion = expand_inside(key, env, &mut i);
+				ret.push_str(&expansion);
+			}
 		} else if i < bytes_s.len() - 1 {
 			ret.push(bytes_s[i] as char);
 		} else {
@@ -90,6 +92,8 @@ mod tests {
 	use super::*;
 	use std::ffi::CString;
 
+	//$'USER', $"USER" should not expand
+
 	#[test]
 	fn test_expander() {
 		let env = Env::new();
@@ -98,6 +102,34 @@ mod tests {
 		assert_eq!(
 			output.to_str().unwrap(),
 			format!("Hello {}", std::env::var("USER").unwrap())
+		);
+	}
+	#[test]
+	fn test_expander_mult() {
+		let env = Env::new();
+		let input = CString::new("echo $USER | echo \"$USER\"").unwrap();
+		let output = expander(&input, &env).unwrap();
+		assert_eq!(
+			output.to_str().unwrap(),
+			format!(
+				"echo {} | echo \"{}\"",
+				std::env::var("USER").unwrap(),
+				std::env::var("USER").unwrap()
+			)
+		);
+	}
+	#[test]
+	fn test_expander_sq() {
+		let env = Env::new();
+		let input = CString::new("echo \"$USER\"$USER").unwrap();
+		let output = expander(&input, &env).unwrap();
+		assert_eq!(
+			output.to_str().unwrap(),
+			format!(
+				"echo \"{}\"{}",
+				std::env::var("USER").unwrap(),
+				std::env::var("USER").unwrap(),
+			)
 		);
 	}
 	#[test]
