@@ -30,63 +30,7 @@ pub mod builtins {
 } // mod builtins
 pub mod environment; // mod environment
 pub mod execution; // mod execution
-pub mod lexer {
-	use crate::{
-		size_t, t_shell,
-		tokenizer::{build_tokens::tokenize, destroy_tokens::destroy_all_tokens},
-	};
-	use ::libc::{self, free};
-
-	#[derive(Copy, Clone)]
-	#[repr(C)]
-	pub struct t_lexer {
-		pub singlequotes: libc::c_int,
-		pub doublequotes: libc::c_int,
-		pub open_curly_brackets: libc::c_int,
-		pub close_curly_brackets: libc::c_int,
-		pub open_square_brackets: libc::c_int,
-		pub close_square_brackets: libc::c_int,
-		pub open_parentheses: libc::c_int,
-		pub close_parentheses: libc::c_int,
-		pub redir_greater: libc::c_int,
-		pub redir_smaller: libc::c_int,
-		pub pipes: libc::c_int,
-		pub ignore: *mut bool,
-		pub len: size_t,
-		pub lexer: libc::c_int,
-		pub result: bool,
-	}
-	use checks_basic::lexer_checks_basic;
-	#[unsafe(no_mangle)]
-	pub unsafe extern "C" fn run(
-		mut shell: *mut t_shell,
-		mut trimmed_line: *const libc::c_char,
-	) -> libc::c_int {
-		if *trimmed_line == 0 {
-			return 0 as libc::c_int;
-		}
-		let mut lex = lexer_checks_basic(trimmed_line);
-		if !(*lex).result {
-			(*shell).exit_status = (*lex).lexer as u8;
-			free(lex as *mut libc::c_void);
-			return 1 as libc::c_int;
-		}
-		free(lex as *mut libc::c_void);
-		(*shell).token = tokenize(shell, trimmed_line) as *mut crate::t_token;
-		if ((*shell).token).is_null() {
-			return -(1 as libc::c_int);
-		}
-		if ((*(*shell).token).cmd_args).is_null() {
-			destroy_all_tokens(shell);
-			return -(1 as libc::c_int);
-		}
-		0 as libc::c_int
-	}
-
-	mod check_pipes;
-	mod checks_basic;
-	mod lexer_support;
-} // mod lexer
+pub mod lexer; // mod lexer
 pub mod parser {
 	pub mod interpret_quotes;
 	pub mod split_outside_quotes;

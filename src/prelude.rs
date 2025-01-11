@@ -30,3 +30,4 @@ pub type __clock_t = libc::c_long;
 pub type __ssize_t = libc::c_long;
 pub use crate::eprint_msh;
 pub use crate::utils::interop::*;
+pub use libc::{c_char, c_int};
