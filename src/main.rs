@@ -38,7 +38,6 @@ pub mod lexer {
 	use crate::{
 		size_t, t_shell,
 		tokenizer::{build_tokens::tokenize, destroy_tokens::destroy_all_tokens},
-		utils::get_input::get_input,
 	};
 	use ::libc::{self, free};
 
@@ -68,19 +67,16 @@ pub mod lexer {
 		mut trimmed_line: *const libc::c_char,
 	) -> libc::c_int {
 		if *trimmed_line == 0 {
-			get_input(std::ptr::null_mut::<libc::c_char>());
 			return 0 as libc::c_int;
 		}
 		let mut lex = lexer_checks_basic(trimmed_line);
 		if !(*lex).result {
 			(*shell).exit_status = (*lex).lexer as u8;
-			get_input(std::ptr::null_mut::<libc::c_char>());
 			free(lex as *mut libc::c_void);
 			return 1 as libc::c_int;
 		}
 		free(lex as *mut libc::c_void);
 		(*shell).token = tokenize(shell, trimmed_line) as *mut crate::t_token;
-		get_input(std::ptr::null_mut::<libc::c_char>());
 		if ((*shell).token).is_null() {
 			return -(1 as libc::c_int);
 		}
@@ -113,7 +109,6 @@ pub mod utils {
 	pub mod bool_array;
 	pub mod error;
 	pub mod exit_free;
-	pub mod get_input;
 	pub mod init_shell;
 	pub mod interop;
 	pub mod rust_readline;
