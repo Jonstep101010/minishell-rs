@@ -3,9 +3,9 @@
 
 pub type size_t = libc::c_ulong;
 pub type __uint8_t = libc::c_uchar;
-pub type cc_t = libc::c_uchar;
-pub type speed_t = libc::c_uint;
-pub type tcflag_t = libc::c_uint;
+// pub type cc_t = libc::c_uchar;
+// pub type speed_t = libc::c_uint;
+// pub type tcflag_t = libc::c_uint;
 pub type uint8_t = __uint8_t;
 #[derive(Copy, Clone)]
 #[repr(C)]

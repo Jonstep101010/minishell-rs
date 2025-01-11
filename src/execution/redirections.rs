@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use crate::{__errno_location, t_arg};
+use crate::t_arg;
 use ::libc;
 use libc::{access, close, dup2, open};
 
@@ -27,7 +27,7 @@ unsafe extern "C" fn open_redir(
 	} else if redir as libc::c_uint == e_redir::APPEND as libc::c_int as libc::c_uint {
 		let mut perm = access(file, 2 as libc::c_int);
 		if perm != 0 as libc::c_int {
-			return *__errno_location();
+			todo!("handle missing perms in open_redir");
 		}
 		*fd = open(
 			file,
@@ -36,7 +36,7 @@ unsafe extern "C" fn open_redir(
 		);
 	}
 	if *fd == -(1 as libc::c_int) {
-		return *__errno_location();
+		todo!("handle open failure");
 	}
 	0 as libc::c_int
 }
@@ -60,7 +60,7 @@ pub unsafe extern "C" fn do_redirections(
 			) != 0 as libc::c_int
 			{
 				*error_elem = (*cmd_args.offset(i as isize)).elem;
-				return *__errno_location();
+				todo!("handle open_redir failure");
 			}
 			if (*cmd_args.offset(i as isize)).redir as libc::c_uint
 				!= e_redir::INPUT_REDIR as libc::c_int as libc::c_uint

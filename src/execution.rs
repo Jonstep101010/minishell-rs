@@ -6,7 +6,6 @@ mod redirections;
 use self::{execute_pipes::execute_pipes, redirections::do_redirections};
 #[allow(unused_imports)]
 use crate::{
-	__errno_location,
 	builtins::{cd::builtin_cd, exit::builtin_exit, export::builtin_export, unset::builtin_unset},
 	eprint_msh,
 	libutils_rs::src::utils::memsize::memsize,
@@ -43,16 +42,14 @@ pub unsafe extern "C" fn execute_commands(mut shell: *mut t_shell, mut token: *m
 		let mut redir_status = do_redirections((*token).cmd_args, &mut error_elem);
 		if redir_status != 0 as libc::c_int {
 			if error_elem.is_null() {
-				panic!("error_elem is null");
+				todo!("check the conditions!");
+				// panic!("error_elem is null");
 			} else {
 				// @audit
-				let error_elem = stringify!(error_elem);
-				let err = stringify!(strerror(*__errno_location()));
-				eprint_msh!("{}: {}", error_elem, err);
-				// @audit
+				todo!("error printing!");
+				// eprint_msh!("{}: {}", error_elem, err);
 			};
-			(*shell).exit_status = redir_status as u8;
-			return;
+			// (*shell).exit_status = redir_status as u8;
 		}
 		(*shell).exit_status =
 			((*token).cmd_func).expect("non-null function pointer")(shell, token) as u8;

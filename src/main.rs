@@ -15,10 +15,6 @@ extern crate libc;
 extern crate libft_rs;
 extern crate libutils_rs;
 
-unsafe extern "C" {
-	fn __errno_location() -> *mut libc::c_int;
-}
-
 mod prelude;
 use prelude::*;
 use utils::rust_readline::{str_add_history, str_readline};
@@ -95,9 +91,9 @@ pub mod parser {
 	pub mod interpret_quotes;
 	pub mod split_outside_quotes;
 } // mod parser
-pub mod signals {
-	pub mod handlers;
-} // mod signals
+// pub mod signals {
+// 	pub mod handlers;
+// } // mod signals
 pub mod tokenizer {
 	pub mod build_command;
 	pub mod build_tokens;
@@ -114,18 +110,18 @@ pub mod utils {
 	pub mod rust_readline;
 } // mod utils
 
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct termios {
-	pub c_iflag: tcflag_t,
-	pub c_oflag: tcflag_t,
-	pub c_cflag: tcflag_t,
-	pub c_lflag: tcflag_t,
-	pub c_line: cc_t,
-	pub c_cc: [cc_t; 32],
-	pub c_ispeed: speed_t,
-	pub c_ospeed: speed_t,
-}
+// #[derive(Copy, Clone)]
+// #[repr(C)]
+// pub struct termios {
+// 	pub c_iflag: tcflag_t,
+// 	pub c_oflag: tcflag_t,
+// 	pub c_cflag: tcflag_t,
+// 	pub c_lflag: tcflag_t,
+// 	pub c_line: cc_t,
+// 	pub c_cc: [cc_t; 32],
+// 	pub c_ispeed: speed_t,
+// 	pub c_ospeed: speed_t,
+// }
 #[derive(Clone)]
 #[repr(C)]
 pub struct t_token {
