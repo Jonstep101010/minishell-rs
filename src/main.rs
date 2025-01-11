@@ -17,7 +17,6 @@ extern crate libutils_rs;
 
 unsafe extern "C" {
 	fn __errno_location() -> *mut libc::c_int;
-	fn check_signals(p_termios: *mut termios);
 }
 
 mod prelude;
@@ -150,7 +149,6 @@ pub struct t_shell {
 	env: environment::Env,
 	pub token: *mut t_token, // Vec<t_token>
 	pub token_len: size_t,
-	pub p_termios: termios, // some rust stuff?
 }
 
 impl t_shell {
@@ -177,7 +175,7 @@ unsafe fn main_0() -> libc::c_int {
 	if shell.is_null() {
 		return 1 as libc::c_int;
 	}
-	check_signals(&mut (*shell).p_termios);
+	// check signals
 	loop {
 		if let Some(readline_line) = str_readline("minishell> ") {
 			// b" \t\n\r\x0B\x0C\0"

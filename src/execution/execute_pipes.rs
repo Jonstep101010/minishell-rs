@@ -1,5 +1,4 @@
 use crate::{
-	signals::handlers::check_signals_child,
 	t_shell,
 	utils::exit_free::{exit_error, exit_free},
 };
@@ -17,7 +16,7 @@ unsafe extern "C" fn exec_last(
 	let mut status: libc::c_int = 0;
 	let mut cpid = fork();
 	if cpid == 0 as libc::c_int {
-		check_signals_child(&mut (*shell).p_termios);
+		// check_signals_child(&mut (*shell).p_termios);
 		if (*((*shell).token).offset(i as isize)).has_redir {
 			do_heredocs(
 				&mut *((*shell).token).offset(i as isize),
@@ -58,7 +57,7 @@ unsafe extern "C" fn exec_pipe(
 	pipe(pipefd.as_mut_ptr());
 	let mut cpid = fork();
 	if cpid == 0 as libc::c_int {
-		check_signals_child(&mut (*shell).p_termios);
+		// check_signals_child(&mut (*shell).p_termios);
 		close(pipefd[0 as libc::c_int as usize]);
 		dup2(pipefd[1 as libc::c_int as usize], 1 as libc::c_int);
 		close(pipefd[1 as libc::c_int as usize]);
