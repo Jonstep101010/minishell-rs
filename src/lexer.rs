@@ -53,6 +53,7 @@ pub unsafe extern "C" fn run(
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use rstest::{fixture, rstest};
 
 	unsafe fn lexer_mock(trimmed_line: String) -> i32 {
 		assert!(!trimmed_line.is_empty());
@@ -68,7 +69,47 @@ mod tests {
 		libc::free(lex as *mut libc::c_void);
 		0
 	}
-
+	#[rstest]
+	#[case("echo \"|\"")]
+	#[case("echo '|'")]
+	#[case("\"|\"")]
+	#[case("'|'")]
+	#[case("echo \"Hello || World | hello\"")]
+	#[case("echo Hello | World | hello")]
+	#[case("ls \"||\"| grep file '||'| wc -l")]
+	#[fixture]
+	fn lexer_success(#[case] input: &str) {
+		unsafe {
+			assert_eq!(0, lexer_mock(input.to_string()));
+		}
+	}
+	#[rstest]
+	#[case("echo |")]
+	#[fixture]
+	fn lexer_failure(#[case] input: &str) {
+		unsafe {
+			assert_eq!(1, lexer_mock(input.to_string()));
+		}
+	}
+	#[test]
+	fn test_redir_pipes_mix() {
+		let inputs_ok = [
+			"> infile | cat",
+			"cat << delim | > tmp_out",
+			"<infile | cat",
+		];
+		for input in inputs_ok {
+			unsafe {
+				assert_eq!(0, lexer_mock(input.to_string()));
+			}
+		}
+		let inputs_err = [">|", "<|", "> |", "< |"];
+		for input in inputs_err {
+			unsafe {
+				assert_eq!(1, lexer_mock(input.to_string()));
+			}
+		}
+	}
 	#[test]
 	fn test_redir_quotes() {
 		unsafe {
