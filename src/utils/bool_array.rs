@@ -48,8 +48,7 @@ pub unsafe fn range_ignore(
 
 #[cfg(test)]
 mod tests {
-	use crate::utils::bool_array::range_ignore;
-	use crate::utils::bool_array::{bool_arr_zeroing, libc::strlen};
+	use crate::utils::bool_array::{bool_arr_zeroing, libc::strlen, range_ignore};
 
 	use libc::size_t;
 
@@ -73,7 +72,7 @@ mod tests {
 			}
 			i += 1;
 		}
-		return arr;
+		arr
 	}
 	unsafe fn support_ranges_test0(mut arr: *const bool) {
 		assert_eq!(false, *arr.add(25));
@@ -198,6 +197,43 @@ mod tests {
 				i_1 += 1;
 			}
 			libc::free(arr as *mut libc::c_void);
+		}
+	}
+	#[test]
+	fn test_rangeignore_both_0() {
+		unsafe {
+			let mut arr: *mut bool = std::ptr::null_mut::<bool>();
+			let mut s = c"this is my input \"'ignore'\"";
+			let len = libc::strlen(s.as_ptr());
+			support_bool_arr_zeroing(&mut arr, len);
+			for i in 0..=len {
+				assert_eq!(false, *arr.add(i));
+			}
+			range_ignore(s.as_ptr(), arr, b'"');
+			range_ignore(s.as_ptr(), arr, b'\'');
+			assert!(*arr.add(24));
+			for i in 0..17 {
+				assert_eq!(*arr.add(i), false);
+			}
+			for i in 17..24 {
+				assert_eq!(*arr.add(i), true);
+			}
+			libc::free(arr.cast());
+		}
+	}
+	#[test]
+	fn test_ignore_can_work1() {
+		unsafe {
+			let mut arr: *mut bool = std::ptr::null_mut::<bool>();
+			let mut s = c"\"'\"";
+			let len = libc::strlen(s.as_ptr());
+			support_bool_arr_zeroing(&mut arr, len);
+			range_ignore(s.as_ptr(), arr, b'\'');
+			range_ignore(s.as_ptr(), arr, b'\"');
+			let expected = support_expected(c"1110".as_ptr());
+			for i in 0..=len {
+				assert_eq!(*expected.add(i), *arr.add(i));
+			}
 		}
 	}
 }
