@@ -1,3 +1,7 @@
+mod check_pipes;
+mod checks_basic;
+mod lexer_support;
+
 use crate::{
 	size_t, t_shell,
 	tokenizer::{build_tokens::tokenize, destroy_tokens::destroy_all_tokens},
@@ -100,6 +104,32 @@ mod tests {
 	#[case("echo Hello | World")]
 	#[case("ls | grep file | wc -l")]
 	#[case("hello || hello")]
+	#[case("> infile | cat")]
+	#[case("cat << delim | > tmp_out")]
+	#[case("<infile | cat")]
+	#[case("cat <\"./test_files/infile\" | echo hi")]
+	#[case("cat << \"$USER\"")]
+	#[case("cat << \"$US\"E\"R\"")]
+	#[case(">> \"$USER'$USER'\"")]
+	#[case("\"$USER'$USER'\" | echo")]
+	#[case("\"$USER'$USER'\" | \"echo\"")]
+	#[case("$USER'$USER' | \"echo\"")]
+	#[case("echo \"This is a test\"")]
+	#[case("echo \"Hello, World!\"")]
+	#[case("\n")]
+	#[case("\n \n")]
+	#[case("\n	\n \n")]
+	#[case("\n\n\n\n")]
+	#[case("\n\n\n\n\n")]
+	#[case("\n\n\n\n\n\n")]
+	#[case("\n\n\n\n\n\n\n")]
+	#[case("\n\n\n\n\n\n\n\n")]
+	#[case("\n\n\n\n\n\n\n\n\n")]
+	#[case("\n\n\n\n\n\\n\n\n\n\n")]
+	#[case("echo > outfile")]
+	#[case("> outfile")]
+	#[case("< outfile")]
+	#[case("cat << delim | > outfile")]
 	#[fixture]
 	fn lexer_success(#[case] input: &str) {
 		unsafe {
@@ -138,112 +168,26 @@ mod tests {
 	#[case("|   |")]
 	#[case("|||")]
 	#[case("      |")]
+	#[case(">|")]
+	#[case("<|")]
+	#[case("> |")]
+	#[case("< |")]
+	#[case("echo Hello, World!\"")]
+	#[case("echo Hello, World!\"")]
+	#[case("echo \"Hello, World!")]
+	#[case("echo \'Hello, World!")]
+	#[case("echo 'Hello, World!")]
+	#[case("'\"'")]
+	#[case("echo \"'Hello, World!\"")]
+	#[case("\"'\"")]
+	#[case("< < <")]
+	#[case("> > >")]
+	#[case("> > >")]
+	#[case("> tmpfile > midfile >")]
 	#[fixture]
 	fn lexer_failure(#[case] input: &str) {
 		unsafe {
 			assert_eq!(1, lexer_mock(input.to_string()));
 		}
 	}
-	#[test]
-	fn test_redir_pipes_mix() {
-		let inputs_ok = [
-			"> infile | cat",
-			"cat << delim | > tmp_out",
-			"<infile | cat",
-		];
-		for input in inputs_ok {
-			unsafe {
-				assert_eq!(0, lexer_mock(input.to_string()));
-			}
-		}
-		let inputs_err = [">|", "<|", "> |", "< |"];
-		for input in inputs_err {
-			unsafe {
-				assert_eq!(1, lexer_mock(input.to_string()));
-			}
-		}
-	}
-	#[test]
-	fn test_redir_quotes() {
-		unsafe {
-			assert_eq!(
-				0,
-				lexer_mock("cat <\"./test_files/infile\" | echo hi".to_string())
-			);
-			assert_eq!(0, lexer_mock("cat << \"$USER\"".to_string()));
-			assert_eq!(0, lexer_mock("cat << \"$US\"E\"R\"".to_string()));
-			assert_eq!(0, lexer_mock(">> \"$USER'$USER'\"".to_string()));
-			assert_eq!(0, lexer_mock("\"$USER'$USER'\" | echo".to_string()));
-			assert_eq!(0, lexer_mock("\"$USER'$USER'\" | \"echo\"".to_string()));
-			assert_eq!(0, lexer_mock("$USER'$USER' | \"echo\"".to_string()));
-		}
-	}
-	#[test]
-	fn test_works_with_quotes() {
-		let inputs_ok = ["echo \"This is a test\"", "echo \"Hello, World!\""];
-		for input in inputs_ok {
-			unsafe {
-				assert_eq!(0, lexer_mock(input.to_string()));
-			}
-		}
-		let inputs_err = [
-			"echo Hello, World!\"",
-			"echo Hello, World!\"",
-			"echo \"Hello, World!",
-			"echo \'Hello, World!",
-			"echo 'Hello, World!",
-			"'\"'",
-			"echo \"'Hello, World!\"",
-			"\"'\"",
-		];
-		for input in inputs_err {
-			unsafe {
-				assert_eq!(1, lexer_mock(input.to_string()));
-			}
-		}
-	}
-	#[test]
-	fn test_works_with_newlines() {
-		let inputs_ok = [
-			"\n",
-			"\n \n",
-			"\n	\n \n",
-			"\n\n\n\n",
-			"\n\n\n\n\n",
-			"\n\n\n\n\n\n",
-			"\n\n\n\n\n\n\n",
-			"\n\n\n\n\n\n\n\n",
-			"\n\n\n\n\n\n\n\n\n",
-			"\n\n\n\n\n\\n\n\n\n\n",
-		];
-		for input in inputs_ok {
-			unsafe {
-				assert_eq!(0, lexer_mock(input.to_string()));
-			}
-		}
-	}
-	#[test]
-	fn test_redirs() {
-		let inputs_ok = [
-			"echo > outfile",
-			"> outfile",
-			"< outfile",
-			"cat << delim | > outfile",
-		];
-		for input in inputs_ok {
-			unsafe {
-				assert_eq!(0, lexer_mock(input.to_string()));
-			}
-		}
-		let inputs_err = ["< < <", "> > >", "> > >", "> tmpfile > midfile >"];
-		for input in inputs_err {
-			unsafe {
-				assert_eq!(1, lexer_mock(input.to_string()));
-			}
-		}
-	}
 }
-
-mod check_pipes;
-mod checks_basic;
-mod lexer_support;
