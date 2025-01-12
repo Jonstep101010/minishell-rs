@@ -18,12 +18,14 @@ fn check_index_advance(bytes_s: &[u8], mut i: usize) -> usize {
 }
 fn expand_inside(key_c_str: &CStr, env: &Env, mut i: &mut usize) -> String {
 	let mut ret: String = {
-		if !key_c_str.is_empty()
-			&& let Some(expansion) = env.get(key_c_str.to_str().unwrap())
-		{
-			expansion.to_string()
+		if !key_c_str.is_empty() {
+			if let Some(expansion) = env.get(key_c_str.to_str().unwrap()) {
+				expansion.to_string()
+			} else {
+				"$".to_string()
+			}
 		} else {
-			String::new()
+			String::from("")
 		}
 	};
 	*i = (*i).wrapping_add(key_c_str.count_bytes());
@@ -45,23 +47,21 @@ fn expand(s: &CStr, env: &Env) -> CString {
 	let mut expand_0: bool = false;
 	let mut double_quote = 0;
 	let mut ret = String::new();
+	let bytes_s = s.to_bytes_with_nul();
 	loop {
-		let bytes_s = s.to_bytes_with_nul();
 		if bytes_s[0] == b'\0' {
 			break;
 		}
-		check_quotes(s.to_bytes_with_nul(), &mut expand_0, &mut double_quote);
+		check_quotes(&bytes_s[i..], &mut expand_0, &mut double_quote);
 		if !expand_0
 			&& bytes_s[i] == b'$'
 			&& bytes_s[i + 1] != b'\0'
 			&& !EXP_CHARS.iter().any(|&x| x == bytes_s[i + 1])
 		{
 			let start = i + 1;
-			let len = check_index_advance(s.to_bytes_with_nul(), i);
+			let len = check_index_advance(bytes_s, i);
 			unsafe {
-				let key = CStr::from_bytes_with_nul_unchecked(
-					&s.to_bytes_with_nul()[start..=(start + len)],
-				);
+				let key = CStr::from_bytes_with_nul_unchecked(&bytes_s[start..=(start + len)]);
 				let expansion = expand_inside(key, env, &mut i);
 				ret.push_str(&expansion);
 			}
@@ -93,50 +93,58 @@ mod tests {
 	use std::ffi::CString;
 
 	//$'USER', $"USER" should not expand
+	use rstest::{fixture, rstest};
 
-	#[test]
-	fn test_expander() {
-		let env = Env::new();
-		let input = CString::new("Hello $USER").unwrap();
-		let output = expander(&input, &env).unwrap();
-		assert_eq!(
-			output.to_str().unwrap(),
-			format!("Hello {}", std::env::var("USER").unwrap())
-		);
-	}
-	#[test]
-	fn test_expander_mult() {
-		let env = Env::new();
-		let input = CString::new("echo $USER | echo \"$USER\"").unwrap();
-		let output = expander(&input, &env).unwrap();
-		assert_eq!(
-			output.to_str().unwrap(),
-			format!(
+	// use $USER env var only
+	// expected, input for expander
+	#[rstest]
+	#[case("'$USER'", "'$USER'")]
+	#[case(&std::env::var("USER").unwrap(), "$USER")]
+	#[case(&format!("echo \"'{}'\"", std::env::var("USER").unwrap()), "echo \"'$USER'\"")]
+	#[case("echo '\"$USER\"'", "echo '\"$USER\"'")]
+	#[case(&format!("Hello {}", std::env::var("USER").unwrap()), "Hello $USER")]
+	#[case(&format!("Hello ${}", std::env::var("USER").unwrap()), "Hello $$USER")]
+	#[case("", "$USERsomething")]
+	#[case("echo \"''\"", "echo \"'$USERsomething'\"")]
+	#[case("echo \"'\"'$PAGER'\"'\"", "echo \"'\"'$PAGER'\"'\"")]
+	#[case(&format!("echo {}{}", std::env::var("USER").unwrap(), std::env::var("USER").unwrap()), "echo $USER$USER")]
+	#[case(&format!("echo \"{}\"{}", std::env::var("USER").unwrap(), std::env::var("USER").unwrap()), "echo \"$USER\"$USER")]
+	#[case(&format!("echo \"{} something\"", std::env::var("USER").unwrap()), "echo \"$USER something\"")]
+	#[case(&format!("echo {} something", std::env::var("USER").unwrap()), "echo $USER something")]
+	#[case(&format!("echo {}", std::env::var("USER").unwrap()), "echo $USER$something")]
+	#[case("echo something strange", "echo something strange")]
+	#[case(&	format!(
+		"echo \"{}\"{}",
+		std::env::var("USER").unwrap(),
+		std::env::var("USER").unwrap(),
+	),"echo \"$USER\"$USER")]
+	#[case(&format!(
 				"echo {} | echo \"{}\"",
 				std::env::var("USER").unwrap(),
 				std::env::var("USER").unwrap()
-			)
-		);
-	}
-	#[test]
-	fn test_expander_sq() {
+	),"echo $USER | echo \"$USER\"")]
+	#[fixture]
+	fn test_expander(#[case] expected: &str, #[case] input: &str) {
 		let env = Env::new();
-		let input = CString::new("echo \"$USER\"$USER").unwrap();
+		let input = CString::new(input).unwrap();
 		let output = expander(&input, &env).unwrap();
-		assert_eq!(
-			output.to_str().unwrap(),
-			format!(
-				"echo \"{}\"{}",
-				std::env::var("USER").unwrap(),
-				std::env::var("USER").unwrap(),
-			)
-		);
+		assert_eq!(expected, output.to_str().unwrap());
 	}
-	#[test]
-	fn test_expander_two() {
+	#[rstest]
+	#[case("echo 0", "echo $?")]
+	#[case("0", "$?")]
+	#[case("$\"USER\"", "$\"USER\"")]
+	#[case("$'USER'", "$'USER'")]
+	#[case("echo $'TEST $TEST'", "echo $'TEST $TEST'")]
+	#[case("echo $\"42$\"", "echo $\"42$\"")]
+	#[case("echo \"$ \"", "echo \"$ \"")]
+	#[case(&format!("echo ${}$", std::env::var("USER").unwrap()), "echo $USER$")]
+	#[case("echo something $$ strange", "echo something $$ strange")]
+	#[fixture]
+	fn test_expander_failing(#[case] expected: &str, #[case] input: &str) {
 		let env = Env::new();
-		let input = CString::new("$USER").unwrap();
+		let input = CString::new(input).unwrap();
 		let output = expander(&input, &env).unwrap();
-		assert_eq!(output.to_str().unwrap(), std::env::var("USER").unwrap());
+		assert_eq!(expected, output.to_str().unwrap());
 	}
 }
