@@ -26,6 +26,12 @@ impl Deref for Env {
 }
 
 impl Env {
+	#[cfg(test)]
+	pub fn new_empty() -> Self {
+		Self {
+			map: HashMap::new(),
+		}
+	}
 	pub fn new() -> Self {
 		// collect environment variables
 		let mut host_env: HashMap<String, String> = std::env::vars().collect();
@@ -72,6 +78,9 @@ impl Env {
 	// @todo implement builtins in environment
 	pub fn unset(&mut self, key: &str) {
 		self.map.remove(key);
+	}
+	pub fn get_slice(&self, key: &[u8]) -> Option<&String> {
+		self.get(std::str::from_utf8(key).unwrap())
 	}
 }
 

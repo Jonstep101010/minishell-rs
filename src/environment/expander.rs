@@ -3,86 +3,66 @@
 use super::Env;
 use std::ffi::{CStr, CString};
 
-const CHARMATCH: &[u8; 9] = b"$\"'/? )(\0";
-
-fn check_index_advance(bytes_s_at_i: &[u8]) -> usize {
-	let mut count: usize = 0;
-	while !CHARMATCH.iter().any(|&x| x == bytes_s_at_i[count + 1]) {
-		count += 1;
-	}
-	if bytes_s_at_i[count] != b'\0' && bytes_s_at_i[count + 1] == b'?' {
-		count += 1;
-	}
-	count
-}
-
-fn expand_inside(key_c_str: &CStr, env: &Env, mut i: &mut usize) -> String {
-	// advance by key length in source string
-	*i += key_c_str.count_bytes();
-	if key_c_str.is_empty() {
-		"$".to_string()
-	} else if let Some(expansion) = env.get(key_c_str.to_str().unwrap()) {
-		expansion.to_string()
-	} else {
-		String::from("")
-	}
-}
-
-unsafe fn expand_inside_c(
-	mut key: &CStr,
-	mut env: &Env,
-	mut i: *mut libc::c_int,
-) -> *mut libc::c_char {
-	*i = (*i as libc::c_ulong).wrapping_add(key.count_bytes() as u64) as libc::c_int as libc::c_int;
-	if !key.is_empty() {
-		if let Some(val) = env.get(key.to_str().unwrap()) {
-			let cstr = CString::new(val.as_str()).expect("valid cstring from val");
-			libft_rs::ft_strdup(cstr.as_ptr())
-		} else {
-			libft_rs::ft_strdup(b"\0" as *const u8 as *const libc::c_char)
-		}
-	} else {
-		libft_rs::ft_strdup(c"$".as_ptr())
-	}
-}
-
-const EXP_CHARS: &[u8; 3] = b"$()";
-
 /// Expand the input string using the environment variables stored in the `env` struct.
 ///
 /// # Arguments
 /// `input_expander` - A `CStr` reference to the input string to be expanded.
 #[must_use]
-pub unsafe fn expander(input_expander: &CStr, env: &Env) -> Option<CString> {
-	if input_expander.is_empty() {
-		return None;
-	}
+pub fn expander(input_expander: &CStr, env: &Env) -> Option<CString> {
 	let mut i = 0;
-	let mut should_expand: bool = true;
-	let mut double_quote = false;
+	let mut should_expand = true;
+	let mut has_double_quote = false;
 	let mut ret = String::new();
 	let bytes = input_expander.to_bytes_with_nul();
-	while bytes[i] != b'\0' {
-		match bytes[i] {
-			b'"' => {
-				double_quote = !double_quote;
-			}
-			b'\'' if !double_quote && bytes[check_index_advance(&bytes[i..])] != b'"' => {
-				should_expand = !should_expand;
-			}
-			_ => {}
+	const CHARMATCH: &[u8; 9] = b"$\"'/? )(\0";
+	let idx_advance = |bytes_at_i: &[u8]| {
+		let mut count: usize = 0;
+		while !CHARMATCH.iter().any(|&x| x == bytes_at_i[count + 1]) {
+			count += 1;
 		}
-		if should_expand && bytes[i] == b'$' && !EXP_CHARS.iter().any(|&x| x == bytes[i + 1]) {
-			let key_slice = &bytes[i + 1..check_index_advance(&bytes[i..]) + i + 1];
-			dbg!(&key_slice);
-			let key_slice = CString::new(key_slice).unwrap();
-			let expansion = expand_inside(&key_slice, env, &mut i);
-			let expansion_c = expand_inside_c(&key_slice, env, &mut (i as i32));
-			assert_eq!(
-				*CStr::from_ptr(expansion_c),
-				*CString::new(expansion.clone()).unwrap().as_c_str()
-			);
-			libc::free(expansion_c.cast());
+		if bytes_at_i[count] != b'\0' && bytes_at_i[count + 1] == b'?' {
+			count += 1;
+		}
+		count
+	};
+	while i < input_expander.count_bytes() {
+		if bytes[i] == b'"' {
+			has_double_quote = !has_double_quote;
+		} else if bytes[i] == b'\'' && !has_double_quote && bytes[idx_advance(&bytes[i..])] != b'"'
+		{
+			should_expand = !should_expand;
+		}
+		if bytes[i] == b'$' && should_expand && !b"$()".contains(&bytes[i + 1]) {
+			let key_byte_slice = &bytes[i + 1..idx_advance(&bytes[i..]) + i + 1];
+			// advance by key length in source string
+			i += key_byte_slice.len();
+			let expansion = if key_byte_slice.len() == 0 {
+				"$".to_string()
+			} else if let Some(&ref expansion) = env.get_slice(key_byte_slice) {
+				expansion.to_string()
+			} else {
+				String::from("")
+			};
+			#[cfg(test)]
+			{
+				unsafe {
+					let expansion_c = if !key_byte_slice.is_empty() {
+						if let Some(val) = env.get_slice(key_byte_slice) {
+							let cstr = CString::new(val.as_str()).expect("valid cstring from val");
+							libft_rs::ft_strdup(cstr.as_ptr())
+						} else {
+							libft_rs::ft_strdup(b"\0" as *const u8 as *const libc::c_char)
+						}
+					} else {
+						libft_rs::ft_strdup(c"$".as_ptr())
+					};
+					assert_eq!(
+						*CStr::from_ptr(expansion_c),
+						*CString::new(expansion.clone()).unwrap().as_c_str()
+					);
+					libc::free(expansion_c.cast());
+				}
+			}
 			ret.push_str(&expansion);
 		} else {
 			ret.push(bytes[i].into());
@@ -131,11 +111,9 @@ mod tests {
 	#[fixture]
 	fn test_expander(#[case] expected: &str, #[case] input: &str) {
 		let env = Env::new();
-		unsafe {
-			let input = CString::new(input).unwrap();
-			let output = expander(&input, &env).unwrap();
-			assert_eq!(expected, output.to_str().unwrap());
-		}
+		let input = CString::new(input).unwrap();
+		let output = expander(&input, &env).unwrap();
+		assert_eq!(expected, output.to_str().unwrap());
 	}
 	#[rstest]
 	// #[case("echo 0", "echo $?")]
@@ -150,10 +128,8 @@ mod tests {
 	#[fixture]
 	fn test_expander_failing(#[case] expected: &str, #[case] input: &str) {
 		let env = Env::new();
-		unsafe {
-			let input = CString::new(input).unwrap();
-			let output = expander(&input, &env).unwrap();
-			assert_eq!(expected, output.to_str().unwrap());
-		}
+		let input = CString::new(input).unwrap();
+		let output = expander(&input, &env).unwrap();
+		assert_eq!(expected, output.to_str().unwrap());
 	}
 }
