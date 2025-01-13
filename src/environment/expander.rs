@@ -1,17 +1,13 @@
 #![warn(clippy::pedantic)]
-use libc::size_t;
 
 use super::Env;
 use std::ffi::{CStr, CString};
 
-const CHARMATCH: &[u8; 8] = b"$\"'/? )(";
+const CHARMATCH: &[u8; 9] = b"$\"'/? )(\0";
 
 fn check_index_advance(bytes_s_at_i: &[u8]) -> usize {
 	let mut count: usize = 0;
-	while bytes_s_at_i[count] != b'\0'
-		&& bytes_s_at_i[count + 1] != b'\0'
-		&& !CHARMATCH.iter().any(|&x| x == bytes_s_at_i[count + 1])
-	{
+	while !CHARMATCH.iter().any(|&x| x == bytes_s_at_i[count + 1]) {
 		count += 1;
 	}
 	if bytes_s_at_i[count] != b'\0' && bytes_s_at_i[count + 1] == b'?' {
@@ -33,38 +29,23 @@ fn expand_inside(key_c_str: &CStr, env: &Env, mut i: &mut usize) -> String {
 }
 
 unsafe fn expand_inside_c(
-	mut key: *mut libc::c_char,
+	mut key: &CStr,
 	mut env: &Env,
 	mut i: *mut libc::c_int,
 ) -> *mut libc::c_char {
-	let len: size_t = libc::strlen(key);
-	let mut ret = std::ptr::null_mut::<libc::c_char>();
-	let cstr = CStr::from_ptr(key);
-	if *key != 0 {
-		if let Some(val) = env.get(cstr.to_str().unwrap()) {
+	*i = (*i as libc::c_ulong).wrapping_add(key.count_bytes() as u64) as libc::c_int as libc::c_int;
+	if !key.is_empty() {
+		if let Some(val) = env.get(key.to_str().unwrap()) {
 			let cstr = CString::new(val.as_str()).expect("valid cstring from val");
-			ret = libft_rs::ft_strdup(cstr.as_ptr());
+			libft_rs::ft_strdup(cstr.as_ptr())
+		} else {
+			libft_rs::ft_strdup(b"\0" as *const u8 as *const libc::c_char)
 		}
 	} else {
-		ret = libft_rs::ft_strdup(c"$".as_ptr());
+		libft_rs::ft_strdup(c"$".as_ptr())
 	}
-	if ret.is_null() {
-		ret = libft_rs::ft_strdup(b"\0" as *const u8 as *const libc::c_char);
-	}
-	*i = (*i as libc::c_ulong).wrapping_add(len as u64) as libc::c_int as libc::c_int;
-	return ret;
 }
 
-fn check_quotes(c: &[u8], mut expand_0: &mut bool, mut double_quote: &mut i32) {
-	if c[0] == b'"' && *double_quote == 0 {
-		*double_quote = 1;
-	} else if c[0] == b'"' && *double_quote == 1 {
-		*double_quote = 0;
-	}
-	if c[0] == b'\'' && *double_quote == 0 && c[check_index_advance(&c[0..])] != b'"' {
-		*expand_0 = !*expand_0;
-	}
-}
 const EXP_CHARS: &[u8; 3] = b"$()";
 
 /// Expand the input string using the environment variables stored in the `env` struct.
@@ -77,22 +58,26 @@ pub unsafe fn expander(input_expander: &CStr, env: &Env) -> Option<CString> {
 		return None;
 	}
 	let mut i = 0;
-	let mut expand_0: bool = true;
-	let mut double_quote = 0;
+	let mut should_expand: bool = true;
+	let mut double_quote = false;
 	let mut ret = String::new();
-	let bytes_s = input_expander.as_ptr();
-	let b_s = input_expander.to_bytes_with_nul();
-	while b_s[i] != b'\0' {
-		check_quotes(&b_s[i..], &mut expand_0, &mut double_quote);
-		if expand_0 && b_s[i] == b'$' && !EXP_CHARS.iter().any(|&x| x == b_s[i + 1]) {
-			let mut key =
-				libft_rs::ft_substr(bytes_s, i as u32 + 1, check_index_advance(&b_s[i..]) as u64)
-					as *mut libc::c_char;
-			if key.is_null() {
-				return None;
+	let bytes = input_expander.to_bytes_with_nul();
+	while bytes[i] != b'\0' {
+		match bytes[i] {
+			b'"' => {
+				double_quote = !double_quote;
 			}
-			let expansion = expand_inside(CStr::from_ptr(key), env, &mut i);
-			let expansion_c = expand_inside_c(key, env, &mut (i as i32));
+			b'\'' if !double_quote && bytes[check_index_advance(&bytes[i..])] != b'"' => {
+				should_expand = !should_expand;
+			}
+			_ => {}
+		}
+		if should_expand && bytes[i] == b'$' && !EXP_CHARS.iter().any(|&x| x == bytes[i + 1]) {
+			let key_slice = &bytes[i + 1..check_index_advance(&bytes[i..]) + i + 1];
+			dbg!(&key_slice);
+			let key_slice = CString::new(key_slice).unwrap();
+			let expansion = expand_inside(&key_slice, env, &mut i);
+			let expansion_c = expand_inside_c(&key_slice, env, &mut (i as i32));
 			assert_eq!(
 				*CStr::from_ptr(expansion_c),
 				*CString::new(expansion.clone()).unwrap().as_c_str()
@@ -100,7 +85,7 @@ pub unsafe fn expander(input_expander: &CStr, env: &Env) -> Option<CString> {
 			libc::free(expansion_c.cast());
 			ret.push_str(&expansion);
 		} else {
-			ret.push(b_s[i].into());
+			ret.push(bytes[i].into());
 		}
 		i += 1;
 	}
