@@ -4,7 +4,7 @@ use libc::size_t;
 use super::Env;
 use std::ffi::{CStr, CString};
 
-const CHARMATCH: &[u8; 9] = b"$\"'/? )(\0";
+const CHARMATCH: &[u8; 8] = b"$\"'/? )(";
 
 fn check_index_advance(bytes_s_at_i: &[u8]) -> usize {
 	let mut count: usize = 0;
@@ -51,10 +51,6 @@ unsafe fn expand_inside_c(
 	if ret.is_null() {
 		ret = libft_rs::ft_strdup(b"\0" as *const u8 as *const libc::c_char);
 	}
-	libc::free(key as *mut libc::c_void);
-	if ret.is_null() {
-		return 0 as *mut libc::c_char;
-	}
 	*i = (*i as libc::c_ulong).wrapping_add(len as u64) as libc::c_int as libc::c_int;
 	return ret;
 }
@@ -69,7 +65,7 @@ fn check_quotes(c: &[u8], mut expand_0: &mut bool, mut double_quote: &mut i32) {
 		*expand_0 = !*expand_0;
 	}
 }
-const EXP_CHARS: &[u8; 4] = b"$()\0";
+const EXP_CHARS: &[u8; 3] = b"$()";
 
 /// Expand the input string using the environment variables stored in the `env` struct.
 ///
@@ -83,19 +79,12 @@ pub unsafe fn expander(input_expander: &CStr, env: &Env) -> Option<CString> {
 	let mut i = 0;
 	let mut expand_0: bool = true;
 	let mut double_quote = 0;
-	let mut ret = String::from("");
+	let mut ret = String::new();
 	let bytes_s = input_expander.as_ptr();
 	let b_s = input_expander.to_bytes_with_nul();
-	loop {
-		if *bytes_s.add(i) == b'\0' as i8 {
-			break;
-		}
+	while b_s[i] != b'\0' {
 		check_quotes(&b_s[i..], &mut expand_0, &mut double_quote);
-		if expand_0
-			&& *bytes_s.add(i) == b'$' as i8
-			&& *bytes_s.add(i + 1) != b'\0' as i8
-			&& !EXP_CHARS.iter().any(|&x| x == *bytes_s.add(i + 1) as u8)
-		{
+		if expand_0 && b_s[i] == b'$' && !EXP_CHARS.iter().any(|&x| x == b_s[i + 1]) {
 			let mut key =
 				libft_rs::ft_substr(bytes_s, i as u32 + 1, check_index_advance(&b_s[i..]) as u64)
 					as *mut libc::c_char;
@@ -111,7 +100,7 @@ pub unsafe fn expander(input_expander: &CStr, env: &Env) -> Option<CString> {
 			libc::free(expansion_c.cast());
 			ret.push_str(&expansion);
 		} else {
-			ret.push(*bytes_s.add(i) as u8 as char);
+			ret.push(b_s[i].into());
 		}
 		i += 1;
 	}
