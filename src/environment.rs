@@ -32,6 +32,12 @@ impl Env {
 			map: HashMap::new(),
 		}
 	}
+	#[cfg(test)]
+	pub fn new_exit_status() -> Self {
+		let mut status_env = HashMap::new();
+		status_env.insert("?".to_string(), "0".to_string());
+		Self { map: status_env }
+	}
 	pub fn new() -> Self {
 		// collect environment variables
 		let mut host_env: HashMap<String, String> = std::env::vars().collect();

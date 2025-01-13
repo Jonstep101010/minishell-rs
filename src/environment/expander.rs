@@ -116,8 +116,6 @@ mod tests {
 		assert_eq!(expected, output.to_str().unwrap());
 	}
 	#[rstest]
-	// #[case("echo 0", "echo $?")]
-	// #[case("0", "$?")]
 	#[case("$\"USER\"", "$\"USER\"")]
 	#[case("$'USER'", "$'USER'")]
 	#[case("echo $'TEST $TEST'", "echo $'TEST $TEST'")]
@@ -126,8 +124,19 @@ mod tests {
 	#[case(&format!("echo {}$", std::env::var("USER").unwrap()), "echo $USER$")]
 	#[case("echo something $$ strange", "echo something $$ strange")]
 	#[fixture]
-	fn test_expander_failing(#[case] expected: &str, #[case] input: &str) {
+	fn test_expander_weird(#[case] expected: &str, #[case] input: &str) {
 		let env = Env::new();
+		let input = CString::new(input).unwrap();
+		let output = expander(&input, &env).unwrap();
+		assert_eq!(expected, output.to_str().unwrap());
+	}
+	#[rstest]
+	#[case("echo 0", "echo $?")]
+	#[case("0", "$?")]
+	#[case("0$00$$$$", "$?$$?$?$$$$hello?$")]
+	#[fixture]
+	fn test_expander_status(#[case] expected: &str, #[case] input: &str) {
+		let env = Env::new_exit_status();
 		let input = CString::new(input).unwrap();
 		let output = expander(&input, &env).unwrap();
 		assert_eq!(expected, output.to_str().unwrap());
