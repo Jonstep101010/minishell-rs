@@ -5,13 +5,12 @@ use libutils_rs::src::string::str_cchr::str_cchr;
 
 use crate::size_t;
 
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn do_quote_bs(
+pub unsafe fn do_quote_bs(
 	mut s: *const libc::c_char,
 	mut quote: *mut libc::c_int,
-) -> *mut libc::c_void {
+) -> *mut libc::c_char {
 	if s.is_null() {
-		return std::ptr::null_mut::<libc::c_void>();
+		return std::ptr::null_mut::<libc::c_char>();
 	}
 	let mut len: size_t = ft_strlen(s);
 	let mut tmp: *mut libc::c_char = ft_calloc(
@@ -19,7 +18,7 @@ pub unsafe extern "C" fn do_quote_bs(
 		::core::mem::size_of::<libc::c_char>() as libc::c_ulong,
 	) as *mut libc::c_char;
 	if tmp.is_null() {
-		return std::ptr::null_mut::<libc::c_void>();
+		return std::ptr::null_mut::<libc::c_char>();
 	}
 	while *s != 0 {
 		if *quote == 0 as libc::c_int
@@ -36,7 +35,7 @@ pub unsafe extern "C" fn do_quote_bs(
 		}
 		s = s.offset(1);
 	}
-	tmp as *mut libc::c_void
+	tmp as *mut libc::c_char
 }
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn interpret_quotes(mut cmd_arr: *mut *mut libc::c_char) -> bool {
@@ -61,4 +60,50 @@ pub unsafe extern "C" fn interpret_quotes(mut cmd_arr: *mut *mut libc::c_char) -
 		i += 1;
 	}
 	1 as libc::c_int != 0
+}
+
+#[cfg(test)]
+mod tests {
+	use rstest::fixture;
+	use rstest::rstest;
+
+	// expected, input
+	#[rstest]
+	#[case("'\"test\"'", "\"'\"'\"'test'\"'\"'\"")]
+	#[case("'test'", "\"'\"test\"'\"")]
+	#[case("echo ' \" test ' \"", "echo \"'\" '\"' test \"'\" '\"'")]
+	#[case("echo test", "echo ''test''")]
+	#[case("echo test", "echo \"\"test\"\"")]
+	#[case("'hello'", "\"'hello'\"")]
+	#[case("\"hello\"", "'\"hello\"'")]
+	#[case(
+		"echo hello tehre hello inside single \"jesus\"",
+		"echo 'hello tehre 'hello inside single' \"jesus\"'"
+	)]
+	#[case(
+		"echo hello tehre 'hello inside single' jesus",
+		"echo \"hello tehre 'hello inside single' \"jesus\"\""
+	)]
+	#[case(
+		"echo hello tehre hello inside single jesus\"\"",
+		"echo 'hello tehre 'hello inside single' jesus\"\"'"
+	)]
+	#[case(
+		"echo hello tehre hello inside single jesus",
+		"echo 'hello tehre 'hello inside single' jesus'''"
+	)]
+	#[case(
+		"echo hello tehre hello inside single \"\"jesus\"\"",
+		"echo 'hello tehre 'hello inside single' \"\"jesus\"\"'"
+	)]
+	#[fixture]
+	fn test_quote_separation(#[case] expected: &str, #[case] input: &str) {
+		let input = std::ffi::CString::new(input).unwrap();
+		let mut ptr_int_quote = 0;
+		unsafe {
+			let output = super::do_quote_bs(input.as_ptr(), &mut ptr_int_quote);
+			assert_eq!(expected, std::ffi::CStr::from_ptr(output).to_str().unwrap());
+			libc::free(output.cast());
+		};
+	}
 }
