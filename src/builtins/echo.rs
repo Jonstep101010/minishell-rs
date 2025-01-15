@@ -16,7 +16,7 @@ unsafe fn is_n_arg(mut arg: *const c_char) -> bool {
 	false
 }
 
-unsafe extern "C" fn echo_default(cmd_args: *const *const c_char) {
+unsafe fn echo_default(cmd_args: *const *const c_char) {
 	let mut i = 0;
 	while !(*cmd_args.add(i)).is_null() && is_n_arg(*cmd_args.add(i)) == true {
 		i += 1;
@@ -52,7 +52,7 @@ unsafe extern "C" fn echo_default(cmd_args: *const *const c_char) {
 
 #[allow(unused_mut)]
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn echo(mut _nullable: *mut t_shell, mut token: *mut t_token) -> libc::c_int {
+pub unsafe fn echo(mut _nullable: *mut t_shell, mut token: *mut t_token) -> libc::c_int {
 	let args: *mut *const c_char =
 		crate::tokenizer::build_command::get_cmd_arr_token(token) as *mut *const c_char;
 	if !(*args.add(1)).is_null() {

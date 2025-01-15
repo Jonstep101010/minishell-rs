@@ -19,7 +19,7 @@ use super::bin_path::get_path_prefixed;
 // exit(where_it_happened);
 // }
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn exec_bin(mut shell: *mut t_shell, mut token: *mut t_token) -> libc::c_int {
+pub unsafe fn exec_bin(mut shell: *mut t_shell, mut token: *mut t_token) -> libc::c_int {
 	// @note this might be a good candidate for implementing a rust version of the function
 	let mut command: *mut *const libc::c_char =
 		get_cmd_arr_token(token) as *mut *const libc::c_char;

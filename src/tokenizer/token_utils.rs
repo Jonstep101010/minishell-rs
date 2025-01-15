@@ -12,8 +12,7 @@ use crate::{
 	size_t, t_arg, t_shell, t_token,
 };
 
-pub type t_cmd_func_builtin =
-	Option<unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int>;
+pub type t_cmd_func_builtin = Option<unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int>;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct s_func {
@@ -21,62 +20,48 @@ pub struct s_func {
 	pub cmd: t_cmd_func_builtin,
 }
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn set_cmd_func(mut cmd: *const libc::c_char, mut token: *mut t_token) {
+pub unsafe fn set_cmd_func(mut cmd: *const libc::c_char, mut token: *mut t_token) {
 	let cmds: [s_func; 8] = [
 		{
 			s_func {
 				name: b"echo\0" as *const u8 as *const libc::c_char as *mut libc::c_char,
-				cmd: Some(echo as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int),
+				cmd: Some(echo as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int),
 			}
 		},
 		{
 			s_func {
 				name: b"cd\0" as *const u8 as *const libc::c_char as *mut libc::c_char,
-				cmd: Some(
-					builtin_cd as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int,
-				),
+				cmd: Some(builtin_cd as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int),
 			}
 		},
 		{
 			s_func {
 				name: b"pwd\0" as *const u8 as *const libc::c_char as *mut libc::c_char,
-				cmd: Some(
-					builtin_pwd as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int,
-				),
+				cmd: Some(builtin_pwd as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int),
 			}
 		},
 		{
 			s_func {
 				name: b"export\0" as *const u8 as *const libc::c_char as *mut libc::c_char,
-				cmd: Some(
-					builtin_export
-						as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int,
-				),
+				cmd: Some(builtin_export as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int),
 			}
 		},
 		{
 			s_func {
 				name: b"unset\0" as *const u8 as *const libc::c_char as *mut libc::c_char,
-				cmd: Some(
-					builtin_unset
-						as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int,
-				),
+				cmd: Some(builtin_unset as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int),
 			}
 		},
 		{
 			s_func {
 				name: b"env\0" as *const u8 as *const libc::c_char as *mut libc::c_char,
-				cmd: Some(
-					builtin_env as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int,
-				),
+				cmd: Some(builtin_env as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int),
 			}
 		},
 		{
 			s_func {
 				name: b"exit\0" as *const u8 as *const libc::c_char as *mut libc::c_char,
-				cmd: Some(
-					builtin_exit as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int,
-				),
+				cmd: Some(builtin_exit as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int),
 			}
 		},
 		{
@@ -94,11 +79,10 @@ pub unsafe extern "C" fn set_cmd_func(mut cmd: *const libc::c_char, mut token: *
 		}
 		i = i.wrapping_add(1);
 	}
-	(*token).cmd_func =
-		Some(exec_bin as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int);
+	(*token).cmd_func = Some(exec_bin as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int);
 }
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn init_cmdargs(mut size: size_t) -> *mut t_arg {
+pub unsafe fn init_cmdargs(mut size: size_t) -> *mut t_arg {
 	let template: t_arg = {
 		t_arg {
 			elem: std::ptr::null_mut::<libc::c_char>(),
@@ -124,7 +108,7 @@ pub unsafe extern "C" fn init_cmdargs(mut size: size_t) -> *mut t_arg {
 	args
 }
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn init_token(mut size: size_t) -> *mut t_token {
+pub unsafe fn init_token(mut size: size_t) -> *mut t_token {
 	let template: t_token = {
 		t_token {
 			cmd_args: std::ptr::null_mut::<t_arg>(),
@@ -132,9 +116,7 @@ pub unsafe extern "C" fn init_token(mut size: size_t) -> *mut t_token {
 			split_pipes: std::ptr::null_mut::<libc::c_char>(),
 			tmp_arr: std::ptr::null_mut::<*mut libc::c_char>(),
 			bin: std::ffi::CString::new("").unwrap(),
-			cmd_func: Some(
-				exec_bin as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int,
-			),
+			cmd_func: Some(exec_bin as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int),
 		}
 	};
 	let mut token: *mut t_token = ft_calloc(

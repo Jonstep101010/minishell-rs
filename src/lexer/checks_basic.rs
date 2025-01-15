@@ -6,10 +6,7 @@ use crate::utils::bool_array::{bool_arr_zeroing, range_ignore};
 
 use super::{check_pipes::check_pipes_redirection, lexer_support::count_number, t_lexer};
 
-unsafe extern "C" fn ignore_quotes(
-	mut s: *const libc::c_char,
-	mut input: *mut t_lexer,
-) -> libc::c_int {
+unsafe fn ignore_quotes(mut s: *const libc::c_char, mut input: *mut t_lexer) -> libc::c_int {
 	if s.is_null() || input.is_null() {
 		return 1 as libc::c_int;
 	}
@@ -18,10 +15,7 @@ unsafe extern "C" fn ignore_quotes(
 	range_ignore(s, (*input).ignore, '\'' as i32 as libc::c_uchar);
 	0 as libc::c_int
 }
-unsafe extern "C" fn check_quotes(
-	mut s: *const libc::c_char,
-	mut input: *mut t_lexer,
-) -> libc::c_int {
+unsafe fn check_quotes(mut s: *const libc::c_char, mut input: *mut t_lexer) -> libc::c_int {
 	if (*input).singlequotes == 1 as libc::c_int {
 		eprintln!("syntax error near unexpected token '''");
 		return 1 as libc::c_int;
@@ -42,7 +36,7 @@ unsafe extern "C" fn check_quotes(
 	0 as libc::c_int
 }
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn lexer_checks_basic(mut s: *const libc::c_char) -> *mut t_lexer {
+pub unsafe fn lexer_checks_basic(mut s: *const libc::c_char) -> *mut t_lexer {
 	let mut input: *mut t_lexer = ft_calloc(
 		::core::mem::size_of::<t_lexer>() as libc::c_ulong,
 		1 as libc::c_int as crate::size_t,

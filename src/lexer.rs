@@ -29,10 +29,7 @@ pub struct t_lexer {
 }
 use checks_basic::lexer_checks_basic;
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn run(
-	mut shell: *mut t_shell,
-	mut trimmed_line: *const libc::c_char,
-) -> libc::c_int {
+pub unsafe fn run(mut shell: *mut t_shell, mut trimmed_line: *const libc::c_char) -> libc::c_int {
 	if *trimmed_line == 0 {
 		return 0 as libc::c_int;
 	}

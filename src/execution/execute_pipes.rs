@@ -7,7 +7,7 @@ use libc::{close, dup, dup2, fork, pipe, wait, waitpid};
 
 use super::{heredoc::do_heredocs, redirections::do_redirections};
 
-unsafe extern "C" fn exec_last(
+unsafe fn exec_last(
 	mut shell: *mut t_shell,
 	mut i: libc::c_int,
 	mut prevpipe: *mut libc::c_int,
@@ -47,7 +47,7 @@ unsafe extern "C" fn exec_last(
 		}
 	};
 }
-unsafe extern "C" fn exec_pipe(
+unsafe fn exec_pipe(
 	mut shell: *mut t_shell,
 	mut i: libc::c_int,
 	mut prevpipe: *mut libc::c_int,
@@ -82,7 +82,7 @@ unsafe extern "C" fn exec_pipe(
 	};
 }
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn execute_pipes(mut shell: *mut t_shell, mut token_count: libc::c_int) {
+pub unsafe fn execute_pipes(mut shell: *mut t_shell, mut token_count: libc::c_int) {
 	let mut i: libc::c_int = -1;
 	let mut error_elem: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	let mut prevpipe = dup(0 as libc::c_int);

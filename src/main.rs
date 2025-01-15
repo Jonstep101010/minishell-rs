@@ -74,7 +74,7 @@ pub struct t_token {
 	pub split_pipes: *mut libc::c_char,  // String
 	pub tmp_arr: *mut *mut libc::c_char, // Vec<String>
 	pub bin: std::ffi::CString,          // String
-	pub cmd_func: Option<unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int>, // fn
+	pub cmd_func: Option<unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int>, // fn
 }
 
 #[derive(Clone)]

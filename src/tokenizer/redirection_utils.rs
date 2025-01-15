@@ -5,7 +5,7 @@ use libutils_rs::src::utils::{free_mem::free_null, memsize::memsize};
 
 use crate::{prelude::*, size_t, t_arg};
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn rm_prefix_redir_word(mut arg: *mut t_arg) {
+pub unsafe fn rm_prefix_redir_word(mut arg: *mut t_arg) {
 	if arg.is_null() {
 		return;
 	}
@@ -36,7 +36,7 @@ pub unsafe extern "C" fn rm_prefix_redir_word(mut arg: *mut t_arg) {
 	}
 }
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn parse_redir_types(mut arg: *mut t_arg) {
+pub unsafe fn parse_redir_types(mut arg: *mut t_arg) {
 	let mut i: libc::c_int = -1;
 	loop {
 		i += 1;
@@ -65,7 +65,7 @@ pub unsafe extern "C" fn parse_redir_types(mut arg: *mut t_arg) {
 		}
 	}
 }
-unsafe extern "C" fn set_type_redir(mut cmd_arg: *mut t_arg) {
+unsafe fn set_type_redir(mut cmd_arg: *mut t_arg) {
 	if (*cmd_arg).redir as libc::c_uint == e_redir::APPEND as libc::c_int as libc::c_uint
 		|| (*cmd_arg).redir as libc::c_uint == e_redir::HEREDOC as libc::c_int as libc::c_uint
 	{
@@ -86,7 +86,7 @@ unsafe extern "C" fn set_type_redir(mut cmd_arg: *mut t_arg) {
 	}
 }
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn check_redirections(mut cmd_args: *mut t_arg) -> bool {
+pub unsafe fn check_redirections(mut cmd_args: *mut t_arg) -> bool {
 	let mut ii: size_t = 0;
 	let mut redir: bool = false;
 	while !((*cmd_args.offset(ii as isize)).elem).is_null() {

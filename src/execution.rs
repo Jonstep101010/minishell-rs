@@ -16,19 +16,17 @@ use ::libc;
 #[allow(unused_imports)]
 use libc::strerror;
 
-unsafe extern "C" fn forkable_builtin(mut token: *mut t_token) -> bool {
-	(*token).cmd_func
-		!= Some(builtin_exit as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int)
+unsafe fn forkable_builtin(mut token: *mut t_token) -> bool {
+	(*token).cmd_func != Some(builtin_exit as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int)
 		&& (*token).cmd_func
-			!= Some(
-				builtin_export as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int,
-			) && (*token).cmd_func
-		!= Some(builtin_unset as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int)
+			!= Some(builtin_export as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int)
 		&& (*token).cmd_func
-			!= Some(builtin_cd as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int)
+			!= Some(builtin_unset as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int)
+		&& (*token).cmd_func
+			!= Some(builtin_cd as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int)
 }
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn execute_commands(mut shell: *mut t_shell, mut token: *mut t_token) {
+pub unsafe fn execute_commands(mut shell: *mut t_shell, mut token: *mut t_token) {
 	let mut error_elem: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	if token.is_null() {
 		(*shell).exit_status = -(1 as libc::c_int) as u8;
