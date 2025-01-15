@@ -4,6 +4,37 @@ use ::libc;
 use libc::{c_char, free};
 use libft_rs::{ft_strchr::ft_strchr, ft_strtrim::ft_strtrim, ft_substr::ft_substr};
 
+pub fn split_non_quoted(to_split: &str, set: &str) -> Vec<String> {
+	let to_split = to_split.trim_matches(|c| set.contains(c));
+	let bytes = to_split.as_bytes();
+	let len = bytes.len();
+	let mut quote = 0;
+	let mut start = 0;
+	let mut vec_splits = vec![];
+	let mut i = 0;
+	while i < len {
+		quote = if quote != 0 && bytes[i] == quote {
+			0
+		} else if quote == 0 && (bytes[i] == b'\'' || bytes[i] == b'"') {
+			bytes[i]
+		} else {
+			quote
+		};
+		if quote == 0 && set.as_bytes().contains(&bytes[i]) {
+			let string_slice = &to_split[start..i];
+			vec_splits.push(string_slice.to_string());
+			while set.as_bytes().contains(&bytes[i + 1]) {
+				i += 1;
+			}
+			start = i + 1;
+		}
+		i += 1;
+	}
+	let last = &to_split[start..i];
+	vec_splits.push(last.to_string());
+	vec_splits
+}
+
 pub unsafe fn split_outside_quotes(
 	to_split: *const c_char,
 	set: *const c_char,
@@ -80,6 +111,8 @@ mod tests {
 			let vec_output = charptr_array_to_vec(output);
 			dbg!(&vec_output);
 			assert_eq!(expected, vec_output);
+			let vec_safe_output = super::split_non_quoted(input, "|");
+			assert_eq!(expected, vec_safe_output);
 			libutils_rs::arr_free(output);
 		}
 	}
@@ -105,6 +138,8 @@ mod tests {
 			let vec_output = charptr_array_to_vec(output);
 			dbg!(&vec_output);
 			assert_eq!(expected, vec_output);
+			let vec_safe_output = super::split_non_quoted(input, " \t\n\r");
+			assert_eq!(expected, vec_safe_output);
 			libutils_rs::arr_free(output);
 		}
 	}
@@ -123,13 +158,18 @@ mod tests {
 			let vec_output = charptr_array_to_vec(output);
 			dbg!(&vec_output);
 			assert_eq!(expected, vec_output);
+			let vec_safe_output = super::split_non_quoted(input, "|");
+			assert_eq!(expected, vec_safe_output);
 			let trim = ft_strtrim(*output, c" \t\n\r".as_ptr());
 			let output_two = split_outside_quotes(trim, c" \t\n\r".as_ptr());
+			libc::free(trim.cast());
 			let vec_output = charptr_array_to_vec(output_two);
 			assert_eq!(expected_two, vec_output);
+			let trim = vec_safe_output[0].trim_matches(|c| " \t\n\r".contains(c));
+			let vec_safe_output_two = super::split_non_quoted(trim, " \t\n\r");
+			assert_eq!(expected_two, vec_safe_output_two);
 			libutils_rs::arr_free(output);
 			libutils_rs::arr_free(output_two);
-			libc::free(trim.cast());
 		}
 	}
 }
