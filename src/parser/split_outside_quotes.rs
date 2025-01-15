@@ -1,99 +1,65 @@
+#![deny(unused_mut)]
+
 use ::libc;
-use libc::free;
+use libc::{c_char, c_int, free};
 use libft_rs::{
 	ft_strchr::ft_strchr, ft_strlen::ft_strlen, ft_strtrim::ft_strtrim, ft_substr::ft_substr,
 };
 use libutils_rs::src::array::append_str::append_str_arr_free;
 
-use crate::size_t;
-
-#[derive(Copy, Clone)]
-#[repr(C)]
-struct t_splitter {
-	pub quote: libc::c_int,
-	pub start: size_t,
-	pub len: size_t,
-	pub arr: *mut *mut libc::c_char,
-	pub to_split: *mut libc::c_char,
-	pub set: *const libc::c_char,
-}
-unsafe fn split_loop(mut s: *mut t_splitter) -> *mut *mut libc::c_char {
-	let mut i: size_t = 0;
-	while i < (*s).len {
-		if (*s).quote != 0 && *((*s).to_split).offset(i as isize) as libc::c_int == (*s).quote {
-			(*s).quote = 0 as libc::c_int;
-		} else if (*s).quote == 0
-			&& !(ft_strchr(
-				b"'\"\0" as *const u8 as *const libc::c_char,
-				*((*s).to_split).offset(i as isize) as libc::c_int,
-			))
-			.is_null()
+pub unsafe fn split_outside_quotes(
+	to_split: *const c_char,
+	set: *const c_char,
+) -> *mut *mut c_char {
+	if to_split.is_null() {
+		return std::ptr::null_mut::<*mut c_char>();
+	}
+	let to_split = ft_strtrim(to_split, set);
+	if (to_split).is_null() {
+		return std::ptr::null_mut::<*mut c_char>();
+	}
+	let len = ft_strlen(to_split) as usize;
+	let mut quote = 0;
+	let mut start = 0;
+	let mut arr = std::ptr::null_mut::<*mut c_char>();
+	let mut i: usize = 0;
+	while i < len {
+		if quote != 0 && *(to_split).add(i) as c_int == quote {
+			quote = 0 as c_int;
+		} else if quote == 0 && !(ft_strchr(c"'\"".as_ptr(), *(to_split).add(i) as c_int)).is_null()
 		{
-			(*s).quote = *((*s).to_split).offset(i as isize) as libc::c_int;
+			quote = *(to_split).add(i) as c_int;
 		}
-		if (*s).quote == 0
-			&& !(ft_strchr((*s).set, *((*s).to_split).offset(i as isize) as libc::c_int)).is_null()
-		{
-			(*s).arr = append_str_arr_free(
-				(*s).arr,
+		if quote == 0 && !(ft_strchr(set, *(to_split).add(i) as c_int)).is_null() {
+			arr = append_str_arr_free(
+				arr,
 				ft_substr(
-					(*s).to_split,
-					(*s).start as libc::c_uint,
-					i.wrapping_sub((*s).start),
+					to_split,
+					start as libc::c_uint,
+					i.wrapping_sub(start) as u64,
 				),
 			);
-			if ((*s).arr).is_null() {
-				return std::ptr::null_mut::<*mut libc::c_char>();
+			if (arr).is_null() {
+				return std::ptr::null_mut::<*mut c_char>();
 			}
-			while *((*s).to_split)
-				.offset(i.wrapping_add(1 as libc::c_int as libc::c_ulong) as isize)
-				as libc::c_int
-				!= 0 && !(ft_strchr(
-				(*s).set,
-				*((*s).to_split).offset(i.wrapping_add(1 as libc::c_int as libc::c_ulong) as isize)
-					as libc::c_int,
-			))
-			.is_null()
+			while *(to_split).add(i.wrapping_add(1)) as c_int != 0
+				&& !(ft_strchr(set, *(to_split).add(i.wrapping_add(1)) as c_int)).is_null()
 			{
 				i = i.wrapping_add(1);
 			}
-			(*s).start = i.wrapping_add(1 as libc::c_int as libc::c_ulong);
+			start = i.wrapping_add(1);
 		}
 		i = i.wrapping_add(1);
 	}
-	append_str_arr_free(
-		(*s).arr,
+	let ret = append_str_arr_free(
+		arr,
 		ft_substr(
-			&*((*s).to_split).offset((*s).start as isize),
-			0 as libc::c_int as libc::c_uint,
-			i.wrapping_sub((*s).start),
+			&*(to_split).add(start),
+			0 as c_int as libc::c_uint,
+			i.wrapping_sub(start) as u64,
 		),
-	)
-}
-
-pub unsafe fn split_outside_quotes(
-	mut to_split: *const libc::c_char,
-	mut set: *const libc::c_char,
-) -> *mut *mut libc::c_char {
-	if to_split.is_null() {
-		return std::ptr::null_mut::<*mut libc::c_char>();
-	}
-	let mut s = {
-		t_splitter {
-			quote: 0 as libc::c_int,
-			start: 0 as libc::c_int as size_t,
-			len: 0 as libc::c_int as size_t,
-			arr: std::ptr::null_mut::<*mut libc::c_char>(),
-			to_split: ft_strtrim(to_split, set),
-			set,
-		}
-	};
-	if (s.to_split).is_null() {
-		return std::ptr::null_mut::<*mut libc::c_char>();
-	}
-	s.len = ft_strlen(s.to_split);
-	let mut ret: *mut *mut libc::c_char = split_loop(&mut s);
-	free(s.to_split as *mut libc::c_void);
+	);
+	free(to_split as *mut libc::c_void);
 	ret
 }
 
@@ -121,7 +87,7 @@ mod tests {
 		let cstr = std::ffi::CString::new(input).unwrap();
 		unsafe {
 			let output = split_outside_quotes(cstr.as_ptr(), c"|".as_ptr());
-			let mut vec_output = charptr_array_to_vec(output);
+			let vec_output = charptr_array_to_vec(output);
 			dbg!(&vec_output);
 			assert_eq!(expected, vec_output);
 			libutils_rs::arr_free(output);
@@ -146,7 +112,7 @@ mod tests {
 		let cstr = std::ffi::CString::new(input).unwrap();
 		unsafe {
 			let output = split_outside_quotes(cstr.as_ptr(), c" \t\n\r".as_ptr());
-			let mut vec_output = charptr_array_to_vec(output);
+			let vec_output = charptr_array_to_vec(output);
 			dbg!(&vec_output);
 			assert_eq!(expected, vec_output);
 			libutils_rs::arr_free(output);
@@ -164,12 +130,12 @@ mod tests {
 		let cstr = std::ffi::CString::new(input).unwrap();
 		unsafe {
 			let output = split_outside_quotes(cstr.as_ptr(), c"|".as_ptr());
-			let mut vec_output = charptr_array_to_vec(output);
+			let vec_output = charptr_array_to_vec(output);
 			dbg!(&vec_output);
 			assert_eq!(expected, vec_output);
-			let mut trim = ft_strtrim(*output, c" \t\n\r".as_ptr());
+			let trim = ft_strtrim(*output, c" \t\n\r".as_ptr());
 			let output_two = split_outside_quotes(trim, c" \t\n\r".as_ptr());
-			let mut vec_output = charptr_array_to_vec(output_two);
+			let vec_output = charptr_array_to_vec(output_two);
 			assert_eq!(expected_two, vec_output);
 			libutils_rs::arr_free(output);
 			libutils_rs::arr_free(output_two);
