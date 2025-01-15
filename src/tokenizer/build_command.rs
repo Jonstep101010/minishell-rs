@@ -34,8 +34,7 @@ pub unsafe extern "C" fn get_cmd_arr_token(mut token: *mut t_token) -> *mut *mut
 }
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn get_tokens(mut trimmed_line: *const libc::c_char) -> *mut t_token {
-	let mut split_pipes: *mut *mut libc::c_char =
-		split_outside_quotes(trimmed_line, b"|\0" as *const u8 as *const libc::c_char);
+	let mut split_pipes: *mut *mut libc::c_char = split_outside_quotes(trimmed_line, c"|".as_ptr());
 	if split_pipes.is_null() {
 		crate::eprint_msh!("alloc fail!");
 		return std::ptr::null_mut::<libc::c_void>() as *mut t_token;

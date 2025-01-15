@@ -70,10 +70,7 @@ unsafe extern "C" fn setup_token(mut token: *mut t_token, env: &Env) -> *mut lib
 	if token.is_null() || ((*token).split_pipes).is_null() {
 		return std::ptr::null_mut::<libc::c_void>();
 	}
-	(*token).tmp_arr = split_outside_quotes(
-		(*token).split_pipes,
-		b" \t\n\r\x0B\x0C\0" as *const u8 as *const libc::c_char,
-	);
+	(*token).tmp_arr = split_outside_quotes((*token).split_pipes, c" \t\n\r\x0B\x0C".as_ptr());
 	free_null(&mut (*token).split_pipes as *mut *mut libc::c_char as *mut libc::c_void);
 	if ((*token).tmp_arr).is_null() {
 		return std::ptr::null_mut::<libc::c_void>();

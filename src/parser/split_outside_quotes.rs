@@ -1,11 +1,8 @@
 #![deny(unused_mut)]
 
 use ::libc;
-use libc::{c_char, c_int, free};
-use libft_rs::{
-	ft_strchr::ft_strchr, ft_strlen::ft_strlen, ft_strtrim::ft_strtrim, ft_substr::ft_substr,
-};
-use libutils_rs::src::array::append_str::append_str_arr_free;
+use libc::{c_char, free};
+use libft_rs::{ft_strchr::ft_strchr, ft_strtrim::ft_strtrim, ft_substr::ft_substr};
 
 pub unsafe fn split_outside_quotes(
 	to_split: *const c_char,
@@ -18,32 +15,24 @@ pub unsafe fn split_outside_quotes(
 	if (to_split).is_null() {
 		return std::ptr::null_mut::<*mut c_char>();
 	}
-	let len = ft_strlen(to_split) as usize;
+	let cstr_to_split = std::ffi::CStr::from_ptr(to_split);
+	let len = cstr_to_split.count_bytes();
+	let bytes = cstr_to_split.to_bytes();
 	let mut quote = 0;
-	let mut start = 0;
-	let mut arr = std::ptr::null_mut::<*mut c_char>();
+	let mut start: usize = 0;
+	let mut vec_arr = vec![];
 	let mut i: usize = 0;
 	while i < len {
-		if quote != 0 && *(to_split).add(i) as c_int == quote {
-			quote = 0 as c_int;
-		} else if quote == 0 && !(ft_strchr(c"'\"".as_ptr(), *(to_split).add(i) as c_int)).is_null()
-		{
-			quote = *(to_split).add(i) as c_int;
+		if quote != 0 && bytes[i] == quote {
+			quote = 0;
+		} else if quote == 0 && (bytes[i] == b'\'' || bytes[i] == b'"') {
+			quote = bytes[i];
 		}
-		if quote == 0 && !(ft_strchr(set, *(to_split).add(i) as c_int)).is_null() {
-			arr = append_str_arr_free(
-				arr,
-				ft_substr(
-					to_split,
-					start as libc::c_uint,
-					i.wrapping_sub(start) as u64,
-				),
-			);
-			if (arr).is_null() {
-				return std::ptr::null_mut::<*mut c_char>();
-			}
-			while *(to_split).add(i.wrapping_add(1)) as c_int != 0
-				&& !(ft_strchr(set, *(to_split).add(i.wrapping_add(1)) as c_int)).is_null()
+		if quote == 0 && !(ft_strchr(set, bytes[i].into())).is_null() {
+			let str = ft_substr(to_split, start as u32, i.wrapping_sub(start) as u64);
+			vec_arr.push(str);
+			while bytes[i.wrapping_add(1)] != 0
+				&& !(ft_strchr(set, bytes[i.wrapping_add(1)].into())).is_null()
 			{
 				i = i.wrapping_add(1);
 			}
@@ -51,15 +40,16 @@ pub unsafe fn split_outside_quotes(
 		}
 		i = i.wrapping_add(1);
 	}
-	let ret = append_str_arr_free(
-		arr,
-		ft_substr(
-			&*(to_split).add(start),
-			0 as c_int as libc::c_uint,
-			i.wrapping_sub(start) as u64,
-		),
-	);
+	let str = ft_substr(&*(to_split).add(start), 0, i.wrapping_sub(start) as u64);
+	vec_arr.push(str);
 	free(to_split as *mut libc::c_void);
+	let ret = libft_rs::ft_calloc(
+		vec_arr.len().wrapping_add(2) as u64,
+		::core::mem::size_of::<*mut libc::c_char>() as libc::c_ulong,
+	) as *mut *mut libc::c_char;
+	for i in 0..vec_arr.len() {
+		*ret.add(i) = vec_arr[i];
+	}
 	ret
 }
 
