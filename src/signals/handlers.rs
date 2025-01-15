@@ -1,5 +1,5 @@
 // use ::libc;
-// unsafe extern "C" {
+// unsafe {
 // 	fn sigemptyset(__set: *mut sigset_t) -> libc::c_int;
 // 	fn sigaction(
 // 		__sig: libc::c_int,
@@ -115,21 +115,21 @@
 // 	pub si_pid: __pid_t,
 // 	pub si_uid: __uid_t,
 // }
-// pub type __sighandler_t = Option<unsafe extern "C" fn(libc::c_int) -> ()>;
+// pub type __sighandler_t = Option<unsafe fn(libc::c_int) -> ()>;
 // #[derive(Copy, Clone)]
 // #[repr(C)]
 // pub struct sigaction {
 // 	pub __sigaction_handler: C2RustUnnamed_10,
 // 	pub sa_mask: __sigset_t,
 // 	pub sa_flags: libc::c_int,
-// 	pub sa_restorer: Option<unsafe extern "C" fn() -> ()>,
+// 	pub sa_restorer: Option<unsafe fn() -> ()>,
 // }
 // #[derive(Copy, Clone)]
 // #[repr(C)]
 // pub union C2RustUnnamed_10 {
 // 	pub sa_handler: __sighandler_t,
 // 	pub sa_sigaction:
-// 		Option<unsafe extern "C" fn(libc::c_int, *mut siginfo_t, *mut libc::c_void) -> ()>,
+// 		Option<unsafe fn(libc::c_int, *mut siginfo_t, *mut libc::c_void) -> ()>,
 // }
 // #[unsafe(no_mangle)]
 // pub unsafe fn check_signals(sigstruct: &mut Termios) {
@@ -154,7 +154,7 @@
 // 		// };
 // 		// sig.__sigaction_handler.sa_sigaction = Some(
 // 		// 	ctrl_c_handler
-// 		// 		as unsafe extern "C" fn(libc::c_int, *mut siginfo_t, *mut libc::c_void) -> (),
+// 		// 		as unsafe fn(libc::c_int, *mut siginfo_t, *mut libc::c_void) -> (),
 // 		// );
 // 		// sig.sa_flags = 0x10000000 as libc::c_int;
 // 		// sigemptyset(&mut sig.sa_mask);
@@ -180,7 +180,7 @@
 // 	};
 // }
 
-// unsafe extern "C" fn ctrl_c_handler(
+// unsafe fn ctrl_c_handler(
 // 	mut sig: libc::c_int,
 // 	mut _info: *mut siginfo_t,
 // 	mut _unused: *mut libc::c_void,
@@ -199,7 +199,7 @@
 // }
 
 // #[unsafe(no_mangle)]
-// pub unsafe extern "C" fn check_signals_child(mut p_termios_child: *mut termios) {
+// pub unsafe fn check_signals_child(mut p_termios_child: *mut termios) {
 // 	let mut attr: termios = termios {
 // 		c_iflag: 0,
 // 		c_oflag: 0,
@@ -217,7 +217,7 @@
 // 	ctrl_backslash_child();
 // 	ctrl_c_child();
 // }
-// unsafe extern "C" fn ctrl_c_child() {
+// unsafe fn ctrl_c_child() {
 // 	let mut ctrl_c: sigaction = sigaction {
 // 		__sigaction_handler: C2RustUnnamed_10 { sa_handler: None },
 // 		sa_mask: __sigset_t { __val: [0; 16] },
@@ -229,7 +229,7 @@
 // 	sigemptyset(&mut ctrl_c.sa_mask);
 // 	sigaction(2 as libc::c_int, &ctrl_c, std::ptr::null_mut::<sigaction>());
 // }
-// unsafe extern "C" fn ctrl_backslash_child() {
+// unsafe fn ctrl_backslash_child() {
 // 	let mut ctrl_slash: sigaction = sigaction {
 // 		__sigaction_handler: C2RustUnnamed_10 { sa_handler: None },
 // 		sa_mask: __sigset_t { __val: [0; 16] },

@@ -25,13 +25,13 @@ use super::{
 	token_utils::{init_cmdargs, set_cmd_func},
 };
 
-unsafe extern "C" fn expand_if_allowed(
+unsafe fn expand_if_allowed(
 	mut token: *mut t_token,
 	mut ii: size_t,
 	env: &Env,
 ) -> *mut libc::c_void {
 	if (*token).cmd_func
-		!= Some(builtin_env as unsafe extern "C" fn(*mut t_shell, *mut t_token) -> libc::c_int)
+		!= Some(builtin_env as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int)
 		&& str_cchr(
 			(*((*token).cmd_args).offset(ii as isize)).elem,
 			'$' as i32 as libc::c_char,
@@ -66,14 +66,11 @@ unsafe extern "C" fn expand_if_allowed(
 	}
 	token as *mut libc::c_void
 }
-unsafe extern "C" fn setup_token(mut token: *mut t_token, env: &Env) -> *mut libc::c_void {
+unsafe fn setup_token(mut token: *mut t_token, env: &Env) -> *mut libc::c_void {
 	if token.is_null() || ((*token).split_pipes).is_null() {
 		return std::ptr::null_mut::<libc::c_void>();
 	}
-	(*token).tmp_arr = split_outside_quotes(
-		(*token).split_pipes,
-		b" \t\n\r\x0B\x0C\0" as *const u8 as *const libc::c_char,
-	);
+	(*token).tmp_arr = split_outside_quotes((*token).split_pipes, c" \t\n\r\x0B\x0C".as_ptr());
 	free_null(&mut (*token).split_pipes as *mut *mut libc::c_char as *mut libc::c_void);
 	if ((*token).tmp_arr).is_null() {
 		return std::ptr::null_mut::<libc::c_void>();
@@ -95,7 +92,7 @@ unsafe extern "C" fn setup_token(mut token: *mut t_token, env: &Env) -> *mut lib
 	free_null(&mut (*token).tmp_arr as *mut *mut *mut libc::c_char as *mut libc::c_void);
 	token as *mut libc::c_void
 }
-unsafe extern "C" fn rm_quotes(mut cmd_arg: *mut t_arg) {
+unsafe fn rm_quotes(mut cmd_arg: *mut t_arg) {
 	let mut quote: libc::c_int = 0;
 	let mut i: libc::c_int = -1;
 	loop {
@@ -115,7 +112,7 @@ unsafe extern "C" fn rm_quotes(mut cmd_arg: *mut t_arg) {
 		*fresh2 = tmp;
 	}
 }
-unsafe extern "C" fn inner_loop(mut token: *mut t_token) -> *mut libc::c_void {
+unsafe fn inner_loop(mut token: *mut t_token) -> *mut libc::c_void {
 	if check_redirections((*token).cmd_args) {
 		(*token).has_redir = 1 as libc::c_int != 0;
 		parse_redir_types((*token).cmd_args);
@@ -135,7 +132,7 @@ unsafe extern "C" fn inner_loop(mut token: *mut t_token) -> *mut libc::c_void {
 	token as *mut libc::c_void
 }
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn tokenize(
+pub unsafe fn tokenize(
 	mut shell: *mut t_shell,
 	mut trimmed_line: *const libc::c_char,
 ) -> *mut libc::c_void {

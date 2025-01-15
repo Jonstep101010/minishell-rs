@@ -3,7 +3,7 @@ use crate::t_arg;
 use ::libc;
 use libc::{access, close, dup2, open};
 
-unsafe extern "C" fn open_redir(
+unsafe fn open_redir(
 	mut file: *const libc::c_char,
 	mut redir: e_redir,
 	mut fd: *mut libc::c_int,
@@ -41,7 +41,7 @@ unsafe extern "C" fn open_redir(
 	0 as libc::c_int
 }
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn do_redirections(
+pub unsafe fn do_redirections(
 	mut cmd_args: *mut t_arg,
 	mut error_elem: *mut *mut libc::c_char,
 ) -> libc::c_int {

@@ -9,7 +9,7 @@ use crate::{
 	tokenizer::build_command::get_cmd_arr_token,
 };
 
-unsafe extern "C" fn check_illegal_char(mut str: *const libc::c_char) -> bool {
+unsafe fn check_illegal_char(mut str: *const libc::c_char) -> bool {
 	while *str != 0 {
 		if !(ft_strchr(
 			b"?=;$.:><[]()/+-{}*#@!^\0" as *const u8 as *const libc::c_char,
@@ -25,10 +25,7 @@ unsafe extern "C" fn check_illegal_char(mut str: *const libc::c_char) -> bool {
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn builtin_unset(
-	mut shell: *mut t_shell,
-	mut token: *mut t_token,
-) -> libc::c_int {
+pub unsafe fn builtin_unset(mut shell: *mut t_shell, mut token: *mut t_token) -> libc::c_int {
 	let mut args: *mut *const libc::c_char = get_cmd_arr_token(token) as *mut *const libc::c_char;
 	if args.is_null() {
 		return 0 as libc::c_int;

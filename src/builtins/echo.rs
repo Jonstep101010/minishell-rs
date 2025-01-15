@@ -1,75 +1,65 @@
 use crate::prelude::*;
 use crate::{t_shell, t_token};
-use ::libc;
-use libc::{printf, write};
 use libft_rs::ft_strncmp::ft_strncmp;
 use libutils_rs::src::array::arr_free::arr_free;
-unsafe extern "C" fn is_n_arg(mut arg: *const libc::c_char) -> libc::c_int {
-	if *arg as libc::c_int == '-' as i32 {
-		arg = arg.offset(1);
-		while *arg as libc::c_int == 'n' as i32 {
-			arg = arg.offset(1);
-			if *arg as libc::c_int == '\0' as i32 {
-				return 1 as libc::c_int;
+
+unsafe fn is_n_arg(mut arg: *const c_char) -> bool {
+	if *arg as c_int == '-' as i32 {
+		arg = arg.add(1);
+		while *arg as c_int == 'n' as i32 {
+			arg = arg.add(1);
+			if *arg as c_int == '\0' as i32 {
+				return true;
 			}
 		}
 	}
-	0 as libc::c_int
+	false
 }
-unsafe extern "C" fn echo_default(mut cmd_args: *const *const libc::c_char) {
-	let mut i: libc::c_int = 0;
-	let mut flag: libc::c_int = 0;
-	while !(*cmd_args.offset(i as isize)).is_null()
-		&& is_n_arg(*cmd_args.offset(i as isize)) == 1 as libc::c_int
-	{
+
+unsafe fn echo_default(cmd_args: *const *const c_char) {
+	let mut i = 0;
+	while !(*cmd_args.add(i)).is_null() && is_n_arg(*cmd_args.add(i)) == true {
 		i += 1;
 	}
-	if i == 0 as libc::c_int {
-		flag = 2 as libc::c_int;
-	}
-	if i > 0 as libc::c_int {
-		flag = 1 as libc::c_int;
-	}
-	let mut n_pos: libc::c_int = i;
-	while !(*cmd_args.offset(i as isize)).is_null() {
-		if flag == 1 as libc::c_int
-			&& ft_strncmp(
-				*cmd_args.offset(i as isize),
-				b"-n\0" as *const u8 as *const libc::c_char,
-				2 as libc::c_int as size_t,
-			) == 0 as libc::c_int
-			&& *(*cmd_args.offset(i as isize)).offset(2 as libc::c_int as isize) as libc::c_int
-				!= '\0' as i32
-			&& i != n_pos + 1 as libc::c_int
+	let mut flag = match i {
+		0 => 2,
+		_ => 1,
+	};
+	let n_pos = i;
+	while !(*cmd_args.add(i)).is_null() {
+		if flag == 1 as c_int
+			&& ft_strncmp(*cmd_args.add(i), c"-n".as_ptr(), 2u64) == 0 as c_int
+			&& *(*cmd_args.add(i)).add(2) as c_int != '\0' as i32
+			&& i != n_pos + 1
 		{
-			flag = 0 as libc::c_int;
+			flag = 0;
 		}
-		printf(
-			b"%s\0" as *const u8 as *const libc::c_char,
-			*cmd_args.offset(i as isize),
+		print!(
+			"{}",
+			std::ffi::CStr::from_ptr(*cmd_args.add(i))
+				.to_str()
+				.expect("CStr::from_bytes_with_nul failed")
 		);
-		if !(*cmd_args.offset((i + 1 as libc::c_int) as isize)).is_null() {
-			printf(b" \0" as *const u8 as *const libc::c_char);
+		if !(*cmd_args.add(i + 1)).is_null() {
+			print!(" ");
 		}
 		i += 1;
 	}
-	if flag != 1 as libc::c_int {
-		printf(b"\n\0" as *const u8 as *const libc::c_char);
+	if flag != 1 as c_int {
+		println!();
 	}
 }
+
+#[allow(unused_mut)]
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn echo(mut _nullable: *mut t_shell, mut token: *mut t_token) -> libc::c_int {
-	let mut args: *mut *const libc::c_char =
-		crate::tokenizer::build_command::get_cmd_arr_token(token) as *mut *const libc::c_char;
-	if !(*args.offset(1 as libc::c_int as isize)).is_null() {
-		echo_default(&*args.offset(1 as libc::c_int as isize));
+pub unsafe fn echo(mut _nullable: *mut t_shell, mut token: *mut t_token) -> libc::c_int {
+	let args: *mut *const c_char =
+		crate::tokenizer::build_command::get_cmd_arr_token(token) as *mut *const c_char;
+	if !(*args.add(1)).is_null() {
+		echo_default(&*args.add(1));
 	} else {
-		write(
-			1 as libc::c_int,
-			b"\n\0" as *const u8 as *const libc::c_char as *const libc::c_void,
-			1 as libc::c_int as usize,
-		);
+		println!();
 	}
-	arr_free(args as *mut *mut libc::c_char);
-	0 as libc::c_int
+	arr_free(args as *mut *mut c_char);
+	0 as c_int
 }

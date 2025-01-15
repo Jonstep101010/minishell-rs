@@ -5,7 +5,7 @@ use libutils_rs::src::string::str_cchr::str_cchr;
 use super::t_lexer;
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn count_number(mut s: *const libc::c_char, mut input: *mut t_lexer) {
+pub unsafe fn count_number(mut s: *const libc::c_char, mut input: *mut t_lexer) {
 	let data: t_lexer = {
 		t_lexer {
 			singlequotes: str_cchr(s, '\'' as i32 as libc::c_char),

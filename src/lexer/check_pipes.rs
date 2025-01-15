@@ -14,7 +14,7 @@ pub struct s_check_pipes {
 	pub ignore: bool,
 }
 
-unsafe extern "C" fn inner_while_quotes(
+unsafe fn inner_while_quotes(
 	mut s: *const libc::c_char,
 	mut input: *mut t_lexer,
 	mut check: *mut s_check_pipes,
@@ -54,7 +54,7 @@ unsafe extern "C" fn inner_while_quotes(
 	}
 	0 as libc::c_int
 }
-unsafe extern "C" fn inner_if_quotes(
+unsafe fn inner_if_quotes(
 	mut s: *const libc::c_char,
 	mut input: *mut t_lexer,
 	mut check: *mut s_check_pipes,
@@ -80,7 +80,7 @@ unsafe extern "C" fn inner_if_quotes(
 	}
 	0 as libc::c_int
 }
-unsafe extern "C" fn check_pipes_redirection_quotes(
+unsafe fn check_pipes_redirection_quotes(
 	mut s: *const libc::c_char,
 	mut input: *mut t_lexer,
 	mut check: *mut s_check_pipes,
@@ -109,7 +109,7 @@ unsafe extern "C" fn check_pipes_redirection_quotes(
 	}
 	0 as libc::c_int
 }
-unsafe extern "C" fn inner_while_noquotes(
+unsafe fn inner_while_noquotes(
 	mut s: *const libc::c_char,
 	mut check: *mut s_check_pipes,
 ) -> libc::c_int {
@@ -152,7 +152,7 @@ unsafe extern "C" fn inner_while_noquotes(
 	0 as libc::c_int
 }
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn check_pipes_redirection(
+pub unsafe fn check_pipes_redirection(
 	mut s: *const libc::c_char,
 	mut input: *mut t_lexer,
 ) -> libc::c_int {

@@ -13,7 +13,7 @@ use crate::{e_redir, prelude::*, t_token};
 #[unsafe(no_mangle)]
 pub static mut g_ctrl_c: libc::c_int = 0 as libc::c_int;
 #[unsafe(no_mangle)]
-unsafe extern "C" fn heredoc_loop(mut delim: *mut libc::c_char, mut fd: libc::c_int, env: &Env) {
+unsafe fn heredoc_loop(mut delim: *mut libc::c_char, mut fd: libc::c_int, env: &Env) {
 	g_ctrl_c = 0 as libc::c_int;
 	while 1 as libc::c_int != 0 && g_ctrl_c == 0 {
 		let line = crate::utils::rust_readline::str_readline("> ");
@@ -41,11 +41,7 @@ unsafe extern "C" fn heredoc_loop(mut delim: *mut libc::c_char, mut fd: libc::c_
 	}
 }
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn do_heredocs(
-	mut token: *mut t_token,
-	mut target: *mut libc::c_int,
-	env: &Env,
-) {
+pub unsafe fn do_heredocs(mut token: *mut t_token, mut target: *mut libc::c_int, env: &Env) {
 	let mut i: libc::c_int = -1;
 	loop {
 		i += 1;

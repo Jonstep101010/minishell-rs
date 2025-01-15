@@ -14,10 +14,7 @@ fn declare_x(env: &Env) {
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn builtin_export(
-	mut shell: *mut t_shell,
-	mut token: *mut t_token,
-) -> libc::c_int {
+pub unsafe fn builtin_export(mut shell: *mut t_shell, mut token: *mut t_token) -> libc::c_int {
 	let mut command: *mut *const libc::c_char =
 		get_cmd_arr_token(token) as *mut *const libc::c_char;
 	let mut i: size_t = 1;

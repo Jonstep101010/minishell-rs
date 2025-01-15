@@ -1,7 +1,7 @@
 use crate::{t_shell, t_token};
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn builtin_pwd(
+pub unsafe fn builtin_pwd(
 	mut shell: *mut t_shell,
 	mut _token_nullable: *mut t_token,
 ) -> libc::c_int {
