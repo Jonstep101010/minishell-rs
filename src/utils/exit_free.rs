@@ -11,7 +11,7 @@ use crate::{
 #[unsafe(no_mangle)]
 pub unsafe fn exit_free(mut shell: *mut t_shell, mut exit_code: libc::c_int) {
 	destroy_all_tokens(shell);
-	free(shell as *mut libc::c_void);
+	// free(shell as *mut libc::c_void);
 	exit(exit_code);
 }
 #[unsafe(no_mangle)]
@@ -21,6 +21,6 @@ pub unsafe fn exit_error(mut shell: *mut t_shell, mut error_elem: *mut libc::c_c
 		// eprint_msh!("{}: {}", error_elem, error);
 	}
 	destroy_all_tokens(shell);
-	free(shell as *mut libc::c_void);
+	// free(shell as *mut libc::c_void);
 	todo!("bail out gracefully");
 }

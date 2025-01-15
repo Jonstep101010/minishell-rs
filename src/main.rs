@@ -87,6 +87,14 @@ pub struct t_shell {
 }
 
 impl t_shell {
+	pub fn new() -> Self {
+		Self {
+			exit_status: 0,
+			env: environment::Env::new(),
+			token: std::ptr::null_mut(),
+			token_len: 0,
+		}
+	}
 	pub fn export(&mut self, key: &str, value: String) {
 		self.env.export(key, value);
 	}
@@ -106,10 +114,11 @@ pub struct t_arg {
 }
 
 unsafe fn main_0() -> libc::c_int {
-	let mut shell: *mut t_shell = utils::init_shell::init_shell();
-	if shell.is_null() {
-		return 1 as libc::c_int;
-	}
+	// let mut shell: *mut t_shell = utils::init_shell::init_shell();
+	// if shell.is_null() {
+	// 	return 1 as libc::c_int;
+	// }
+	let mut shell = t_shell::new();
 	// check signals
 	loop {
 		if let Some(readline_line) = str_readline("minishell> ") {
@@ -120,17 +129,17 @@ unsafe fn main_0() -> libc::c_int {
 			}
 			str_add_history(trimmed_line);
 			if crate::lexer::run(
-				shell,
+				&mut shell,
 				std::ffi::CString::new(trimmed_line).unwrap().as_ptr(),
 			) != 0 as libc::c_int
 			{
 				continue;
 			}
-			if !((*shell).token).is_null() {
-				execution::execute_commands(shell, (*shell).token);
+			if !(shell.token).is_null() {
+				execution::execute_commands(&mut shell, shell.token);
 			}
 		} else {
-			builtins::exit::builtin_exit(shell, std::ptr::null_mut::<t_token>());
+			builtins::exit::builtin_exit(&mut shell, std::ptr::null_mut::<t_token>());
 		}
 	}
 }
