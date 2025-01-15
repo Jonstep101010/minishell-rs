@@ -1,4 +1,6 @@
 use super::token_utils::init_token;
+use crate::parser::split_outside_quotes::split_non_quoted;
+use crate::t_shell;
 use crate::{parser::split_outside_quotes::split_outside_quotes, t_token};
 use ::libc;
 use libc::free;
@@ -55,4 +57,16 @@ pub unsafe fn get_tokens(mut trimmed_line: *const libc::c_char) -> *mut t_token 
 	}
 	free(split_pipes as *mut libc::c_void);
 	token
+}
+
+impl t_shell {
+	///
+	/// future replacement for `get_tokens`
+	pub fn create_tokens(&mut self, trimmed_line: &str) {
+		let mut split_pipes = split_non_quoted(trimmed_line, "|");
+		self.token_vec = split_pipes
+			.iter()
+			.map(|single_pipe| t_token::new(single_pipe.to_owned()))
+			.collect();
+	}
 }

@@ -117,6 +117,7 @@ pub unsafe fn init_token(mut size: size_t) -> *mut t_token {
 			tmp_arr: std::ptr::null_mut::<*mut libc::c_char>(),
 			bin: std::ffi::CString::new("").unwrap(),
 			cmd_func: Some(exec_bin as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int),
+			split_non_quoted: String::new(),
 		}
 	};
 	let mut token: *mut t_token = ft_calloc(
