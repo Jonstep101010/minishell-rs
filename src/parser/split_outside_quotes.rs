@@ -9,7 +9,7 @@ use crate::size_t;
 
 #[derive(Copy, Clone)]
 #[repr(C)]
-pub struct t_splitter {
+struct t_splitter {
 	pub quote: libc::c_int,
 	pub start: size_t,
 	pub len: size_t,
@@ -17,7 +17,7 @@ pub struct t_splitter {
 	pub to_split: *mut libc::c_char,
 	pub set: *const libc::c_char,
 }
-unsafe extern "C" fn split_loop(mut s: *mut t_splitter) -> *mut *mut libc::c_char {
+unsafe fn split_loop(mut s: *mut t_splitter) -> *mut *mut libc::c_char {
 	let mut i: size_t = 0;
 	while i < (*s).len {
 		if (*s).quote != 0 && *((*s).to_split).offset(i as isize) as libc::c_int == (*s).quote {
@@ -70,8 +70,8 @@ unsafe extern "C" fn split_loop(mut s: *mut t_splitter) -> *mut *mut libc::c_cha
 		),
 	)
 }
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn split_outside_quotes(
+
+pub unsafe fn split_outside_quotes(
 	mut to_split: *const libc::c_char,
 	mut set: *const libc::c_char,
 ) -> *mut *mut libc::c_char {
@@ -95,4 +95,27 @@ pub unsafe extern "C" fn split_outside_quotes(
 	let mut ret: *mut *mut libc::c_char = split_loop(&mut s);
 	free(s.to_split as *mut libc::c_void);
 	ret
+}
+
+#[cfg(test)]
+mod tests {
+	use rstest::{fixture, rstest};
+
+	use crate::charptr_array_to_vec;
+
+	use super::split_outside_quotes;
+
+	#[rstest]
+	#[case(vec!["echo ", " \"nopipes |\" ", " echo hello"], "echo | \"nopipes |\" | echo hello")]
+	#[fixture]
+	fn test_split_pipes(#[case] expected: Vec<&str>, #[case] input: &str) {
+		let cstr = std::ffi::CString::new(input).unwrap();
+		unsafe {
+			let output = split_outside_quotes(cstr.as_ptr(), c"|".as_ptr());
+			let mut vec_output = charptr_array_to_vec(output);
+			dbg!(&vec_output);
+			assert_eq!(expected, vec_output);
+			libutils_rs::arr_free(output);
+		}
+	}
 }
