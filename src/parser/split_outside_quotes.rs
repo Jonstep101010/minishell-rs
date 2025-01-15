@@ -99,6 +99,7 @@ pub unsafe fn split_outside_quotes(
 
 #[cfg(test)]
 mod tests {
+	use libft_rs::ft_strtrim;
 	use rstest::{fixture, rstest};
 
 	use crate::charptr_array_to_vec;
@@ -107,6 +108,14 @@ mod tests {
 
 	#[rstest]
 	#[case(vec!["echo ", " \"nopipes |\" ", " echo hello"], "echo | \"nopipes |\" | echo hello")]
+	#[case(vec!["echo"], "echo")]
+	#[case(vec!["$somedir "], "$somedir ")]
+	#[case(vec!["echo $somedir"], "||echo $somedir|")]
+	#[case(vec![">tmp_out ", " echo 1"], ">tmp_out | echo 1")]
+	#[case(vec!["cat << delim ", " cat"], "cat << delim | cat")]
+	#[case(vec!["cat ", " cat ", " ls"], "cat | cat | ls")]
+	#[case(vec!["echo hello    ", " echo world ", " cat"], "echo hello    || echo world | cat")]
+	#[case(vec!["cat ", " ls"], "cat | ls")]
 	#[fixture]
 	fn test_split_pipes(#[case] expected: Vec<&str>, #[case] input: &str) {
 		let cstr = std::ffi::CString::new(input).unwrap();
@@ -116,6 +125,55 @@ mod tests {
 			dbg!(&vec_output);
 			assert_eq!(expected, vec_output);
 			libutils_rs::arr_free(output);
+		}
+	}
+	#[rstest]
+	#[case(vec!["echo", "$somedir' '"], "         echo $somedir' '           ")]
+	#[case(vec![""], "                    ")]
+	#[case(vec!["h"], "        h            ")]
+	#[case(vec!["'"], "        '            ")]
+	#[case(vec!["'h'"], "        'h'            ")]
+	#[case(vec!["h"], "    \t \r   h   \n  \t  \r  \n  ")]
+	#[case(vec!["echo", "hello", "world", "'>'", "file", "<", "file2"], "echo hello world '>' file < file2")]
+	#[case(vec!["cat", "<<", "delim"], "cat << delim ")]
+	#[case(vec!["cat"], "cat ")]
+	#[case(vec!["cat"], " cat ")]
+	#[case(vec!["ls"], " ls")]
+	#[case(vec!["echo", "hello"], "echo hello    ")]
+	#[case(vec!["echo", "world"], "echo world ")]
+	#[fixture]
+	fn test_split_whitespace(#[case] expected: Vec<&str>, #[case] input: &str) {
+		let cstr = std::ffi::CString::new(input).unwrap();
+		unsafe {
+			let output = split_outside_quotes(cstr.as_ptr(), c" \t\n\r".as_ptr());
+			let mut vec_output = charptr_array_to_vec(output);
+			dbg!(&vec_output);
+			assert_eq!(expected, vec_output);
+			libutils_rs::arr_free(output);
+		}
+	}
+	#[rstest]
+	#[case(vec!["ls \n-l\r \tsomedir ", " cat -e ", " wc -l"], vec!["ls", "-l", "somedir"], "ls \n-l\r \tsomedir | cat -e | wc -l")]
+	#[case(vec!["ls -l somedir ", " cat -e ", " wc -l"], vec!["ls", "-l", "somedir"], "ls -l somedir | cat -e | wc -l")]
+	#[fixture]
+	fn test_split_pipes_whitespace(
+		#[case] expected: Vec<&str>,
+		#[case] expected_two: Vec<&str>,
+		#[case] input: &str,
+	) {
+		let cstr = std::ffi::CString::new(input).unwrap();
+		unsafe {
+			let output = split_outside_quotes(cstr.as_ptr(), c"|".as_ptr());
+			let mut vec_output = charptr_array_to_vec(output);
+			dbg!(&vec_output);
+			assert_eq!(expected, vec_output);
+			let mut trim = ft_strtrim(*output, c" \t\n\r".as_ptr());
+			let output_two = split_outside_quotes(trim, c" \t\n\r".as_ptr());
+			let mut vec_output = charptr_array_to_vec(output_two);
+			assert_eq!(expected_two, vec_output);
+			libutils_rs::arr_free(output);
+			libutils_rs::arr_free(output_two);
+			libc::free(trim.cast());
 		}
 	}
 }
