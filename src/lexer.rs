@@ -1,7 +1,5 @@
 use crate::eprint_msh;
 
-#[derive(Clone)]
-#[repr(C)]
 pub struct t_lexer<'a> {
 	pub singlequotes: i32,
 	pub doublequotes: i32,
@@ -30,14 +28,14 @@ impl<'a> t_lexer<'a> {
 		let mut i = 0;
 		let bytes = self.cstring.as_bytes_with_nul();
 		while i < self.len_nul - 1 {
-			match (self.ignore.as_ref().unwrap())[i] {
+			match self.ignore.as_ref().unwrap()[i] {
 				false => {
 					// inner while quotes
 					let mut flag_word = false;
 					flag_redir = false;
 					while i < self.len_nul - 1
 						&& bytes[i] != b'|'
-						&& !(self.ignore.as_ref().unwrap())[i]
+						&& !self.ignore.as_ref().unwrap()[i]
 					{
 						if (bytes[i] == b'>' || bytes[i] == b'<')
 							&& (!flag_redir || (i > 0 && bytes[i - 1] == bytes[i]))
@@ -53,15 +51,12 @@ impl<'a> t_lexer<'a> {
 						i += 1;
 					}
 					// inner if quotes
-					if !((self.ignore.as_ref()).unwrap()[i]) && bytes[i] == b'|' && !check_ignore {
-						if !flag_word {
-							eprint_msh!("syntax error near unexpected token `|'");
-							return Err(2);
-						}
-						if (bytes[i] == b'|') && (flag_redir || !flag_word) {
-							eprint_msh!("syntax error near unexpected token `|'");
-							return Err(2);
-						}
+					if !self.ignore.as_ref().unwrap()[i]
+						&& bytes[i] == b'|'
+						&& !check_ignore && (!flag_word || flag_redir)
+					{
+						eprint_msh!("syntax error near unexpected token `|'");
+						return Err(2);
 					}
 					if bytes[i] == b'|' {
 						check_ignore = false;
@@ -136,11 +131,12 @@ impl<'a> t_lexer<'a> {
 			}
 		}
 		if flag_redir {
-			crate::eprint_msh!("syntax error near unexpected token `newline'");
+			eprint_msh!("syntax error near unexpected token `newline'");
 			return Err(2);
 		}
 		Ok(())
 	}
+
 	fn new(trimmed_line: &'a str) -> Self {
 		let mut lexer = t_lexer {
 			singlequotes: 0,
@@ -180,6 +176,7 @@ impl<'a> t_lexer<'a> {
 		lexer.len_nul = lexer.cstring.count_bytes();
 		lexer
 	}
+
 	fn check_quotes(&mut self) -> Result<i32, i32> {
 		if self.singlequotes == 1 {
 			eprintln!("syntax error near unexpected token '''");
@@ -210,6 +207,7 @@ impl<'a> t_lexer<'a> {
 		}
 		Ok(0)
 	}
+
 	fn checks_basic(&mut self) -> Result<i32, i32> {
 		self.check_quotes()?;
 		if self.pipes != 0 || self.redir_greater != 0 || self.redir_smaller != 0 {
