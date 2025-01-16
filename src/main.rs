@@ -83,7 +83,7 @@ unsafe fn main_0() -> libc::c_int {
 				continue;
 			}
 			str_add_history(trimmed_line);
-			if let Err(status) = crate::lexer::t_lexer::run(trimmed_line) {
+			if let Err(status) = msh::lexical_checks(trimmed_line) {
 				shell.exit_status = status as u8;
 				continue;
 			} else {

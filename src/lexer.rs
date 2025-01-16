@@ -1,6 +1,6 @@
 use crate::eprint_msh;
 
-pub struct t_lexer<'a> {
+struct t_lexer<'a> {
 	pub singlequotes: i32,
 	pub doublequotes: i32,
 	pub open_curly_brackets: i32,
@@ -208,20 +208,21 @@ impl<'a> t_lexer<'a> {
 		Ok(0)
 	}
 
-	fn checks_basic(&mut self) -> Result<i32, i32> {
-		self.check_quotes()?;
-		if self.pipes != 0 || self.redir_greater != 0 || self.redir_smaller != 0 {
-			if let Err(_e) = self.check_pipes_redirection() {
+	pub fn check(trimmed_line: &str) -> Result<i32, i32> {
+		let mut lexer = t_lexer::new(trimmed_line);
+		lexer.check_quotes()?;
+		if lexer.pipes != 0 || lexer.redir_greater != 0 || lexer.redir_smaller != 0 {
+			if let Err(_e) = lexer.check_pipes_redirection() {
 				// map error printing in future
 				return Err(2);
 			}
 		}
 		Ok(0)
 	}
-	pub fn run(trimmed_line: &str) -> Result<i32, i32> {
-		let mut lexer = t_lexer::new(trimmed_line);
-		t_lexer::checks_basic(&mut lexer)
-	}
+}
+
+pub fn check(trimmed_line: &str) -> Result<i32, i32> {
+	t_lexer::check(trimmed_line)
 }
 
 #[cfg(test)]
@@ -288,7 +289,7 @@ mod tests {
 	#[case("cat << delim | > outfile")]
 	#[fixture]
 	fn lexer_success(#[case] input: &str) {
-		assert_eq!(Ok(0), t_lexer::run(input));
+		assert_eq!(Ok(0), t_lexer::check(input));
 	}
 	#[rstest]
 	#[case("ls > outfile >")]
@@ -340,6 +341,6 @@ mod tests {
 	#[case("> tmpfile > midfile >")]
 	#[fixture]
 	fn lexer_failure(#[case] input: &str) {
-		assert!(t_lexer::run(input).is_err());
+		assert!(t_lexer::check(input).is_err());
 	}
 }

@@ -1,3 +1,4 @@
+pub use crate::lexer::check as lexical_checks;
 use crate::{environment, execution};
 
 impl t_token {
