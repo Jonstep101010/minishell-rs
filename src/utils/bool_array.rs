@@ -1,11 +1,9 @@
 use ::libc;
-use libft_rs::ft_calloc::ft_calloc;
 
-use crate::size_t;
-
-pub unsafe fn bool_arr_zeroing(mut len: size_t) -> *mut bool {
+#[allow(dead_code)]
+unsafe fn bool_arr_zeroing(mut len: crate::size_t) -> *mut bool {
 	let mut i: usize = 0;
-	let mut ignore: *mut bool = ft_calloc(
+	let mut ignore: *mut bool = libft_rs::ft_calloc::ft_calloc(
 		len.wrapping_add(1 as libc::c_ulong),
 		::core::mem::size_of::<bool>() as libc::c_ulong,
 	) as *mut bool;
@@ -30,9 +28,7 @@ pub trait BoolArray {
 impl BoolArray for Vec<bool> {
 	fn zeroing(len: usize) -> Self {
 		let mut vec = Vec::with_capacity(len + 1);
-		for _ in 0..=len {
-			vec.push(false);
-		}
+		vec.resize(len + 1, false);
 		vec
 	}
 	fn range_ignore(s: &[u8], ignore: &mut Self, c: u8) {
@@ -42,14 +38,14 @@ impl BoolArray for Vec<bool> {
 			if s[i] == c && ignore[i] as u8 == 0 {
 				ignore[i] = true;
 				i += 1;
-				while i < ignore.len() && s[i] as u8 != c {
+				while i < ignore.len() && s[i] != c {
 					ignore[i] = true;
 					i += 1;
 				}
-				if i < ignore.len() && s[i] as u8 == c {
+				if i < ignore.len() && s[i] == c {
 					ignore[i] = true;
 				}
-				while i < ignore.len() && s[i] as u8 != c {
+				while i < ignore.len() && s[i] != c {
 					ignore[i] = false;
 					i -= 1;
 				}
@@ -63,9 +59,7 @@ impl BoolArray for Vec<bool> {
 impl BoolArray for Box<[bool]> {
 	fn zeroing(len: usize) -> Self {
 		let mut vec = Vec::with_capacity(len + 1);
-		for _ in 0..=len {
-			vec.push(false);
-		}
+		vec.resize(len + 1, false);
 		vec.into_boxed_slice()
 	}
 	fn range_ignore(s: &[u8], ignore: &mut Self, c: u8) {
@@ -75,14 +69,14 @@ impl BoolArray for Box<[bool]> {
 			if s[i] == c && ignore[i] as u8 == 0 {
 				ignore[i] = true;
 				i += 1;
-				while i < ignore.len() && s[i] as u8 != c {
+				while i < ignore.len() && s[i] != c {
 					ignore[i] = true;
 					i += 1;
 				}
-				if i < ignore.len() && s[i] as u8 == c {
+				if i < ignore.len() && s[i] == c {
 					ignore[i] = true;
 				}
-				while i < ignore.len() && s[i] as u8 != c {
+				while i < ignore.len() && s[i] != c {
 					ignore[i] = false;
 					i -= 1;
 				}
@@ -101,7 +95,8 @@ pub fn bool_arr_zeroing_box(len: usize) -> Box<[bool]> {
 	Box::zeroing(len)
 }
 
-pub unsafe fn range_ignore_ptr(
+#[allow(dead_code)]
+unsafe fn range_ignore_ptr(
 	mut s: *const libc::c_char,
 	mut ignore: *mut bool,
 	mut c: libc::c_uchar,
