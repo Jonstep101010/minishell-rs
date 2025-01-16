@@ -2,7 +2,6 @@ use crate::{eprint_msh, t_shell};
 use ::libc;
 use ::libc::free;
 use libft_rs::{ft_isalnum::ft_isalnum, ft_strchr::ft_strchr};
-use libutils_rs::src::char::is_something::ft_isspace;
 
 #[derive(Clone)]
 #[repr(C)]
@@ -22,7 +21,6 @@ pub struct t_lexer<'a> {
 	pub len_nul: usize,
 	pub trimmed_line: &'a str,
 	pub cstring: std::ffi::CString,
-	pub len: usize,
 }
 
 struct s_check_pipes {
@@ -92,7 +90,7 @@ impl<'a> t_lexer<'a> {
 		Ok(())
 	}
 	unsafe fn check_pipes_redirection_quotes(&mut self) -> Result<(), i32> {
-		let s = self.cstring.as_ptr();
+		// let s = self.trimmed_line.as_ptr();
 		let mut check: s_check_pipes = s_check_pipes {
 			flag_redir: 0,
 			flag_word: 0,
@@ -100,7 +98,7 @@ impl<'a> t_lexer<'a> {
 			ignore: false,
 		};
 		if !(self.ignore.is_null()) {
-			while (check).i < (*self).len_nul {
+			while (check).i < (*self).len_nul - 1 {
 				if !*((*self).ignore).add(check.i) {
 					if self.inner_while_quotes(&mut check).is_err()
 						|| self.inner_if_quotes(&mut check).is_err()
@@ -110,7 +108,7 @@ impl<'a> t_lexer<'a> {
 				}
 				if *((*self).ignore).add(check.i) {
 					check.ignore = true;
-					while *s.add(check.i) as libc::c_int != 0
+					while (check).i < (*self).len_nul - 1
 						&& *((*self).ignore).add(check.i) as libc::c_int != 0
 					{
 						check.i = (check.i).wrapping_add(1);
@@ -128,18 +126,13 @@ impl<'a> t_lexer<'a> {
 	}
 	unsafe fn inner_while_noquotes(&self, mut check: &mut s_check_pipes) -> Result<(), ()> {
 		let s = self.trimmed_line.as_ptr();
-		while check.i < self.len_nul - 1 && *s.add(check.i) as libc::c_int != '|' as i32 {
-			if !(ft_strchr(
-				b"><\0" as *const u8 as *const libc::c_char,
-				*s.add(check.i) as libc::c_int,
-			))
-			.is_null() && (check.flag_redir == 0
-				|| *s.offset((check.i).wrapping_sub(1) as isize) as libc::c_int != 0
-					&& *s.offset((check.i).wrapping_sub(1) as isize) as libc::c_int
-						== *s.add(check.i) as libc::c_int
-					&& (*s.offset((check.i).wrapping_sub(2) as isize) == 0
-						|| ft_isspace(*s.offset((check.i).wrapping_sub(2) as isize) as libc::c_int)
-							!= 0))
+		let bytes = self.trimmed_line.as_bytes();
+		while check.i < self.len_nul - 1 && bytes[check.i] != b'|' {
+			if (bytes[check.i] == b'>' || bytes[check.i] == b'<')
+				&& (check.flag_redir == 0
+					|| check.i > 0
+						&& bytes[(check.i).wrapping_sub(1)] == bytes[check.i]
+						&& (check.i == 1 || bytes[(check.i).wrapping_sub(2)].is_ascii_whitespace()))
 			{
 				check.flag_redir = 1 as libc::c_int;
 			} else if !(ft_strchr(
@@ -226,7 +219,6 @@ impl<'a> t_lexer<'a> {
 			len_nul: 0,
 			trimmed_line,
 			cstring: std::ffi::CString::new(trimmed_line).unwrap(),
-			len: trimmed_line.as_bytes().len(),
 		};
 		// declaring these as enum variants would be better ; |
 		for &c in trimmed_line.as_bytes() {
@@ -268,15 +260,15 @@ impl<'a> t_lexer<'a> {
 		);
 	}
 	fn check_quotes(&mut self) -> Result<i32, i32> {
-		if self.singlequotes == 1 as libc::c_int {
+		if self.singlequotes == 1 {
 			eprintln!("syntax error near unexpected token '''");
 			return Err(1);
 		}
-		if self.doublequotes == 1 as libc::c_int {
+		if self.doublequotes == 1 {
 			eprintln!("syntax error near unexpected token '\"'");
 			return Err(1);
 		}
-		if self.singlequotes % 2 as libc::c_int != 0 || self.doublequotes % 2 as libc::c_int != 0 {
+		if self.singlequotes % 2 != 0 || self.doublequotes % 2 != 0 {
 			eprintln!("error: quotes not closed");
 			return Err(1);
 		}
