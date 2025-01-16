@@ -19,9 +19,10 @@ pub struct t_lexer<'a> {
 	pub redir_smaller: i32,
 	pub pipes: i32,
 	pub ignore: *mut bool,
-	pub len: usize,
+	pub len_nul: usize,
 	pub trimmed_line: &'a str,
 	pub cstring: std::ffi::CString,
+	pub len: usize,
 }
 
 struct s_check_pipes {
@@ -99,7 +100,7 @@ impl<'a> t_lexer<'a> {
 			ignore: false,
 		};
 		if !(self.ignore.is_null()) {
-			while (check).i < (*self).len {
+			while (check).i < (*self).len_nul {
 				if !*((*self).ignore).add(check.i) {
 					if self.inner_while_quotes(&mut check).is_err()
 						|| self.inner_if_quotes(&mut check).is_err()
@@ -126,8 +127,8 @@ impl<'a> t_lexer<'a> {
 		Ok(())
 	}
 	unsafe fn inner_while_noquotes(&self, mut check: &mut s_check_pipes) -> Result<(), ()> {
-		let s = self.cstring.as_ptr();
-		while *s.add(check.i) as libc::c_int != 0 && *s.add(check.i) as libc::c_int != '|' as i32 {
+		let s = self.trimmed_line.as_ptr();
+		while check.i < self.len_nul - 1 && *s.add(check.i) as libc::c_int != '|' as i32 {
 			if !(ft_strchr(
 				b"><\0" as *const u8 as *const libc::c_char,
 				*s.add(check.i) as libc::c_int,
@@ -159,12 +160,6 @@ impl<'a> t_lexer<'a> {
 	}
 
 	unsafe fn check_pipes_redirection(&mut self) -> Result<(), i32> {
-		let mut check: s_check_pipes = s_check_pipes {
-			flag_redir: 0,
-			flag_word: 0,
-			i: 0,
-			ignore: false,
-		};
 		if self.trimmed_line.starts_with('|') || self.trimmed_line.ends_with('|') {
 			eprint_msh!("syntax error near unexpected token `|'");
 			return Err(2);
@@ -176,8 +171,13 @@ impl<'a> t_lexer<'a> {
 		if !((*self).ignore).is_null() {
 			return self.check_pipes_redirection_quotes();
 		}
-		let s = self.cstring.as_ptr();
-		while check.i < (*self).len {
+		let mut check: s_check_pipes = s_check_pipes {
+			flag_redir: 0,
+			flag_word: 0,
+			i: 0,
+			ignore: false,
+		};
+		while check.i < (*self).len_nul - 1 {
 			check = {
 				s_check_pipes {
 					flag_redir: 0,
@@ -193,15 +193,13 @@ impl<'a> t_lexer<'a> {
 				eprint_msh!("syntax error near unexpected token `|'");
 				return Err(2);
 			}
-			if (*s.offset(check.i as isize) as libc::c_int == '|' as i32)
+			if (self.trimmed_line.as_bytes()[check.i] == b'|')
 				&& (check.flag_redir != 0 || check.flag_word == 0)
 			{
 				eprint_msh!("syntax error near unexpected token `|'");
 				return Err(2);
 			}
-			while *s.offset(check.i as isize) as libc::c_int != 0
-				&& *s.offset(check.i as isize) as libc::c_int == '|' as i32
-			{
+			while check.i < self.len_nul - 1 && self.trimmed_line.as_bytes()[check.i] == b'|' {
 				check.i = (check.i).wrapping_add(1);
 			}
 		}
@@ -225,9 +223,10 @@ impl<'a> t_lexer<'a> {
 			redir_smaller: 0,
 			pipes: 0,
 			ignore: std::ptr::null_mut::<bool>(),
-			len: 0,
+			len_nul: 0,
 			trimmed_line,
 			cstring: std::ffi::CString::new(trimmed_line).unwrap(),
+			len: trimmed_line.as_bytes().len(),
 		};
 		// declaring these as enum variants would be better ; |
 		for &c in trimmed_line.as_bytes() {
@@ -247,7 +246,7 @@ impl<'a> t_lexer<'a> {
 				_ => {}
 			}
 		}
-		lexer.len = lexer.cstring.count_bytes();
+		lexer.len_nul = lexer.cstring.count_bytes();
 		lexer
 	}
 	///
@@ -256,7 +255,7 @@ impl<'a> t_lexer<'a> {
 		// if s.is_null() || input.is_null() {
 		// 	return 1 as libc::c_int;
 		// }
-		self.ignore = crate::utils::bool_array::bool_arr_zeroing(self.len as u64);
+		self.ignore = crate::utils::bool_array::bool_arr_zeroing(self.len_nul as u64);
 		crate::utils::bool_array::range_ignore(
 			self.cstring.as_ptr(),
 			self.ignore,
