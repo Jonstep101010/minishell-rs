@@ -4,7 +4,7 @@ use libc::{exit, free, strerror};
 
 #[allow(unused_imports)]
 use crate::{
-	libutils_rs::src::array::arr_free::arr_free, prelude::*, t_shell, t_token,
+	libutils_rs::src::array::arr_free::arr_free, msh::t_shell, prelude::*, t_token,
 	tokenizer::destroy_tokens::destroy_all_tokens,
 };
 

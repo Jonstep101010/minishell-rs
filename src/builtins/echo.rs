@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use crate::{t_shell, t_token};
+use crate::t_token;
 use libft_rs::ft_strncmp::ft_strncmp;
 use libutils_rs::src::array::arr_free::arr_free;
 
@@ -18,7 +18,7 @@ unsafe fn is_n_arg(mut arg: *const c_char) -> bool {
 
 unsafe fn echo_default(cmd_args: *const *const c_char) {
 	let mut i = 0;
-	while !(*cmd_args.add(i)).is_null() && is_n_arg(*cmd_args.add(i)) == true {
+	while !(*cmd_args.add(i)).is_null() && is_n_arg(*cmd_args.add(i)) {
 		i += 1;
 	}
 	let mut flag = match i {

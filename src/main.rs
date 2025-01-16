@@ -49,7 +49,6 @@ pub mod utils {
 	pub mod bool_array;
 	pub mod error;
 	pub mod exit_free;
-	pub mod init_shell;
 	pub mod interop;
 	pub mod rust_readline;
 } // mod utils
@@ -66,78 +65,8 @@ pub mod utils {
 // 	pub c_ispeed: speed_t,
 // 	pub c_ospeed: speed_t,
 // }
-#[derive(Clone, Debug)]
-#[repr(C)]
-pub struct t_token {
-	pub cmd_args: *mut t_arg,            // Vec<t_arg>
-	pub has_redir: bool,                 // replace with Option<type>
-	pub split_pipes: *mut libc::c_char,  // String
-	pub tmp_arr: *mut *mut libc::c_char, // Vec<String>
-	pub bin: std::ffi::CString,          // String
-	pub cmd_func: Option<unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int>, // fn
-	pub split_non_quoted: String,
-}
-
-impl t_token {
-	pub fn new(split_non_quoted: String) -> Self {
-		Self {
-			cmd_args: std::ptr::null_mut::<t_arg>(),
-			has_redir: false,
-			split_pipes: std::ptr::null_mut::<libc::c_char>(),
-			tmp_arr: std::ptr::null_mut::<*mut libc::c_char>(),
-			bin: std::ffi::CString::new("").unwrap(),
-			cmd_func: Some(
-				execution::exec_bin::exec_bin
-					as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int,
-			),
-			split_non_quoted,
-		}
-	}
-}
-
-#[derive(Clone)]
-#[repr(C)]
-pub struct t_shell {
-	pub exit_status: uint8_t, // u8
-	env: environment::Env,
-	pub token: *mut t_token, // Vec<t_token>
-	pub token_len: size_t,
-	pub token_vec: Vec<t_token>,
-}
-
-impl t_shell {
-	pub fn new() -> Self {
-		Self {
-			exit_status: 0,
-			env: environment::Env::new(),
-			token: std::ptr::null_mut(),
-			token_len: 0,
-			token_vec: vec![],
-		}
-	}
-	pub fn export(&mut self, key: &str, value: String) {
-		self.env.export(key, value);
-	}
-	pub fn unset(&mut self, key: &str) {
-		self.env.unset(key);
-	}
-	pub fn get_var(&self, key: &str) -> Option<&String> {
-		self.env.get(key)
-	}
-}
-
-impl Default for t_shell {
-	fn default() -> Self {
-		Self::new()
-	}
-}
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct t_arg {
-	pub elem: *mut libc::c_char, // String
-	pub type_0: e_arg,           // wrapped enum attribute
-	pub redir: e_redir,          // enum wrapping string
-}
+pub mod msh;
+pub use prelude::*;
 
 unsafe fn main_0() -> libc::c_int {
 	// let mut shell: *mut t_shell = utils::init_shell::init_shell();

@@ -33,15 +33,15 @@ pub fn expander(input_expander: &CStr, env: &Env) -> Option<CString> {
 			should_expand = !should_expand;
 		}
 		if bytes[i] == b'$' && should_expand && !b"$()".contains(&bytes[i + 1]) {
-			let key_byte_slice = &bytes[i + 1..idx_advance(&bytes[i..]) + i + 1];
+			let key_byte_slice = &bytes[(i + 1)..=(idx_advance(&bytes[i..]) + i)];
 			// advance by key length in source string
 			i += key_byte_slice.len();
-			let expansion = if key_byte_slice.len() == 0 {
+			let expansion = if key_byte_slice.is_empty() {
 				"$".to_string()
-			} else if let Some(&ref expansion) = env.get_slice(key_byte_slice) {
+			} else if let Some(expansion) = env.get_slice(key_byte_slice) {
 				expansion.to_string()
 			} else {
-				String::from("")
+				String::new()
 			};
 			#[cfg(test)]
 			{

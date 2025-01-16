@@ -12,13 +12,6 @@ use crate::{
 	size_t, t_arg, t_shell, t_token,
 };
 
-pub type t_cmd_func_builtin = Option<unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int>;
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct s_func {
-	pub name: *mut libc::c_char,
-	pub cmd: t_cmd_func_builtin,
-}
 #[unsafe(no_mangle)]
 pub unsafe fn set_cmd_func(mut cmd: *const libc::c_char, mut token: *mut t_token) {
 	let cmds: [s_func; 8] = [
