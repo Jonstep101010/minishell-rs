@@ -22,64 +22,62 @@ pub struct t_lexer<'a> {
 
 impl<'a> t_lexer<'a> {
 	fn check_pipes_redirection_quotes(&mut self) -> Result<(), i32> {
-		if self.ignore.is_some() {
-			let mut flag_redir = 0;
-			let mut flag_word = 0;
-			let mut check_ignore = false;
-			let mut i = 0;
-			let bytes = self.cstring.as_bytes_with_nul();
-			while i < self.len_nul - 1 {
-				if !(self.ignore.as_ref().unwrap())[i] && {
-					flag_word = 0;
-					flag_redir = 0;
-					while i < self.len_nul - 1
-						&& bytes[i] != b'|'
-						&& !(self.ignore.as_ref().unwrap())[i]
+		if self.ignore.is_none() {
+			return Ok(());
+		}
+		let mut flag_redir = false;
+		let mut check_ignore = false;
+		let mut i = 0;
+		let bytes = self.cstring.as_bytes_with_nul();
+		while i < self.len_nul - 1 {
+			if !(self.ignore.as_ref().unwrap())[i] {
+				// inner while quotes
+				let mut flag_word = false;
+				flag_redir = false;
+				while i < self.len_nul - 1
+					&& bytes[i] != b'|'
+					&& !(self.ignore.as_ref().unwrap())[i]
+				{
+					if (bytes[i] == b'>' || bytes[i] == b'<')
+						&& (!flag_redir || (i > 0 && bytes[i - 1] == bytes[i]))
 					{
-						if (bytes[i] == b'>' || bytes[i] == b'<')
-							&& (flag_redir == 0 || (i > 0) && bytes[i - 1] == bytes[i])
-						{
-							flag_redir = 1;
-						} else if bytes[i] == b'<' || bytes[i] == b'>' {
-							eprint_msh!("syntax error near unexpected token `newline'");
-							return Err(2);
-						} else if bytes[i].is_ascii_alphanumeric() {
-							flag_redir = 0;
-							flag_word = 1;
-						}
-						i += 1;
+						flag_redir = true;
+					} else if bytes[i] == b'<' || bytes[i] == b'>' {
+						eprint_msh!("syntax error near unexpected token `newline'");
+						return Err(2);
+					} else if bytes[i].is_ascii_alphanumeric() {
+						flag_redir = false;
+						flag_word = true;
 					}
-					false
-				} || {
-					// inner if quotes
-					if !((self.ignore.as_ref()).unwrap()[i]) && bytes[i] == b'|' && !check_ignore {
-						if flag_word == 0 {
-							eprint_msh!("syntax error near unexpected token `|'");
-							return Err(2);
-						}
-						if (bytes[i] == b'|') && (flag_redir != 0 || flag_word == 0) {
-							eprint_msh!("syntax error near unexpected token `|'");
-							return Err(2);
-						}
+					i += 1;
+				}
+				// inner if quotes
+				if !((self.ignore.as_ref()).unwrap()[i]) && bytes[i] == b'|' && !check_ignore {
+					if !flag_word {
+						eprint_msh!("syntax error near unexpected token `|'");
+						return Err(2);
 					}
-					if bytes[i] == b'|' {
-						check_ignore = false;
+					if (bytes[i] == b'|') && (flag_redir || !flag_word) {
+						eprint_msh!("syntax error near unexpected token `|'");
+						return Err(2);
 					}
-					false
-				} {}
-				if (self.ignore.as_ref()).unwrap()[i] {
-					check_ignore = true;
-					while i < self.len_nul - 1 && (self.ignore.as_ref()).unwrap()[i] == true {
-						i = (i).wrapping_add(1);
-					}
-				} else {
-					i = i.wrapping_add(1);
+				}
+				if bytes[i] == b'|' {
+					check_ignore = false;
 				}
 			}
-			if flag_redir != 0 && !check_ignore {
-				eprint_msh!("syntax error near unexpected token `newline'");
-				return Err(2);
+			if (self.ignore.as_ref()).unwrap()[i] {
+				check_ignore = true;
+				while i < self.len_nul - 1 && (self.ignore.as_ref()).unwrap()[i] == true {
+					i = (i).wrapping_add(1);
+				}
+			} else {
+				i = i.wrapping_add(1);
 			}
+		}
+		if flag_redir && !check_ignore {
+			eprint_msh!("syntax error near unexpected token `newline'");
+			return Err(2);
 		}
 		Ok(())
 	}
@@ -98,32 +96,32 @@ impl<'a> t_lexer<'a> {
 		}
 		let bytes = self.trimmed_line.as_bytes();
 		let mut i = 0;
-		let mut flag_redir = 0;
+		let mut flag_redir = false;
 		while i < self.len_nul - 1 {
-			flag_redir = 0;
-			let mut flag_word = 0;
+			flag_redir = false;
+			let mut flag_word = false;
 			while i < self.len_nul - 1 && bytes[i] != b'|' {
 				if (bytes[i] == b'>' || bytes[i] == b'<')
-					&& (flag_redir == 0
+					&& (!flag_redir
 						|| i > 0
 							&& bytes[(i).wrapping_sub(1)] == bytes[i]
 							&& (i == 1 || bytes[(i).wrapping_sub(2)].is_ascii_whitespace()))
 				{
-					flag_redir = 1;
+					flag_redir = true;
 				} else if bytes[i] == b'>' || bytes[i] == b'<' {
 					eprint_msh!("syntax error near unexpected token `newline'");
 					return Err(2);
 				} else if bytes[i].is_ascii_alphanumeric() {
-					flag_redir = 0;
-					flag_word = 1;
+					flag_redir = false;
+					flag_word = true;
 				}
 				i += 1;
 			}
-			if flag_word == 0 {
+			if !flag_word {
 				eprint_msh!("syntax error near unexpected token `|'");
 				return Err(2);
 			}
-			if (bytes[i] == b'|') && (flag_redir != 0 || flag_word == 0) {
+			if (bytes[i] == b'|') && (flag_redir || !flag_word) {
 				eprint_msh!("syntax error near unexpected token `|'");
 				return Err(2);
 			}
@@ -131,7 +129,7 @@ impl<'a> t_lexer<'a> {
 				i = (i).wrapping_add(1);
 			}
 		}
-		if flag_redir != 0 {
+		if flag_redir {
 			crate::eprint_msh!("syntax error near unexpected token `newline'");
 			return Err(2);
 		}
