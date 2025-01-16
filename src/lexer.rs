@@ -89,8 +89,7 @@ impl<'a> t_lexer<'a> {
 		}
 		Ok(())
 	}
-	unsafe fn check_pipes_redirection_quotes(&mut self) -> Result<(), i32> {
-		// let s = self.trimmed_line.as_ptr();
+	fn check_pipes_redirection_quotes(&mut self) -> Result<(), i32> {
 		let mut check: s_check_pipes = s_check_pipes {
 			flag_redir: 0,
 			flag_word: 0,
@@ -99,22 +98,24 @@ impl<'a> t_lexer<'a> {
 		};
 		if !(self.ignore.is_null()) {
 			while (check).i < (*self).len_nul - 1 {
-				if !*((*self).ignore).add(check.i) {
-					if self.inner_while_quotes(&mut check).is_err()
-						|| self.inner_if_quotes(&mut check).is_err()
-					{
-						return Err(2);
+				unsafe {
+					if !*((*self).ignore).add(check.i) {
+						if self.inner_while_quotes(&mut check).is_err()
+							|| self.inner_if_quotes(&mut check).is_err()
+						{
+							return Err(2);
+						}
 					}
-				}
-				if *((*self).ignore).add(check.i) {
-					check.ignore = true;
-					while (check).i < (*self).len_nul - 1
-						&& *((*self).ignore).add(check.i) as libc::c_int != 0
-					{
-						check.i = (check.i).wrapping_add(1);
+					if *((*self).ignore).add(check.i) {
+						check.ignore = true;
+						while (check).i < (*self).len_nul - 1
+							&& *((*self).ignore).add(check.i) as libc::c_int != 0
+						{
+							check.i = (check.i).wrapping_add(1);
+						}
+					} else {
+						check.i = (check).i.wrapping_add(1);
 					}
-				} else {
-					check.i = (check).i.wrapping_add(1);
 				}
 			}
 		}
@@ -124,8 +125,7 @@ impl<'a> t_lexer<'a> {
 		}
 		Ok(())
 	}
-	unsafe fn inner_while_noquotes(&self, mut check: &mut s_check_pipes) -> Result<(), ()> {
-		let s = self.trimmed_line.as_ptr();
+	fn inner_while_noquotes(&self, mut check: &mut s_check_pipes) -> Result<(), ()> {
 		let bytes = self.trimmed_line.as_bytes();
 		while check.i < self.len_nul - 1 && bytes[check.i] != b'|' {
 			if (bytes[check.i] == b'>' || bytes[check.i] == b'<')
@@ -135,19 +135,14 @@ impl<'a> t_lexer<'a> {
 						&& (check.i == 1 || bytes[(check.i).wrapping_sub(2)].is_ascii_whitespace()))
 			{
 				check.flag_redir = 1 as libc::c_int;
-			} else if !(ft_strchr(
-				b"><\0" as *const u8 as *const libc::c_char,
-				*s.add(check.i) as libc::c_int,
-			))
-			.is_null()
-			{
+			} else if bytes[check.i] == b'>' || bytes[check.i] == b'<' {
 				eprint_msh!("syntax error near unexpected token `newline'");
 				return Err(());
-			} else if ft_isalnum(*s.add(check.i) as libc::c_int) != 0 {
+			} else if bytes[check.i].is_ascii_alphanumeric() {
 				check.flag_redir = 0 as libc::c_int;
 				check.flag_word = 1 as libc::c_int;
 			}
-			check.i = (check.i).wrapping_add(1);
+			check.i += 1;
 		}
 		Ok(())
 	}
