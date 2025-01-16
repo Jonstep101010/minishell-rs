@@ -83,11 +83,7 @@ unsafe fn main_0() -> libc::c_int {
 				continue;
 			}
 			str_add_history(trimmed_line);
-			if crate::lexer::run(
-				&mut shell,
-				std::ffi::CString::new(trimmed_line).unwrap().as_ptr(),
-			) != 0 as libc::c_int
-			{
+			if crate::lexer::run(&mut shell, trimmed_line) != 0 as libc::c_int {
 				continue;
 			}
 			self::t_shell::create_tokens(&mut shell, trimmed_line);

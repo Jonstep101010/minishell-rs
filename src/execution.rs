@@ -54,5 +54,5 @@ pub unsafe fn execute_commands(mut shell: *mut t_shell, mut token: *mut t_token)
 	} else {
 		execute_pipes(shell, token_count);
 	}
-	destroy_all_tokens(shell);
+	destroy_all_tokens(&mut (*shell));
 }

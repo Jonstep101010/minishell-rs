@@ -66,7 +66,7 @@ pub unsafe fn builtin_exit(mut shell: *mut t_shell, mut code_nullable: *mut t_to
 	eprintln!("exit");
 	// exit_free_internal
 	{
-		destroy_all_tokens(shell);
+		destroy_all_tokens(&mut (*shell));
 		// libc::free(shell as *mut libc::c_void);
 		std::process::exit(exit_code as i32);
 	};

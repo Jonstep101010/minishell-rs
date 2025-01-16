@@ -110,47 +110,49 @@ unsafe fn rm_quotes(mut cmd_arg: *mut t_arg) {
 		i += 1;
 	}
 }
-unsafe fn inner_loop(mut token: *mut t_token) -> *mut libc::c_void {
-	if check_redirections((*token).cmd_args) {
-		(*token).has_redir = true;
-		parse_redir_types((*token).cmd_args);
-		rm_prefix_redir_word((*token).cmd_args);
-	}
-	let mut i = 0;
-	while !((*((*token).cmd_args).add(i)).elem).is_null() {
-		if (*((*token).cmd_args).add(i)).type_0 as libc::c_uint
-			!= e_arg::REDIR as libc::c_int as libc::c_uint
-		{
-			break;
-		}
-		i += 1;
-	}
-	set_cmd_func((*((*token).cmd_args).add(i)).elem, token);
-	rm_quotes((*token).cmd_args);
-	token as *mut libc::c_void
-}
+
 #[unsafe(no_mangle)]
 pub unsafe fn tokenize(
 	mut shell: *mut t_shell,
 	mut trimmed_line: *const libc::c_char,
 ) -> *mut libc::c_void {
 	let mut i = 0;
-	(*shell).token_len = 0;
 	(*shell).token = get_tokens(trimmed_line);
 	if ((*shell).token).is_null() {
 		return std::ptr::null_mut::<libc::c_void>();
 	}
-	while !((*((*shell).token).add((*shell).token_len)).split_pipes).is_null() {
-		(*shell).token_len = ((*shell).token_len).wrapping_add(1);
+	let mut token_len: usize = 0;
+	while !((*((*shell).token).add(token_len)).split_pipes).is_null() {
+		token_len = token_len.wrapping_add(1);
 	}
 	let shell_env = &(*shell).env;
-	while i < (*shell).token_len {
+	while i < token_len {
 		if setup_token(&mut *((*shell).token).add(i), shell_env).is_null() {
-			destroy_all_tokens(shell);
+			destroy_all_tokens(&mut (*shell));
 			return std::ptr::null_mut::<libc::c_void>();
 		}
-		inner_loop(&mut *((*shell).token).add(i));
+		{
+			let mut token: *mut t_token = &mut *((*shell).token).add(i);
+			if check_redirections((*token).cmd_args) {
+				(*token).has_redir = true;
+				parse_redir_types((*token).cmd_args);
+				rm_prefix_redir_word((*token).cmd_args);
+			}
+			let mut ii = 0;
+			while !((*((*token).cmd_args).add(ii)).elem).is_null() {
+				if (*((*token).cmd_args).add(ii)).type_0 as libc::c_uint
+					!= e_arg::REDIR as libc::c_int as libc::c_uint
+				{
+					break;
+				}
+				ii += 1;
+			}
+			set_cmd_func((*((*token).cmd_args).add(i)).elem, token);
+			rm_quotes((*token).cmd_args);
+			token as *mut libc::c_void
+		};
 		i = i.wrapping_add(1);
 	}
+	(*shell).token_len = Some(token_len);
 	(*shell).token as *mut libc::c_void
 }

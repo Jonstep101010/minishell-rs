@@ -29,26 +29,27 @@ pub struct t_lexer {
 }
 use checks_basic::lexer_checks_basic;
 #[unsafe(no_mangle)]
-pub unsafe fn run(mut shell: *mut t_shell, mut trimmed_line: *const libc::c_char) -> libc::c_int {
-	if *trimmed_line == 0 {
-		return 0 as libc::c_int;
+pub unsafe fn run(shell: &mut t_shell, trimmed_line: &str) -> i32 {
+	if trimmed_line.is_empty() {
+		return 0;
 	}
-	let mut lex = lexer_checks_basic(trimmed_line);
+	let cstring = std::ffi::CString::new(trimmed_line).unwrap();
+	let mut lex = lexer_checks_basic(cstring.as_ptr());
 	if !(*lex).result {
-		(*shell).exit_status = (*lex).lexer as u8;
+		shell.exit_status = (*lex).lexer as u8;
 		free(lex as *mut libc::c_void);
-		return 1 as libc::c_int;
+		return 1;
 	}
 	free(lex as *mut libc::c_void);
-	(*shell).token = tokenize(shell, trimmed_line) as *mut crate::t_token;
-	if ((*shell).token).is_null() {
-		return -(1 as libc::c_int);
+	shell.token = tokenize(shell, cstring.as_ptr()) as *mut crate::t_token;
+	if (shell.token).is_null() {
+		return -(1);
 	}
-	if ((*(*shell).token).cmd_args).is_null() {
-		destroy_all_tokens(shell);
-		return -(1 as libc::c_int);
+	if ((*shell.token).cmd_args).is_null() {
+		destroy_all_tokens(&mut (*shell));
+		return -(1);
 	}
-	0 as libc::c_int
+	0
 }
 
 #[cfg(test)]
