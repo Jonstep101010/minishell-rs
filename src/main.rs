@@ -49,7 +49,6 @@ pub mod utils {
 	pub mod bool_array;
 	pub mod error;
 	pub mod exit_free;
-	pub mod init_shell;
 	pub mod interop;
 	pub mod rust_readline;
 } // mod utils
@@ -66,50 +65,15 @@ pub mod utils {
 // 	pub c_ispeed: speed_t,
 // 	pub c_ospeed: speed_t,
 // }
-#[derive(Clone)]
-#[repr(C)]
-pub struct t_token {
-	pub cmd_args: *mut t_arg, // Vec<t_arg>
-	pub has_redir: bool,
-	pub split_pipes: *mut libc::c_char,  // String
-	pub tmp_arr: *mut *mut libc::c_char, // Vec<String>
-	pub bin: std::ffi::CString,          // String
-	pub cmd_func: Option<unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int>, // fn
-}
-
-#[derive(Clone)]
-#[repr(C)]
-pub struct t_shell {
-	pub exit_status: uint8_t, // u8
-	env: environment::Env,
-	pub token: *mut t_token, // Vec<t_token>
-	pub token_len: size_t,
-}
-
-impl t_shell {
-	pub fn export(&mut self, key: &str, value: String) {
-		self.env.export(key, value);
-	}
-	pub fn unset(&mut self, key: &str) {
-		self.env.unset(key);
-	}
-	pub fn get_var(&self, key: &str) -> Option<&String> {
-		self.env.get(key)
-	}
-}
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct t_arg {
-	pub elem: *mut libc::c_char, // String
-	pub type_0: e_arg,           // wrapped enum attribute
-	pub redir: e_redir,          // enum wrapping string
-}
+pub mod msh;
+pub use prelude::*;
 
 unsafe fn main_0() -> libc::c_int {
-	let mut shell: *mut t_shell = utils::init_shell::init_shell();
-	if shell.is_null() {
-		return 1 as libc::c_int;
-	}
+	// let mut shell: *mut t_shell = utils::init_shell::init_shell();
+	// if shell.is_null() {
+	// 	return 1 as libc::c_int;
+	// }
+	let mut shell = t_shell::new();
 	// check signals
 	loop {
 		if let Some(readline_line) = str_readline("minishell> ") {
@@ -119,18 +83,30 @@ unsafe fn main_0() -> libc::c_int {
 				continue;
 			}
 			str_add_history(trimmed_line);
-			if crate::lexer::run(
-				shell,
-				std::ffi::CString::new(trimmed_line).unwrap().as_ptr(),
-			) != 0 as libc::c_int
-			{
+			if let Err(status) = msh::lexical_checks(trimmed_line) {
+				shell.exit_status = status as u8;
 				continue;
+			} else {
+				let cstring = std::ffi::CString::new(trimmed_line).unwrap();
+				shell.token = tokenizer::build_tokens::tokenize(&mut shell, cstring.as_ptr())
+					as *mut crate::t_token;
+				if (shell.token).is_null() {
+					// return -(1);
+					continue;
+				}
+				if ((*shell.token).cmd_args).is_null() {
+					tokenizer::destroy_tokens::destroy_all_tokens(&mut shell);
+					// return -(1);
+					continue;
+				}
 			}
-			if !((*shell).token).is_null() {
-				execution::execute_commands(shell, (*shell).token);
+			self::t_shell::create_tokens(&mut shell, trimmed_line);
+			dbg!(&shell.token_vec);
+			if !(shell.token).is_null() {
+				execution::execute_commands(&mut shell, shell.token);
 			}
 		} else {
-			builtins::exit::builtin_exit(shell, std::ptr::null_mut::<t_token>());
+			builtins::exit::builtin_exit(&mut shell, std::ptr::null_mut::<t_token>());
 		}
 	}
 }

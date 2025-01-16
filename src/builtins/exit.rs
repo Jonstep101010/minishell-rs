@@ -1,7 +1,6 @@
 use crate::{
-	eprint_msh,
 	prelude::*,
-	t_shell, t_token,
+	t_token,
 	tokenizer::{build_command::get_cmd_arr_token, destroy_tokens::destroy_all_tokens},
 };
 
@@ -11,11 +10,7 @@ use libutils_rs::src::string::ft_atol::ft_atol;
 
 unsafe fn check_sign(exit_code: *const c_char) -> bool {
 	let exit_code: *const u8 = exit_code.cast();
-	if (*exit_code == b'-' || *exit_code == b'+') && *exit_code.offset(1) == 0 {
-		false
-	} else {
-		true
-	}
+	!((*exit_code == b'-' || *exit_code == b'+') && *exit_code.offset(1) == 0)
 }
 unsafe fn check_exit_code(command: *mut *const c_char) -> bool {
 	let mut i = -1;
@@ -71,8 +66,8 @@ pub unsafe fn builtin_exit(mut shell: *mut t_shell, mut code_nullable: *mut t_to
 	eprintln!("exit");
 	// exit_free_internal
 	{
-		destroy_all_tokens(shell);
-		libc::free(shell as *mut libc::c_void);
+		destroy_all_tokens(&mut (*shell));
+		// libc::free(shell as *mut libc::c_void);
 		std::process::exit(exit_code as i32);
 	};
 }
