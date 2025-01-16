@@ -24,6 +24,7 @@ trait BoolArray {
 	fn zeroing(len: usize) -> Self;
 	// fn range_ignore(s: &[u8], ignore: &mut Self, c: u8);
 	// fn range_ignore_nul(s: &[u8], ignore: &mut Self, c: u8);
+	fn range_ignore(s: &[u8], ignore: &mut Self, c: u8);
 }
 
 impl BoolArray for Vec<bool> {
@@ -33,6 +34,29 @@ impl BoolArray for Vec<bool> {
 			vec.push(false);
 		}
 		vec
+	}
+	fn range_ignore(s: &[u8], ignore: &mut Self, c: u8) {
+		let mut i = 0;
+		assert_eq!(s[s.len() - 1], b'\0', "s has to be nul-terminated!");
+		while i < ignore.len() {
+			if s[i] == c && ignore[i] as u8 == 0 {
+				ignore[i] = true;
+				i += 1;
+				while i < ignore.len() && s[i] as u8 != c {
+					ignore[i] = true;
+					i += 1;
+				}
+				if i < ignore.len() && s[i] as u8 == c {
+					ignore[i] = true;
+				}
+				while i < ignore.len() && s[i] as u8 != c {
+					ignore[i] = false;
+					i -= 1;
+				}
+			} else {
+				i += 1;
+			}
+		}
 	}
 }
 
@@ -44,6 +68,29 @@ impl BoolArray for Box<[bool]> {
 		}
 		vec.into_boxed_slice()
 	}
+	fn range_ignore(s: &[u8], ignore: &mut Self, c: u8) {
+		let mut i = 0;
+		assert_eq!(s[s.len() - 1], b'\0', "s has to be nul-terminated!");
+		while i < ignore.len() {
+			if s[i] == c && ignore[i] as u8 == 0 {
+				ignore[i] = true;
+				i += 1;
+				while i < ignore.len() && s[i] as u8 != c {
+					ignore[i] = true;
+					i += 1;
+				}
+				if i < ignore.len() && s[i] as u8 == c {
+					ignore[i] = true;
+				}
+				while i < ignore.len() && s[i] as u8 != c {
+					ignore[i] = false;
+					i -= 1;
+				}
+			} else {
+				i += 1;
+			}
+		}
+	}
 }
 
 pub fn bool_arr_zeroing_vec(len: usize) -> Vec<bool> {
@@ -54,33 +101,7 @@ pub fn bool_arr_zeroing_box(len: usize) -> Box<[bool]> {
 	Box::zeroing(len)
 }
 
-pub unsafe fn range_ignore(
-	mut s: *const libc::c_char,
-	mut ignore: *mut bool,
-	mut c: libc::c_uchar,
-) {
-	let mut i = 0;
-	while *s.add(i) != 0 {
-		if *s.add(i) as u8 == c && *ignore.add(i) as u8 == 0 {
-			*ignore.add(i) = true;
-			i += 1;
-			while *s.add(i) != 0 && *s.add(i) as u8 != c {
-				*ignore.add(i) = true;
-				i += 1;
-			}
-			if *s.add(i) as u8 == c {
-				*ignore.add(i) = true;
-			}
-			while *s.add(i) as u8 != c {
-				*ignore.add(i) = false;
-				i -= 1;
-			}
-		} else {
-			i += 1;
-		}
-	}
-}
-pub unsafe fn rs_range_ignore(
+pub unsafe fn range_ignore_ptr(
 	mut s: *const libc::c_char,
 	mut ignore: *mut bool,
 	mut c: libc::c_uchar,
@@ -109,7 +130,7 @@ pub unsafe fn rs_range_ignore(
 
 #[cfg(test)]
 mod tests {
-	use crate::utils::bool_array::{bool_arr_zeroing, libc::strlen, range_ignore};
+	use crate::utils::bool_array::{bool_arr_zeroing, libc::strlen, range_ignore_ptr};
 
 	use libc::size_t;
 
@@ -201,12 +222,16 @@ mod tests {
 			if arr.is_null() {
 				assert!(false);
 			}
-			range_ignore(s.as_ptr(), arr, b'"');
-			range_ignore(s.as_ptr(), arr, b'\'');
-			range_ignore(s.as_ptr(), vec_arr.as_mut_ptr(), b'"');
-			range_ignore(s.as_ptr(), vec_arr.as_mut_ptr(), b'\'');
-			range_ignore(s.as_ptr(), bool_box.as_mut_ptr(), b'"');
-			range_ignore(s.as_ptr(), bool_box.as_mut_ptr(), b'\'');
+			range_ignore_ptr(s.as_ptr(), arr, b'"');
+			range_ignore_ptr(s.as_ptr(), arr, b'\'');
+			// range_ignore_ptr(s.as_ptr(), vec_arr.as_mut_ptr(), b'"');
+			// range_ignore_ptr(s.as_ptr(), vec_arr.as_mut_ptr(), b'\'');
+			// range_ignore_ptr(s.as_ptr(), bool_box.as_mut_ptr(), b'"');
+			// range_ignore_ptr(s.as_ptr(), bool_box.as_mut_ptr(), b'\'');
+			BoolArray::range_ignore(s.to_bytes_with_nul(), &mut vec_arr, b'"');
+			BoolArray::range_ignore(s.to_bytes_with_nul(), &mut vec_arr, b'\'');
+			BoolArray::range_ignore(s.to_bytes_with_nul(), &mut bool_box, b'"');
+			BoolArray::range_ignore(s.to_bytes_with_nul(), &mut bool_box, b'\'');
 			support_ranges_test0(arr);
 			support_ranges_test0(vec_arr.as_mut_ptr());
 			support_ranges_test0(bool_box.as_mut_ptr());
@@ -227,9 +252,11 @@ mod tests {
 			while i <= len {
 				i += 1;
 			}
-			range_ignore(s.as_ptr(), arr, b'\'');
-			range_ignore(s.as_ptr(), vec_arr.as_mut_ptr(), b'\'');
-			range_ignore(s.as_ptr(), bool_box.as_mut_ptr(), b'\'');
+			range_ignore_ptr(s.as_ptr(), arr, b'\'');
+			// range_ignore_ptr(s.as_ptr(), vec_arr.as_mut_ptr(), b'\'');
+			// range_ignore_ptr(s.as_ptr(), bool_box.as_mut_ptr(), b'\'');
+			BoolArray::range_ignore(s.to_bytes_with_nul(), &mut vec_arr, b'\'');
+			BoolArray::range_ignore(s.to_bytes_with_nul(), &mut bool_box, b'\'');
 			let mut i_0 = 0;
 			while i_0 <= 16 {
 				assert_eq!(false, *arr.add(i_0));
@@ -256,9 +283,11 @@ mod tests {
 			support_bool_arr_zeroing(&mut arr, len);
 			let mut vec_arr = bool_arr_zeroing_vec(len);
 			let mut bool_box = bool_arr_zeroing_box(len);
-			range_ignore(s.as_ptr(), arr, b'"');
-			range_ignore(s.as_ptr(), vec_arr.as_mut_ptr(), b'"');
-			range_ignore(s.as_ptr(), bool_box.as_mut_ptr(), b'"');
+			range_ignore_ptr(s.as_ptr(), arr, b'"');
+			// range_ignore_ptr(s.as_ptr(), vec_arr.as_mut_ptr(), b'"');
+			// range_ignore_ptr(s.as_ptr(), bool_box.as_mut_ptr(), b'"');
+			BoolArray::range_ignore(s.to_bytes_with_nul(), &mut vec_arr, b'"');
+			BoolArray::range_ignore(s.to_bytes_with_nul(), &mut bool_box, b'"');
 			let mut i_0 = 0;
 			while i_0 < 17 {
 				assert_eq!(false, *arr.add(i_0));
@@ -290,12 +319,16 @@ mod tests {
 				assert_eq!(false, *vec_arr.as_ptr().add(i));
 				assert_eq!(false, *bool_box.as_ptr().add(i));
 			}
-			range_ignore(s.as_ptr(), arr, b'"');
-			range_ignore(s.as_ptr(), arr, b'\'');
-			range_ignore(s.as_ptr(), vec_arr.as_mut_ptr(), b'"');
-			range_ignore(s.as_ptr(), vec_arr.as_mut_ptr(), b'\'');
-			range_ignore(s.as_ptr(), bool_box.as_mut_ptr(), b'"');
-			range_ignore(s.as_ptr(), bool_box.as_mut_ptr(), b'\'');
+			range_ignore_ptr(s.as_ptr(), arr, b'"');
+			range_ignore_ptr(s.as_ptr(), arr, b'\'');
+			// range_ignore_ptr(s.as_ptr(), vec_arr.as_mut_ptr(), b'"');
+			// range_ignore_ptr(s.as_ptr(), vec_arr.as_mut_ptr(), b'\'');
+			// range_ignore_ptr(s.as_ptr(), bool_box.as_mut_ptr(), b'"');
+			// range_ignore_ptr(s.as_ptr(), bool_box.as_mut_ptr(), b'\'');
+			BoolArray::range_ignore(s.to_bytes_with_nul(), &mut vec_arr, b'"');
+			BoolArray::range_ignore(s.to_bytes_with_nul(), &mut vec_arr, b'\'');
+			BoolArray::range_ignore(s.to_bytes_with_nul(), &mut bool_box, b'"');
+			BoolArray::range_ignore(s.to_bytes_with_nul(), &mut bool_box, b'\'');
 			assert!(*arr.add(24));
 			for i in 0..17 {
 				assert_eq!(*arr.add(i), false);
@@ -319,12 +352,16 @@ mod tests {
 			support_bool_arr_zeroing(&mut arr, len);
 			let mut vec_arr = bool_arr_zeroing_vec(len);
 			let mut bool_box = bool_arr_zeroing_box(len);
-			range_ignore(s.as_ptr(), arr, b'\'');
-			range_ignore(s.as_ptr(), arr, b'\"');
-			range_ignore(s.as_ptr(), vec_arr.as_mut_ptr(), b'\'');
-			range_ignore(s.as_ptr(), vec_arr.as_mut_ptr(), b'"');
-			range_ignore(s.as_ptr(), bool_box.as_mut_ptr(), b'\'');
-			range_ignore(s.as_ptr(), bool_box.as_mut_ptr(), b'"');
+			range_ignore_ptr(s.as_ptr(), arr, b'\'');
+			range_ignore_ptr(s.as_ptr(), arr, b'\"');
+			// range_ignore_ptr(s.as_ptr(), vec_arr.as_mut_ptr(), b'\'');
+			// range_ignore_ptr(s.as_ptr(), vec_arr.as_mut_ptr(), b'"');
+			// range_ignore_ptr(s.as_ptr(), bool_box.as_mut_ptr(), b'\'');
+			// range_ignore_ptr(s.as_ptr(), bool_box.as_mut_ptr(), b'"');
+			BoolArray::range_ignore(s.to_bytes_with_nul(), &mut vec_arr, b'\'');
+			BoolArray::range_ignore(s.to_bytes_with_nul(), &mut vec_arr, b'"');
+			BoolArray::range_ignore(s.to_bytes_with_nul(), &mut bool_box, b'\'');
+			BoolArray::range_ignore(s.to_bytes_with_nul(), &mut bool_box, b'"');
 			let expected = support_expected(c"1110".as_ptr());
 			for i in 0..=len {
 				assert_eq!(*expected.add(i), *arr.add(i));

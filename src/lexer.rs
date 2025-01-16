@@ -201,12 +201,12 @@ impl<'a> t_lexer<'a> {
 	/// uses `bool_array`
 	unsafe fn ignore_quotes(&mut self) {
 		self.ignore = crate::utils::bool_array::bool_arr_zeroing(self.len_nul as u64);
-		crate::utils::bool_array::range_ignore(
+		crate::utils::bool_array::range_ignore_ptr(
 			self.cstring.as_ptr(),
 			self.ignore,
 			'"' as i32 as libc::c_uchar,
 		);
-		crate::utils::bool_array::range_ignore(
+		crate::utils::bool_array::range_ignore_ptr(
 			self.cstring.as_ptr(),
 			self.ignore,
 			'\'' as i32 as libc::c_uchar,
