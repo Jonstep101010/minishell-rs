@@ -85,6 +85,19 @@ unsafe fn main_0() -> libc::c_int {
 			str_add_history(trimmed_line);
 			if crate::lexer::run(&mut shell, trimmed_line) != 0 as libc::c_int {
 				continue;
+			} else {
+				let cstring = std::ffi::CString::new(trimmed_line).unwrap();
+				shell.token = tokenizer::build_tokens::tokenize(&mut shell, cstring.as_ptr())
+					as *mut crate::t_token;
+				if (shell.token).is_null() {
+					// return -(1);
+					continue;
+				}
+				if ((*shell.token).cmd_args).is_null() {
+					tokenizer::destroy_tokens::destroy_all_tokens(&mut shell);
+					// return -(1);
+					continue;
+				}
 			}
 			self::t_shell::create_tokens(&mut shell, trimmed_line);
 			dbg!(&shell.token_vec);

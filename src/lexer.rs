@@ -2,30 +2,73 @@ mod check_pipes;
 mod checks_basic;
 mod lexer_support;
 
-use crate::{
-	size_t, t_shell,
-	tokenizer::{build_tokens::tokenize, destroy_tokens::destroy_all_tokens},
-};
+use crate::{size_t, t_shell};
 use ::libc::{self, free};
 
 #[derive(Copy, Clone)]
 #[repr(C)]
-pub struct t_lexer {
-	pub singlequotes: libc::c_int,
-	pub doublequotes: libc::c_int,
-	pub open_curly_brackets: libc::c_int,
-	pub close_curly_brackets: libc::c_int,
-	pub open_square_brackets: libc::c_int,
-	pub close_square_brackets: libc::c_int,
-	pub open_parentheses: libc::c_int,
-	pub close_parentheses: libc::c_int,
-	pub redir_greater: libc::c_int,
-	pub redir_smaller: libc::c_int,
-	pub pipes: libc::c_int,
+pub struct t_lexer<'a> {
+	pub singlequotes: i32,
+	pub doublequotes: i32,
+	pub open_curly_brackets: i32,
+	pub close_curly_brackets: i32,
+	pub open_square_brackets: i32,
+	pub close_square_brackets: i32,
+	pub open_parentheses: i32,
+	pub close_parentheses: i32,
+	pub redir_greater: i32,
+	pub redir_smaller: i32,
+	pub pipes: i32,
 	pub ignore: *mut bool,
-	pub len: size_t,
-	pub lexer: libc::c_int,
+	pub len: usize,
+	pub lexer: i32,
 	pub result: bool,
+	pub trimmed_line: &'a str,
+	pub cstring: std::ffi::CString,
+}
+
+impl<'a> t_lexer<'a> {
+	pub fn new(trimmed_line: &'a str) -> Self {
+		let mut lexer = t_lexer {
+			singlequotes: 0,
+			doublequotes: 0,
+			open_curly_brackets: 0,
+			close_curly_brackets: 0,
+			open_square_brackets: 0,
+			close_square_brackets: 0,
+			open_parentheses: 0,
+			close_parentheses: 0,
+			redir_greater: 0,
+			redir_smaller: 0,
+			pipes: 0,
+			ignore: std::ptr::null_mut::<bool>(),
+			len: 0,
+			lexer: 0,
+			result: false,
+			trimmed_line,
+			cstring: std::ffi::CString::new(trimmed_line).unwrap(),
+		};
+		// declaring these as enum variants would be better ; |
+		for &c in trimmed_line.as_bytes() {
+			match c {
+				b'\'' => lexer.singlequotes += 1,
+				b'"' => lexer.doublequotes += 1,
+				b'{' => lexer.open_curly_brackets += 1,
+				b'}' => lexer.close_curly_brackets += 1,
+				b'[' => lexer.open_square_brackets += 1,
+				b']' => lexer.close_square_brackets += 1,
+				b'(' => lexer.open_parentheses += 1,
+				b')' => lexer.close_parentheses += 1,
+				b'<' => lexer.redir_smaller += 1,
+				b'>' => lexer.redir_greater += 1,
+				b'|' => lexer.pipes += 1,
+				_ => {}
+			}
+		}
+		lexer.ignore = std::ptr::null_mut::<bool>();
+		lexer.len = lexer.cstring.count_bytes();
+		lexer
+	}
 }
 use checks_basic::lexer_checks_basic;
 #[unsafe(no_mangle)]
@@ -33,7 +76,7 @@ pub unsafe fn run(shell: &mut t_shell, trimmed_line: &str) -> i32 {
 	if trimmed_line.is_empty() {
 		return 0;
 	}
-	let cstring = std::ffi::CString::new(trimmed_line).unwrap();
+	let mut lexer = t_lexer::new(trimmed_line);
 	let mut lex = lexer_checks_basic(cstring.as_ptr());
 	if !(*lex).result {
 		shell.exit_status = (*lex).lexer as u8;
@@ -41,14 +84,6 @@ pub unsafe fn run(shell: &mut t_shell, trimmed_line: &str) -> i32 {
 		return 1;
 	}
 	free(lex as *mut libc::c_void);
-	shell.token = tokenize(shell, cstring.as_ptr()) as *mut crate::t_token;
-	if (shell.token).is_null() {
-		return -(1);
-	}
-	if ((*shell.token).cmd_args).is_null() {
-		destroy_all_tokens(&mut (*shell));
-		return -(1);
-	}
 	0
 }
 
@@ -59,9 +94,6 @@ mod tests {
 
 	unsafe fn lexer_mock(trimmed_line: String) -> i32 {
 		assert!(!trimmed_line.is_empty());
-		// if *trimmed_line == 0 {
-		// 	return 0;
-		// }
 		let cstr = std::ffi::CString::new(trimmed_line).unwrap();
 		let mut lex = lexer_checks_basic(cstr.as_ptr());
 		if !(*lex).result {
