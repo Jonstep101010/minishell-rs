@@ -20,15 +20,11 @@ pub struct t_lexer<'a> {
 	pub pipes: i32,
 	pub ignore: *mut bool,
 	pub len: usize,
-	pub lexer: i32,
-	pub result: bool,
 	pub trimmed_line: &'a str,
 	pub cstring: std::ffi::CString,
 }
 
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct s_check_pipes {
+struct s_check_pipes {
 	pub flag_redir: i32,
 	pub flag_word: i32,
 	pub i: usize,
@@ -40,152 +36,147 @@ impl<'a> t_lexer<'a> {
 	/// returns ok or err, meaning newline
 	unsafe fn inner_while_quotes(&self, mut check: &mut s_check_pipes) -> Result<(), ()> {
 		let s = self.cstring.as_ptr();
-		(*check).flag_word = 0 as libc::c_int;
-		(*check).flag_redir = 0 as libc::c_int;
-		while *s.offset((*check).i as isize) as libc::c_int != 0
-			&& *s.offset((*check).i as isize) as libc::c_int != '|' as i32
-			&& !*((*self).ignore).offset((*check).i as isize)
+		check.flag_word = 0 as libc::c_int;
+		check.flag_redir = 0 as libc::c_int;
+		while *s.add(check.i) as libc::c_int != 0
+			&& *s.add(check.i) as libc::c_int != '|' as i32
+			&& !*((*self).ignore).add(check.i)
 		{
 			if !(ft_strchr(
 				b"><\0" as *const u8 as *const libc::c_char,
-				*s.offset((*check).i as isize) as libc::c_int,
+				*s.add(check.i) as libc::c_int,
 			))
-			.is_null() && ((*check).flag_redir == 0
-				|| *s.offset(((*check).i).wrapping_sub(1) as isize) as libc::c_int != 0
-					&& *s.offset(((*check).i).wrapping_sub(1) as isize) as libc::c_int
-						== *s.offset((*check).i as isize) as libc::c_int)
+			.is_null() && (check.flag_redir == 0
+				|| *s.offset((check.i).wrapping_sub(1) as isize) as libc::c_int != 0
+					&& *s.offset((check.i).wrapping_sub(1) as isize) as libc::c_int
+						== *s.add(check.i) as libc::c_int)
 			{
-				(*check).flag_redir = 1 as libc::c_int;
+				check.flag_redir = 1 as libc::c_int;
 			} else if !(ft_strchr(
 				b"><\0" as *const u8 as *const libc::c_char,
-				*s.offset((*check).i as isize) as libc::c_int,
+				*s.add(check.i) as libc::c_int,
 			))
 			.is_null()
 			{
 				eprint_msh!("syntax error near unexpected token `newline'");
 				return Err(());
-			} else if ft_isalnum(*s.offset((*check).i as isize) as libc::c_int) != 0 {
-				(*check).flag_redir = 0 as libc::c_int;
-				(*check).flag_word = 1 as libc::c_int;
+			} else if ft_isalnum(*s.add(check.i) as libc::c_int) != 0 {
+				check.flag_redir = 0 as libc::c_int;
+				check.flag_word = 1 as libc::c_int;
 			}
-			(*check).i = ((*check).i).wrapping_add(1);
+			check.i = (check.i).wrapping_add(1);
 		}
 		Ok(())
 	}
 	unsafe fn inner_if_quotes(&self, mut check: &mut s_check_pipes) -> Result<(), ()> {
 		let s = self.cstring.as_ptr();
-		if !*((*self).ignore).offset((*check).i as isize)
-			&& *s.offset((*check).i as isize) as libc::c_int == '|' as i32
-			&& !(*check).ignore
+		if !*((*self).ignore).add(check.i)
+			&& *s.add(check.i) as libc::c_int == '|' as i32
+			&& !check.ignore
 		{
-			if (*check).flag_word == 0 {
+			if check.flag_word == 0 {
 				eprint_msh!("syntax error near unexpected token `|'");
 				return Err(());
 			}
-			if (*s.offset((*check).i as isize) == 0
-				|| *s.offset((*check).i as isize) as libc::c_int == '|' as i32)
-				&& ((*check).flag_redir != 0 || (*check).flag_word == 0)
+			if (*s.add(check.i) == 0 || *s.add(check.i) as libc::c_int == '|' as i32)
+				&& (check.flag_redir != 0 || check.flag_word == 0)
 			{
 				eprint_msh!("syntax error near unexpected token `|'");
 				return Err(());
 			}
 		}
-		if *s.offset((*check).i as isize) as libc::c_int == '|' as i32 {
-			(*check).ignore = 0 as libc::c_int != 0;
+		if *s.add(check.i) as libc::c_int == '|' as i32 {
+			check.ignore = 0 as libc::c_int != 0;
 		}
 		Ok(())
 	}
-	unsafe fn check_pipes_redirection_quotes(
-		&mut self,
-		mut check: &mut s_check_pipes,
-	) -> Result<(), i32> {
+	unsafe fn check_pipes_redirection_quotes(&mut self) -> Result<(), i32> {
 		let s = self.cstring.as_ptr();
-		while (*check).i < (*self).len && !((*self).ignore).is_null() {
-			if !*((*self).ignore).offset((*check).i as isize)
-				&& (self.inner_while_quotes(check).is_err()
-					|| self.inner_if_quotes(&mut check).is_err())
-			{
-				return Err(2);
-			}
-			if *((*self).ignore).offset((*check).i as isize) {
-				(*check).ignore = 1 as libc::c_int != 0;
-				while *s.offset((*check).i as isize) as libc::c_int != 0
-					&& *((*self).ignore).offset((*check).i as isize) as libc::c_int != 0
-				{
-					(*check).i = ((*check).i).wrapping_add(1);
-				}
-			} else {
-				(*check).i = ((*check).i).wrapping_add(1);
-			}
-		}
-		if (*check).flag_redir != 0 && !(*check).ignore {
-			eprint_msh!("syntax error near unexpected token `newline'");
-			return Err(2);
-		}
-		Ok(())
-	}
-	unsafe fn inner_while_noquotes(&self, mut check: *mut s_check_pipes) -> Result<(), ()> {
-		let s = self.cstring.as_ptr();
-		while *s.offset((*check).i as isize) as libc::c_int != 0
-			&& *s.offset((*check).i as isize) as libc::c_int != '|' as i32
-		{
-			if !(ft_strchr(
-				b"><\0" as *const u8 as *const libc::c_char,
-				*s.offset((*check).i as isize) as libc::c_int,
-			))
-			.is_null() && ((*check).flag_redir == 0
-				|| *s.offset(((*check).i).wrapping_sub(1) as isize) as libc::c_int != 0
-					&& *s.offset(((*check).i).wrapping_sub(1) as isize) as libc::c_int
-						== *s.offset((*check).i as isize) as libc::c_int
-					&& (*s.offset(((*check).i).wrapping_sub(2) as isize) == 0
-						|| ft_isspace(
-							*s.offset(((*check).i).wrapping_sub(2) as isize) as libc::c_int
-						) != 0))
-			{
-				(*check).flag_redir = 1 as libc::c_int;
-			} else if !(ft_strchr(
-				b"><\0" as *const u8 as *const libc::c_char,
-				*s.offset((*check).i as isize) as libc::c_int,
-			))
-			.is_null()
-			{
-				eprint_msh!("syntax error near unexpected token `newline'");
-				return Err(());
-			} else if ft_isalnum(*s.offset((*check).i as isize) as libc::c_int) != 0 {
-				(*check).flag_redir = 0 as libc::c_int;
-				(*check).flag_word = 1 as libc::c_int;
-			}
-			(*check).i = ((*check).i).wrapping_add(1);
-		}
-		Ok(())
-	}
-
-	pub unsafe fn check_pipes_redirection(&mut self) -> Result<(), i32> {
 		let mut check: s_check_pipes = s_check_pipes {
 			flag_redir: 0,
 			flag_word: 0,
 			i: 0,
 			ignore: false,
 		};
+		if !(self.ignore.is_null()) {
+			while (check).i < (*self).len {
+				if !*((*self).ignore).add(check.i) {
+					if self.inner_while_quotes(&mut check).is_err()
+						|| self.inner_if_quotes(&mut check).is_err()
+					{
+						return Err(2);
+					}
+				}
+				if *((*self).ignore).add(check.i) {
+					check.ignore = true;
+					while *s.add(check.i) as libc::c_int != 0
+						&& *((*self).ignore).add(check.i) as libc::c_int != 0
+					{
+						check.i = (check.i).wrapping_add(1);
+					}
+				} else {
+					check.i = (check).i.wrapping_add(1);
+				}
+			}
+		}
+		if check.flag_redir != 0 && !check.ignore {
+			eprint_msh!("syntax error near unexpected token `newline'");
+			return Err(2);
+		}
+		Ok(())
+	}
+	unsafe fn inner_while_noquotes(&self, mut check: &mut s_check_pipes) -> Result<(), ()> {
 		let s = self.cstring.as_ptr();
-		if *s as libc::c_int == '|' as i32
-			|| *s.offset(((*self).len).wrapping_sub(1) as isize) as libc::c_int == '|' as i32
-		{
+		while *s.add(check.i) as libc::c_int != 0 && *s.add(check.i) as libc::c_int != '|' as i32 {
+			if !(ft_strchr(
+				b"><\0" as *const u8 as *const libc::c_char,
+				*s.add(check.i) as libc::c_int,
+			))
+			.is_null() && (check.flag_redir == 0
+				|| *s.offset((check.i).wrapping_sub(1) as isize) as libc::c_int != 0
+					&& *s.offset((check.i).wrapping_sub(1) as isize) as libc::c_int
+						== *s.add(check.i) as libc::c_int
+					&& (*s.offset((check.i).wrapping_sub(2) as isize) == 0
+						|| ft_isspace(*s.offset((check.i).wrapping_sub(2) as isize) as libc::c_int)
+							!= 0))
+			{
+				check.flag_redir = 1 as libc::c_int;
+			} else if !(ft_strchr(
+				b"><\0" as *const u8 as *const libc::c_char,
+				*s.add(check.i) as libc::c_int,
+			))
+			.is_null()
+			{
+				eprint_msh!("syntax error near unexpected token `newline'");
+				return Err(());
+			} else if ft_isalnum(*s.add(check.i) as libc::c_int) != 0 {
+				check.flag_redir = 0 as libc::c_int;
+				check.flag_word = 1 as libc::c_int;
+			}
+			check.i = (check.i).wrapping_add(1);
+		}
+		Ok(())
+	}
+
+	unsafe fn check_pipes_redirection(&mut self) -> Result<(), i32> {
+		let mut check: s_check_pipes = s_check_pipes {
+			flag_redir: 0,
+			flag_word: 0,
+			i: 0,
+			ignore: false,
+		};
+		if self.trimmed_line.starts_with('|') || self.trimmed_line.ends_with('|') {
 			eprint_msh!("syntax error near unexpected token `|'");
 			return Err(2);
 		}
-		if !(ft_strchr(
-			b"<>\0" as *const u8 as *const libc::c_char,
-			*s.offset(((*self).len).wrapping_sub(1) as isize) as libc::c_int,
-		))
-		.is_null()
-		{
+		if self.trimmed_line.ends_with(|c| "<>".contains(c)) {
 			eprint_msh!("syntax error near unexpected token `newline'");
 			return Err(2);
 		}
 		if !((*self).ignore).is_null() {
-			return self.check_pipes_redirection_quotes(&mut check);
+			return self.check_pipes_redirection_quotes();
 		}
+		let s = self.cstring.as_ptr();
 		while check.i < (*self).len {
 			check = {
 				s_check_pipes {
@@ -202,8 +193,7 @@ impl<'a> t_lexer<'a> {
 				eprint_msh!("syntax error near unexpected token `|'");
 				return Err(2);
 			}
-			if (*s.offset(check.i as isize) == 0
-				|| *s.offset(check.i as isize) as libc::c_int == '|' as i32)
+			if (*s.offset(check.i as isize) as libc::c_int == '|' as i32)
 				&& (check.flag_redir != 0 || check.flag_word == 0)
 			{
 				eprint_msh!("syntax error near unexpected token `|'");
@@ -236,8 +226,6 @@ impl<'a> t_lexer<'a> {
 			pipes: 0,
 			ignore: std::ptr::null_mut::<bool>(),
 			len: 0,
-			lexer: 0,
-			result: false,
 			trimmed_line,
 			cstring: std::ffi::CString::new(trimmed_line).unwrap(),
 		};
@@ -259,7 +247,6 @@ impl<'a> t_lexer<'a> {
 				_ => {}
 			}
 		}
-		lexer.ignore = std::ptr::null_mut::<bool>();
 		lexer.len = lexer.cstring.count_bytes();
 		lexer
 	}
