@@ -19,7 +19,7 @@ pub unsafe fn bool_arr_zeroing(mut len: size_t) -> *mut bool {
 	ignore
 }
 
-trait BoolArray {
+pub trait BoolArray {
 	// fn zeroing_nul(len: usize) -> Self;
 	fn zeroing(len: usize) -> Self;
 	// fn range_ignore(s: &[u8], ignore: &mut Self, c: u8);

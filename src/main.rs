@@ -83,7 +83,8 @@ unsafe fn main_0() -> libc::c_int {
 				continue;
 			}
 			str_add_history(trimmed_line);
-			if crate::lexer::run(&mut shell, trimmed_line) != 0 as libc::c_int {
+			if let Err(status) = crate::lexer::t_lexer::run(trimmed_line) {
+				shell.exit_status = status as u8;
 				continue;
 			} else {
 				let cstring = std::ffi::CString::new(trimmed_line).unwrap();

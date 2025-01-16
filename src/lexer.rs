@@ -1,6 +1,4 @@
-use crate::{eprint_msh, t_shell};
-use ::libc;
-use ::libc::free;
+use crate::eprint_msh;
 
 #[derive(Clone)]
 #[repr(C)]
@@ -16,7 +14,7 @@ pub struct t_lexer<'a> {
 	pub redir_greater: i32,
 	pub redir_smaller: i32,
 	pub pipes: i32,
-	pub ignore: *mut bool,
+	pub ignore: Option<Box<[bool]>>, // for this purpose same as Vec<bool>
 	pub len_nul: usize,
 	pub trimmed_line: &'a str,
 	pub cstring: std::ffi::CString,
@@ -36,15 +34,15 @@ impl<'a> t_lexer<'a> {
 			ignore: false,
 		};
 		let mut i = 0;
-		let bytes = self.trimmed_line.as_bytes();
-		if !(self.ignore.is_null()) {
+		let bytes = self.cstring.as_bytes_with_nul();
+		if self.ignore.is_some() {
 			while i < self.len_nul - 1 {
-				if unsafe { !*(self.ignore).add(i) } && {
+				if !(self.ignore.as_ref().unwrap())[i] && {
 					check.flag_word = 0;
 					check.flag_redir = 0;
 					while i < self.len_nul - 1
 						&& bytes[i] != b'|'
-						&& unsafe { !*(self.ignore).add(i) }
+						&& !(self.ignore.as_ref().unwrap())[i]
 					{
 						if (bytes[i] == b'>' || bytes[i] == b'<')
 							&& (check.flag_redir == 0 || (i > 0) && bytes[i - 1] == bytes[i])
@@ -62,7 +60,7 @@ impl<'a> t_lexer<'a> {
 					false
 				} || {
 					// inner if quotes
-					if unsafe { !*(self.ignore).add(i) } && bytes[i] == b'|' && !check.ignore {
+					if !((self.ignore.as_ref()).unwrap()[i]) && bytes[i] == b'|' && !check.ignore {
 						if check.flag_word == 0 {
 							eprint_msh!("syntax error near unexpected token `|'");
 							return Err(2);
@@ -77,11 +75,9 @@ impl<'a> t_lexer<'a> {
 					}
 					false
 				} {}
-				if unsafe { *(self.ignore).add(i) } {
+				if (self.ignore.as_ref()).unwrap()[i] {
 					check.ignore = true;
-					while i < self.len_nul - 1
-						&& unsafe { *(self.ignore).add(i) } as libc::c_int != 0
-					{
+					while i < self.len_nul - 1 && (self.ignore.as_ref()).unwrap()[i] == true {
 						i = (i).wrapping_add(1);
 					}
 				} else {
@@ -105,7 +101,7 @@ impl<'a> t_lexer<'a> {
 			eprint_msh!("syntax error near unexpected token `newline'");
 			return Err(2);
 		}
-		if !(self.ignore).is_null() {
+		if (self.ignore).is_some() {
 			return self.check_pipes_redirection_quotes();
 		}
 		let bytes = self.trimmed_line.as_bytes();
@@ -158,7 +154,7 @@ impl<'a> t_lexer<'a> {
 		}
 		Ok(())
 	}
-	pub fn new(trimmed_line: &'a str) -> Self {
+	fn new(trimmed_line: &'a str) -> Self {
 		let mut lexer = t_lexer {
 			singlequotes: 0,
 			doublequotes: 0,
@@ -171,13 +167,13 @@ impl<'a> t_lexer<'a> {
 			redir_greater: 0,
 			redir_smaller: 0,
 			pipes: 0,
-			ignore: std::ptr::null_mut::<bool>(),
+			ignore: None,
 			len_nul: 0,
 			trimmed_line,
 			cstring: std::ffi::CString::new(trimmed_line).unwrap(),
 		};
 		// declaring these as enum variants would be better ; |
-		for &c in trimmed_line.as_bytes() {
+		for &c in lexer.cstring.as_bytes() {
 			// replaces count_number
 			match c {
 				b'\'' => lexer.singlequotes += 1,
@@ -197,21 +193,6 @@ impl<'a> t_lexer<'a> {
 		lexer.len_nul = lexer.cstring.count_bytes();
 		lexer
 	}
-	///
-	/// uses `bool_array`
-	unsafe fn ignore_quotes(&mut self) {
-		self.ignore = crate::utils::bool_array::bool_arr_zeroing(self.len_nul as u64);
-		crate::utils::bool_array::range_ignore_ptr(
-			self.cstring.as_ptr(),
-			self.ignore,
-			'"' as i32 as libc::c_uchar,
-		);
-		crate::utils::bool_array::range_ignore_ptr(
-			self.cstring.as_ptr(),
-			self.ignore,
-			'\'' as i32 as libc::c_uchar,
-		);
-	}
 	fn check_quotes(&mut self) -> Result<i32, i32> {
 		if self.singlequotes == 1 {
 			eprintln!("syntax error near unexpected token '''");
@@ -226,9 +207,19 @@ impl<'a> t_lexer<'a> {
 			return Err(1);
 		}
 		if self.singlequotes > 0 || self.doublequotes > 0 {
-			unsafe {
-				self.ignore_quotes();
-			}
+			// ignore_quotes
+			use crate::utils::bool_array::{BoolArray, bool_arr_zeroing_box};
+			self.ignore = Some(bool_arr_zeroing_box(self.len_nul));
+			BoolArray::range_ignore(
+				self.cstring.as_bytes_with_nul(),
+				self.ignore.as_mut().unwrap(),
+				b'"',
+			);
+			BoolArray::range_ignore(
+				self.cstring.as_bytes_with_nul(),
+				self.ignore.as_mut().unwrap(),
+				b'\'',
+			);
 		}
 		Ok(0)
 	}
@@ -239,31 +230,16 @@ impl<'a> t_lexer<'a> {
 				Err(_e) => {
 					// map error printing in future
 					// free the ignore
-					unsafe { free(self.ignore as *mut libc::c_void) };
 					return Err(2);
 				}
 				Ok(_) => {}
 			}
 		}
-		unsafe { free(self.ignore as *mut libc::c_void) };
 		Ok(0)
 	}
-}
-
-pub fn run(shell: &mut t_shell, trimmed_line: &str) -> i32 {
-	if trimmed_line.is_empty() {
-		return 0;
-	}
-	let mut lexer = t_lexer::new(trimmed_line);
-	match t_lexer::checks_basic(&mut lexer) {
-		Ok(0) => 0,
-		Err(status_result) => {
-			shell.exit_status = status_result as u8;
-			1
-		}
-		Ok(_) => {
-			unreachable!("this should contain the lexing result!")
-		}
+	pub fn run(trimmed_line: &str) -> Result<i32, i32> {
+		let mut lexer = t_lexer::new(trimmed_line);
+		t_lexer::checks_basic(&mut lexer)
 	}
 }
 
@@ -272,15 +248,6 @@ mod tests {
 	use super::*;
 	use rstest::{fixture, rstest};
 
-	unsafe fn lexer_mock(trimmed_line: String) -> i32 {
-		assert!(!trimmed_line.is_empty());
-		let mut lex = t_lexer::new(&trimmed_line);
-		if t_lexer::checks_basic(&mut lex).is_err() {
-			1
-		} else {
-			0
-		}
-	}
 	#[rstest]
 	#[case("echo \"|\"")]
 	#[case("echo '|'")]
@@ -340,9 +307,7 @@ mod tests {
 	#[case("cat << delim | > outfile")]
 	#[fixture]
 	fn lexer_success(#[case] input: &str) {
-		unsafe {
-			assert_eq!(0, lexer_mock(input.to_string()));
-		}
+		assert_eq!(Ok(0), t_lexer::run(input));
 	}
 	#[rstest]
 	#[case("ls > outfile >")]
@@ -394,8 +359,6 @@ mod tests {
 	#[case("> tmpfile > midfile >")]
 	#[fixture]
 	fn lexer_failure(#[case] input: &str) {
-		unsafe {
-			assert_eq!(1, lexer_mock(input.to_string()));
-		}
+		assert!(t_lexer::run(input).is_err());
 	}
 }
