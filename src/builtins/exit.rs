@@ -44,9 +44,9 @@ unsafe fn check_exit_code(command: *mut *const c_char) -> bool {
 
 #[allow(unused_mut)]
 #[unsafe(no_mangle)]
-pub unsafe fn builtin_exit(mut shell: *mut t_shell, mut code_nullable: *mut t_token) -> c_int {
+pub unsafe fn builtin_exit(mut shell: &mut t_shell, mut code_nullable: *mut t_token) -> c_int {
 	let mut command: *mut *const c_char = get_cmd_arr_token(code_nullable) as *mut *const c_char;
-	let mut exit_code: u8 = (*shell).exit_status;
+	let mut exit_code: u8 = shell.exit_status;
 	if !code_nullable.is_null() && !command.is_null() {
 		if !(*command.offset(1)).is_null() {
 			if **command.offset(1) == 0 {

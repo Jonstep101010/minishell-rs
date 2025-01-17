@@ -52,7 +52,7 @@ unsafe fn echo_default(cmd_args: *const *const c_char) {
 
 #[allow(unused_mut)]
 #[unsafe(no_mangle)]
-pub unsafe fn echo(mut _nullable: *mut t_shell, mut token: *mut t_token) -> libc::c_int {
+pub unsafe fn echo(mut _nullable: &mut t_shell, mut token: *mut t_token) -> i32 {
 	let args: *mut *const c_char =
 		crate::tokenizer::build_command::get_cmd_arr_token(token) as *mut *const c_char;
 	if !(*args.add(1)).is_null() {

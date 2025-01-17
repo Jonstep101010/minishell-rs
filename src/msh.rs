@@ -10,8 +10,7 @@ impl t_token {
 			tmp_arr: std::ptr::null_mut::<*mut libc::c_char>(),
 			bin: std::ffi::CString::new("").unwrap(),
 			cmd_func: Some(
-				execution::exec_bin::exec_bin
-					as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int,
+				execution::exec_bin::exec_bin as unsafe fn(&mut t_shell, *mut t_token) -> i32,
 			),
 			split_non_quoted,
 		}
@@ -62,7 +61,7 @@ pub struct t_token {
 	pub split_pipes: *mut libc::c_char,  // String
 	pub tmp_arr: *mut *mut libc::c_char, // Vec<String>
 	pub bin: std::ffi::CString,          // String
-	pub cmd_func: Option<unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int>, // fn
+	pub cmd_func: Option<unsafe fn(&mut t_shell, *mut t_token) -> i32>, // fn
 	pub split_non_quoted: String,
 }
 
@@ -90,8 +89,7 @@ pub enum e_redir {
 	HEREDOC = 4,
 }
 
-pub type t_cmd_func_builtin =
-	Option<unsafe fn(*mut crate::msh::t_shell, *mut t_token) -> libc::c_int>;
+pub type t_cmd_func_builtin = Option<unsafe fn(&mut t_shell, *mut t_token) -> i32>;
 
 #[derive(Copy, Clone)]
 #[repr(C)]

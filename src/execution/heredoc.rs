@@ -11,20 +11,20 @@ use crate::environment::Env;
 use crate::{e_redir, prelude::*, t_token};
 
 #[unsafe(no_mangle)]
-pub static mut g_ctrl_c: libc::c_int = 0 as libc::c_int;
+pub static mut g_ctrl_c: i32 = 0_i32;
 #[unsafe(no_mangle)]
-unsafe fn heredoc_loop(mut delim: *mut libc::c_char, mut fd: libc::c_int, env: &Env) {
-	g_ctrl_c = 0 as libc::c_int;
-	while 1 as libc::c_int != 0 && g_ctrl_c == 0 {
+unsafe fn heredoc_loop(mut delim: *mut libc::c_char, mut fd: i32, env: &Env) {
+	g_ctrl_c = 0_i32;
+	while 1_i32 != 0 && g_ctrl_c == 0 {
 		let line = crate::utils::rust_readline::str_readline("> ");
 		if line.is_none() {
-			g_ctrl_c = 0 as libc::c_int;
+			g_ctrl_c = 0_i32;
 			break;
 		}
 		let line = line.unwrap();
 		let cstr_line = CString::new(line).unwrap();
 		if !(equal(delim, cstr_line.as_ptr())).is_null() || g_ctrl_c != 0 {
-			g_ctrl_c = 0 as libc::c_int;
+			g_ctrl_c = 0_i32;
 			break;
 		}
 		if let Some(expanded) = crate::environment::expander::expander(&cstr_line, env) {
@@ -41,15 +41,15 @@ unsafe fn heredoc_loop(mut delim: *mut libc::c_char, mut fd: libc::c_int, env: &
 	}
 }
 #[unsafe(no_mangle)]
-pub unsafe fn do_heredocs(mut token: *mut t_token, mut target: *mut libc::c_int, env: &Env) {
-	let mut i: libc::c_int = -1;
+pub unsafe fn do_heredocs(mut token: *mut t_token, mut target: *mut i32, env: &Env) {
+	let mut i: i32 = -1;
 	loop {
 		i += 1;
 		if ((*((*token).cmd_args).offset(i as isize)).elem).is_null() {
 			break;
 		}
 		if (*((*token).cmd_args).offset(i as isize)).redir as libc::c_uint
-			== e_redir::HEREDOC as libc::c_int as libc::c_uint
+			== e_redir::HEREDOC as i32 as libc::c_uint
 		{
 			let oflags = OFlag::O_RDWR | OFlag::O_CREAT | OFlag::O_TRUNC;
 			let mode = Mode::from_bits(0o644).expect("Invalid mode");

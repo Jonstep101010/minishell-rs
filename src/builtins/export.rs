@@ -14,13 +14,13 @@ fn declare_x(env: &Env) {
 }
 
 #[unsafe(no_mangle)]
-pub unsafe fn builtin_export(mut shell: *mut t_shell, mut token: *mut t_token) -> libc::c_int {
+pub unsafe fn builtin_export(mut shell: &mut t_shell, mut token: *mut t_token) -> i32 {
 	let mut command: *mut *const libc::c_char =
 		get_cmd_arr_token(token) as *mut *const libc::c_char;
 	let mut i: size_t = 1;
 	if command.is_null() || (*command.offset(i as isize)).is_null() {
 		arr_free(command as *mut *mut libc::c_char);
-		declare_x(&(*shell).env);
+		declare_x(&shell.env);
 		return 0;
 	}
 	while !(*command.offset(i as isize)).is_null() {
@@ -30,18 +30,18 @@ pub unsafe fn builtin_export(mut shell: *mut t_shell, mut token: *mut t_token) -
 
 			eprint_msh!("export: `{}': not a valid identifier", faulty_identifier);
 			arr_free(command as *mut *mut libc::c_char);
-			return 1 as libc::c_int;
+			return 1_i32;
 		}
-		if str_cchr(*command.offset(i as isize), '=' as i32 as libc::c_char) >= 1 as libc::c_int {
+		if str_cchr(*command.offset(i as isize), '=' as i32 as libc::c_char) >= 1_i32 {
 			let kv = i8const_str(command, i);
 			let (key, value) = kv.split_once('=').unwrap();
-			(*shell).env.export(key, value.to_string())
+			shell.env.export(key, value.to_string())
 		}
 		i = i.wrapping_add(1);
 	}
 	arr_free(command as *mut *mut libc::c_char);
-	if i > 1 as libc::c_int as libc::c_ulong {
-		return 0 as libc::c_int;
+	if i > 1_i32 as libc::c_ulong {
+		return 0_i32;
 	}
-	1 as libc::c_int
+	1_i32
 }

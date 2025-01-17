@@ -10,7 +10,7 @@ use crate::{
 };
 
 use super::bin_path::get_path_prefixed;
-// unsafe fn execve_fail(mut shell: *mut t_shell, cmd: &CStr) {
+// unsafe fn execve_fail(mut shell: &mut t_shell, cmd: &CStr) {
 // let err = CStr::from_ptr(where_it_happened);
 // let err: &str = err.to_str().unwrap();
 // eprint_msh!("{}{}", cmd.to_str().unwrap(), err);
@@ -19,14 +19,14 @@ use super::bin_path::get_path_prefixed;
 // exit(where_it_happened);
 // }
 #[unsafe(no_mangle)]
-pub unsafe fn exec_bin(mut shell: *mut t_shell, mut token: *mut t_token) -> libc::c_int {
+pub unsafe fn exec_bin(mut shell: &mut t_shell, mut token: *mut t_token) -> i32 {
 	// @note this might be a good candidate for implementing a rust version of the function
 	let mut command: *mut *const libc::c_char =
 		get_cmd_arr_token(token) as *mut *const libc::c_char;
 	if command.is_null() {
 		exit_free(shell, 0);
 	}
-	let env = &(*shell).env;
+	let env = &shell.env;
 	if !(*command).is_null() {
 		let (mut access_status, path_prefixed_bin) =
 			get_path_prefixed(env, std::ffi::CStr::from_ptr(*command));
@@ -38,7 +38,7 @@ pub unsafe fn exec_bin(mut shell: *mut t_shell, mut token: *mut t_token) -> libc
 			if access_status == 126
 				&& (ft_strchr(
 					b"~/\0" as *const u8 as *const libc::c_char,
-					**command as libc::c_int,
+					**command as i32,
 				))
 				.is_null()
 			{
@@ -56,18 +56,18 @@ pub unsafe fn exec_bin(mut shell: *mut t_shell, mut token: *mut t_token) -> libc
 		if libc::execve(
 			(*token).bin.as_ptr(),
 			command as *mut *mut libc::c_char as *const *const libc::c_char,
-			(*shell).env.as_ptr_array().as_ptr(),
-		) == -(1 as libc::c_int)
+			shell.env.as_ptr_array().as_ptr(),
+		) == -1_i32
 		{
 			arr_free(command as *mut *mut libc::c_char);
 			todo!("handle execve_fail");
 			// execve_fail(shell, (*token).bin.as_c_str());
 		}
 		arr_free(command as *mut *mut libc::c_char);
-		exit_free(shell, 0 as libc::c_int);
-		return 0 as libc::c_int;
+		exit_free(shell, 0_i32);
+		return 0_i32;
 	}
 	arr_free(command as *mut *mut libc::c_char);
 	exit_free(shell, 1);
-	1 as libc::c_int
+	1_i32
 }

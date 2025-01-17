@@ -30,12 +30,11 @@ unsafe fn expand_if_allowed(
 	mut ii: size_t,
 	env: &Env,
 ) -> *mut libc::c_void {
-	if (*token).cmd_func
-		!= Some(builtin_env as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int)
+	if (*token).cmd_func != Some(builtin_env as unsafe fn(&mut t_shell, *mut t_token) -> i32)
 		&& str_cchr(
 			(*((*token).cmd_args).offset(ii as isize)).elem,
 			'$' as i32 as libc::c_char,
-		) != 0 as libc::c_int
+		) != 0_i32
 	{
 		// we know this is non-null
 		let c_str = CStr::from_ptr((*((*token).cmd_args).offset(ii as isize)).elem);
@@ -53,7 +52,7 @@ unsafe fn expand_if_allowed(
 				ft_strlen(tmp.as_ptr())
 			} else {
 				ft_strlen((*((*token).cmd_args).offset(ii as isize)).elem)
-			}) == 0 as libc::c_int as libc::c_ulong) as libc::c_int as size_t,
+			}) == 0_i32 as libc::c_ulong) as i32 as size_t,
 		) != 0
 		{
 			// we need to make sure we do not free using free @audit
@@ -113,26 +112,26 @@ unsafe fn rm_quotes(mut cmd_arg: *mut t_arg) {
 
 #[unsafe(no_mangle)]
 pub unsafe fn tokenize(
-	mut shell: *mut t_shell,
+	mut shell: &mut t_shell,
 	mut trimmed_line: *const libc::c_char,
 ) -> *mut libc::c_void {
 	let mut i = 0;
-	(*shell).token = get_tokens(trimmed_line);
-	if ((*shell).token).is_null() {
+	shell.token = get_tokens(trimmed_line);
+	if (shell.token).is_null() {
 		return std::ptr::null_mut::<libc::c_void>();
 	}
 	let mut token_len: usize = 0;
-	while !((*((*shell).token).add(token_len)).split_pipes).is_null() {
+	while !((*(shell.token).add(token_len)).split_pipes).is_null() {
 		token_len = token_len.wrapping_add(1);
 	}
-	let shell_env = &(*shell).env;
+	let shell_env = &shell.env;
 	while i < token_len {
-		if setup_token(&mut *((*shell).token).add(i), shell_env).is_null() {
+		if setup_token(&mut *(shell.token).add(i), shell_env).is_null() {
 			destroy_all_tokens(&mut (*shell));
 			return std::ptr::null_mut::<libc::c_void>();
 		}
 		{
-			let mut token: *mut t_token = &mut *((*shell).token).add(i);
+			let mut token: *mut t_token = &mut *(shell.token).add(i);
 			if check_redirections((*token).cmd_args) {
 				(*token).has_redir = true;
 				parse_redir_types((*token).cmd_args);
@@ -141,7 +140,7 @@ pub unsafe fn tokenize(
 			let mut ii = 0;
 			while !((*((*token).cmd_args).add(ii)).elem).is_null() {
 				if (*((*token).cmd_args).add(ii)).type_0 as libc::c_uint
-					!= e_arg::REDIR as libc::c_int as libc::c_uint
+					!= e_arg::REDIR as i32 as libc::c_uint
 				{
 					break;
 				}
@@ -153,6 +152,6 @@ pub unsafe fn tokenize(
 		};
 		i = i.wrapping_add(1);
 	}
-	(*shell).token_len = Some(token_len);
-	(*shell).token as *mut libc::c_void
+	shell.token_len = Some(token_len);
+	shell.token as *mut libc::c_void
 }

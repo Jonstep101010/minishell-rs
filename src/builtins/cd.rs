@@ -54,7 +54,7 @@ fn cd_internal(opt_cmd_args: Option<&str>, env: &mut Env) -> bool {
 
 #[allow(unused_mut)]
 #[unsafe(no_mangle)]
-pub unsafe fn builtin_cd(mut shell: *mut t_shell, mut token: *mut t_token) -> libc::c_int {
+pub unsafe fn builtin_cd(mut shell: &mut t_shell, mut token: *mut t_token) -> i32 {
 	let mut command: *mut *const libc::c_char =
 		get_cmd_arr_token(token) as *mut *const libc::c_char;
 	let cmd_args = *command.offset(1);
@@ -64,8 +64,8 @@ pub unsafe fn builtin_cd(mut shell: *mut t_shell, mut token: *mut t_token) -> li
 	} else {
 		Some(CStr::from_ptr(cmd_args).to_str().unwrap())
 	};
-	let mut shell_env: &mut Env = &mut (*shell).env;
+	let mut shell_env: &mut Env = &mut shell.env;
 	let status = cd_internal(opt_cmd_args, shell_env);
 	arr_free(command as *mut *mut libc::c_char);
-	!status as libc::c_int
+	!status as i32
 }

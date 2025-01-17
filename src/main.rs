@@ -68,10 +68,10 @@ pub mod utils {
 pub mod msh;
 pub use prelude::*;
 
-unsafe fn main_0() -> libc::c_int {
-	// let mut shell: *mut t_shell = utils::init_shell::init_shell();
+unsafe fn main_0() -> i32 {
+	// let mut shell: &mut t_shell = utils::init_shell::init_shell();
 	// if shell.is_null() {
-	// 	return 1 as libc::c_int;
+	// 	return 1 as i32;
 	// }
 	let mut shell = t_shell::new();
 	// check signals
@@ -103,7 +103,7 @@ unsafe fn main_0() -> libc::c_int {
 			self::t_shell::create_tokens(&mut shell, trimmed_line);
 			dbg!(&shell.token_vec);
 			if !(shell.token).is_null() {
-				execution::execute_commands(&mut shell, shell.token);
+				execution::execute_commands(&mut shell);
 			}
 		} else {
 			builtins::exit::builtin_exit(&mut shell, std::ptr::null_mut::<t_token>());
@@ -111,5 +111,5 @@ unsafe fn main_0() -> libc::c_int {
 	}
 }
 pub fn main() {
-	unsafe { ::std::process::exit(main_0() as i32) }
+	unsafe { ::std::process::exit(main_0()) }
 }
