@@ -34,7 +34,7 @@ unsafe fn expand_if_allowed(
 		&& str_cchr(
 			(*((*token).cmd_args).add(ii)).elem,
 			'$' as i32 as libc::c_char,
-		) != 0_i32
+		) != 0
 	{
 		// we know this is non-null
 		let c_str = CStr::from_ptr((*((*token).cmd_args).add(ii)).elem);
@@ -50,7 +50,7 @@ unsafe fn expand_if_allowed(
 				ft_strlen(tmp.as_ptr())
 			} else {
 				ft_strlen((*((*token).cmd_args).add(ii)).elem)
-			}) == 0_i32 as libc::c_ulong) as i32 as size_t,
+			}) == 0 as libc::c_ulong) as i32 as size_t,
 		) != 0
 		{
 			// we need to make sure we do not free using free @audit

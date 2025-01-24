@@ -9,5 +9,5 @@ pub unsafe fn builtin_pwd(mut shell: &mut t_shell, mut _token_nullable: *mut t_t
 		let pwd = nix::unistd::getcwd().unwrap();
 		println!("{}", pwd.display());
 	}
-	0_i32
+	0
 }

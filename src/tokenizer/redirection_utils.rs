@@ -83,35 +83,35 @@ pub unsafe fn check_redirections(mut cmd_args: *mut t_arg) -> bool {
 		if ft_strncmp(
 			(*cmd_args.add(ii)).elem,
 			b">>\0" as *const u8 as *const libc::c_char,
-			2_i32 as size_t,
-		) == 0_i32
+			2 as size_t,
+		) == 0
 		{
 			(*cmd_args.add(ii)).redir = e_redir::APPEND;
 		} else if ft_strncmp(
 			(*cmd_args.add(ii)).elem,
 			b">\0" as *const u8 as *const libc::c_char,
-			1_i32 as size_t,
-		) == 0_i32
+			1 as size_t,
+		) == 0
 		{
 			(*cmd_args.add(ii)).redir = e_redir::OUTPUT_REDIR;
 		} else if ft_strncmp(
 			(*cmd_args.add(ii)).elem,
 			b"<<\0" as *const u8 as *const libc::c_char,
-			2_i32 as size_t,
-		) == 0_i32
+			2 as size_t,
+		) == 0
 		{
 			(*cmd_args.add(ii)).redir = e_redir::HEREDOC;
 		} else if ft_strncmp(
 			(*cmd_args.add(ii)).elem,
 			b"<\0" as *const u8 as *const libc::c_char,
-			1_i32 as size_t,
-		) == 0_i32
+			1 as size_t,
+		) == 0
 		{
 			(*cmd_args.add(ii)).redir = e_redir::INPUT_REDIR;
 		}
 		if (*cmd_args.add(ii)).redir as libc::c_uint != e_redir::NO_REDIR as i32 as libc::c_uint {
 			set_type_redir(&mut *cmd_args.add(ii));
-			redir = 1_i32 != 0;
+			redir = 1 != 0;
 		}
 		ii += 1;
 	}

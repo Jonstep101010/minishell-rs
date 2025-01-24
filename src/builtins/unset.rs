@@ -17,7 +17,7 @@ unsafe fn check_illegal_char(mut str: *const libc::c_char) -> bool {
 		))
 		.is_null()
 		{
-			return 1_i32 != 0;
+			return 1 != 0;
 		}
 		str = str.add(1);
 	}
@@ -28,11 +28,11 @@ unsafe fn check_illegal_char(mut str: *const libc::c_char) -> bool {
 pub unsafe fn builtin_unset(mut shell: &mut t_shell, mut token: *mut t_token) -> i32 {
 	let mut args: *mut *const libc::c_char = get_cmd_arr_token(token) as *mut *const libc::c_char;
 	if args.is_null() {
-		return 0_i32;
+		return 0;
 	}
 	if (*args).is_null() || (*args.add(1)).is_null() || **args.add(1) == 0 {
 		arr_free(args as *mut *mut libc::c_char);
-		return 0_i32;
+		return 0;
 	}
 	let mut status: i32 = {
 		let mut args: *const *const libc::c_char = args.add(1);
@@ -41,19 +41,19 @@ pub unsafe fn builtin_unset(mut shell: &mut t_shell, mut token: *mut t_token) ->
 			if !check_valid_key(*args) || check_illegal_char(*args) as i32 != 0 {
 				let faulty = i8const_str(args, 0);
 				eprint_msh!("unset: `{faulty}': not a valid identifier");
-				return 1_i32;
+				return 1;
 			}
 			let rm_key = i8const_str(args, 0);
 			if let Some(key) = env.remove(rm_key) {
 				println!("unset: {}", key);
 			} else {
 				eprint_msh!("unset: `{}': not a valid identifier", rm_key);
-				return 1_i32;
+				return 1;
 			}
 			// remove an element from the environment
 			args = args.add(1);
 		}
-		0_i32
+		0
 	};
 	arr_free(args as *mut *mut libc::c_char);
 	status

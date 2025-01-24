@@ -27,7 +27,7 @@ pub unsafe fn execute_commands(mut shell: &mut t_shell) {
 	let mut error_elem: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	let mut token = shell.token;
 	if token.is_null() {
-		shell.exit_status = -1_i32 as u8;
+		shell.exit_status = u8::MAX;
 		return;
 	}
 	shell.token_len = match memsize(
@@ -40,7 +40,7 @@ pub unsafe fn execute_commands(mut shell: &mut t_shell) {
 	};
 	if shell.token_len == Some(1) && !forkable_builtin(token) {
 		let mut redir_status = do_redirections((*token).cmd_args, &mut error_elem);
-		if redir_status != 0_i32 {
+		if redir_status != 0 {
 			if error_elem.is_null() {
 				todo!("check the conditions!");
 				// panic!("error_elem is null");

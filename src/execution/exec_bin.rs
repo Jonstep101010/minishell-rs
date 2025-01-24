@@ -58,7 +58,7 @@ pub unsafe fn exec_bin(mut shell: &mut t_shell, mut token: *mut t_token) -> i32 
 			(*token).bin.as_ptr(),
 			command as *mut *mut libc::c_char as *const *const libc::c_char,
 			shell.env.as_ptr_array().as_ptr(),
-		) == -1_i32
+		) == -1
 		{
 			arr_free(command as *mut *mut libc::c_char);
 			todo!("handle execve_fail");

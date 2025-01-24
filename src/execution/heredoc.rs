@@ -11,20 +11,20 @@ use crate::environment::Env;
 use crate::{e_redir, prelude::*, t_token};
 
 #[unsafe(no_mangle)]
-pub static mut g_ctrl_c: i32 = 0_i32;
+pub static mut g_ctrl_c: i32 = 0;
 #[unsafe(no_mangle)]
 unsafe fn heredoc_loop(mut delim: *mut libc::c_char, mut fd: i32, env: &Env) {
-	g_ctrl_c = 0_i32;
-	while 1_i32 != 0 && g_ctrl_c == 0 {
+	g_ctrl_c = 0;
+	while 1 != 0 && g_ctrl_c == 0 {
 		let line = crate::utils::rust_readline::str_readline("> ");
 		if line.is_none() {
-			g_ctrl_c = 0_i32;
+			g_ctrl_c = 0;
 			break;
 		}
 		let line = line.unwrap();
 		let cstr_line = CString::new(line).unwrap();
 		if !(equal(delim, cstr_line.as_ptr())).is_null() || g_ctrl_c != 0 {
-			g_ctrl_c = 0_i32;
+			g_ctrl_c = 0;
 			break;
 		}
 		if let Some(expanded) = crate::environment::expander::expander(&cstr_line, env) {

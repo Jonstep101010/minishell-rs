@@ -30,9 +30,9 @@ pub unsafe fn builtin_export(mut shell: &mut t_shell, mut token: *mut t_token) -
 
 			eprint_msh!("export: `{}': not a valid identifier", faulty_identifier);
 			arr_free(command as *mut *mut libc::c_char);
-			return 1_i32;
+			return 1;
 		}
-		if str_cchr(*command.add(i), '=' as i32 as libc::c_char) >= 1_i32 {
+		if str_cchr(*command.add(i), '=' as i32 as libc::c_char) >= 1 {
 			let kv = i8const_str(command, i as u64);
 			let (key, value) = kv.split_once('=').unwrap();
 			shell.env.export(key, value.to_string())
@@ -41,7 +41,7 @@ pub unsafe fn builtin_export(mut shell: &mut t_shell, mut token: *mut t_token) -
 	}
 	arr_free(command as *mut *mut libc::c_char);
 	if i > 1 {
-		return 0_i32;
+		return 0;
 	}
-	1_i32
+	1
 }
