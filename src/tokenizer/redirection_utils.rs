@@ -1,4 +1,5 @@
 use ::libc;
+use e_arg::*;
 use e_redir::*;
 use libc::free;
 use libft_rs::{ft_strdup::ft_strdup, ft_strncmp::ft_strncmp};
@@ -53,21 +54,7 @@ pub unsafe fn parse_redir_types(mut arg: *mut t_arg) {
 		i += 1;
 	}
 }
-unsafe fn set_type_redir(mut cmd_arg: *mut t_arg) {
-	if (*cmd_arg).redir == Some(APPEND) || (*cmd_arg).redir == Some(HEREDOC) {
-		if *((*cmd_arg).elem).add(2) == 0 {
-			(*cmd_arg).type_0 = e_arg::REDIR_REMOVED;
-		} else {
-			(*cmd_arg).type_0 = e_arg::REDIR;
-		}
-	} else if (*cmd_arg).redir == Some(OUTPUT_REDIR) || (*cmd_arg).redir == Some(INPUT_REDIR) {
-		if *((*cmd_arg).elem).add(1) == 0 {
-			(*cmd_arg).type_0 = e_arg::REDIR_REMOVED;
-		} else {
-			(*cmd_arg).type_0 = e_arg::REDIR;
-		}
-	}
-}
+
 #[unsafe(no_mangle)]
 pub unsafe fn check_redirections(mut cmd_args: *mut t_arg) -> bool {
 	let mut ii = 0;
@@ -81,8 +68,23 @@ pub unsafe fn check_redirections(mut cmd_args: *mut t_arg) -> bool {
 			_ => (*cmd_args.add(ii)).redir,
 		};
 		if (*cmd_args.add(ii)).redir.is_some() {
-			set_type_redir(&mut *cmd_args.add(ii));
-			redir = 1 != 0;
+			(*(cmd_args.add(ii))).type_0 = match (*(cmd_args.add(ii))).redir.unwrap() {
+				APPEND | HEREDOC => {
+					if *((*(cmd_args.add(ii))).elem).add(2) == 0 {
+						REDIR_REMOVED
+					} else {
+						REDIR
+					}
+				}
+				OUTPUT_REDIR | INPUT_REDIR => {
+					if *((*(cmd_args.add(ii))).elem).add(1) == 0 {
+						REDIR_REMOVED
+					} else {
+						REDIR
+					}
+				}
+			};
+			redir = true;
 		}
 		ii += 1;
 	}
