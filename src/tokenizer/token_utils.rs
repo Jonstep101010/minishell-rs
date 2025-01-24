@@ -80,7 +80,7 @@ pub unsafe fn init_cmdargs(mut size: size_t) -> *mut t_arg {
 		t_arg {
 			elem: std::ptr::null_mut::<libc::c_char>(),
 			type_0: e_arg::STRING,
-			redir: e_redir::NO_REDIR,
+			redir: None,
 		}
 	};
 	let mut args: *mut t_arg =

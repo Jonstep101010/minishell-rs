@@ -70,19 +70,18 @@ pub struct t_token {
 pub struct t_arg {
 	pub elem: *mut libc::c_char, // String
 	pub type_0: e_arg,           // wrapped enum attribute
-	pub redir: e_redir,          // enum wrapping string
+	pub redir: Option<e_redir>,  // enum wrapping string
 }
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(C)]
 pub enum e_arg {
 	STRING = 0,
 	REDIR = 1,
 	REDIR_REMOVED = 2,
 }
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(C)]
 pub enum e_redir {
-	NO_REDIR = 0,
 	INPUT_REDIR = 1,
 	OUTPUT_REDIR = 2,
 	APPEND = 3,

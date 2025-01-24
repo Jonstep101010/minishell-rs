@@ -33,17 +33,20 @@ pub unsafe fn do_redirections(mut cmd_args: *mut t_arg) -> i32 {
 	let mut i = 0;
 	while !((*cmd_args.add(i)).elem).is_null() {
 		let mut fd = 0;
-		if (*cmd_args.add(i)).type_0 as libc::c_uint == e_arg::REDIR as i32 as libc::c_uint
-			&& (*cmd_args.add(i)).redir as libc::c_uint != e_redir::HEREDOC as i32 as libc::c_uint
+		if (*cmd_args.add(i)).type_0 == e_arg::REDIR
+			&& (*cmd_args.add(i)).redir != Some(e_redir::HEREDOC)
 		{
-			if open_redir((*cmd_args.add(i)).elem, (*cmd_args.add(i)).redir, &mut fd) != 0 {
+			if open_redir(
+				(*cmd_args.add(i)).elem,
+				(*cmd_args.add(i)).redir.unwrap(),
+				&mut fd,
+			) != 0
+			{
 				let tmp = std::ffi::CStr::from_ptr((*cmd_args.add(i)).elem);
 				eprint_msh!("failed to execute: {}", tmp.to_str().unwrap());
 				return 1;
 			}
-			if (*cmd_args.add(i)).redir as libc::c_uint
-				!= e_redir::INPUT_REDIR as i32 as libc::c_uint
-			{
+			if (*cmd_args.add(i)).redir != Some(e_redir::INPUT_REDIR) {
 				dup2(fd, 1);
 			} else {
 				dup2(fd, 0);

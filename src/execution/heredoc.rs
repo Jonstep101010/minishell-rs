@@ -47,9 +47,7 @@ pub unsafe fn do_heredocs(token: *const t_token, mut target: *mut i32, env: &Env
 		if ((*((*token).cmd_args).add(i)).elem).is_null() {
 			break;
 		}
-		if (*((*token).cmd_args).add(i)).redir as libc::c_uint
-			== e_redir::HEREDOC as i32 as libc::c_uint
-		{
+		if (*((*token).cmd_args).add(i)).redir == Some(e_redir::HEREDOC) {
 			let oflags = OFlag::O_RDWR | OFlag::O_CREAT | OFlag::O_TRUNC;
 			let mode = Mode::from_bits(0o644).expect("Invalid mode");
 			match nix::fcntl::open(c".heredoc.txt", oflags, mode) {
