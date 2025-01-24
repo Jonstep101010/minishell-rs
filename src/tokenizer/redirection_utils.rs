@@ -80,15 +80,13 @@ pub unsafe fn check_redirections(mut cmd_args: *mut t_arg) -> bool {
 	let mut ii = 0;
 	let mut redir: bool = false;
 	while !((*cmd_args.add(ii)).elem).is_null() {
-		if ft_strncmp((*cmd_args.add(ii)).elem, c">>".as_ptr(), 2 as size_t) == 0 {
-			(*cmd_args.add(ii)).redir = e_redir::APPEND;
-		} else if ft_strncmp((*cmd_args.add(ii)).elem, c">".as_ptr(), 1 as size_t) == 0 {
-			(*cmd_args.add(ii)).redir = e_redir::OUTPUT_REDIR;
-		} else if ft_strncmp((*cmd_args.add(ii)).elem, c"<<".as_ptr(), 2 as size_t) == 0 {
-			(*cmd_args.add(ii)).redir = e_redir::HEREDOC;
-		} else if ft_strncmp((*cmd_args.add(ii)).elem, c"<".as_ptr(), 1 as size_t) == 0 {
-			(*cmd_args.add(ii)).redir = e_redir::INPUT_REDIR;
-		}
+		(*cmd_args.add(ii)).redir = match (*cmd_args.add(ii)).elem {
+			elem if ft_strncmp(elem, c">>".as_ptr(), 2 as size_t) == 0 => e_redir::APPEND,
+			elem if ft_strncmp(elem, c">".as_ptr(), 1 as size_t) == 0 => e_redir::OUTPUT_REDIR,
+			elem if ft_strncmp(elem, c"<<".as_ptr(), 2 as size_t) == 0 => e_redir::HEREDOC,
+			elem if ft_strncmp(elem, c"<".as_ptr(), 1 as size_t) == 0 => e_redir::INPUT_REDIR,
+			_ => (*cmd_args.add(ii)).redir,
+		};
 		if (*cmd_args.add(ii)).redir as libc::c_uint != e_redir::NO_REDIR as i32 as libc::c_uint {
 			set_type_redir(&mut *cmd_args.add(ii));
 			redir = 1 != 0;

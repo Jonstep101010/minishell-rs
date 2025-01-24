@@ -15,7 +15,7 @@ pub static mut g_ctrl_c: i32 = 0;
 #[unsafe(no_mangle)]
 unsafe fn heredoc_loop(mut delim: *mut libc::c_char, mut fd: i32, env: &Env) {
 	g_ctrl_c = 0;
-	while 1 != 0 && g_ctrl_c == 0 {
+	while g_ctrl_c == 0 {
 		let line = crate::utils::rust_readline::str_readline("> ");
 		if line.is_none() {
 			g_ctrl_c = 0;
