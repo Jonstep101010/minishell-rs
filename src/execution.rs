@@ -4,24 +4,17 @@ mod execute_pipes;
 mod heredoc;
 mod redirections;
 use self::{execute_pipes::execute_pipes, redirections::do_redirections};
-#[allow(unused_imports)]
 use crate::{
-	builtins::{cd::builtin_cd, exit::builtin_exit, export::builtin_export, unset::builtin_unset},
-	eprint_msh,
+	builtins::{echo::echo, env::builtin_env, pwd::builtin_pwd},
 	libutils_rs::src::utils::memsize::memsize,
 	t_shell, t_token,
 	tokenizer::destroy_tokens::destroy_all_tokens,
 };
 use ::libc;
+use exec_bin::exec_bin;
 #[allow(unused_imports)]
 use libc::strerror;
 
-unsafe fn forkable_builtin(mut token: *mut t_token) -> bool {
-	(*token).cmd_func != Some(builtin_exit as unsafe fn(&mut t_shell, *mut t_token) -> i32)
-		&& (*token).cmd_func != Some(builtin_export as unsafe fn(&mut t_shell, *mut t_token) -> i32)
-		&& (*token).cmd_func != Some(builtin_unset as unsafe fn(&mut t_shell, *mut t_token) -> i32)
-		&& (*token).cmd_func != Some(builtin_cd as unsafe fn(&mut t_shell, *mut t_token) -> i32)
-}
 #[unsafe(no_mangle)]
 pub unsafe fn execute_commands(mut shell: &mut t_shell) {
 	let mut token = shell.token;
@@ -34,7 +27,13 @@ pub unsafe fn execute_commands(mut shell: &mut t_shell) {
 		val => Some(val),
 	};
 	match shell.token_len.unwrap() {
-		1 if !forkable_builtin(token) => {
+		1 if !{
+			(*token).cmd_func == Some(echo)
+				|| (*token).cmd_func == Some(builtin_pwd)
+				|| (*token).cmd_func == Some(builtin_env)
+				|| (*token).cmd_func == Some(exec_bin)
+		} =>
+		{
 			let mut redir_status = do_redirections((*token).cmd_args);
 			if redir_status != 0 {
 				todo!("some sort of handling");

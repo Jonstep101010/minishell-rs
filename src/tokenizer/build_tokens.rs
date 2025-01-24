@@ -12,7 +12,7 @@ use libutils_rs::src::{
 use crate::{
 	builtins::{
 		cd::builtin_cd, echo::echo, env::builtin_env, exit::builtin_exit, export::builtin_export,
-		pwd::builtin_pwd,
+		pwd::builtin_pwd, unset::builtin_unset,
 	},
 	environment::{Env, expander::expander},
 	execution::exec_bin::exec_bin,
@@ -105,8 +105,7 @@ unsafe fn rm_quotes(mut cmd_arg: *mut t_arg) {
 			return;
 		}
 		free_null(&mut (*cmd_arg.add(i)).elem as *mut *mut libc::c_char as *mut libc::c_void);
-		let fresh2 = &mut (*cmd_arg.add(i)).elem;
-		*fresh2 = tmp;
+		(*cmd_arg.add(i)).elem = tmp;
 		i += 1;
 	}
 }
@@ -140,9 +139,7 @@ pub unsafe fn tokenize(
 			}
 			let mut ii = 0;
 			while !((*((*token).cmd_args).add(ii)).elem).is_null() {
-				if (*((*token).cmd_args).add(ii)).type_0 as libc::c_uint
-					!= e_arg::REDIR as i32 as libc::c_uint
-				{
+				if (*((*token).cmd_args).add(ii)).type_0 != e_arg::REDIR {
 					break;
 				}
 				ii += 1;
@@ -153,6 +150,7 @@ pub unsafe fn tokenize(
 				b"cd" => Some(builtin_cd as unsafe fn(&mut t_shell, *mut t_token) -> i32),
 				b"pwd" => Some(builtin_pwd as unsafe fn(&mut t_shell, *mut t_token) -> i32),
 				b"export" => Some(builtin_export as unsafe fn(&mut t_shell, *mut t_token) -> i32),
+				b"unset" => Some(builtin_unset as unsafe fn(&mut t_shell, *mut t_token) -> i32),
 				b"env" => Some(builtin_env as unsafe fn(&mut t_shell, *mut t_token) -> i32),
 				b"exit" => Some(builtin_exit as unsafe fn(&mut t_shell, *mut t_token) -> i32),
 				_ => Some(exec_bin as unsafe fn(&mut t_shell, *mut t_token) -> i32),
