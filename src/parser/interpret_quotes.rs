@@ -9,7 +9,7 @@ use libft_rs::{ft_calloc::ft_calloc, ft_strlen::ft_strlen};
 /// assume s is not null and is nul-terminated
 pub unsafe fn do_quote_bs(mut s: *const c_char, quote: &mut c_int) -> *mut c_char {
 	let tmp = ft_calloc(
-		ft_strlen(s) + 1 as u64,
+		ft_strlen(s) + 1_u64,
 		::core::mem::size_of::<c_char>() as c_ulong,
 	) as *mut c_char;
 	if tmp.is_null() {
@@ -34,14 +34,14 @@ pub unsafe fn do_quote_bs(mut s: *const c_char, quote: &mut c_int) -> *mut c_cha
 
 pub fn rs_do_quote_bs(bytes_s: &[u8], quote: &mut c_int) -> CString {
 	let mut tmp = Vec::new();
-	for i in 0..bytes_s.len() {
-		match (*quote as u8, bytes_s[i]) {
-			(0, b'\'' | b'"') => *quote = bytes_s[i] as c_int,
+	for &byte in bytes_s {
+		match (*quote as u8, byte) {
+			(0, b'\'' | b'"') => *quote = byte as c_int,
 			(_, q) if q == *quote as u8 => {
 				*quote = 0;
 			}
 			_ => {
-				tmp.push(bytes_s[i]);
+				tmp.push(byte);
 			}
 		}
 	}

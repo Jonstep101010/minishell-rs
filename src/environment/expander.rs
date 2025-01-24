@@ -7,6 +7,7 @@ use std::ffi::{CStr, CString};
 ///
 /// # Arguments
 /// `input_expander` - A `CStr` reference to the input string to be expanded.
+#[allow(clippy::missing_panics_doc, clippy::items_after_statements)]
 #[must_use]
 pub fn expander(input_expander: &CStr, env: &Env) -> Option<CString> {
 	let mut i = 0;
