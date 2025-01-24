@@ -7,8 +7,7 @@ use crate::{t_arg, t_shell, t_token};
 pub unsafe fn destroy_all_tokens(mut shell: &mut t_shell) {
 	let mut i = 0;
 	if shell.token_len.is_some() {
-		let token_len = shell.token_len.unwrap();
-		while !shell.token.is_null() && i < token_len {
+		while i < shell.token_len.unwrap() {
 			if !((*shell.token.add(i)).cmd_args).is_null() {
 				let mut ii = 0;
 				while !((*((*shell.token.add(i)).cmd_args).add(ii)).elem).is_null() {

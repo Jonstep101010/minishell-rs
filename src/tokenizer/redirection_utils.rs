@@ -7,10 +7,7 @@ use libutils_rs::src::utils::{free_mem::free_null, memsize::memsize};
 
 use crate::{prelude::*, size_t, t_arg};
 #[unsafe(no_mangle)]
-pub unsafe fn rm_prefix_redir_word(mut arg: *mut t_arg) {
-	if arg.is_null() {
-		return;
-	}
+pub unsafe fn rm_prefix_redir_word(arg: *mut t_arg) {
 	let mut i = 0;
 	let mut len = memsize(
 		arg as *mut libc::c_void,

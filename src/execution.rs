@@ -34,8 +34,7 @@ pub unsafe fn execute_commands(mut shell: &mut t_shell) {
 				|| (*token).cmd_func == Some(exec_bin)
 		} =>
 		{
-			let mut redir_status = do_redirections((*token).cmd_args);
-			if redir_status != 0 {
+			if do_redirections((*token).cmd_args).is_err() {
 				todo!("some sort of handling");
 			}
 			shell.exit_status =
