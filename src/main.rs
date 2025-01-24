@@ -48,7 +48,6 @@ pub mod tokenizer {
 pub mod utils {
 	pub mod bool_array;
 	pub mod error;
-	pub mod exit_free;
 	pub mod interop;
 	pub mod rust_readline;
 } // mod utils

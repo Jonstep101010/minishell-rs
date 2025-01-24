@@ -1,7 +1,4 @@
-use crate::{
-	t_shell,
-	utils::exit_free::{exit_error, exit_free},
-};
+use crate::t_shell;
 use ::libc;
 use libc::{close, dup, dup2, fork, pipe, wait, waitpid};
 
@@ -21,7 +18,13 @@ unsafe fn exec_last(
 			do_heredocs(&mut *(shell.token).add(i), prevpipe, &shell.env);
 		}
 		if do_redirections((*(shell.token).add(i)).cmd_args, error_elem) != 0_i32 {
-			exit_error(shell, *error_elem);
+			if !error_elem.is_null() {
+				todo!("display error");
+				// eprint_msh!("{}: {}", error_elem, error);
+			}
+			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
+			// free(shell as *mut libc::c_void);
+			todo!("bail out gracefully");
 		}
 		dup2(*prevpipe, 0_i32);
 		close(*prevpipe);
@@ -29,7 +32,9 @@ unsafe fn exec_last(
 			shell,
 			&mut *(shell.token).add(i),
 		);
-		exit_free(shell, ret);
+		crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
+		// free(shell as *mut libc::c_void);
+		std::process::exit(ret);
 	} else {
 		waitpid(cpid, &mut status, 0_i32);
 		close(*prevpipe);
@@ -56,13 +61,25 @@ unsafe fn exec_pipe(
 		dup2(*prevpipe, 0_i32);
 		close(*prevpipe);
 		if do_redirections((*(shell.token).add(i)).cmd_args, error_elem) != 0_i32 {
-			exit_error(shell, *error_elem);
+			if !error_elem.is_null() {
+				todo!("display error");
+				// eprint_msh!("{}: {}", error_elem, error);
+			}
+			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
+			// free(shell as *mut libc::c_void);
+			todo!("bail out gracefully");
 		}
 		let ret = ((*(shell.token).add(i)).cmd_func).expect("non-null function pointer")(
 			shell,
 			&mut *(shell.token).add(i),
 		);
-		exit_free(shell, ret);
+		{
+			let mut shell: &mut t_shell = shell;
+			let mut exit_code = ret;
+			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
+			// free(shell as *mut libc::c_void);
+			std::process::exit(exit_code);
+		};
 	} else {
 		close(pipefd[1_i32 as usize]);
 		close(*prevpipe);

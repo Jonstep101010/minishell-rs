@@ -4,10 +4,7 @@ use libc::{exit, free, strerror};
 use libft_rs::ft_strchr::ft_strchr;
 use libutils_rs::src::array::arr_free::arr_free;
 
-use crate::{
-	prelude::*, t_shell, t_token, tokenizer::build_command::get_cmd_arr_token,
-	utils::exit_free::exit_free,
-};
+use crate::{prelude::*, t_shell, t_token, tokenizer::build_command::get_cmd_arr_token};
 
 use super::bin_path::get_path_prefixed;
 // unsafe fn execve_fail(mut shell: &mut t_shell, cmd: &CStr) {
@@ -24,7 +21,9 @@ pub unsafe fn exec_bin(mut shell: &mut t_shell, mut token: *mut t_token) -> i32 
 	let mut command: *mut *const libc::c_char =
 		get_cmd_arr_token(token) as *mut *const libc::c_char;
 	if command.is_null() {
-		exit_free(shell, 0);
+		crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
+		// free(shell as *mut libc::c_void);
+		std::process::exit(0);
 	}
 	let env = &shell.env;
 	if !(*command).is_null() {
@@ -51,7 +50,9 @@ pub unsafe fn exec_bin(mut shell: &mut t_shell, mut token: *mut t_token) -> i32 
 				eprint_msh!("{}: command not found", i8const_str(command, 0));
 			}
 			arr_free(command as *mut *mut libc::c_char);
-			exit_free(shell, access_status.into());
+			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
+			// free(shell as *mut libc::c_void);
+			std::process::exit(access_status.into());
 		}
 		if libc::execve(
 			(*token).bin.as_ptr(),
@@ -64,10 +65,12 @@ pub unsafe fn exec_bin(mut shell: &mut t_shell, mut token: *mut t_token) -> i32 
 			// execve_fail(shell, (*token).bin.as_c_str());
 		}
 		arr_free(command as *mut *mut libc::c_char);
-		exit_free(shell, 0_i32);
-		return 0_i32;
+		crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
+		// free(shell as *mut libc::c_void);
+		std::process::exit(0);
 	}
 	arr_free(command as *mut *mut libc::c_char);
-	exit_free(shell, 1);
-	1_i32
+	crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
+	// free(shell as *mut libc::c_void);
+	std::process::exit(1);
 }
