@@ -94,6 +94,6 @@ pub type t_cmd_func_builtin = Option<unsafe fn(&mut t_shell, *mut t_token) -> i3
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct s_func {
-	pub name: *mut libc::c_char,
+	pub name: *const libc::c_char,
 	pub cmd: t_cmd_func_builtin,
 }

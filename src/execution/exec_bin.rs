@@ -34,13 +34,7 @@ pub unsafe fn exec_bin(mut shell: &mut t_shell, mut token: *mut t_token) -> i32 
 		}
 		if access_status == 1 || access_status == 2 || access_status == 126 || access_status == 127
 		{
-			if access_status == 126
-				&& (ft_strchr(
-					b"~/\0" as *const u8 as *const libc::c_char,
-					**command as i32,
-				))
-				.is_null()
-			{
+			if access_status == 126 && (ft_strchr(c"~/".as_ptr(), **command as i32)).is_null() {
 				// let cmd = i8const_str(command, 0);
 				// @audit
 				todo!("handle no perms");

@@ -11,13 +11,8 @@ use crate::{
 
 unsafe fn check_illegal_char(mut str: *const libc::c_char) -> bool {
 	while *str != 0 {
-		if !(ft_strchr(
-			b"?=;$.:><[]()/+-{}*#@!^\0" as *const u8 as *const libc::c_char,
-			*str as i32,
-		))
-		.is_null()
-		{
-			return 1 != 0;
+		if !(ft_strchr(c"?=;$.:><[]()/+-{}*#@!^".as_ptr(), *str as i32)).is_null() {
+			return true;
 		}
 		str = str.add(1);
 	}

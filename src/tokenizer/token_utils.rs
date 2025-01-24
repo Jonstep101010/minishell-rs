@@ -17,43 +17,43 @@ pub unsafe fn set_cmd_func(mut cmd: *const libc::c_char, mut token: *mut t_token
 	let cmds: [s_func; 8] = [
 		{
 			s_func {
-				name: b"echo\0" as *const u8 as *const libc::c_char as *mut libc::c_char,
+				name: c"echo".as_ptr(),
 				cmd: Some(echo as unsafe fn(&mut t_shell, *mut t_token) -> i32),
 			}
 		},
 		{
 			s_func {
-				name: b"cd\0" as *const u8 as *const libc::c_char as *mut libc::c_char,
+				name: c"cd".as_ptr(),
 				cmd: Some(builtin_cd as unsafe fn(&mut t_shell, *mut t_token) -> i32),
 			}
 		},
 		{
 			s_func {
-				name: b"pwd\0" as *const u8 as *const libc::c_char as *mut libc::c_char,
+				name: c"pwd".as_ptr(),
 				cmd: Some(builtin_pwd as unsafe fn(&mut t_shell, *mut t_token) -> i32),
 			}
 		},
 		{
 			s_func {
-				name: b"export\0" as *const u8 as *const libc::c_char as *mut libc::c_char,
+				name: c"export".as_ptr(),
 				cmd: Some(builtin_export as unsafe fn(&mut t_shell, *mut t_token) -> i32),
 			}
 		},
 		{
 			s_func {
-				name: b"unset\0" as *const u8 as *const libc::c_char as *mut libc::c_char,
+				name: c"unset".as_ptr(),
 				cmd: Some(builtin_unset as unsafe fn(&mut t_shell, *mut t_token) -> i32),
 			}
 		},
 		{
 			s_func {
-				name: b"env\0" as *const u8 as *const libc::c_char as *mut libc::c_char,
+				name: c"env".as_ptr(),
 				cmd: Some(builtin_env as unsafe fn(&mut t_shell, *mut t_token) -> i32),
 			}
 		},
 		{
 			s_func {
-				name: b"exit\0" as *const u8 as *const libc::c_char as *mut libc::c_char,
+				name: c"exit".as_ptr(),
 				cmd: Some(builtin_exit as unsafe fn(&mut t_shell, *mut t_token) -> i32),
 			}
 		},

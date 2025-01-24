@@ -80,33 +80,13 @@ pub unsafe fn check_redirections(mut cmd_args: *mut t_arg) -> bool {
 	let mut ii = 0;
 	let mut redir: bool = false;
 	while !((*cmd_args.add(ii)).elem).is_null() {
-		if ft_strncmp(
-			(*cmd_args.add(ii)).elem,
-			b">>\0" as *const u8 as *const libc::c_char,
-			2 as size_t,
-		) == 0
-		{
+		if ft_strncmp((*cmd_args.add(ii)).elem, c">>".as_ptr(), 2 as size_t) == 0 {
 			(*cmd_args.add(ii)).redir = e_redir::APPEND;
-		} else if ft_strncmp(
-			(*cmd_args.add(ii)).elem,
-			b">\0" as *const u8 as *const libc::c_char,
-			1 as size_t,
-		) == 0
-		{
+		} else if ft_strncmp((*cmd_args.add(ii)).elem, c">".as_ptr(), 1 as size_t) == 0 {
 			(*cmd_args.add(ii)).redir = e_redir::OUTPUT_REDIR;
-		} else if ft_strncmp(
-			(*cmd_args.add(ii)).elem,
-			b"<<\0" as *const u8 as *const libc::c_char,
-			2 as size_t,
-		) == 0
-		{
+		} else if ft_strncmp((*cmd_args.add(ii)).elem, c"<<".as_ptr(), 2 as size_t) == 0 {
 			(*cmd_args.add(ii)).redir = e_redir::HEREDOC;
-		} else if ft_strncmp(
-			(*cmd_args.add(ii)).elem,
-			b"<\0" as *const u8 as *const libc::c_char,
-			1 as size_t,
-		) == 0
-		{
+		} else if ft_strncmp((*cmd_args.add(ii)).elem, c"<".as_ptr(), 1 as size_t) == 0 {
 			(*cmd_args.add(ii)).redir = e_redir::INPUT_REDIR;
 		}
 		if (*cmd_args.add(ii)).redir as libc::c_uint != e_redir::NO_REDIR as i32 as libc::c_uint {
