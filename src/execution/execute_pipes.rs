@@ -40,7 +40,7 @@ unsafe fn exec_last(
 		close(*prevpipe);
 		while wait(std::ptr::null_mut::<i32>()) > 0 {}
 		if status & 0x7f == 0 {
-			shell.exit_status = ((status & 0xff00) >> 8) as u8;
+			shell.exit_status = ((status & 0xff00) >> 8) as u8 as i32;
 		}
 	};
 }

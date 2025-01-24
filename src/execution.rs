@@ -27,7 +27,7 @@ pub unsafe fn execute_commands(mut shell: &mut t_shell) {
 	let mut error_elem: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	let mut token = shell.token;
 	if token.is_null() {
-		shell.exit_status = u8::MAX;
+		shell.exit_status = u8::MAX as i32;
 		return;
 	}
 	shell.token_len = match memsize(
@@ -52,7 +52,7 @@ pub unsafe fn execute_commands(mut shell: &mut t_shell) {
 			// (*shell).exit_status = redir_status as u8;
 		}
 		shell.exit_status =
-			((*token).cmd_func).expect("non-null function pointer")(shell, token) as u8;
+			((*token).cmd_func).expect("non-null function pointer")(shell, token) as u8 as i32;
 	} else {
 		execute_pipes(shell);
 	}

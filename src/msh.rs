@@ -20,7 +20,7 @@ impl t_token {
 #[derive(Clone)]
 #[repr(C)]
 pub struct t_shell {
-	pub exit_status: u8, // u8
+	pub exit_status: i32,
 	pub(crate) env: environment::Env,
 	pub token: *mut t_token, // Vec<t_token>
 	pub token_len: Option<usize>,
