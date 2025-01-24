@@ -41,7 +41,7 @@ unsafe fn heredoc_loop(mut delim: *mut libc::c_char, mut fd: i32, env: &Env) {
 	}
 }
 #[unsafe(no_mangle)]
-pub unsafe fn do_heredocs(mut token: *mut t_token, mut target: *mut i32, env: &Env) {
+pub unsafe fn do_heredocs(token: *const t_token, mut target: *mut i32, env: &Env) {
 	let mut i = 0;
 	loop {
 		if ((*((*token).cmd_args).add(i)).elem).is_null() {

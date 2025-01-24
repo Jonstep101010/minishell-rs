@@ -24,12 +24,7 @@ unsafe fn forkable_builtin(mut token: *mut t_token) -> bool {
 }
 #[unsafe(no_mangle)]
 pub unsafe fn execute_commands(mut shell: &mut t_shell) {
-	let mut error_elem: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	let mut token = shell.token;
-	if token.is_null() {
-		shell.exit_status = u8::MAX as i32;
-		return;
-	}
 	shell.token_len = match memsize(
 		shell.token as *mut libc::c_void,
 		::core::mem::size_of::<t_token>() as libc::c_ulong,
@@ -40,17 +35,9 @@ pub unsafe fn execute_commands(mut shell: &mut t_shell) {
 	};
 	match shell.token_len.unwrap() {
 		1 if !forkable_builtin(token) => {
-			let mut redir_status = do_redirections((*token).cmd_args, &mut error_elem);
+			let mut redir_status = do_redirections((*token).cmd_args);
 			if redir_status != 0 {
-				if error_elem.is_null() {
-					todo!("check the conditions!");
-					// panic!("error_elem is null");
-				} else {
-					// @audit
-					todo!("error printing!");
-					// eprint_msh!("{}: {}", error_elem, err);
-				};
-				// (*shell).exit_status = redir_status as u8;
+				todo!("some sort of handling");
 			}
 			shell.exit_status =
 				((*token).cmd_func).expect("non-null function pointer")(shell, token) as u8 as i32;

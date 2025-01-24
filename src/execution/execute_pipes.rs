@@ -4,24 +4,15 @@ use libc::{close, dup, dup2, fork, pipe, wait, waitpid};
 
 use super::{heredoc::do_heredocs, redirections::do_redirections};
 
-unsafe fn exec_last(
-	mut shell: &mut t_shell,
-	mut i: usize,
-	mut prevpipe: *mut i32,
-	mut error_elem: *mut *mut libc::c_char,
-) {
+unsafe fn exec_last(mut shell: &mut t_shell, mut i: usize, mut prevpipe: *mut i32) {
 	let mut status: i32 = 0;
 	let mut cpid = fork();
 	if cpid == 0 {
 		// check_signals_child(&mut (*shell).p_termios);
 		if (*(shell.token).add(i)).has_redir {
-			do_heredocs(&mut *(shell.token).add(i), prevpipe, &shell.env);
+			do_heredocs(&*(shell.token).add(i), prevpipe, &shell.env);
 		}
-		if do_redirections((*(shell.token).add(i)).cmd_args, error_elem) != 0 {
-			if !error_elem.is_null() {
-				todo!("display error");
-				// eprint_msh!("{}: {}", error_elem, error);
-			}
+		if do_redirections((*(shell.token).add(i)).cmd_args) != 0 {
 			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
 			// free(shell as *mut libc::c_void);
 			todo!("bail out gracefully");
@@ -44,12 +35,7 @@ unsafe fn exec_last(
 		}
 	};
 }
-unsafe fn exec_pipe(
-	mut shell: &mut t_shell,
-	mut i: usize,
-	mut prevpipe: *mut i32,
-	mut error_elem: *mut *mut libc::c_char,
-) {
+unsafe fn exec_pipe(mut shell: &mut t_shell, i: usize, mut prevpipe: *mut i32) {
 	let mut pipefd: [i32; 2] = [0; 2];
 	pipe(pipefd.as_mut_ptr());
 	let mut cpid = fork();
@@ -60,11 +46,7 @@ unsafe fn exec_pipe(
 		close(pipefd[1_usize]);
 		dup2(*prevpipe, 0);
 		close(*prevpipe);
-		if do_redirections((*(shell.token).add(i)).cmd_args, error_elem) != 0 {
-			if !error_elem.is_null() {
-				todo!("display error");
-				// eprint_msh!("{}: {}", error_elem, error);
-			}
+		if do_redirections((*(shell.token).add(i)).cmd_args) != 0 {
 			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
 			// free(shell as *mut libc::c_void);
 			todo!("bail out gracefully");
@@ -88,18 +70,12 @@ unsafe fn exec_pipe(
 }
 #[unsafe(no_mangle)]
 pub unsafe fn execute_pipes(mut shell: &mut t_shell) {
-	let mut i = 0;
-	let mut error_elem: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	let mut prevpipe = dup(0);
-	loop {
-		if i >= shell.token_len.unwrap() - 1 {
-			break;
+	for i in 0..shell.token_len.unwrap() - 1 {
+		if (*(shell.token).add(i)).has_redir && i != shell.token_len.unwrap() - 1 {
+			do_heredocs(&*(shell.token).add(i), &mut prevpipe, &shell.env);
 		}
-		if (*(shell.token).add(i)).has_redir as i32 != 0 && i != shell.token_len.unwrap() - 1 {
-			do_heredocs(&mut *(shell.token).add(i), &mut prevpipe, &shell.env);
-		}
-		exec_pipe(shell, i, &mut prevpipe, &mut error_elem);
-		i += 1;
+		exec_pipe(shell, i, &mut prevpipe);
 	}
-	exec_last(shell, i, &mut prevpipe, &mut error_elem);
+	exec_last(shell, shell.token_len.unwrap() - 1, &mut prevpipe);
 }

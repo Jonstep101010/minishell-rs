@@ -29,10 +29,7 @@ unsafe fn open_redir(mut file: *const libc::c_char, mut redir: e_redir, mut fd: 
 	0
 }
 #[unsafe(no_mangle)]
-pub unsafe fn do_redirections(
-	mut cmd_args: *mut t_arg,
-	mut error_elem: *mut *mut libc::c_char,
-) -> i32 {
+pub unsafe fn do_redirections(mut cmd_args: *mut t_arg) -> i32 {
 	let mut i = 0;
 	while !((*cmd_args.add(i)).elem).is_null() {
 		let mut fd = 0;
@@ -40,8 +37,9 @@ pub unsafe fn do_redirections(
 			&& (*cmd_args.add(i)).redir as libc::c_uint != e_redir::HEREDOC as i32 as libc::c_uint
 		{
 			if open_redir((*cmd_args.add(i)).elem, (*cmd_args.add(i)).redir, &mut fd) != 0 {
-				*error_elem = (*cmd_args.add(i)).elem;
-				todo!("handle open_redir failure");
+				let tmp = std::ffi::CStr::from_ptr((*cmd_args.add(i)).elem);
+				eprint_msh!("failed to execute: {}", tmp.to_str().unwrap());
+				return 1;
 			}
 			if (*cmd_args.add(i)).redir as libc::c_uint
 				!= e_redir::INPUT_REDIR as i32 as libc::c_uint
