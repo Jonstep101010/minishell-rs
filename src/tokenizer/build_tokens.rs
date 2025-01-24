@@ -116,17 +116,15 @@ pub unsafe fn tokenize(
 	mut trimmed_line: *const libc::c_char,
 ) -> *mut libc::c_void {
 	let mut i = 0;
-	shell.token = get_tokens(trimmed_line);
-	if (shell.token).is_null() {
-		return std::ptr::null_mut::<libc::c_void>();
+	match get_tokens(trimmed_line) {
+		None => return std::ptr::null_mut::<libc::c_void>(),
+		Some(tuple) => {
+			shell.token_len = Some(tuple.1);
+			shell.token = tuple.0;
+		}
 	}
-	let mut token_len: usize = 0;
-	while !((*(shell.token).add(token_len)).split_pipes).is_null() {
-		token_len += 1;
-	}
-	let shell_env = &shell.env;
-	while i < token_len {
-		if setup_token(&mut *(shell.token).add(i), shell_env).is_null() {
+	while i < shell.token_len.unwrap() {
+		if setup_token(&mut *(shell.token).add(i), &shell.env).is_null() {
 			destroy_all_tokens(&mut (*shell));
 			return std::ptr::null_mut::<libc::c_void>();
 		}
@@ -144,6 +142,7 @@ pub unsafe fn tokenize(
 				}
 				ii += 1;
 			}
+			assert!(!((*((*token).cmd_args).add(i)).elem.is_null()));
 			(*token).cmd_func = match CStr::from_ptr((*((*token).cmd_args).add(i)).elem).to_bytes()
 			{
 				b"echo" => Some(echo as unsafe fn(&mut t_shell, *mut t_token) -> i32),
@@ -161,6 +160,5 @@ pub unsafe fn tokenize(
 		};
 		i += 1;
 	}
-	shell.token_len = Some(token_len);
 	shell.token as *mut libc::c_void
 }

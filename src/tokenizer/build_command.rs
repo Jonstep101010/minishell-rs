@@ -33,28 +33,26 @@ pub unsafe fn get_cmd_arr_token(mut token: *mut t_token) -> *mut *mut libc::c_ch
 	cmd_arr
 }
 #[unsafe(no_mangle)]
-pub unsafe fn get_tokens(mut trimmed_line: *const libc::c_char) -> *mut t_token {
+pub unsafe fn get_tokens(mut trimmed_line: *const libc::c_char) -> Option<(*mut t_token, usize)> {
 	let mut split_pipes: *mut *mut libc::c_char = split_outside_quotes(trimmed_line, c"|".as_ptr());
 	if split_pipes.is_null() {
-		crate::eprint_msh!("alloc fail!");
-		return std::ptr::null_mut::<libc::c_void>() as *mut t_token;
+		panic!("alloc fail token");
 	}
 	if (*split_pipes).is_null() {
 		arr_free(split_pipes);
-		return std::ptr::null_mut::<libc::c_void>() as *mut t_token;
+		return None;
 	}
 	let mut token: *mut t_token = init_token(arr_len(split_pipes));
 	if token.is_null() {
-		crate::eprint_msh!("alloc fail token");
+		panic!("alloc fail token");
 	}
 	let mut i = 0;
-	while !token.is_null() && !(*split_pipes.add(i)).is_null() {
-		let fresh0 = &mut (*token.add(i)).split_pipes;
-		*fresh0 = *split_pipes.add(i);
+	while !(*split_pipes.add(i)).is_null() {
+		(*token.add(i)).split_pipes = *split_pipes.add(i);
 		i += 1;
 	}
 	free(split_pipes as *mut libc::c_void);
-	token
+	Some((token, i))
 }
 
 impl t_shell {
