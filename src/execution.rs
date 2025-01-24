@@ -30,11 +30,15 @@ pub unsafe fn execute_commands(mut shell: &mut t_shell) {
 		shell.exit_status = -1_i32 as u8;
 		return;
 	}
-	let mut token_count = memsize(
+	shell.token_len = match memsize(
 		shell.token as *mut libc::c_void,
 		::core::mem::size_of::<t_token>() as libc::c_ulong,
-	) as i32;
-	if token_count == 1_i32 && !forkable_builtin(token) {
+	) as usize
+	{
+		0 => None,
+		val => Some(val),
+	};
+	if shell.token_len == Some(1) && !forkable_builtin(token) {
 		let mut redir_status = do_redirections((*token).cmd_args, &mut error_elem);
 		if redir_status != 0_i32 {
 			if error_elem.is_null() {
@@ -50,7 +54,7 @@ pub unsafe fn execute_commands(mut shell: &mut t_shell) {
 		shell.exit_status =
 			((*token).cmd_func).expect("non-null function pointer")(shell, token) as u8;
 	} else {
-		execute_pipes(shell, token_count);
+		execute_pipes(shell);
 	}
 	destroy_all_tokens(&mut (*shell));
 }

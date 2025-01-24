@@ -19,7 +19,7 @@ unsafe fn check_illegal_char(mut str: *const libc::c_char) -> bool {
 		{
 			return 1_i32 != 0;
 		}
-		str = str.offset(1);
+		str = str.add(1);
 	}
 	false
 }
@@ -30,15 +30,12 @@ pub unsafe fn builtin_unset(mut shell: &mut t_shell, mut token: *mut t_token) ->
 	if args.is_null() {
 		return 0_i32;
 	}
-	if (*args).is_null()
-		|| (*args.offset(1_i32 as isize)).is_null()
-		|| **args.offset(1_i32 as isize) == 0
-	{
+	if (*args).is_null() || (*args.add(1)).is_null() || **args.add(1) == 0 {
 		arr_free(args as *mut *mut libc::c_char);
 		return 0_i32;
 	}
 	let mut status: i32 = {
-		let mut args: *const *const libc::c_char = args.offset(1_i32 as isize);
+		let mut args: *const *const libc::c_char = args.add(1);
 		let mut env: &mut Env = &mut shell.env;
 		while !(*args).is_null() {
 			if !check_valid_key(*args) || check_illegal_char(*args) as i32 != 0 {
@@ -54,7 +51,7 @@ pub unsafe fn builtin_unset(mut shell: &mut t_shell, mut token: *mut t_token) ->
 				return 1_i32;
 			}
 			// remove an element from the environment
-			args = args.offset(1);
+			args = args.add(1);
 		}
 		0_i32
 	};

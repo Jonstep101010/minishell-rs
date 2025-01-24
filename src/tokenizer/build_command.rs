@@ -11,20 +11,18 @@ use libutils_rs::src::array::arr_len::arr_len;
 
 #[unsafe(no_mangle)]
 pub unsafe fn get_cmd_arr_token(mut token: *mut t_token) -> *mut *mut libc::c_char {
-	let mut i: i32 = 0;
+	let mut i = 0;
 	let mut cmd_arr: *mut *mut libc::c_char = std::ptr::null_mut::<*mut libc::c_char>();
 	if token.is_null() || ((*token).cmd_args).is_null() {
 		return std::ptr::null_mut::<*mut libc::c_char>();
 	}
-	if !((*((*token).cmd_args).offset(0_i32 as isize)).elem).is_null() {
-		while !((*((*token).cmd_args).offset(i as isize)).elem).is_null() {
-			if (*((*token).cmd_args).offset(i as isize)).type_0 as libc::c_uint
+	if !((*((*token).cmd_args).add(0)).elem).is_null() {
+		while !((*((*token).cmd_args).add(i)).elem).is_null() {
+			if (*((*token).cmd_args).add(i)).type_0 as libc::c_uint
 				!= crate::e_arg::REDIR as i32 as libc::c_uint
 			{
-				cmd_arr = append_str_arr_free(
-					cmd_arr,
-					ft_strdup((*((*token).cmd_args).offset(i as isize)).elem),
-				);
+				cmd_arr =
+					append_str_arr_free(cmd_arr, ft_strdup((*((*token).cmd_args).add(i)).elem));
 				if cmd_arr.is_null() {
 					return std::ptr::null_mut::<*mut libc::c_char>();
 				}
@@ -49,10 +47,10 @@ pub unsafe fn get_tokens(mut trimmed_line: *const libc::c_char) -> *mut t_token 
 	if token.is_null() {
 		crate::eprint_msh!("alloc fail token");
 	}
-	let mut i: i32 = 0;
-	while !token.is_null() && !(*split_pipes.offset(i as isize)).is_null() {
-		let fresh0 = &mut (*token.offset(i as isize)).split_pipes;
-		*fresh0 = *split_pipes.offset(i as isize);
+	let mut i = 0;
+	while !token.is_null() && !(*split_pipes.add(i)).is_null() {
+		let fresh0 = &mut (*token.add(i)).split_pipes;
+		*fresh0 = *split_pipes.add(i);
 		i += 1;
 	}
 	free(split_pipes as *mut libc::c_void);

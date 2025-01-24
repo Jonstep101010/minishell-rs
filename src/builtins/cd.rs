@@ -57,7 +57,7 @@ fn cd_internal(opt_cmd_args: Option<&str>, env: &mut Env) -> bool {
 pub unsafe fn builtin_cd(mut shell: &mut t_shell, mut token: *mut t_token) -> i32 {
 	let mut command: *mut *const libc::c_char =
 		get_cmd_arr_token(token) as *mut *const libc::c_char;
-	let cmd_args = *command.offset(1);
+	let cmd_args = *command.add(1);
 	// option of cmd_args -> none if null
 	let opt_cmd_args = if cmd_args.is_null() {
 		None

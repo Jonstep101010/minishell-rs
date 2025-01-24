@@ -9,7 +9,7 @@ use libft_rs::{ft_calloc::ft_calloc, ft_strlen::ft_strlen};
 /// assume s is not null and is nul-terminated
 pub unsafe fn do_quote_bs(mut s: *const c_char, quote: &mut c_int) -> *mut c_char {
 	let tmp = ft_calloc(
-		ft_strlen(s).wrapping_add(1) as u64,
+		ft_strlen(s) + 1 as u64,
 		::core::mem::size_of::<c_char>() as c_ulong,
 	) as *mut c_char;
 	if tmp.is_null() {
@@ -24,10 +24,10 @@ pub unsafe fn do_quote_bs(mut s: *const c_char, quote: &mut c_int) -> *mut c_cha
 			_ => {
 				let tmp_len = ft_strlen(tmp) as usize;
 				*tmp.add(tmp_len) = *s;
-				*tmp.add(tmp_len.wrapping_add(1)) = '\0' as c_char;
+				*tmp.add(tmp_len + 1) = '\0' as c_char;
 			}
 		}
-		s = s.offset(1);
+		s = s.add(1);
 	}
 	tmp
 }

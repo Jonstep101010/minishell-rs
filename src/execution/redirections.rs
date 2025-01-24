@@ -33,24 +33,17 @@ pub unsafe fn do_redirections(
 	mut cmd_args: *mut t_arg,
 	mut error_elem: *mut *mut libc::c_char,
 ) -> i32 {
-	let mut i: i32 = 0;
-	while !((*cmd_args.offset(i as isize)).elem).is_null() {
+	let mut i = 0;
+	while !((*cmd_args.add(i)).elem).is_null() {
 		let mut fd = 0_i32;
-		if (*cmd_args.offset(i as isize)).type_0 as libc::c_uint
-			== e_arg::REDIR as i32 as libc::c_uint
-			&& (*cmd_args.offset(i as isize)).redir as libc::c_uint
-				!= e_redir::HEREDOC as i32 as libc::c_uint
+		if (*cmd_args.add(i)).type_0 as libc::c_uint == e_arg::REDIR as i32 as libc::c_uint
+			&& (*cmd_args.add(i)).redir as libc::c_uint != e_redir::HEREDOC as i32 as libc::c_uint
 		{
-			if open_redir(
-				(*cmd_args.offset(i as isize)).elem,
-				(*cmd_args.offset(i as isize)).redir,
-				&mut fd,
-			) != 0_i32
-			{
-				*error_elem = (*cmd_args.offset(i as isize)).elem;
+			if open_redir((*cmd_args.add(i)).elem, (*cmd_args.add(i)).redir, &mut fd) != 0_i32 {
+				*error_elem = (*cmd_args.add(i)).elem;
 				todo!("handle open_redir failure");
 			}
-			if (*cmd_args.offset(i as isize)).redir as libc::c_uint
+			if (*cmd_args.add(i)).redir as libc::c_uint
 				!= e_redir::INPUT_REDIR as i32 as libc::c_uint
 			{
 				dup2(fd, 1_i32);

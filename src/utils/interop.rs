@@ -25,7 +25,7 @@ pub unsafe fn charptr_array_to_vec<'a>(array: *mut *mut libc::c_char) -> Vec<&'a
 			elem.to_str()
 				.expect("should be non null and valid for pushing to vec!"),
 		);
-		output_ptr = output_ptr.offset(1);
+		output_ptr = output_ptr.add(1);
 	}
 	vec_output
 }

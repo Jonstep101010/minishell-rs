@@ -70,7 +70,7 @@ pub unsafe fn set_cmd_func(mut cmd: *const libc::c_char, mut token: *mut t_token
 			(*token).cmd_func = cmds[i as usize].cmd;
 			return;
 		}
-		i = i.wrapping_add(1);
+		i += 1;
 	}
 	(*token).cmd_func = Some(exec_bin as unsafe fn(&mut t_shell, *mut t_token) -> i32);
 }
@@ -83,10 +83,8 @@ pub unsafe fn init_cmdargs(mut size: size_t) -> *mut t_arg {
 			redir: e_redir::NO_REDIR,
 		}
 	};
-	let mut args: *mut t_arg = ft_calloc(
-		size.wrapping_add(1_i32 as libc::c_ulong),
-		::core::mem::size_of::<t_arg>() as libc::c_ulong,
-	) as *mut t_arg;
+	let mut args: *mut t_arg =
+		ft_calloc(size + 1, ::core::mem::size_of::<t_arg>() as libc::c_ulong) as *mut t_arg;
 	while !args.is_null() && {
 		let fresh0 = size;
 		size = size.wrapping_sub(1);
@@ -126,17 +124,15 @@ pub unsafe fn init_token(mut size: size_t) -> *mut t_token {
 			split_non_quoted: String::new(),
 		}
 	};
-	let mut token: *mut t_token = ft_calloc(
-		size.wrapping_add(1_i32 as libc::c_ulong),
-		::core::mem::size_of::<t_token>() as libc::c_ulong,
-	) as *mut t_token;
+	let mut token: *mut t_token =
+		ft_calloc(size + 1, ::core::mem::size_of::<t_token>() as libc::c_ulong) as *mut t_token;
 	while !token.is_null() && {
 		let fresh1 = size;
 		size = size.wrapping_sub(1);
 		fresh1 != 0
 	} {
 		ft_memcpy(
-			&mut *token.offset(size as isize) as *mut t_token as *mut libc::c_void,
+			&mut *token.add(size as usize) as *mut t_token as *mut libc::c_void,
 			&template as *const t_token as *const libc::c_void,
 			::core::mem::size_of::<t_token>() as libc::c_ulong,
 		);

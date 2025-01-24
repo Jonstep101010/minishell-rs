@@ -9,63 +9,58 @@ pub unsafe fn rm_prefix_redir_word(mut arg: *mut t_arg) {
 	if arg.is_null() {
 		return;
 	}
-	let mut i: size_t = 0;
-	let mut len: size_t = memsize(
+	let mut i = 0;
+	let mut len = memsize(
 		arg as *mut libc::c_void,
 		::core::mem::size_of::<t_arg>() as libc::c_ulong,
-	);
-	while !((*arg.offset(i as isize)).elem).is_null() {
-		if (*arg.offset(i as isize)).type_0 as libc::c_uint
-			== e_arg::REDIR_REMOVED as i32 as libc::c_uint
-			&& !((*arg.offset(i.wrapping_add(1_i32 as libc::c_ulong) as isize)).elem).is_null()
+	) as usize;
+	while !((*arg.add(i)).elem).is_null() {
+		if (*arg.add(i)).type_0 as libc::c_uint == e_arg::REDIR_REMOVED as i32 as libc::c_uint
+			&& !((*arg.add(i + 1)).elem).is_null()
 		{
-			free((*arg.offset(i as isize)).elem as *mut libc::c_void);
-			(*arg.offset(i.wrapping_add(1_i32 as libc::c_ulong) as isize)).type_0 = e_arg::REDIR;
-			(*arg.offset(i.wrapping_add(1_i32 as libc::c_ulong) as isize)).redir =
-				(*arg.offset(i as isize)).redir;
+			free((*arg.add(i)).elem as *mut libc::c_void);
+			(*arg.add(i + 1)).type_0 = e_arg::REDIR;
+			(*arg.add(i + 1)).redir = (*arg.add(i)).redir;
 			while i < len {
-				*arg.offset(i as isize) =
-					*arg.offset(i.wrapping_add(1_i32 as libc::c_ulong) as isize);
-				i = i.wrapping_add(1);
+				*arg.add(i) = *arg.add(i + 1);
+				i += 1;
 			}
 			return rm_prefix_redir_word(arg);
 		}
-		i = i.wrapping_add(1);
+		i += 1;
 	}
 }
 #[unsafe(no_mangle)]
 pub unsafe fn parse_redir_types(mut arg: *mut t_arg) {
-	let mut i: i32 = -1;
+	let mut i = 0;
 	loop {
-		i += 1;
-		if ((*arg.offset(i as isize)).elem).is_null() {
+		if ((*arg.add(i)).elem).is_null() {
 			break;
 		}
-		if (*arg.offset(i as isize)).type_0 as libc::c_uint == e_arg::REDIR as i32 as libc::c_uint {
+		if (*arg.add(i)).type_0 as libc::c_uint == e_arg::REDIR as i32 as libc::c_uint {
 			let tmp: *mut libc::c_char = {
-				if (*arg.offset(i as isize)).redir as libc::c_uint
+				if (*arg.add(i)).redir as libc::c_uint
 					== e_redir::INPUT_REDIR as i32 as libc::c_uint
-					|| (*arg.offset(i as isize)).redir as libc::c_uint
+					|| (*arg.add(i)).redir as libc::c_uint
 						== e_redir::OUTPUT_REDIR as i32 as libc::c_uint
 				{
-					ft_strdup(&*((*arg.offset(i as isize)).elem).offset(1_i32 as isize))
+					ft_strdup(&*((*arg.add(i)).elem).add(1))
 				} else {
-					ft_strdup(&*((*arg.offset(i as isize)).elem).offset(2_i32 as isize))
+					ft_strdup(&*((*arg.add(i)).elem).add(2))
 				}
 			};
-			free_null(
-				&mut (*arg.offset(i as isize)).elem as *mut *mut libc::c_char as *mut libc::c_void,
-			);
-			let fresh0 = &mut (*arg.offset(i as isize)).elem;
+			free_null(&mut (*arg.add(i)).elem as *mut *mut libc::c_char as *mut libc::c_void);
+			let fresh0 = &mut (*arg.add(i)).elem;
 			*fresh0 = tmp;
 		}
+		i += 1;
 	}
 }
 unsafe fn set_type_redir(mut cmd_arg: *mut t_arg) {
 	if (*cmd_arg).redir as libc::c_uint == e_redir::APPEND as i32 as libc::c_uint
 		|| (*cmd_arg).redir as libc::c_uint == e_redir::HEREDOC as i32 as libc::c_uint
 	{
-		if *((*cmd_arg).elem).offset(2_i32 as isize) == 0 {
+		if *((*cmd_arg).elem).add(2) == 0 {
 			(*cmd_arg).type_0 = e_arg::REDIR_REMOVED;
 		} else {
 			(*cmd_arg).type_0 = e_arg::REDIR;
@@ -73,7 +68,7 @@ unsafe fn set_type_redir(mut cmd_arg: *mut t_arg) {
 	} else if (*cmd_arg).redir as libc::c_uint == e_redir::OUTPUT_REDIR as i32 as libc::c_uint
 		|| (*cmd_arg).redir as libc::c_uint == e_redir::INPUT_REDIR as i32 as libc::c_uint
 	{
-		if *((*cmd_arg).elem).offset(1_i32 as isize) == 0 {
+		if *((*cmd_arg).elem).add(1) == 0 {
 			(*cmd_arg).type_0 = e_arg::REDIR_REMOVED;
 		} else {
 			(*cmd_arg).type_0 = e_arg::REDIR;
@@ -82,45 +77,43 @@ unsafe fn set_type_redir(mut cmd_arg: *mut t_arg) {
 }
 #[unsafe(no_mangle)]
 pub unsafe fn check_redirections(mut cmd_args: *mut t_arg) -> bool {
-	let mut ii: size_t = 0;
+	let mut ii = 0;
 	let mut redir: bool = false;
-	while !((*cmd_args.offset(ii as isize)).elem).is_null() {
+	while !((*cmd_args.add(ii)).elem).is_null() {
 		if ft_strncmp(
-			(*cmd_args.offset(ii as isize)).elem,
+			(*cmd_args.add(ii)).elem,
 			b">>\0" as *const u8 as *const libc::c_char,
 			2_i32 as size_t,
 		) == 0_i32
 		{
-			(*cmd_args.offset(ii as isize)).redir = e_redir::APPEND;
+			(*cmd_args.add(ii)).redir = e_redir::APPEND;
 		} else if ft_strncmp(
-			(*cmd_args.offset(ii as isize)).elem,
+			(*cmd_args.add(ii)).elem,
 			b">\0" as *const u8 as *const libc::c_char,
 			1_i32 as size_t,
 		) == 0_i32
 		{
-			(*cmd_args.offset(ii as isize)).redir = e_redir::OUTPUT_REDIR;
+			(*cmd_args.add(ii)).redir = e_redir::OUTPUT_REDIR;
 		} else if ft_strncmp(
-			(*cmd_args.offset(ii as isize)).elem,
+			(*cmd_args.add(ii)).elem,
 			b"<<\0" as *const u8 as *const libc::c_char,
 			2_i32 as size_t,
 		) == 0_i32
 		{
-			(*cmd_args.offset(ii as isize)).redir = e_redir::HEREDOC;
+			(*cmd_args.add(ii)).redir = e_redir::HEREDOC;
 		} else if ft_strncmp(
-			(*cmd_args.offset(ii as isize)).elem,
+			(*cmd_args.add(ii)).elem,
 			b"<\0" as *const u8 as *const libc::c_char,
 			1_i32 as size_t,
 		) == 0_i32
 		{
-			(*cmd_args.offset(ii as isize)).redir = e_redir::INPUT_REDIR;
+			(*cmd_args.add(ii)).redir = e_redir::INPUT_REDIR;
 		}
-		if (*cmd_args.offset(ii as isize)).redir as libc::c_uint
-			!= e_redir::NO_REDIR as i32 as libc::c_uint
-		{
-			set_type_redir(&mut *cmd_args.offset(ii as isize));
+		if (*cmd_args.add(ii)).redir as libc::c_uint != e_redir::NO_REDIR as i32 as libc::c_uint {
+			set_type_redir(&mut *cmd_args.add(ii));
 			redir = 1_i32 != 0;
 		}
-		ii = ii.wrapping_add(1);
+		ii += 1;
 	}
 	redir
 }

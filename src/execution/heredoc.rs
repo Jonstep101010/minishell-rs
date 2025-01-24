@@ -42,20 +42,19 @@ unsafe fn heredoc_loop(mut delim: *mut libc::c_char, mut fd: i32, env: &Env) {
 }
 #[unsafe(no_mangle)]
 pub unsafe fn do_heredocs(mut token: *mut t_token, mut target: *mut i32, env: &Env) {
-	let mut i: i32 = -1;
+	let mut i = 0;
 	loop {
-		i += 1;
-		if ((*((*token).cmd_args).offset(i as isize)).elem).is_null() {
+		if ((*((*token).cmd_args).add(i)).elem).is_null() {
 			break;
 		}
-		if (*((*token).cmd_args).offset(i as isize)).redir as libc::c_uint
+		if (*((*token).cmd_args).add(i)).redir as libc::c_uint
 			== e_redir::HEREDOC as i32 as libc::c_uint
 		{
 			let oflags = OFlag::O_RDWR | OFlag::O_CREAT | OFlag::O_TRUNC;
 			let mode = Mode::from_bits(0o644).expect("Invalid mode");
 			match nix::fcntl::open(c".heredoc.txt", oflags, mode) {
 				Ok(mut fd) => {
-					heredoc_loop((*((*token).cmd_args).offset(i as isize)).elem, fd, env);
+					heredoc_loop((*((*token).cmd_args).add(i)).elem, fd, env);
 					close(fd);
 					fd = nix::fcntl::open(c".heredoc.txt", OFlag::O_RDONLY, Mode::empty()).unwrap();
 					dup2(fd, *target);
@@ -68,5 +67,6 @@ pub unsafe fn do_heredocs(mut token: *mut t_token, mut target: *mut i32, env: &E
 				}
 			}
 		}
+		i += 1;
 	}
 }

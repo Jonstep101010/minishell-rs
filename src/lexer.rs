@@ -127,7 +127,7 @@ impl<'a> t_lexer<'a> {
 				return Err(2);
 			}
 			while i < self.len_nul - 1 && bytes[i] == b'|' {
-				i = (i).wrapping_add(1);
+				i += 1;
 			}
 		}
 		if flag_redir {
