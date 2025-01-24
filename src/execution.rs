@@ -35,26 +35,29 @@ pub unsafe fn execute_commands(mut shell: &mut t_shell) {
 		::core::mem::size_of::<t_token>() as libc::c_ulong,
 	) as usize
 	{
-		0 => None,
+		0 => return,
 		val => Some(val),
 	};
-	if shell.token_len == Some(1) && !forkable_builtin(token) {
-		let mut redir_status = do_redirections((*token).cmd_args, &mut error_elem);
-		if redir_status != 0 {
-			if error_elem.is_null() {
-				todo!("check the conditions!");
-				// panic!("error_elem is null");
-			} else {
-				// @audit
-				todo!("error printing!");
-				// eprint_msh!("{}: {}", error_elem, err);
-			};
-			// (*shell).exit_status = redir_status as u8;
+	match shell.token_len.unwrap() {
+		1 if !forkable_builtin(token) => {
+			let mut redir_status = do_redirections((*token).cmd_args, &mut error_elem);
+			if redir_status != 0 {
+				if error_elem.is_null() {
+					todo!("check the conditions!");
+					// panic!("error_elem is null");
+				} else {
+					// @audit
+					todo!("error printing!");
+					// eprint_msh!("{}: {}", error_elem, err);
+				};
+				// (*shell).exit_status = redir_status as u8;
+			}
+			shell.exit_status =
+				((*token).cmd_func).expect("non-null function pointer")(shell, token) as u8 as i32;
 		}
-		shell.exit_status =
-			((*token).cmd_func).expect("non-null function pointer")(shell, token) as u8 as i32;
-	} else {
-		execute_pipes(shell);
+		_ => {
+			execute_pipes(shell);
+		}
 	}
 	destroy_all_tokens(&mut (*shell));
 }

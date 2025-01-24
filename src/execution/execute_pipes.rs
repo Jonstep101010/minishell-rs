@@ -91,12 +91,11 @@ pub unsafe fn execute_pipes(mut shell: &mut t_shell) {
 	let mut i = 0;
 	let mut error_elem: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
 	let mut prevpipe = dup(0);
-	let token_count = shell.token_len.unwrap();
 	loop {
-		if i >= token_count - 1 {
+		if i >= shell.token_len.unwrap() - 1 {
 			break;
 		}
-		if (*(shell.token).add(i)).has_redir as i32 != 0 && i != token_count - 1 {
+		if (*(shell.token).add(i)).has_redir as i32 != 0 && i != shell.token_len.unwrap() - 1 {
 			do_heredocs(&mut *(shell.token).add(i), &mut prevpipe, &shell.env);
 		}
 		exec_pipe(shell, i, &mut prevpipe, &mut error_elem);

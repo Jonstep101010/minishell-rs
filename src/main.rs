@@ -83,7 +83,7 @@ unsafe fn main_0() -> i32 {
 			}
 			str_add_history(trimmed_line);
 			if let Err(status) = msh::lexical_checks(trimmed_line) {
-				shell.exit_status = status as i32;
+				shell.exit_status = status;
 				continue;
 			} else {
 				let cstring = std::ffi::CString::new(trimmed_line).unwrap();
