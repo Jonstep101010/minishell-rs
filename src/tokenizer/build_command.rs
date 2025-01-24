@@ -68,5 +68,10 @@ impl t_shell {
 			.iter()
 			.map(|single_pipe| t_token::new(single_pipe.to_owned()))
 			.collect();
+		self.token_len = if self.token_vec.is_empty() {
+			None
+		} else {
+			Some(self.token_vec.len())
+		}
 	}
 }

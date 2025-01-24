@@ -1,3 +1,5 @@
+use std::ffi::CString;
+
 use libc::{c_char, c_int, c_ulong};
 use libft_rs::{ft_calloc::ft_calloc, ft_strlen::ft_strlen};
 
@@ -28,6 +30,22 @@ pub unsafe fn do_quote_bs(mut s: *const c_char, quote: &mut c_int) -> *mut c_cha
 		s = s.offset(1);
 	}
 	tmp
+}
+
+pub fn rs_do_quote_bs(bytes_s: &[u8], quote: &mut c_int) -> CString {
+	let mut tmp = Vec::new();
+	for i in 0..bytes_s.len() {
+		match (*quote as u8, bytes_s[i]) {
+			(0, b'\'' | b'"') => *quote = bytes_s[i] as c_int,
+			(_, q) if q == *quote as u8 => {
+				*quote = 0;
+			}
+			_ => {
+				tmp.push(bytes_s[i]);
+			}
+		}
+	}
+	unsafe { CString::from_vec_unchecked(tmp) }
 }
 
 #[cfg(test)]
@@ -68,9 +86,12 @@ mod tests {
 		let input = std::ffi::CString::new(input).unwrap();
 		let mut ptr_int_quote = 0;
 		unsafe {
+			#[allow(deprecated)]
 			let output = super::do_quote_bs(input.as_ptr(), &mut ptr_int_quote);
 			assert_eq!(expected, std::ffi::CStr::from_ptr(output).to_str().unwrap());
 			libc::free(output.cast());
+			let output = super::rs_do_quote_bs(input.as_bytes_with_nul(), &mut ptr_int_quote);
+			assert_eq!(expected, output.to_str().unwrap());
 		};
 	}
 }

@@ -100,6 +100,19 @@ pub unsafe fn init_cmdargs(mut size: size_t) -> *mut t_arg {
 	}
 	args
 }
+
+// cstring causes issues in dbg
+// pub unsafe fn init_cmdargs_vec(size: usize) -> Vec<t_arg> {
+// 	vec![
+// 		t_arg {
+// 			elem: CString::new("").unwrap(),
+// 			type_0: e_arg::STRING,
+// 			redir: e_redir::NO_REDIR,
+// 		};
+// 		size
+// 	]
+// }
+
 #[unsafe(no_mangle)]
 pub unsafe fn init_token(mut size: size_t) -> *mut t_token {
 	let template: t_token = {

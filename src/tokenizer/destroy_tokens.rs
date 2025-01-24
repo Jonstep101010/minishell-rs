@@ -16,13 +16,13 @@ pub unsafe fn destroy_all_tokens(mut shell: &mut t_shell) {
 						&mut (*((*shell.token.add(i)).cmd_args).add(ii)).elem
 							as *mut *mut libc::c_char as *mut libc::c_void,
 					);
-					ii = ii.wrapping_add(1);
+					ii += 1;
 				}
 				free_null(
 					&mut (*shell.token.add(i)).cmd_args as *mut *mut t_arg as *mut libc::c_void,
 				);
 			}
-			i = i.wrapping_add(1);
+			i += 1;
 		}
 	}
 	free_null(&mut shell.token as *mut *mut t_token as *mut libc::c_void);

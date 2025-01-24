@@ -150,7 +150,7 @@ pub unsafe fn tokenize(
 			rm_quotes((*token).cmd_args);
 			token as *mut libc::c_void
 		};
-		i = i.wrapping_add(1);
+		i += 1;
 	}
 	shell.token_len = Some(token_len);
 	shell.token as *mut libc::c_void
