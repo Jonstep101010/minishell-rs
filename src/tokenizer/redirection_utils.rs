@@ -48,8 +48,7 @@ pub unsafe fn parse_redir_types(mut arg: *mut t_arg) {
 				}
 			};
 			free_null(&mut (*arg.add(i)).elem as *mut *mut libc::c_char as *mut libc::c_void);
-			let fresh0 = &mut (*arg.add(i)).elem;
-			*fresh0 = tmp;
+			(*arg.add(i)).elem = tmp;
 		}
 		i += 1;
 	}

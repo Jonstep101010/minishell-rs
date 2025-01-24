@@ -1,5 +1,4 @@
-#[allow(unused_imports)]
-use std::ffi::{CStr, CString};
+use std::ffi::CStr;
 
 use ::libc;
 use libc::free;
@@ -11,8 +10,12 @@ use libutils_rs::src::{
 };
 
 use crate::{
-	builtins::env::builtin_env,
+	builtins::{
+		cd::builtin_cd, echo::echo, env::builtin_env, exit::builtin_exit, export::builtin_export,
+		pwd::builtin_pwd,
+	},
 	environment::{Env, expander::expander},
+	execution::exec_bin::exec_bin,
 	parser::{interpret_quotes::do_quote_bs, split_outside_quotes::split_outside_quotes},
 	prelude::*,
 	size_t, t_arg, t_shell, t_token,
@@ -22,7 +25,7 @@ use super::{
 	build_command::get_tokens,
 	destroy_tokens::destroy_all_tokens,
 	redirection_utils::{check_redirections, parse_redir_types, rm_prefix_redir_word},
-	token_utils::{init_cmdargs, set_cmd_func},
+	token_utils::init_cmdargs,
 };
 
 unsafe fn expand_if_allowed(
@@ -144,7 +147,17 @@ pub unsafe fn tokenize(
 				}
 				ii += 1;
 			}
-			set_cmd_func((*((*token).cmd_args).add(i)).elem, token);
+			(*token).cmd_func = match CStr::from_ptr((*((*token).cmd_args).add(i)).elem).to_bytes()
+			{
+				b"echo" => Some(echo as unsafe fn(&mut t_shell, *mut t_token) -> i32),
+				b"cd" => Some(builtin_cd as unsafe fn(&mut t_shell, *mut t_token) -> i32),
+				b"pwd" => Some(builtin_pwd as unsafe fn(&mut t_shell, *mut t_token) -> i32),
+				b"export" => Some(builtin_export as unsafe fn(&mut t_shell, *mut t_token) -> i32),
+				b"env" => Some(builtin_env as unsafe fn(&mut t_shell, *mut t_token) -> i32),
+				b"exit" => Some(builtin_exit as unsafe fn(&mut t_shell, *mut t_token) -> i32),
+				_ => Some(exec_bin as unsafe fn(&mut t_shell, *mut t_token) -> i32),
+			};
+
 			rm_quotes((*token).cmd_args);
 			token as *mut libc::c_void
 		};

@@ -1,5 +1,5 @@
+use crate::environment;
 pub use crate::lexer::check as lexical_checks;
-use crate::{environment, execution};
 
 impl t_token {
 	pub fn new(split_non_quoted: String) -> Self {
@@ -9,9 +9,7 @@ impl t_token {
 			split_pipes: std::ptr::null_mut::<libc::c_char>(),
 			tmp_arr: std::ptr::null_mut::<*mut libc::c_char>(),
 			bin: std::ffi::CString::new("").unwrap(),
-			cmd_func: Some(
-				execution::exec_bin::exec_bin as unsafe fn(&mut t_shell, *mut t_token) -> i32,
-			),
+			cmd_func: None,
 			split_non_quoted,
 		}
 	}
@@ -86,13 +84,4 @@ pub enum e_redir {
 	OUTPUT_REDIR = 2,
 	APPEND = 3,
 	HEREDOC = 4,
-}
-
-pub type t_cmd_func_builtin = Option<unsafe fn(&mut t_shell, *mut t_token) -> i32>;
-
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct s_func {
-	pub name: *const libc::c_char,
-	pub cmd: t_cmd_func_builtin,
 }
