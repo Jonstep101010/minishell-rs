@@ -6,7 +6,6 @@ impl t_token {
 		Self {
 			cmd_args: std::ptr::null_mut::<t_arg>(),
 			has_redir: false,
-			split_pipes: std::ptr::null_mut::<libc::c_char>(),
 			tmp_arr: std::ptr::null_mut::<*mut libc::c_char>(),
 			bin: std::ffi::CString::new("").unwrap(),
 			cmd_func: None,
@@ -56,7 +55,6 @@ impl Default for t_shell {
 pub struct t_token {
 	pub cmd_args: *mut t_arg,            // Vec<t_arg>
 	pub has_redir: bool,                 // replace with Option<type>
-	pub split_pipes: *mut libc::c_char,  // String
 	pub tmp_arr: *mut *mut libc::c_char, // Vec<String>
 	pub bin: std::ffi::CString,          // String
 	pub cmd_func: Option<unsafe fn(&mut t_shell, *mut t_token) -> i32>, // fn

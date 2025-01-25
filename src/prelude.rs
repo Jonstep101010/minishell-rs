@@ -13,6 +13,6 @@ pub type __pid_t = i32;
 pub type __clock_t = libc::c_long;
 pub type __ssize_t = libc::c_long;
 pub use crate::eprint_msh;
-pub use crate::msh::{e_arg, e_redir, t_arg, t_shell, t_token};
+pub use crate::msh::{e_arg::*, e_redir::*, t_arg, t_shell, t_token};
 pub use crate::utils::interop::*;
 pub use libc::{c_char, c_int};

@@ -43,7 +43,6 @@ pub mod tokenizer {
 	pub mod build_tokens;
 	pub mod destroy_tokens;
 	pub mod redirection_utils;
-	pub mod token_utils;
 } // mod tokenizer
 pub mod utils {
 	pub mod bool_array;
@@ -86,11 +85,10 @@ unsafe fn main_0() -> i32 {
 				shell.exit_status = status;
 				continue;
 			} else {
-				let cstring = std::ffi::CString::new(trimmed_line).unwrap();
-				shell.token = tokenizer::build_tokens::tokenize(&mut shell, cstring.as_ptr())
-					as *mut crate::t_token;
+				tokenizer::build_tokens::tokenize(&mut shell, trimmed_line);
 				if (shell.token).is_null() {
 					// return -(1);
+					tokenizer::destroy_tokens::destroy_all_tokens(&mut shell);
 					continue;
 				}
 				if ((*shell.token).cmd_args).is_null() {

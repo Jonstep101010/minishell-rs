@@ -1,22 +1,20 @@
 use ::libc;
-use e_arg::*;
-use e_redir::*;
 use libc::free;
 use libft_rs::{ft_strdup::ft_strdup, ft_strncmp::ft_strncmp};
 use libutils_rs::src::utils::{free_mem::free_null, memsize::memsize};
 
 use crate::{prelude::*, size_t, t_arg};
 #[unsafe(no_mangle)]
-pub unsafe fn rm_prefix_redir_word(arg: *mut t_arg) {
+unsafe fn rm_prefix_redir_word(arg: *mut t_arg) {
 	let mut i = 0;
 	let mut len = memsize(
 		arg as *mut libc::c_void,
 		::core::mem::size_of::<t_arg>() as libc::c_ulong,
 	) as usize;
 	while !((*arg.add(i)).elem).is_null() {
-		if (*arg.add(i)).type_0 == e_arg::REDIR_REMOVED && !((*arg.add(i + 1)).elem).is_null() {
+		if (*arg.add(i)).type_0 == REDIR_REMOVED && !((*arg.add(i + 1)).elem).is_null() {
 			free((*arg.add(i)).elem as *mut libc::c_void);
-			(*arg.add(i + 1)).type_0 = e_arg::REDIR;
+			(*arg.add(i + 1)).type_0 = REDIR;
 			(*arg.add(i + 1)).redir = (*arg.add(i)).redir;
 			while i < len {
 				*arg.add(i) = *arg.add(i + 1);
@@ -28,13 +26,13 @@ pub unsafe fn rm_prefix_redir_word(arg: *mut t_arg) {
 	}
 }
 #[unsafe(no_mangle)]
-pub unsafe fn parse_redir_types(mut arg: *mut t_arg) {
+unsafe fn parse_redir_types(mut arg: *mut t_arg) {
 	let mut i = 0;
 	loop {
 		if ((*arg.add(i)).elem).is_null() {
 			break;
 		}
-		if (*arg.add(i)).type_0 == e_arg::REDIR {
+		if (*arg.add(i)).type_0 == REDIR {
 			let tmp: *mut libc::c_char = {
 				if (*arg.add(i)).redir == Some(INPUT_REDIR)
 					|| (*arg.add(i)).redir == Some(OUTPUT_REDIR)
@@ -52,9 +50,13 @@ pub unsafe fn parse_redir_types(mut arg: *mut t_arg) {
 }
 
 #[unsafe(no_mangle)]
-pub unsafe fn check_redirections(mut cmd_args: *mut t_arg) -> bool {
+///
+/// checks for a single token (piped command) if there are redirs contained
+/// and processes those
+pub unsafe fn process_redirections(mut token: *mut t_token) {
 	let mut ii = 0;
 	let mut redir: bool = false;
+	let mut cmd_args = (*token).cmd_args;
 	while !((*cmd_args.add(ii)).elem).is_null() {
 		(*cmd_args.add(ii)).redir = match (*cmd_args.add(ii)).elem {
 			elem if ft_strncmp(elem, c">>".as_ptr(), 2 as size_t) == 0 => Some(APPEND),
@@ -84,5 +86,9 @@ pub unsafe fn check_redirections(mut cmd_args: *mut t_arg) -> bool {
 		}
 		ii += 1;
 	}
-	redir
+	if redir {
+		(*token).has_redir = true;
+		parse_redir_types((*token).cmd_args);
+		rm_prefix_redir_word((*token).cmd_args);
+	}
 }

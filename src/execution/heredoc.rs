@@ -8,7 +8,7 @@ use libutils_rs::src::string::str_equal::equal;
 use nix::{fcntl::OFlag, sys::stat::Mode};
 
 use crate::environment::Env;
-use crate::{e_redir, prelude::*, t_token};
+use crate::prelude::*;
 
 #[unsafe(no_mangle)]
 pub static mut g_ctrl_c: i32 = 0;
@@ -47,7 +47,7 @@ pub unsafe fn do_heredocs(token: *const t_token, mut target: *mut i32, env: &Env
 		if ((*((*token).cmd_args).add(i)).elem).is_null() {
 			break;
 		}
-		if (*((*token).cmd_args).add(i)).redir == Some(e_redir::HEREDOC) {
+		if (*((*token).cmd_args).add(i)).redir == Some(HEREDOC) {
 			let oflags = OFlag::O_RDWR | OFlag::O_CREAT | OFlag::O_TRUNC;
 			let mode = Mode::from_bits(0o644).expect("Invalid mode");
 			match nix::fcntl::open(c".heredoc.txt", oflags, mode) {

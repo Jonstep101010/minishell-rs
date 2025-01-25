@@ -1,7 +1,4 @@
-use crate::e_arg::*;
-use crate::e_redir::*;
 use crate::prelude::*;
-use crate::t_arg;
 use ::libc;
 use libc::{access, close, dup2, open};
 
