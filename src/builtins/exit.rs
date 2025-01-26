@@ -39,7 +39,7 @@ unsafe fn check_exit_code(command: *mut *const c_char) -> bool {
 }
 
 #[unsafe(no_mangle)]
-pub unsafe fn builtin_exit(_shell_env: &mut Env, cmd_opt: Option<*mut *const c_char>) -> i32 {
+pub unsafe fn builtin_exit(shell_env: &mut Env, cmd_opt: Option<*mut *const c_char>) -> i32 {
 	if let Some(command) = cmd_opt {
 		if !command.is_null() {
 			if !(*command.add(1)).is_null() {
@@ -62,11 +62,7 @@ pub unsafe fn builtin_exit(_shell_env: &mut Env, cmd_opt: Option<*mut *const c_c
 			}
 		}
 		eprintln!("exit");
-		todo!("exit with last status!");
-		// let mut exit_code = shell.exit_status as u8; // @audit
-		// exit_free_internal
-		// libc::free(shell as *mut libc::c_void);
-		// std::process::exit(exit_code as i32);
+		std::process::exit(shell_env.get_status());
 	}
 	unreachable!("exit has to contain something")
 }

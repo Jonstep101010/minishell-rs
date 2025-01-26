@@ -17,7 +17,6 @@ impl t_token {
 #[derive(Clone)]
 #[repr(C)]
 pub struct t_shell {
-	pub exit_status: i32,
 	pub(crate) env: environment::Env,
 	pub token: *mut t_token, // Vec<t_token>
 	pub token_len: Option<usize>,
@@ -27,7 +26,6 @@ pub struct t_shell {
 impl t_shell {
 	pub fn new() -> Self {
 		Self {
-			exit_status: 0,
 			env: environment::Env::new(),
 			token: std::ptr::null_mut(),
 			token_len: None,

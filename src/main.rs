@@ -82,7 +82,7 @@ unsafe fn main_0() -> i32 {
 			}
 			str_add_history(trimmed_line);
 			if let Err(status) = msh::lexical_checks(trimmed_line) {
-				shell.exit_status = status;
+				shell.env.set_status(status);
 				continue;
 			} else {
 				tokenizer::build_tokens::tokenize(&mut shell, trimmed_line);
@@ -104,7 +104,7 @@ unsafe fn main_0() -> i32 {
 				execution::execute_commands(&mut shell);
 			}
 		} else {
-			std::process::exit(shell.exit_status)
+			std::process::exit(shell.env.get_status())
 		}
 	}
 }

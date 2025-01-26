@@ -39,7 +39,7 @@ unsafe fn exec_last(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 		close(*prevpipe);
 		while wait(std::ptr::null_mut::<i32>()) > 0 {}
 		if status & 0x7f == 0 {
-			shell.exit_status = ((status & 0xff00) >> 8) as u8 as i32;
+			shell.env.set_status(((status & 0xff00) >> 8) as u8 as i32);
 		}
 	};
 }

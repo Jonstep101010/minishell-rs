@@ -44,10 +44,11 @@ pub unsafe fn execute_commands(shell: &mut t_shell) {
 				// free(shell as *mut libc::c_void);
 				std::process::exit(0);
 			}
-			shell.exit_status = ((*token).cmd_func).expect("non-null function pointer")(
+			let status = ((*token).cmd_func).expect("non-null function pointer")(
 				&mut (shell.env),
 				Some(command),
 			) as u8 as i32;
+			shell.env.set_status(status);
 		}
 		_ => {
 			execute_pipes(shell);
