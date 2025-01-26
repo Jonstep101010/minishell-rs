@@ -1,3 +1,5 @@
+use libc::c_char;
+
 use crate::environment;
 pub use crate::lexer::check as lexical_checks;
 
@@ -6,7 +8,6 @@ impl t_token {
 		Self {
 			cmd_args_vec: vec![],
 			has_redir: false,
-			bin: std::ffi::CString::new("").unwrap(),
 			cmd_func: None,
 			split_non_quoted,
 		}
@@ -54,8 +55,7 @@ impl Default for t_shell {
 pub struct t_token {
 	pub cmd_args_vec: Vec<t_arg>,
 	pub has_redir: bool,
-	pub bin: std::ffi::CString, // String
-	pub cmd_func: Option<unsafe fn(&mut t_shell, *mut t_token) -> i32>, // fn
+	pub cmd_func: Option<unsafe fn(&mut crate::Env, Option<*mut *const c_char>) -> i32>, // fn
 	pub split_non_quoted: String,
 }
 

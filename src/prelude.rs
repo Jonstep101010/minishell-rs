@@ -12,6 +12,7 @@ pub type __uid_t = libc::c_uint;
 pub type __pid_t = i32;
 pub type __clock_t = libc::c_long;
 pub type __ssize_t = libc::c_long;
+pub use crate::environment::Env;
 pub use crate::eprint_msh;
 pub use crate::msh::{e_arg::*, e_redir::*, t_arg, t_shell, t_token};
 pub use crate::utils::interop::*;

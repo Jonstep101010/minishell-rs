@@ -35,8 +35,19 @@ pub unsafe fn execute_commands(mut shell: &mut t_shell) {
 			if do_redirections(&mut ((*token).cmd_args_vec)).is_err() {
 				todo!("some sort of handling");
 			}
-			shell.exit_status =
-				((*token).cmd_func).expect("non-null function pointer")(shell, token) as u8 as i32;
+			// @note this might be a good candidate for implementing a rust version of the function
+			let mut command: *mut *const libc::c_char =
+				crate::tokenizer::build_command::get_cmd_arr_token(token)
+					as *mut *const libc::c_char;
+			if command.is_null() {
+				crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
+				// free(shell as *mut libc::c_void);
+				std::process::exit(0);
+			}
+			shell.exit_status = ((*token).cmd_func).expect("non-null function pointer")(
+				&mut (shell.env),
+				Some(command),
+			) as u8 as i32;
 		}
 		_ => {
 			execute_pipes(shell);

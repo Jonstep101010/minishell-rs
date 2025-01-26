@@ -50,16 +50,15 @@ unsafe fn echo_default(cmd_args: *const *const c_char) {
 	}
 }
 
-#[allow(unused_mut)]
 #[unsafe(no_mangle)]
-pub unsafe fn echo(mut _nullable: &mut t_shell, mut token: *mut t_token) -> i32 {
-	let args: *mut *const c_char =
-		crate::tokenizer::build_command::get_cmd_arr_token(token) as *mut *const c_char;
-	if !(*args.add(1)).is_null() {
-		echo_default(&*args.add(1));
-	} else {
-		println!();
+pub unsafe fn echo(_shell_env: &mut Env, cmd_opt: Option<*mut *const c_char>) -> i32 {
+	if let Some(args) = cmd_opt {
+		if !(*args.add(1)).is_null() {
+			echo_default(&*args.add(1));
+		} else {
+			println!();
+		}
+		arr_free(args as *mut *mut c_char);
 	}
-	arr_free(args as *mut *mut c_char);
 	0 as c_int
 }

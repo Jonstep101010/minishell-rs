@@ -29,9 +29,7 @@ use crate::{
 unsafe fn init_token(mut size: usize) -> *mut t_token {
 	let template: t_token = {
 		t_token {
-			// cmd_args: std::ptr::null_mut::<t_arg>(),
 			has_redir: false,
-			bin: std::ffi::CString::new("").unwrap(),
 			cmd_func: None,
 			split_non_quoted: String::new(),
 			cmd_args_vec: vec![],
@@ -76,7 +74,9 @@ unsafe fn setup_token(
 	let mut ii = 0;
 	while !(*(token_split).add(ii)).is_null() {
 		(*token).cmd_args_vec[ii].elem = *(token_split).add(ii);
-		if (*token).cmd_func != Some(builtin_env as unsafe fn(&mut t_shell, *mut t_token) -> i32) {
+		if (*token).cmd_func
+			!= Some(builtin_env as unsafe fn(&mut Env, Option<*mut *const c_char>) -> i32)
+		{
 			let mut token_cmd_args_elem = (*token).cmd_args_vec[ii].elem;
 			// expand if allowed
 			if str_cchr(token_cmd_args_elem, '$' as i32 as libc::c_char) != 0 {
@@ -152,14 +152,24 @@ pub unsafe fn tokenize(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
 		// set_cmd_func
 		(*(shell.token).add(i)).cmd_func =
 			match CStr::from_ptr((*(shell.token).add(i)).cmd_args_vec[ii].elem).to_bytes() {
-				b"echo" => Some(echo as unsafe fn(&mut t_shell, *mut t_token) -> i32),
-				b"cd" => Some(builtin_cd as unsafe fn(&mut t_shell, *mut t_token) -> i32),
-				b"pwd" => Some(builtin_pwd as unsafe fn(&mut t_shell, *mut t_token) -> i32),
-				b"export" => Some(builtin_export as unsafe fn(&mut t_shell, *mut t_token) -> i32),
-				b"unset" => Some(builtin_unset as unsafe fn(&mut t_shell, *mut t_token) -> i32),
-				b"env" => Some(builtin_env as unsafe fn(&mut t_shell, *mut t_token) -> i32),
-				b"exit" => Some(builtin_exit as unsafe fn(&mut t_shell, *mut t_token) -> i32),
-				_ => Some(exec_bin as unsafe fn(&mut t_shell, *mut t_token) -> i32),
+				b"echo" => Some(echo as unsafe fn(&mut Env, Option<*mut *const c_char>) -> i32),
+				b"cd" => Some(builtin_cd as unsafe fn(&mut Env, Option<*mut *const c_char>) -> i32),
+				b"pwd" => {
+					Some(builtin_pwd as unsafe fn(&mut Env, Option<*mut *const c_char>) -> i32)
+				}
+				b"export" => {
+					Some(builtin_export as unsafe fn(&mut Env, Option<*mut *const c_char>) -> i32)
+				}
+				b"unset" => {
+					Some(builtin_unset as unsafe fn(&mut Env, Option<*mut *const c_char>) -> i32)
+				}
+				b"env" => {
+					Some(builtin_env as unsafe fn(&mut Env, Option<*mut *const c_char>) -> i32)
+				}
+				b"exit" => {
+					Some(builtin_exit as unsafe fn(&mut Env, Option<*mut *const c_char>) -> i32)
+				}
+				_ => Some(exec_bin as unsafe fn(&mut Env, Option<*mut *const c_char>) -> i32),
 			};
 		// rm_quotes
 		let mut quote = 0;

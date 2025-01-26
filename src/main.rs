@@ -104,7 +104,7 @@ unsafe fn main_0() -> i32 {
 				execution::execute_commands(&mut shell);
 			}
 		} else {
-			builtins::exit::builtin_exit(&mut shell, std::ptr::null_mut::<t_token>());
+			std::process::exit(shell.exit_status)
 		}
 	}
 }

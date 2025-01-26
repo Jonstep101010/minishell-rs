@@ -1,9 +1,8 @@
-use crate::{t_shell, t_token};
+use crate::prelude::*;
 
-#[allow(unused_mut)]
 #[unsafe(no_mangle)]
-pub unsafe fn builtin_env(mut shell: &mut t_shell, mut _token: *mut t_token) -> i32 {
-	print!("{}", shell.env);
-	println!("?={}", shell.exit_status);
+pub unsafe fn builtin_env(shell_env: &mut Env, _command: Option<*mut *const c_char>) -> i32 {
+	print!("{}", shell_env);
+	// println!("?={}", shell.exit_status);// @note remove for now
 	0
 }

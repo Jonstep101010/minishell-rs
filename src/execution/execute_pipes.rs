@@ -19,9 +19,17 @@ unsafe fn exec_last(mut shell: &mut t_shell, mut i: usize, mut prevpipe: *mut i3
 		}
 		dup2(*prevpipe, 0);
 		close(*prevpipe);
+		let mut command: *mut *const libc::c_char =
+			crate::tokenizer::build_command::get_cmd_arr_token((shell.token).add(i))
+				as *mut *const libc::c_char;
+		if command.is_null() {
+			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
+			// free(shell as *mut libc::c_void);
+			std::process::exit(0);
+		}
 		let ret = ((*(shell.token).add(i)).cmd_func).expect("non-null function pointer")(
-			shell,
-			&mut *(shell.token).add(i),
+			&mut (&mut shell.env),
+			Some(command),
 		);
 		crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
 		// free(shell as *mut libc::c_void);
@@ -51,9 +59,17 @@ unsafe fn exec_pipe(mut shell: &mut t_shell, i: usize, mut prevpipe: *mut i32) {
 			// free(shell as *mut libc::c_void);
 			todo!("bail out gracefully");
 		}
+		let mut command: *mut *const libc::c_char =
+			crate::tokenizer::build_command::get_cmd_arr_token((shell.token).add(i))
+				as *mut *const libc::c_char;
+		if command.is_null() {
+			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
+			// free(shell as *mut libc::c_void);
+			std::process::exit(0);
+		}
 		let ret = ((*(shell.token).add(i)).cmd_func).expect("non-null function pointer")(
-			shell,
-			&mut *(shell.token).add(i),
+			&mut shell.env,
+			Some(command),
 		);
 		{
 			let mut shell: &mut t_shell = shell;

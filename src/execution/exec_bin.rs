@@ -4,7 +4,7 @@ use libc::{exit, free, strerror};
 use libft_rs::ft_strchr::ft_strchr;
 use libutils_rs::src::array::arr_free::arr_free;
 
-use crate::{prelude::*, t_shell, t_token, tokenizer::build_command::get_cmd_arr_token};
+use crate::prelude::*;
 
 use super::bin_path::get_path_prefixed;
 // unsafe fn execve_fail(mut shell: &mut t_shell, cmd: &CStr) {
@@ -16,21 +16,13 @@ use super::bin_path::get_path_prefixed;
 // exit(where_it_happened);
 // }
 #[unsafe(no_mangle)]
-pub unsafe fn exec_bin(mut shell: &mut t_shell, mut token: *mut t_token) -> i32 {
-	// @note this might be a good candidate for implementing a rust version of the function
-	let mut command: *mut *const libc::c_char =
-		get_cmd_arr_token(token) as *mut *const libc::c_char;
-	if command.is_null() {
-		crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
-		// free(shell as *mut libc::c_void);
-		std::process::exit(0);
-	}
-	let env = &shell.env;
-	if !(*command).is_null() {
-		let (mut access_status, path_prefixed_bin) =
-			get_path_prefixed(env, std::ffi::CStr::from_ptr(*command));
+pub unsafe fn exec_bin(shell_env: &mut Env, cmd_opt: Option<*mut *const c_char>) -> i32 {
+	if let Some(command) = cmd_opt {
+		let mut path_exec_bin = None;
+		let (access_status, path_prefixed_bin) =
+			get_path_prefixed(shell_env, std::ffi::CStr::from_ptr(*command));
 		if path_prefixed_bin.is_some() {
-			(*token).bin = path_prefixed_bin.unwrap();
+			path_exec_bin = path_prefixed_bin;
 		}
 		if access_status == 1 || access_status == 2 || access_status == 126 || access_status == 127
 		{
@@ -44,14 +36,14 @@ pub unsafe fn exec_bin(mut shell: &mut t_shell, mut token: *mut t_token) -> i32 
 				eprint_msh!("{}: command not found", i8const_str(command, 0));
 			}
 			arr_free(command as *mut *mut libc::c_char);
-			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
+			// crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));// @audit handling
 			// free(shell as *mut libc::c_void);
 			std::process::exit(access_status.into());
 		}
 		if libc::execve(
-			(*token).bin.as_ptr(),
+			path_exec_bin.unwrap().as_ptr(),
 			command as *mut *mut libc::c_char as *const *const libc::c_char,
-			shell.env.as_ptr_array().as_ptr(),
+			shell_env.as_ptr_array().as_ptr(),
 		) == -1
 		{
 			arr_free(command as *mut *mut libc::c_char);
@@ -59,12 +51,9 @@ pub unsafe fn exec_bin(mut shell: &mut t_shell, mut token: *mut t_token) -> i32 
 			// execve_fail(shell, (*token).bin.as_c_str());
 		}
 		arr_free(command as *mut *mut libc::c_char);
-		crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
+		// crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));// @audit handling
 		// free(shell as *mut libc::c_void);
 		std::process::exit(0);
 	}
-	arr_free(command as *mut *mut libc::c_char);
-	crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
-	// free(shell as *mut libc::c_void);
 	std::process::exit(1);
 }

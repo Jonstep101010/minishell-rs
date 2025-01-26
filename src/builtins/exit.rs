@@ -42,32 +42,35 @@ unsafe fn check_exit_code(command: *mut *const c_char) -> bool {
 	true
 }
 
-#[allow(unused_mut)]
 #[unsafe(no_mangle)]
-pub unsafe fn builtin_exit(mut shell: &mut t_shell, mut code_nullable: *mut t_token) -> c_int {
-	let mut command: *mut *const c_char = get_cmd_arr_token(code_nullable) as *mut *const c_char;
-	let mut exit_code = shell.exit_status as u8;
-	if !code_nullable.is_null() && !command.is_null() {
-		if !(*command.add(1)).is_null() {
-			if **command.add(1) == 0 {
-				// eprintln!("exit");
-				eprint_msh!("exit: numeric argument required {}", exit_code,);
+pub unsafe fn builtin_exit(_shell_env: &mut Env, cmd_opt: Option<*mut *const c_char>) -> i32 {
+	if let Some(command) = cmd_opt {
+		if !command.is_null() {
+			if !(*command.add(1)).is_null() {
+				if **command.add(1) == 0 {
+					// eprintln!("exit");
+					eprint_msh!("exit: numeric argument required");
+					arr_free(command as *mut *mut c_char);
+					return 2 as c_int;
+				}
+				if !check_exit_code(command) {
+					arr_free(command as *mut *mut c_char);
+					return 1 as c_int;
+				}
+				let exit_code = ft_atol(*command.add(1)) as u8;
 				arr_free(command as *mut *mut c_char);
-				return 2 as c_int;
+				eprintln!("exit");
+				// exit_free_internal
+				// libc::free(shell as *mut libc::c_void);
+				std::process::exit(exit_code as i32);
 			}
-			if !check_exit_code(command) {
-				arr_free(command as *mut *mut c_char);
-				return 1 as c_int;
-			}
-			exit_code = ft_atol(*command.add(1)) as u8;
 		}
-		arr_free(command as *mut *mut c_char);
-	}
-	eprintln!("exit");
-	// exit_free_internal
-	{
-		destroy_all_tokens(&mut (*shell));
+		eprintln!("exit");
+		todo!("exit with last status!");
+		// let mut exit_code = shell.exit_status as u8; // @audit
+		// exit_free_internal
 		// libc::free(shell as *mut libc::c_void);
-		std::process::exit(exit_code as i32);
-	};
+		// std::process::exit(exit_code as i32);
+	}
+	unreachable!("exit has to contain something")
 }
