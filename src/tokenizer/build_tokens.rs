@@ -23,20 +23,21 @@ use crate::{
 };
 
 #[allow(unused_mut)]
-unsafe fn init_token(mut size: size_t) -> *mut t_token {
+unsafe fn init_token(mut size: usize) -> *mut t_token {
 	let template: t_token = {
 		t_token {
 			// cmd_args: std::ptr::null_mut::<t_arg>(),
 			has_redir: false,
-			tmp_arr: std::ptr::null_mut::<*mut libc::c_char>(),
 			bin: std::ffi::CString::new("").unwrap(),
 			cmd_func: None,
 			split_non_quoted: String::new(),
 			cmd_args_vec: vec![],
 		}
 	};
-	let mut token: *mut t_token =
-		ft_calloc(size + 1, ::core::mem::size_of::<t_token>() as libc::c_ulong) as *mut t_token;
+	let mut token: *mut t_token = ft_calloc(
+		size as u64 + 1,
+		::core::mem::size_of::<t_token>() as libc::c_ulong,
+	) as *mut t_token;
 	while !token.is_null() && {
 		let fresh1 = size;
 		size = size.wrapping_sub(1);
@@ -52,7 +53,7 @@ unsafe fn init_token(mut size: size_t) -> *mut t_token {
 	token
 }
 
-unsafe fn get_tokens(mut trimmed_line: *const libc::c_char) -> Option<(*mut t_token, usize)> {
+unsafe fn get_tokens(trimmed_line: *const libc::c_char) -> Option<Vec<*mut *mut libc::c_char>> {
 	let mut split_pipes: *mut *mut libc::c_char = split_outside_quotes(trimmed_line, c"|".as_ptr());
 	if split_pipes.is_null() {
 		panic!("alloc fail token");
@@ -61,43 +62,46 @@ unsafe fn get_tokens(mut trimmed_line: *const libc::c_char) -> Option<(*mut t_to
 		arr_free(split_pipes);
 		return None;
 	}
-	let mut token: *mut t_token = init_token(arr_len(split_pipes));
-	if token.is_null() {
-		panic!("alloc fail token");
-	}
 	let mut i = 0;
+	let mut token_splits_vec = vec![];
 	while !(*split_pipes.add(i)).is_null() {
-		(*token.add(i)).tmp_arr =
-			split_outside_quotes(*split_pipes.add(i), c" \t\n\r\x0B\x0C".as_ptr());
-		if ((*token).tmp_arr).is_null() {
+		token_splits_vec.push(split_outside_quotes(
+			*split_pipes.add(i),
+			c" \t\n\r\x0B\x0C".as_ptr(),
+		));
+		if (token_splits_vec.last().unwrap()).is_null() {
 			// @audit will leak!
-			return None;
+			todo!("shall not be null!");
+			// return None;
 		}
 		i += 1;
 	}
+	assert_eq!(arr_len(split_pipes), i as u64);
+	assert_eq!(i, token_splits_vec.len());
 	free(split_pipes as *mut libc::c_void);
-	Some((token, i))
+	Some(token_splits_vec)
 }
 
-unsafe fn setup_token(mut token: *mut t_token, env: &Env) -> Option<()> {
-	if token.is_null() || ((*token).tmp_arr).is_null() {
-		return None;
-	}
+unsafe fn setup_token(
+	mut token: *mut t_token,
+	mut token_split: *mut *mut c_char,
+	env: &Env,
+) -> Option<()> {
 	(*token).cmd_args_vec = vec![
 		t_arg {
 			elem: std::ptr::null_mut::<libc::c_char>(),
 			type_0: STRING,
 			redir: None,
 		};
-		arr_len((*token).tmp_arr) as usize
+		arr_len(token_split) as usize
 	];
 	if ((*token).cmd_args_vec).is_empty() {
-		arr_free((*token).tmp_arr);
+		arr_free(token_split);
 		return None;
 	}
 	let mut ii = 0;
-	while !(*((*token).tmp_arr).add(ii)).is_null() {
-		(*token).cmd_args_vec[ii].elem = *((*token).tmp_arr).add(ii);
+	while !(*(token_split).add(ii)).is_null() {
+		(*token).cmd_args_vec[ii].elem = *(token_split).add(ii);
 		if (*token).cmd_func != Some(builtin_env as unsafe fn(&mut t_shell, *mut t_token) -> i32) {
 			let mut token_cmd_args_elem = (*token).cmd_args_vec[ii].elem;
 			// expand if allowed
@@ -123,7 +127,6 @@ unsafe fn setup_token(mut token: *mut t_token, env: &Env) -> Option<()> {
 		}
 		ii += 1;
 	}
-	free_null(&mut (*token).tmp_arr as *mut *mut *mut libc::c_char as *mut libc::c_void);
 	Some(())
 }
 
@@ -141,15 +144,17 @@ unsafe fn setup_token(mut token: *mut t_token, env: &Env) -> Option<()> {
 
 pub unsafe fn tokenize(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
 	let trimmed_line = std::ffi::CString::new(trimmed_line).unwrap();
-	let tuple = get_tokens(trimmed_line.as_ptr())?;
-	shell.token_len = Some(tuple.1);
-	shell.token = tuple.0;
+	let token_splits_vec = get_tokens(trimmed_line.as_ptr())?;
+	shell.token_len = Some(token_splits_vec.len());
+	shell.token = init_token(token_splits_vec.len());
+	if shell.token.is_null() {
+		panic!("alloc fail token");
+	}
 	let mut i = 0;
 	while i < shell.token_len.unwrap() {
-		setup_token(&mut *(shell.token).add(i), &shell.env)?;
-		// if (*(shell.token).add(i)).cmd_args_vec.is_empty() {
-		// 	return None;
-		// }
+		debug_assert!(!token_splits_vec[i].is_null());
+		debug_assert!(!(shell.token).add(i).is_null());
+		setup_token(&mut *(shell.token).add(i), token_splits_vec[i], &shell.env)?;
 		super::redirection_utils::process_redirections((shell.token).add(i));
 		let mut ii = 0;
 		// check if the elem is null for a specific tokens' cmd_args
@@ -162,7 +167,6 @@ pub unsafe fn tokenize(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
 			ii += 1;
 		}
 		// set_cmd_func
-		// (*token).cmd_func = match CStr::from_ptr((*((*token).cmd_args).add(i)).elem).to_bytes() {
 		(*(shell.token).add(i)).cmd_func =
 			match CStr::from_ptr((*(shell.token).add(i)).cmd_args_vec[ii].elem).to_bytes() {
 				b"echo" => Some(echo as unsafe fn(&mut t_shell, *mut t_token) -> i32),
