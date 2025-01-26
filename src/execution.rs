@@ -4,55 +4,68 @@ mod execute_pipes;
 mod heredoc;
 mod redirections;
 use self::{execute_pipes::execute_pipes, redirections::do_redirections};
-#[allow(unused_imports)]
 use crate::{
-	builtins::{cd::builtin_cd, exit::builtin_exit, export::builtin_export, unset::builtin_unset},
-	eprint_msh,
-	libutils_rs::src::utils::memsize::memsize,
+	builtins::{
+		cd::builtin_cd, echo::echo, env::builtin_env, exit::builtin_exit, export::builtin_export,
+		pwd::builtin_pwd, unset::builtin_unset,
+	},
 	t_shell, t_token,
 	tokenizer::destroy_tokens::destroy_all_tokens,
 };
 use ::libc;
-#[allow(unused_imports)]
-use libc::strerror;
+use exec_bin::exec_bin;
+use libc::c_char;
 
-unsafe fn forkable_builtin(mut token: *mut t_token) -> bool {
-	(*token).cmd_func != Some(builtin_exit as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int)
-		&& (*token).cmd_func
-			!= Some(builtin_export as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int)
-		&& (*token).cmd_func
-			!= Some(builtin_unset as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int)
-		&& (*token).cmd_func
-			!= Some(builtin_cd as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int)
-}
 #[unsafe(no_mangle)]
-pub unsafe fn execute_commands(mut shell: *mut t_shell, mut token: *mut t_token) {
-	let mut error_elem: *mut libc::c_char = std::ptr::null_mut::<libc::c_char>();
-	if token.is_null() {
-		(*shell).exit_status = -(1 as libc::c_int) as u8;
-		return;
-	}
-	let mut token_count = memsize(
-		(*shell).token as *mut libc::c_void,
-		::core::mem::size_of::<t_token>() as libc::c_ulong,
-	) as libc::c_int;
-	if token_count == 1 as libc::c_int && !forkable_builtin(token) {
-		let mut redir_status = do_redirections((*token).cmd_args, &mut error_elem);
-		if redir_status != 0 as libc::c_int {
-			if error_elem.is_null() {
-				todo!("check the conditions!");
-				// panic!("error_elem is null");
-			} else {
-				// @audit
-				todo!("error printing!");
-				// eprint_msh!("{}: {}", error_elem, err);
-			};
-			// (*shell).exit_status = redir_status as u8;
+pub unsafe fn execute_commands(shell: &mut t_shell) {
+	let token = shell.token;
+	match shell.token_len.unwrap() {
+		0 => unreachable!("there should not be empty tokens here"),
+		1 if !{
+			(*token).cmd_name != b"cd"
+				&& (*token).cmd_name != b"unset"
+				&& (*token).cmd_name != b"export"
+				&& (*token).cmd_name != b"exit"
+		} =>
+		{
+			if do_redirections(&mut ((*token).cmd_args_vec)).is_err() {
+				todo!("some sort of handling");
+			}
+			let status = executor(token, shell);
+			shell.env.set_status(status);
 		}
-		(*shell).exit_status =
-			((*token).cmd_func).expect("non-null function pointer")(shell, token) as u8;
-	} else {
-		execute_pipes(shell, token_count);
+		_ => {
+			execute_pipes(shell);
+		}
 	}
 	destroy_all_tokens(&mut (*shell));
+}
+
+pub unsafe fn executor(token: *mut t_token, shell: &mut t_shell) -> i32 {
+	// @note this might be a good candidate for implementing a rust version of the function
+	let command: *mut *const c_char =
+		crate::tokenizer::build_command::get_cmd_arr_token(token).cast();
+	if command.is_null() {
+		crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
+		std::process::exit(0);
+	}
+	let status = match (*token).cmd_name.as_slice() {
+		b"echo" => echo(command),
+		b"cd" => {
+			let opt_target_dir = if command.add(1).is_null() {
+				None
+			} else {
+				Some(std::ffi::CStr::from_ptr(*command.add(1)).to_str().unwrap())
+			};
+			builtin_cd(&mut shell.env, opt_target_dir)
+		}
+		b"pwd" => builtin_pwd(&shell.env),
+		b"export" => builtin_export(&mut shell.env, command),
+		b"unset" => builtin_unset(&mut shell.env, command),
+		b"env" => builtin_env(&shell.env),
+		b"exit" => builtin_exit(&mut shell.env, command),
+		_ => exec_bin(&shell.env, command),
+	};
+	libutils_rs::arr_free(command.cast());
+	status
 }

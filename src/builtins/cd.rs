@@ -1,8 +1,5 @@
-use ::libc;
-
-use crate::{environment::Env, t_shell, t_token, tokenizer::build_command::get_cmd_arr_token};
-use libutils_rs::src::array::arr_free::arr_free;
-use std::{ffi::CStr, path::Path};
+use crate::prelude::*;
+use std::path::Path;
 
 fn changedir(path_string: &str, env: &mut Env) -> bool {
 	let oldpwd = std::env::current_dir().unwrap();
@@ -52,20 +49,6 @@ fn cd_internal(opt_cmd_args: Option<&str>, env: &mut Env) -> bool {
 	}
 }
 
-#[allow(unused_mut)]
-#[unsafe(no_mangle)]
-pub unsafe fn builtin_cd(mut shell: *mut t_shell, mut token: *mut t_token) -> libc::c_int {
-	let mut command: *mut *const libc::c_char =
-		get_cmd_arr_token(token) as *mut *const libc::c_char;
-	let cmd_args = *command.offset(1);
-	// option of cmd_args -> none if null
-	let opt_cmd_args = if cmd_args.is_null() {
-		None
-	} else {
-		Some(CStr::from_ptr(cmd_args).to_str().unwrap())
-	};
-	let mut shell_env: &mut Env = &mut (*shell).env;
-	let status = cd_internal(opt_cmd_args, shell_env);
-	arr_free(command as *mut *mut libc::c_char);
-	!status as libc::c_int
+pub fn builtin_cd(shell_env: &mut Env, opt_target_dir: Option<&str>) -> i32 {
+	!cd_internal(opt_target_dir, shell_env) as i32
 }

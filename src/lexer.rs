@@ -98,7 +98,9 @@ impl<'a> t_lexer<'a> {
 			let mut flag_word = false;
 			while i < self.len_nul - 1 && bytes[i] != b'|' {
 				match bytes[i] {
-					b'>' | b'<' => {
+					b'>' | b'<' =>
+					{
+						#[allow(clippy::if_same_then_else)]
 						if !flag_redir {
 							flag_redir = true;
 						} else if (i >= 1 && bytes[i - 1] == bytes[i])
@@ -127,7 +129,7 @@ impl<'a> t_lexer<'a> {
 				return Err(2);
 			}
 			while i < self.len_nul - 1 && bytes[i] == b'|' {
-				i = (i).wrapping_add(1);
+				i += 1;
 			}
 		}
 		if flag_redir {

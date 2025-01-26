@@ -5,6 +5,7 @@ use std::{collections::HashMap, fmt::Display};
 #[derive(Clone, Debug)]
 pub struct Env {
 	map: HashMap<String, String>,
+	status: i32,
 }
 
 impl Display for Env {
@@ -30,13 +31,17 @@ impl Env {
 	pub fn new_empty() -> Self {
 		Self {
 			map: HashMap::new(),
+			status: 0,
 		}
 	}
 	#[cfg(test)]
 	pub fn new_exit_status() -> Self {
 		let mut status_env = HashMap::new();
 		status_env.insert("?".to_string(), "0".to_string());
-		Self { map: status_env }
+		Self {
+			map: status_env,
+			status: 0,
+		}
 	}
 	pub fn new() -> Self {
 		// collect environment variables
@@ -50,7 +55,10 @@ impl Env {
 				"/bin:/usr/bin:/sbin/:/usr/sbin".to_string(),
 			);
 		}
-		Self { map: host_env }
+		Self {
+			map: host_env,
+			status: 0,
+		}
 	}
 	pub fn get_paths(&self) -> Vec<String> {
 		self.get("PATH")
@@ -68,18 +76,17 @@ impl Env {
 		ptrs.push(::core::ptr::null_mut());
 		ptrs
 	}
-	// fn destroy_ptr_array(ptrs: Vec<*mut libc::c_char>) {
-	// 	for ptr in ptrs {
-	// 		unsafe {
-	// 			::std::ffi::CString::from_raw(ptr);
-	// 		}
-	// 	}
-	// }
 	// @todo implement builtins in environment
 	pub fn export(&mut self, key: &str, value: String) {
 		if key != "?" {
 			self.map.insert(key.to_string(), value);
 		}
+	}
+	pub fn set_status(&mut self, new_status: i32) {
+		self.status = new_status;
+	}
+	pub fn get_status(&self) -> i32 {
+		self.status
 	}
 	// @todo implement builtins in environment
 	pub fn unset(&mut self, key: &str) {

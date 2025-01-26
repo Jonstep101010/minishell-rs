@@ -1,7 +1,6 @@
 use crate::prelude::*;
-use crate::t_token;
+
 use libft_rs::ft_strncmp::ft_strncmp;
-use libutils_rs::src::array::arr_free::arr_free;
 
 unsafe fn is_n_arg(mut arg: *const c_char) -> bool {
 	if *arg as c_int == '-' as i32 {
@@ -50,16 +49,11 @@ unsafe fn echo_default(cmd_args: *const *const c_char) {
 	}
 }
 
-#[allow(unused_mut)]
-#[unsafe(no_mangle)]
-pub unsafe fn echo(mut _nullable: *mut t_shell, mut token: *mut t_token) -> libc::c_int {
-	let args: *mut *const c_char =
-		crate::tokenizer::build_command::get_cmd_arr_token(token) as *mut *const c_char;
+pub unsafe fn echo(args: *mut *const c_char) -> i32 {
 	if !(*args.add(1)).is_null() {
 		echo_default(&*args.add(1));
 	} else {
 		println!();
 	}
-	arr_free(args as *mut *mut c_char);
-	0 as c_int
+	0
 }

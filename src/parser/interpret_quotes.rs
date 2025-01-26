@@ -1,3 +1,5 @@
+use std::ffi::CString;
+
 use libc::{c_char, c_int, c_ulong};
 use libft_rs::{ft_calloc::ft_calloc, ft_strlen::ft_strlen};
 
@@ -7,7 +9,7 @@ use libft_rs::{ft_calloc::ft_calloc, ft_strlen::ft_strlen};
 /// assume s is not null and is nul-terminated
 pub unsafe fn do_quote_bs(mut s: *const c_char, quote: &mut c_int) -> *mut c_char {
 	let tmp = ft_calloc(
-		ft_strlen(s).wrapping_add(1) as u64,
+		ft_strlen(s) + 1_u64,
 		::core::mem::size_of::<c_char>() as c_ulong,
 	) as *mut c_char;
 	if tmp.is_null() {
@@ -22,12 +24,28 @@ pub unsafe fn do_quote_bs(mut s: *const c_char, quote: &mut c_int) -> *mut c_cha
 			_ => {
 				let tmp_len = ft_strlen(tmp) as usize;
 				*tmp.add(tmp_len) = *s;
-				*tmp.add(tmp_len.wrapping_add(1)) = '\0' as c_char;
+				*tmp.add(tmp_len + 1) = '\0' as c_char;
 			}
 		}
-		s = s.offset(1);
+		s = s.add(1);
 	}
 	tmp
+}
+
+pub fn rs_do_quote_bs(bytes_s: &[u8], quote: &mut c_int) -> CString {
+	let mut tmp = Vec::new();
+	for &byte in bytes_s {
+		match (*quote as u8, byte) {
+			(0, b'\'' | b'"') => *quote = byte as c_int,
+			(_, q) if q == *quote as u8 => {
+				*quote = 0;
+			}
+			_ => {
+				tmp.push(byte);
+			}
+		}
+	}
+	unsafe { CString::from_vec_unchecked(tmp) }
 }
 
 #[cfg(test)]
@@ -68,9 +86,12 @@ mod tests {
 		let input = std::ffi::CString::new(input).unwrap();
 		let mut ptr_int_quote = 0;
 		unsafe {
+			#[allow(deprecated)]
 			let output = super::do_quote_bs(input.as_ptr(), &mut ptr_int_quote);
 			assert_eq!(expected, std::ffi::CStr::from_ptr(output).to_str().unwrap());
 			libc::free(output.cast());
+			let output = super::rs_do_quote_bs(input.as_bytes_with_nul(), &mut ptr_int_quote);
+			assert_eq!(expected, output.to_str().unwrap());
 		};
 	}
 }

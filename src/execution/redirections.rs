@@ -1,77 +1,51 @@
 use crate::prelude::*;
-use crate::t_arg;
 use ::libc;
 use libc::{access, close, dup2, open};
 
-unsafe fn open_redir(
-	mut file: *const libc::c_char,
-	mut redir: e_redir,
-	mut fd: *mut libc::c_int,
-) -> libc::c_int {
-	if redir as libc::c_uint == e_redir::INPUT_REDIR as libc::c_int as libc::c_uint {
-		let mut perm = access(file, 0 as libc::c_int);
-		if perm != 0 as libc::c_int {
-			return 127 as libc::c_int;
-		}
-		perm = access(file, 4 as libc::c_int);
-		if perm != 0 as libc::c_int {
-			return 126 as libc::c_int;
-		}
-		*fd = open(file, 0 as libc::c_int);
-	} else if redir as libc::c_uint == e_redir::OUTPUT_REDIR as libc::c_int as libc::c_uint {
-		*fd = open(
-			file,
-			0o1 as libc::c_int | 0o100 as libc::c_int | 0o1000 as libc::c_int,
-			0o644 as libc::c_int,
-		);
-	} else if redir as libc::c_uint == e_redir::APPEND as libc::c_int as libc::c_uint {
-		let mut perm = access(file, 2 as libc::c_int);
-		if perm != 0 as libc::c_int {
-			todo!("handle missing perms in open_redir");
-		}
-		*fd = open(
-			file,
-			0o1 as libc::c_int | 0o100 as libc::c_int | 0o2000 as libc::c_int,
-			0o644 as libc::c_int,
-		);
-	}
-	if *fd == -(1 as libc::c_int) {
-		todo!("handle open failure");
-	}
-	0 as libc::c_int
-}
-#[unsafe(no_mangle)]
-pub unsafe fn do_redirections(
-	mut cmd_args: *mut t_arg,
-	mut error_elem: *mut *mut libc::c_char,
-) -> libc::c_int {
-	let mut i: libc::c_int = 0;
-	while !((*cmd_args.offset(i as isize)).elem).is_null() {
-		let mut fd = 0 as libc::c_int;
-		if (*cmd_args.offset(i as isize)).type_0 as libc::c_uint
-			== e_arg::REDIR as libc::c_int as libc::c_uint
-			&& (*cmd_args.offset(i as isize)).redir as libc::c_uint
-				!= e_redir::HEREDOC as libc::c_int as libc::c_uint
-		{
-			if open_redir(
-				(*cmd_args.offset(i as isize)).elem,
-				(*cmd_args.offset(i as isize)).redir,
-				&mut fd,
-			) != 0 as libc::c_int
-			{
-				*error_elem = (*cmd_args.offset(i as isize)).elem;
-				todo!("handle open_redir failure");
+pub unsafe fn do_redirections(cmd_args: &mut [t_arg]) -> Result<(), i32> {
+	let mut i = 0;
+	while i < cmd_args.len() {
+		let mut fd = 0;
+		if (cmd_args[i]).type_0 == REDIR && (cmd_args[i]).redir != Some(HEREDOC) {
+			let file: *const libc::c_char = (cmd_args[i]).elem;
+			match (cmd_args[i]).redir.unwrap() {
+				INPUT_REDIR => {
+					let mut perm = access(file, 0);
+					if perm != 0 {
+						return Err(127);
+					}
+					perm = access(file, 4);
+					if perm != 0 {
+						return Err(126);
+					}
+					fd = open(file, 0);
+				}
+				OUTPUT_REDIR => {
+					fd = open(file, 0o1 | 0o100 | 0o1000, 0o644);
+				}
+				APPEND => {
+					let perm = access(file, 2);
+					if perm != 0 {
+						todo!("handle missing perms in open_redir");
+					}
+					fd = open(file, 0o1 | 0o100 | 0o2000, 0o644);
+				}
+				_ => {}
 			}
-			if (*cmd_args.offset(i as isize)).redir as libc::c_uint
-				!= e_redir::INPUT_REDIR as libc::c_int as libc::c_uint
-			{
-				dup2(fd, 1 as libc::c_int);
+			if fd == -1 {
+				// todo!("handle open failure");
+				let tmp = std::ffi::CStr::from_ptr((cmd_args[i]).elem);
+				eprint_msh!("failed to execute: {}", tmp.to_str().unwrap());
+				return Err(-1);
+			}
+			if (cmd_args[i]).redir != Some(INPUT_REDIR) {
+				dup2(fd, 1);
 			} else {
-				dup2(fd, 0 as libc::c_int);
+				dup2(fd, 0);
 			}
 			close(fd);
 		}
 		i += 1;
 	}
-	0 as libc::c_int
+	Ok(())
 }

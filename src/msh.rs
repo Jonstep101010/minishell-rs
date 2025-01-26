@@ -1,18 +1,12 @@
+use crate::environment;
 pub use crate::lexer::check as lexical_checks;
-use crate::{environment, execution};
 
 impl t_token {
 	pub fn new(split_non_quoted: String) -> Self {
 		Self {
-			cmd_args: std::ptr::null_mut::<t_arg>(),
+			cmd_args_vec: vec![],
 			has_redir: false,
-			split_pipes: std::ptr::null_mut::<libc::c_char>(),
-			tmp_arr: std::ptr::null_mut::<*mut libc::c_char>(),
-			bin: std::ffi::CString::new("").unwrap(),
-			cmd_func: Some(
-				execution::exec_bin::exec_bin
-					as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int,
-			),
+			cmd_name: vec![],
 			split_non_quoted,
 		}
 	}
@@ -21,7 +15,6 @@ impl t_token {
 #[derive(Clone)]
 #[repr(C)]
 pub struct t_shell {
-	pub exit_status: u8, // u8
 	pub(crate) env: environment::Env,
 	pub token: *mut t_token, // Vec<t_token>
 	pub token_len: Option<usize>,
@@ -31,7 +24,6 @@ pub struct t_shell {
 impl t_shell {
 	pub fn new() -> Self {
 		Self {
-			exit_status: 0,
 			env: environment::Env::new(),
 			token: std::ptr::null_mut(),
 			token_len: None,
@@ -57,45 +49,31 @@ impl Default for t_shell {
 #[derive(Clone, Debug)]
 #[repr(C)]
 pub struct t_token {
-	pub cmd_args: *mut t_arg,            // Vec<t_arg>
-	pub has_redir: bool,                 // replace with Option<type>
-	pub split_pipes: *mut libc::c_char,  // String
-	pub tmp_arr: *mut *mut libc::c_char, // Vec<String>
-	pub bin: std::ffi::CString,          // String
-	pub cmd_func: Option<unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int>, // fn
+	pub cmd_args_vec: Vec<t_arg>,
+	pub has_redir: bool,
+	pub cmd_name: Vec<u8>,
 	pub split_non_quoted: String,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 pub struct t_arg {
 	pub elem: *mut libc::c_char, // String
 	pub type_0: e_arg,           // wrapped enum attribute
-	pub redir: e_redir,          // enum wrapping string
+	pub redir: Option<e_redir>,  // enum wrapping string
 }
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(C)]
 pub enum e_arg {
 	STRING = 0,
 	REDIR = 1,
 	REDIR_REMOVED = 2,
 }
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(C)]
 pub enum e_redir {
-	NO_REDIR = 0,
 	INPUT_REDIR = 1,
 	OUTPUT_REDIR = 2,
 	APPEND = 3,
 	HEREDOC = 4,
-}
-
-pub type t_cmd_func_builtin =
-	Option<unsafe fn(*mut crate::msh::t_shell, *mut t_token) -> libc::c_int>;
-
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct s_func {
-	pub name: *mut libc::c_char,
-	pub cmd: t_cmd_func_builtin,
 }

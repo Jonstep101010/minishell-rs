@@ -78,8 +78,8 @@ pub unsafe fn split_outside_quotes(
 		vec_arr.len().wrapping_add(2) as u64,
 		::core::mem::size_of::<*mut libc::c_char>() as libc::c_ulong,
 	) as *mut *mut libc::c_char;
-	for i in 0..vec_arr.len() {
-		*ret.add(i) = vec_arr[i];
+	for (i, vec_item) in vec_arr.iter().enumerate() {
+		*ret.add(i) = *vec_item;
 	}
 	ret
 }

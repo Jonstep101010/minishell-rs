@@ -1,158 +1,168 @@
-#[allow(unused_imports)]
 use std::ffi::{CStr, CString};
 
 use ::libc;
 use libc::free;
-use libft_rs::{ft_strlen::ft_strlen, ft_strncmp::ft_strncmp};
+use libft_rs::{
+	ft_calloc::ft_calloc, ft_memcpy::ft_memcpy, ft_strlen::ft_strlen, ft_strncmp::ft_strncmp,
+};
 use libutils_rs::src::{
 	array::{arr_free::arr_free, arr_len::arr_len},
 	string::str_cchr::str_cchr,
-	utils::free_mem::free_null,
 };
 
 use crate::{
-	builtins::env::builtin_env,
 	environment::{Env, expander::expander},
-	parser::{interpret_quotes::do_quote_bs, split_outside_quotes::split_outside_quotes},
+	parser::{
+		interpret_quotes::do_quote_bs,
+		split_outside_quotes::{split_non_quoted, split_outside_quotes},
+	},
 	prelude::*,
-	size_t, t_arg, t_shell, t_token,
 };
 
-use super::{
-	build_command::get_tokens,
-	destroy_tokens::destroy_all_tokens,
-	redirection_utils::{check_redirections, parse_redir_types, rm_prefix_redir_word},
-	token_utils::{init_cmdargs, set_cmd_func},
-};
+#[allow(unused_mut)]
+unsafe fn init_token(mut size: usize) -> *mut t_token {
+	let template: t_token = {
+		t_token {
+			has_redir: false,
+			cmd_name: vec![],
+			split_non_quoted: String::new(),
+			cmd_args_vec: vec![],
+		}
+	};
+	let mut token: *mut t_token = ft_calloc(
+		size as u64 + 1,
+		::core::mem::size_of::<t_token>() as libc::c_ulong,
+	) as *mut t_token;
+	while !token.is_null() && {
+		let fresh1 = size;
+		size = size.wrapping_sub(1);
+		fresh1 != 0
+	} {
+		ft_memcpy(
+			&mut *token.add(size) as *mut t_token as *mut libc::c_void,
+			&template as *const t_token as *const libc::c_void,
+			::core::mem::size_of::<t_token>() as libc::c_ulong,
+		);
+	}
+	std::mem::forget(template);
+	token
+}
 
-unsafe fn expand_if_allowed(
-	mut token: *mut t_token,
-	mut ii: size_t,
-	env: &Env,
-) -> *mut libc::c_void {
-	if (*token).cmd_func
-		!= Some(builtin_env as unsafe fn(*mut t_shell, *mut t_token) -> libc::c_int)
-		&& str_cchr(
-			(*((*token).cmd_args).offset(ii as isize)).elem,
-			'$' as i32 as libc::c_char,
-		) != 0 as libc::c_int
-	{
-		// we know this is non-null
-		let c_str = CStr::from_ptr((*((*token).cmd_args).offset(ii as isize)).elem);
-		let mut tmp = expander(c_str, env);
-		if tmp.is_none() {
-			return std::ptr::null_mut::<libc::c_void>();
-		}
-		let tmp = tmp.unwrap();
-		if ft_strncmp(
-			tmp.as_ptr(),
-			(*((*token).cmd_args).offset(ii as isize)).elem,
-			((if ft_strlen(tmp.as_ptr())
-				> ft_strlen((*((*token).cmd_args).offset(ii as isize)).elem)
-			{
-				ft_strlen(tmp.as_ptr())
-			} else {
-				ft_strlen((*((*token).cmd_args).offset(ii as isize)).elem)
-			}) == 0 as libc::c_int as libc::c_ulong) as libc::c_int as size_t,
-		) != 0
-		{
-			// we need to make sure we do not free using free @audit
-			// free(tmp as *mut libc::c_void);
-		} else {
-			free((*((*token).cmd_args).offset(ii as isize)).elem as *mut libc::c_void);
-			let fresh0 = &mut (*((*token).cmd_args).offset(ii as isize)).elem;
-			*fresh0 = tmp.into_raw();
-		}
+unsafe fn setup_token(token: *mut t_token, token_split: *mut *mut c_char, env: &Env) -> Option<()> {
+	(*token).cmd_args_vec = vec![
+		t_arg {
+			elem: std::ptr::null_mut::<libc::c_char>(),
+			type_0: STRING,
+			redir: None,
+		};
+		arr_len(token_split) as usize
+	];
+	if ((*token).cmd_args_vec).is_empty() {
+		arr_free(token_split);
+		return None;
 	}
-	token as *mut libc::c_void
+	let mut ii = 0;
+	while !(*(token_split).add(ii)).is_null() {
+		(*token).cmd_args_vec[ii].elem = *(token_split).add(ii);
+		if (*token).cmd_name != b"env" {
+			let mut token_cmd_args_elem = (*token).cmd_args_vec[ii].elem;
+			// expand if allowed
+			if str_cchr(token_cmd_args_elem, '$' as i32 as libc::c_char) != 0 {
+				// we know this is non-null
+				let c_str = CStr::from_ptr(token_cmd_args_elem);
+				let tmp = expander(c_str, env)?;
+				if ft_strncmp(
+					tmp.as_ptr(),
+					token_cmd_args_elem,
+					((if ft_strlen(tmp.as_ptr()) > ft_strlen(token_cmd_args_elem) {
+						ft_strlen(tmp.as_ptr())
+					} else {
+						ft_strlen(token_cmd_args_elem)
+					}) == 0 as libc::c_ulong) as i32 as size_t,
+				) == 0
+				{
+					free(token_cmd_args_elem as *mut libc::c_void);
+					let fresh0 = &mut token_cmd_args_elem;
+					*fresh0 = tmp.into_raw();
+				}
+			}
+		}
+		ii += 1;
+	}
+	Some(())
 }
-unsafe fn setup_token(mut token: *mut t_token, env: &Env) -> *mut libc::c_void {
-	if token.is_null() || ((*token).split_pipes).is_null() {
-		return std::ptr::null_mut::<libc::c_void>();
+
+pub unsafe fn tokenize(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
+	let split_pipes = split_non_quoted(trimmed_line, "|");
+	assert!(!split_pipes.is_empty());
+	if split_pipes.first().unwrap().is_empty() {
+		return None;
 	}
-	(*token).tmp_arr = split_outside_quotes((*token).split_pipes, c" \t\n\r\x0B\x0C".as_ptr());
-	free_null(&mut (*token).split_pipes as *mut *mut libc::c_char as *mut libc::c_void);
-	if ((*token).tmp_arr).is_null() {
-		return std::ptr::null_mut::<libc::c_void>();
+	shell.token_len = Some(split_pipes.len());
+	shell.token = init_token(shell.token_len.unwrap());
+	if shell.token.is_null() {
+		panic!("alloc fail token");
 	}
-	(*token).cmd_args = init_cmdargs(arr_len((*token).tmp_arr));
-	if ((*token).cmd_args).is_null() {
-		arr_free((*token).tmp_arr);
-		return std::ptr::null_mut::<libc::c_void>();
-	}
-	let mut ii: size_t = 0;
-	while !(*((*token).tmp_arr).offset(ii as isize)).is_null() {
-		let fresh1 = &mut (*((*token).cmd_args).offset(ii as isize)).elem;
-		*fresh1 = *((*token).tmp_arr).offset(ii as isize);
-		if (expand_if_allowed(token, ii, env)).is_null() {
-			return std::ptr::null_mut::<libc::c_void>();
-		}
-		ii = ii.wrapping_add(1);
-	}
-	free_null(&mut (*token).tmp_arr as *mut *mut *mut libc::c_char as *mut libc::c_void);
-	token as *mut libc::c_void
-}
-unsafe fn rm_quotes(mut cmd_arg: *mut t_arg) {
-	let mut quote = 0;
 	let mut i = 0;
-	loop {
-		if ((*cmd_arg.add(i)).elem).is_null() {
-			break;
+	while i < shell.token_len.unwrap() {
+		debug_assert!(!(shell.token).add(i).is_null());
+		setup_token(
+			&mut *(shell.token).add(i),
+			split_outside_quotes(
+				CString::new(split_pipes[i].clone()).unwrap().as_ptr(),
+				c" \t\n\r\x0B\x0C".as_ptr(),
+			),
+			&shell.env,
+		)?;
+		super::redirection_utils::process_redirections((shell.token).add(i));
+		let mut ii = 0;
+		// check if the elem is null for a specific tokens' cmd_args
+		while ii < (*(shell.token).add(i)).cmd_args_vec.len()
+			&& !(*(shell.token).add(i)).cmd_args_vec[ii].elem.is_null()
+		{
+			if (*(shell.token).add(i)).cmd_args_vec[ii].type_0 != REDIR {
+				break;
+			}
+			ii += 1;
 		}
-		let mut tmp: *mut libc::c_char =
-			do_quote_bs((*cmd_arg.add(i)).elem, &mut quote) as *mut libc::c_char;
-		if tmp.is_null() {
-			return;
+		// set name of command
+		(*(shell.token).add(i)).cmd_name =
+			CStr::from_ptr((*(shell.token).add(i)).cmd_args_vec[ii].elem)
+				.to_bytes()
+				.to_owned();
+		let mut quote = 0;
+		let mut iii = 0;
+		while iii < (*(shell.token).add(i)).cmd_args_vec.len()
+			&& !(*(shell.token).add(i)).cmd_args_vec[iii].elem.is_null()
+		{
+			let tmp: *mut libc::c_char =
+				do_quote_bs((*(shell.token).add(i)).cmd_args_vec[iii].elem, &mut quote)
+					as *mut libc::c_char;
+			if tmp.is_null() {
+				break;
+			}
+			(*(shell.token).add(i)).cmd_args_vec[iii].elem = tmp;
+			iii += 1;
 		}
-		free_null(&mut (*cmd_arg.add(i)).elem as *mut *mut libc::c_char as *mut libc::c_void);
-		let fresh2 = &mut (*cmd_arg.add(i)).elem;
-		*fresh2 = tmp;
 		i += 1;
 	}
+	Some(())
 }
 
-#[unsafe(no_mangle)]
-pub unsafe fn tokenize(
-	mut shell: *mut t_shell,
-	mut trimmed_line: *const libc::c_char,
-) -> *mut libc::c_void {
-	let mut i = 0;
-	(*shell).token = get_tokens(trimmed_line);
-	if ((*shell).token).is_null() {
-		return std::ptr::null_mut::<libc::c_void>();
-	}
-	let mut token_len: usize = 0;
-	while !((*((*shell).token).add(token_len)).split_pipes).is_null() {
-		token_len = token_len.wrapping_add(1);
-	}
-	let shell_env = &(*shell).env;
-	while i < token_len {
-		if setup_token(&mut *((*shell).token).add(i), shell_env).is_null() {
-			destroy_all_tokens(&mut (*shell));
-			return std::ptr::null_mut::<libc::c_void>();
+// @todo testing before usage
+impl t_shell {
+	///
+	/// future replacement for `get_tokens`
+	pub fn create_tokens(&mut self, trimmed_line: &str) {
+		let split_pipes = crate::parser::split_outside_quotes::split_non_quoted(trimmed_line, "|");
+		self.token_vec = split_pipes
+			.iter()
+			.map(|single_pipe| t_token::new(single_pipe.to_owned()))
+			.collect();
+		self.token_len = if self.token_vec.is_empty() {
+			None
+		} else {
+			Some(self.token_vec.len())
 		}
-		{
-			let mut token: *mut t_token = &mut *((*shell).token).add(i);
-			if check_redirections((*token).cmd_args) {
-				(*token).has_redir = true;
-				parse_redir_types((*token).cmd_args);
-				rm_prefix_redir_word((*token).cmd_args);
-			}
-			let mut ii = 0;
-			while !((*((*token).cmd_args).add(ii)).elem).is_null() {
-				if (*((*token).cmd_args).add(ii)).type_0 as libc::c_uint
-					!= e_arg::REDIR as libc::c_int as libc::c_uint
-				{
-					break;
-				}
-				ii += 1;
-			}
-			set_cmd_func((*((*token).cmd_args).add(i)).elem, token);
-			rm_quotes((*token).cmd_args);
-			token as *mut libc::c_void
-		};
-		i = i.wrapping_add(1);
 	}
-	(*shell).token_len = Some(token_len);
-	(*shell).token as *mut libc::c_void
 }

@@ -3,7 +3,6 @@
 	non_camel_case_types,
 	non_snake_case,
 	non_upper_case_globals,
-	unused_mut,
 	clippy::missing_safety_doc,
 	clippy::upper_case_acronyms
 )]
@@ -35,20 +34,15 @@ pub mod parser {
 	pub mod interpret_quotes;
 	pub mod split_outside_quotes;
 } // mod parser
-// pub mod signals {
-// 	pub mod handlers;
-// } // mod signals
 pub mod tokenizer {
 	pub mod build_command;
 	pub mod build_tokens;
 	pub mod destroy_tokens;
 	pub mod redirection_utils;
-	pub mod token_utils;
 } // mod tokenizer
 pub mod utils {
 	pub mod bool_array;
 	pub mod error;
-	pub mod exit_free;
 	pub mod interop;
 	pub mod rust_readline;
 } // mod utils
@@ -68,11 +62,8 @@ pub mod utils {
 pub mod msh;
 pub use prelude::*;
 
-unsafe fn main_0() -> libc::c_int {
-	// let mut shell: *mut t_shell = utils::init_shell::init_shell();
-	// if shell.is_null() {
-	// 	return 1 as libc::c_int;
-	// }
+#[allow(unused_mut)]
+unsafe fn main_0() -> i32 {
 	let mut shell = t_shell::new();
 	// check signals
 	loop {
@@ -84,32 +75,29 @@ unsafe fn main_0() -> libc::c_int {
 			}
 			str_add_history(trimmed_line);
 			if let Err(status) = msh::lexical_checks(trimmed_line) {
-				shell.exit_status = status as u8;
+				shell.env.set_status(status);
 				continue;
 			} else {
-				let cstring = std::ffi::CString::new(trimmed_line).unwrap();
-				shell.token = tokenizer::build_tokens::tokenize(&mut shell, cstring.as_ptr())
-					as *mut crate::t_token;
+				tokenizer::build_tokens::tokenize(&mut shell, trimmed_line);
 				if (shell.token).is_null() {
-					// return -(1);
+					tokenizer::destroy_tokens::destroy_all_tokens(&mut shell);
 					continue;
 				}
-				if ((*shell.token).cmd_args).is_null() {
+				if ((*shell.token).cmd_args_vec).is_empty() {
 					tokenizer::destroy_tokens::destroy_all_tokens(&mut shell);
-					// return -(1);
 					continue;
 				}
 			}
 			self::t_shell::create_tokens(&mut shell, trimmed_line);
 			dbg!(&shell.token_vec);
 			if !(shell.token).is_null() {
-				execution::execute_commands(&mut shell, shell.token);
+				execution::execute_commands(&mut shell);
 			}
 		} else {
-			builtins::exit::builtin_exit(&mut shell, std::ptr::null_mut::<t_token>());
+			std::process::exit(shell.env.get_status())
 		}
 	}
 }
 pub fn main() {
-	unsafe { ::std::process::exit(main_0() as i32) }
+	unsafe { ::std::process::exit(main_0()) }
 }
