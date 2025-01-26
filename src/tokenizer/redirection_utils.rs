@@ -47,11 +47,11 @@ fn parse_redir_types_vec(arg: &mut Vec<t_arg>) {
 ///
 /// checks for a single token (piped command) if there are redirs contained
 /// and processes those
-pub unsafe fn process_redirections(mut token: *mut t_token) {
+pub unsafe fn process_redirections(token: *mut t_token) {
 	let mut ii = 0;
 	let mut redir: bool = false;
 	// let mut cmd_args = (*token).cmd_args;
-	let mut cmd_args = &mut (*token).cmd_args_vec;
+	let cmd_args = &mut (*token).cmd_args_vec;
 	// while !((*cmd_args.add(ii)).elem).is_null() {
 	while ii < cmd_args.len() && !cmd_args[ii].elem.is_null() {
 		cmd_args[ii].redir = match cmd_args[ii].elem {

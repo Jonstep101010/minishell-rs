@@ -4,9 +4,9 @@ use libc::{close, dup, dup2, fork, pipe, wait, waitpid};
 
 use super::{heredoc::do_heredocs, redirections::do_redirections};
 
-unsafe fn exec_last(mut shell: &mut t_shell, mut i: usize, mut prevpipe: *mut i32) {
+unsafe fn exec_last(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 	let mut status: i32 = 0;
-	let mut cpid = fork();
+	let cpid = fork();
 	if cpid == 0 {
 		// check_signals_child(&mut (*shell).p_termios);
 		if (*(shell.token).add(i)).has_redir {
@@ -19,7 +19,7 @@ unsafe fn exec_last(mut shell: &mut t_shell, mut i: usize, mut prevpipe: *mut i3
 		}
 		dup2(*prevpipe, 0);
 		close(*prevpipe);
-		let mut command: *mut *const libc::c_char =
+		let command: *mut *const libc::c_char =
 			crate::tokenizer::build_command::get_cmd_arr_token((shell.token).add(i))
 				as *mut *const libc::c_char;
 		if command.is_null() {
@@ -43,10 +43,10 @@ unsafe fn exec_last(mut shell: &mut t_shell, mut i: usize, mut prevpipe: *mut i3
 		}
 	};
 }
-unsafe fn exec_pipe(mut shell: &mut t_shell, i: usize, mut prevpipe: *mut i32) {
+unsafe fn exec_pipe(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 	let mut pipefd: [i32; 2] = [0; 2];
 	pipe(pipefd.as_mut_ptr());
-	let mut cpid = fork();
+	let cpid = fork();
 	if cpid == 0 {
 		// check_signals_child(&mut (*shell).p_termios);
 		close(pipefd[0_usize]);
@@ -59,7 +59,7 @@ unsafe fn exec_pipe(mut shell: &mut t_shell, i: usize, mut prevpipe: *mut i32) {
 			// free(shell as *mut libc::c_void);
 			todo!("bail out gracefully");
 		}
-		let mut command: *mut *const libc::c_char =
+		let command: *mut *const libc::c_char =
 			crate::tokenizer::build_command::get_cmd_arr_token((shell.token).add(i))
 				as *mut *const libc::c_char;
 		if command.is_null() {
@@ -71,13 +71,9 @@ unsafe fn exec_pipe(mut shell: &mut t_shell, i: usize, mut prevpipe: *mut i32) {
 			&mut shell.env,
 			Some(command),
 		);
-		{
-			let mut shell: &mut t_shell = shell;
-			let mut exit_code = ret;
-			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
-			// free(shell as *mut libc::c_void);
-			std::process::exit(exit_code);
-		};
+		crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
+		// free(shell as *mut libc::c_void);
+		std::process::exit(ret);
 	} else {
 		close(pipefd[1_usize]);
 		close(*prevpipe);
@@ -85,7 +81,7 @@ unsafe fn exec_pipe(mut shell: &mut t_shell, i: usize, mut prevpipe: *mut i32) {
 	};
 }
 #[unsafe(no_mangle)]
-pub unsafe fn execute_pipes(mut shell: &mut t_shell) {
+pub unsafe fn execute_pipes(shell: &mut t_shell) {
 	let mut prevpipe = dup(0);
 	for i in 0..shell.token_len.unwrap() - 1 {
 		if (*(shell.token).add(i)).has_redir && i != shell.token_len.unwrap() - 1 {

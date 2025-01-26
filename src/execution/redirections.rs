@@ -50,12 +50,12 @@ use libc::{access, close, dup2, open};
 // 	Ok(())
 // }
 
-pub unsafe fn do_redirections(mut cmd_args: &mut Vec<t_arg>) -> Result<(), i32> {
+pub unsafe fn do_redirections(cmd_args: &mut Vec<t_arg>) -> Result<(), i32> {
 	let mut i = 0;
 	while i < cmd_args.len() {
 		let mut fd = 0;
 		if (cmd_args[i]).type_0 == REDIR && (cmd_args[i]).redir != Some(HEREDOC) {
-			let mut file: *const libc::c_char = (cmd_args[i]).elem;
+			let file: *const libc::c_char = (cmd_args[i]).elem;
 			match (cmd_args[i]).redir.unwrap() {
 				INPUT_REDIR => {
 					let mut perm = access(file, 0);
@@ -72,7 +72,7 @@ pub unsafe fn do_redirections(mut cmd_args: &mut Vec<t_arg>) -> Result<(), i32> 
 					fd = open(file, 0o1 | 0o100 | 0o1000, 0o644);
 				}
 				APPEND => {
-					let mut perm = access(file, 2);
+					let perm = access(file, 2);
 					if perm != 0 {
 						todo!("handle missing perms in open_redir");
 					}

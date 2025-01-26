@@ -1,3 +1,5 @@
+#![allow(unused_mut)]
+
 use ::libc;
 
 #[allow(dead_code)]

@@ -4,7 +4,7 @@ use libutils_rs::src::utils::free_mem::free_null;
 use crate::{t_shell, t_token};
 
 #[unsafe(no_mangle)]
-pub unsafe fn destroy_all_tokens(mut shell: &mut t_shell) {
+pub unsafe fn destroy_all_tokens(shell: &mut t_shell) {
 	let mut i = 0;
 	if shell.token_len.is_some() {
 		while i < shell.token_len.unwrap() {

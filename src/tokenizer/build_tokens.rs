@@ -8,7 +8,6 @@ use libft_rs::{
 use libutils_rs::src::{
 	array::{arr_free::arr_free, arr_len::arr_len},
 	string::str_cchr::str_cchr,
-	utils::free_mem::free_null,
 };
 
 use crate::{
@@ -54,11 +53,7 @@ unsafe fn init_token(mut size: usize) -> *mut t_token {
 	token
 }
 
-unsafe fn setup_token(
-	mut token: *mut t_token,
-	mut token_split: *mut *mut c_char,
-	env: &Env,
-) -> Option<()> {
+unsafe fn setup_token(token: *mut t_token, token_split: *mut *mut c_char, env: &Env) -> Option<()> {
 	(*token).cmd_args_vec = vec![
 		t_arg {
 			elem: std::ptr::null_mut::<libc::c_char>(),
@@ -82,7 +77,7 @@ unsafe fn setup_token(
 			if str_cchr(token_cmd_args_elem, '$' as i32 as libc::c_char) != 0 {
 				// we know this is non-null
 				let c_str = CStr::from_ptr(token_cmd_args_elem);
-				let mut tmp = expander(c_str, env)?;
+				let tmp = expander(c_str, env)?;
 				if ft_strncmp(
 					tmp.as_ptr(),
 					token_cmd_args_elem,
@@ -177,7 +172,7 @@ pub unsafe fn tokenize(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
 		while iii < (*(shell.token).add(i)).cmd_args_vec.len()
 			&& !(*(shell.token).add(i)).cmd_args_vec[iii].elem.is_null()
 		{
-			let mut tmp: *mut libc::c_char =
+			let tmp: *mut libc::c_char =
 				do_quote_bs((*(shell.token).add(i)).cmd_args_vec[iii].elem, &mut quote)
 					as *mut libc::c_char;
 			if tmp.is_null() {
@@ -196,8 +191,7 @@ impl t_shell {
 	///
 	/// future replacement for `get_tokens`
 	pub fn create_tokens(&mut self, trimmed_line: &str) {
-		let mut split_pipes =
-			crate::parser::split_outside_quotes::split_non_quoted(trimmed_line, "|");
+		let split_pipes = crate::parser::split_outside_quotes::split_non_quoted(trimmed_line, "|");
 		self.token_vec = split_pipes
 			.iter()
 			.map(|single_pipe| t_token::new(single_pipe.to_owned()))

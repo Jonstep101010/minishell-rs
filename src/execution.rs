@@ -14,8 +14,8 @@ use ::libc;
 use exec_bin::exec_bin;
 
 #[unsafe(no_mangle)]
-pub unsafe fn execute_commands(mut shell: &mut t_shell) {
-	let mut token = shell.token;
+pub unsafe fn execute_commands(shell: &mut t_shell) {
+	let token = shell.token;
 	shell.token_len = match memsize(
 		shell.token as *mut libc::c_void,
 		::core::mem::size_of::<t_token>() as libc::c_ulong,
@@ -36,7 +36,7 @@ pub unsafe fn execute_commands(mut shell: &mut t_shell) {
 				todo!("some sort of handling");
 			}
 			// @note this might be a good candidate for implementing a rust version of the function
-			let mut command: *mut *const libc::c_char =
+			let command: *mut *const libc::c_char =
 				crate::tokenizer::build_command::get_cmd_arr_token(token)
 					as *mut *const libc::c_char;
 			if command.is_null() {

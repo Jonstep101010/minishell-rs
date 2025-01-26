@@ -13,7 +13,7 @@ use crate::prelude::*;
 #[unsafe(no_mangle)]
 pub static mut g_ctrl_c: i32 = 0;
 #[unsafe(no_mangle)]
-unsafe fn heredoc_loop(mut delim: *mut libc::c_char, mut fd: i32, env: &Env) {
+unsafe fn heredoc_loop(delim: *mut libc::c_char, fd: i32, env: &Env) {
 	g_ctrl_c = 0;
 	while g_ctrl_c == 0 {
 		let line = crate::utils::rust_readline::str_readline("> ");
@@ -41,7 +41,7 @@ unsafe fn heredoc_loop(mut delim: *mut libc::c_char, mut fd: i32, env: &Env) {
 	}
 }
 #[unsafe(no_mangle)]
-pub unsafe fn do_heredocs(token: *const t_token, mut target: *mut i32, env: &Env) {
+pub unsafe fn do_heredocs(token: *const t_token, target: *mut i32, env: &Env) {
 	let mut i = 0;
 	while i < (*token).cmd_args_vec.len() {
 		if ((*token).cmd_args_vec[i]).redir == Some(HEREDOC) {
