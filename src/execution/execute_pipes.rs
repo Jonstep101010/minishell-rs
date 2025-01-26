@@ -43,12 +43,10 @@ unsafe fn exec_pipe(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 		close(*prevpipe);
 		if do_redirections(&mut (*(shell.token).add(i)).cmd_args_vec).is_err() {
 			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
-			// free(shell as *mut libc::c_void);
 			todo!("bail out gracefully");
 		}
 		let ret = executor((shell.token).add(i), shell);
 		crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
-		// free(shell as *mut libc::c_void);
 		std::process::exit(ret);
 	} else {
 		close(pipefd[1_usize]);

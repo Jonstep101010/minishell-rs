@@ -67,10 +67,6 @@ pub use prelude::*;
 
 #[allow(unused_mut)]
 unsafe fn main_0() -> i32 {
-	// let mut shell: &mut t_shell = utils::init_shell::init_shell();
-	// if shell.is_null() {
-	// 	return 1 as i32;
-	// }
 	let mut shell = t_shell::new();
 	// check signals
 	loop {
@@ -87,14 +83,11 @@ unsafe fn main_0() -> i32 {
 			} else {
 				tokenizer::build_tokens::tokenize(&mut shell, trimmed_line);
 				if (shell.token).is_null() {
-					// return -(1);
 					tokenizer::destroy_tokens::destroy_all_tokens(&mut shell);
 					continue;
 				}
-				// if ((*shell.token).cmd_args).is_null() {
 				if ((*shell.token).cmd_args_vec).is_empty() {
 					tokenizer::destroy_tokens::destroy_all_tokens(&mut shell);
-					// return -(1);
 					continue;
 				}
 			}

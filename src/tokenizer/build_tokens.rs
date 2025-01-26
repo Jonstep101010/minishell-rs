@@ -92,18 +92,6 @@ unsafe fn setup_token(token: *mut t_token, token_split: *mut *mut c_char, env: &
 	Some(())
 }
 
-// fn rm_quotes(mut cmd_arg: Vec<t_arg>) {
-// 	let mut quote = 0;
-// 	let mut i = 0;
-// 	loop {
-// 		if i == cmd_arg.len() {
-// 			break;
-// 		}
-// 		cmd_arg[i].elem = rs_do_quote_bs((*cmd_arg.add(i)).elem, &mut quote);
-// 		i += 1;
-// 	}
-// }
-
 pub unsafe fn tokenize(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
 	let split_pipes = split_non_quoted(trimmed_line, "|");
 	assert!(!split_pipes.is_empty());

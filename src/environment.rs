@@ -76,13 +76,6 @@ impl Env {
 		ptrs.push(::core::ptr::null_mut());
 		ptrs
 	}
-	// fn destroy_ptr_array(ptrs: Vec<*mut libc::c_char>) {
-	// 	for ptr in ptrs {
-	// 		unsafe {
-	// 			::std::ffi::CString::from_raw(ptr);
-	// 		}
-	// 	}
-	// }
 	// @todo implement builtins in environment
 	pub fn export(&mut self, key: &str, value: String) {
 		if key != "?" {

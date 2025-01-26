@@ -50,9 +50,7 @@ fn parse_redir_types_vec(arg: &mut [t_arg]) {
 pub unsafe fn process_redirections(token: *mut t_token) {
 	let mut ii = 0;
 	let mut redir: bool = false;
-	// let mut cmd_args = (*token).cmd_args;
 	let cmd_args = &mut (*token).cmd_args_vec;
-	// while !((*cmd_args.add(ii)).elem).is_null() {
 	while ii < cmd_args.len() && !cmd_args[ii].elem.is_null() {
 		cmd_args[ii].redir = match cmd_args[ii].elem {
 			elem if ft_strncmp(elem, c">>".as_ptr(), 2 as size_t) == 0 => Some(APPEND),

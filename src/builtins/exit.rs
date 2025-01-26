@@ -42,7 +42,6 @@ unsafe fn check_exit_code(command: *mut *const c_char) -> bool {
 pub unsafe fn builtin_exit(shell_env: &mut Env, command: *mut *const c_char) -> i32 {
 	if !(*command.add(1)).is_null() {
 		if **command.add(1) == 0 {
-			// eprintln!("exit");
 			eprint_msh!("exit: numeric argument required");
 			return 2 as c_int;
 		}
@@ -52,8 +51,6 @@ pub unsafe fn builtin_exit(shell_env: &mut Env, command: *mut *const c_char) -> 
 		let exit_code = ft_atol(*command.add(1)) as u8;
 		arr_free(command as *mut *mut c_char);
 		eprintln!("exit");
-		// exit_free_internal
-		// libc::free(shell as *mut libc::c_void);
 		std::process::exit(exit_code as i32);
 	}
 	eprintln!("exit");
