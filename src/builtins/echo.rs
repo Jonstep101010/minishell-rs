@@ -1,7 +1,6 @@
 use crate::prelude::*;
 
 use libft_rs::ft_strncmp::ft_strncmp;
-use libutils_rs::src::array::arr_free::arr_free;
 
 unsafe fn is_n_arg(mut arg: *const c_char) -> bool {
 	if *arg as c_int == '-' as i32 {
@@ -56,6 +55,5 @@ pub unsafe fn echo(args: *mut *const c_char) -> i32 {
 	} else {
 		println!();
 	}
-	arr_free(args as *mut *mut c_char);
 	0
 }

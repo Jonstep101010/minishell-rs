@@ -14,26 +14,12 @@ unsafe fn exec_last(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 		}
 		if do_redirections(&mut (*(shell.token).add(i)).cmd_args_vec).is_err() {
 			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
-			// free(shell as *mut libc::c_void);
 			todo!("bail out gracefully");
 		}
 		dup2(*prevpipe, 0);
 		close(*prevpipe);
-		let command: *mut *const libc::c_char =
-			crate::tokenizer::build_command::get_cmd_arr_token((shell.token).add(i))
-				as *mut *const libc::c_char;
-		if command.is_null() {
-			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
-			// free(shell as *mut libc::c_void);
-			std::process::exit(0);
-		}
-		// let ret = ((*(shell.token).add(i)).cmd_func).expect("non-null function pointer")(
-		// 	&mut shell.env,
-		// 	Some(command),
-		// );
-		let ret = executor((shell.token).add(i), command, shell);
+		let ret = executor((shell.token).add(i), shell);
 		crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
-		// free(shell as *mut libc::c_void);
 		std::process::exit(ret);
 	} else {
 		waitpid(cpid, &mut status, 0);
@@ -60,19 +46,7 @@ unsafe fn exec_pipe(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 			// free(shell as *mut libc::c_void);
 			todo!("bail out gracefully");
 		}
-		let command: *mut *const libc::c_char =
-			crate::tokenizer::build_command::get_cmd_arr_token((shell.token).add(i))
-				as *mut *const libc::c_char;
-		if command.is_null() {
-			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
-			// free(shell as *mut libc::c_void);
-			std::process::exit(0);
-		}
-		// let ret = ((*(shell.token).add(i)).cmd_func).expect("non-null function pointer")(
-		// 	&mut shell.env,
-		// 	Some(command),
-		// );
-		let ret = executor((shell.token).add(i), command, shell);
+		let ret = executor((shell.token).add(i), shell);
 		crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
 		// free(shell as *mut libc::c_void);
 		std::process::exit(ret);

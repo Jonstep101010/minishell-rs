@@ -1,13 +1,11 @@
 use ::libc;
 
-use libft_rs::ft_strchr::ft_strchr;
-use libutils_rs::src::array::arr_free::arr_free;
-
 use crate::{
 	environment::{Env, check_key::check_valid_key},
 	eprint_msh, i8const_str,
 	prelude::*,
 };
+use libft_rs::ft_strchr::ft_strchr;
 
 unsafe fn check_illegal_char(mut str: *const libc::c_char) -> bool {
 	while *str != 0 {
@@ -22,7 +20,6 @@ unsafe fn check_illegal_char(mut str: *const libc::c_char) -> bool {
 #[unsafe(no_mangle)]
 pub unsafe fn builtin_unset(shell_env: &mut Env, args: *mut *const c_char) -> i32 {
 	if (*args).is_null() || (*args.add(1)).is_null() || **args.add(1) == 0 {
-		arr_free(args as *mut *mut libc::c_char);
 		return 0;
 	}
 	let status: i32 = {
@@ -45,6 +42,5 @@ pub unsafe fn builtin_unset(shell_env: &mut Env, args: *mut *const c_char) -> i3
 		}
 		0
 	};
-	arr_free(args as *mut *mut libc::c_char);
 	status
 }

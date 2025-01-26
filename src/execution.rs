@@ -9,25 +9,18 @@ use crate::{
 		cd::builtin_cd, echo::echo, env::builtin_env, exit::builtin_exit, export::builtin_export,
 		pwd::builtin_pwd, unset::builtin_unset,
 	},
-	libutils_rs::src::utils::memsize::memsize,
 	t_shell, t_token,
 	tokenizer::destroy_tokens::destroy_all_tokens,
 };
 use ::libc;
 use exec_bin::exec_bin;
+use libc::c_char;
 
 #[unsafe(no_mangle)]
 pub unsafe fn execute_commands(shell: &mut t_shell) {
 	let token = shell.token;
-	shell.token_len = match memsize(
-		shell.token as *mut libc::c_void,
-		::core::mem::size_of::<t_token>() as libc::c_ulong,
-	) as usize
-	{
-		0 => return,
-		val => Some(val),
-	};
 	match shell.token_len.unwrap() {
+		0 => unreachable!("there should not be empty tokens here"),
 		1 if !{
 			(*token).cmd_name != b"cd"
 				&& (*token).cmd_name != b"unset"
@@ -38,16 +31,7 @@ pub unsafe fn execute_commands(shell: &mut t_shell) {
 			if do_redirections(&mut ((*token).cmd_args_vec)).is_err() {
 				todo!("some sort of handling");
 			}
-			// @note this might be a good candidate for implementing a rust version of the function
-			let command: *mut *const libc::c_char =
-				crate::tokenizer::build_command::get_cmd_arr_token(token)
-					as *mut *const libc::c_char;
-			if command.is_null() {
-				crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
-				// free(shell as *mut libc::c_void);
-				std::process::exit(0);
-			}
-			let status = executor(token, command, shell);
+			let status = executor(token, shell);
 			shell.env.set_status(status);
 		}
 		_ => {
@@ -57,10 +41,24 @@ pub unsafe fn execute_commands(shell: &mut t_shell) {
 	destroy_all_tokens(&mut (*shell));
 }
 
-pub unsafe fn executor(token: *mut t_token, command: *mut *const i8, shell: &mut t_shell) -> i32 {
+pub unsafe fn executor(token: *mut t_token, shell: &mut t_shell) -> i32 {
+	// @note this might be a good candidate for implementing a rust version of the function
+	let command: *mut *const c_char =
+		crate::tokenizer::build_command::get_cmd_arr_token(token).cast();
+	if command.is_null() {
+		crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
+		std::process::exit(0);
+	}
 	let status = match (*token).cmd_name.as_slice() {
 		b"echo" => echo(command),
-		b"cd" => builtin_cd(&mut shell.env, command),
+		b"cd" => {
+			let opt_target_dir = if command.add(1).is_null() {
+				None
+			} else {
+				Some(std::ffi::CStr::from_ptr(*command.add(1)).to_str().unwrap())
+			};
+			builtin_cd(&mut shell.env, opt_target_dir)
+		}
 		b"pwd" => builtin_pwd(&shell.env),
 		b"export" => builtin_export(&mut shell.env, command),
 		b"unset" => builtin_unset(&mut shell.env, command),
@@ -68,5 +66,6 @@ pub unsafe fn executor(token: *mut t_token, command: *mut *const i8, shell: &mut
 		b"exit" => builtin_exit(&mut shell.env, command),
 		_ => exec_bin(&shell.env, command),
 	};
+	libutils_rs::arr_free(command.cast());
 	status
 }
