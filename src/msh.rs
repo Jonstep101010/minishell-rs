@@ -4,7 +4,6 @@ pub use crate::lexer::check as lexical_checks;
 impl t_token {
 	pub fn new(split_non_quoted: String) -> Self {
 		Self {
-			// cmd_args: std::ptr::null_mut::<t_arg>(),
 			cmd_args_vec: vec![],
 			has_redir: false,
 			bin: std::ffi::CString::new("").unwrap(),
@@ -53,10 +52,9 @@ impl Default for t_shell {
 #[derive(Clone, Debug)]
 #[repr(C)]
 pub struct t_token {
-	// pub cmd_args: *mut t_arg,            // Vec<t_arg>
-	pub cmd_args_vec: Vec<t_arg>,        // Vec<t_arg>
-	pub has_redir: bool,                 // replace with Option<type>
-	pub bin: std::ffi::CString,          // String
+	pub cmd_args_vec: Vec<t_arg>,
+	pub has_redir: bool,
+	pub bin: std::ffi::CString, // String
 	pub cmd_func: Option<unsafe fn(&mut t_shell, *mut t_token) -> i32>, // fn
 	pub split_non_quoted: String,
 }

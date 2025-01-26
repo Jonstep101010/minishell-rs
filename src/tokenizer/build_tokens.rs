@@ -1,4 +1,4 @@
-use std::ffi::CStr;
+use std::ffi::{CStr, CString};
 
 use ::libc;
 use libc::free;
@@ -18,7 +18,10 @@ use crate::{
 	},
 	environment::{Env, expander::expander},
 	execution::exec_bin::exec_bin,
-	parser::{interpret_quotes::do_quote_bs, split_outside_quotes::split_outside_quotes},
+	parser::{
+		interpret_quotes::do_quote_bs,
+		split_outside_quotes::{split_non_quoted, split_outside_quotes},
+	},
 	prelude::*,
 };
 
@@ -114,17 +117,12 @@ unsafe fn setup_token(
 // }
 
 pub unsafe fn tokenize(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
-	let trimmed_line = std::ffi::CString::new(trimmed_line).unwrap();
-	let mut split_pipes: *mut *mut libc::c_char =
-		split_outside_quotes(trimmed_line.as_ptr(), c"|".as_ptr());
-	if split_pipes.is_null() {
-		panic!("alloc fail token");
-	}
-	if (*split_pipes).is_null() {
-		arr_free(split_pipes);
+	let split_pipes = split_non_quoted(trimmed_line, "|");
+	assert!(!split_pipes.is_empty());
+	if split_pipes.first().unwrap().is_empty() {
 		return None;
 	}
-	shell.token_len = Some(arr_len(split_pipes) as usize);
+	shell.token_len = Some(split_pipes.len());
 	shell.token = init_token(shell.token_len.unwrap());
 	if shell.token.is_null() {
 		panic!("alloc fail token");
@@ -134,7 +132,10 @@ pub unsafe fn tokenize(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
 		debug_assert!(!(shell.token).add(i).is_null());
 		setup_token(
 			&mut *(shell.token).add(i),
-			split_outside_quotes(*split_pipes.add(i), c" \t\n\r\x0B\x0C".as_ptr()),
+			split_outside_quotes(
+				CString::new(split_pipes[i].clone()).unwrap().as_ptr(),
+				c" \t\n\r\x0B\x0C".as_ptr(),
+			),
 			&shell.env,
 		)?;
 		super::redirection_utils::process_redirections((shell.token).add(i));
@@ -177,7 +178,6 @@ pub unsafe fn tokenize(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
 		}
 		i += 1;
 	}
-	free(split_pipes as *mut libc::c_void);
 	Some(())
 }
 
