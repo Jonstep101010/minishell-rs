@@ -53,18 +53,15 @@ fn cd_internal(opt_cmd_args: Option<&str>, env: &mut Env) -> bool {
 }
 
 #[unsafe(no_mangle)]
-pub unsafe fn builtin_cd(shell_env: &mut Env, cmd_opt: Option<*mut *const c_char>) -> i32 {
-	if let Some(command) = cmd_opt {
-		let cmd_args = *command.add(1);
-		// option of cmd_args -> none if null
-		let opt_cmd_args = if cmd_args.is_null() {
-			None
-		} else {
-			Some(CStr::from_ptr(cmd_args).to_str().unwrap())
-		};
-		let status = cd_internal(opt_cmd_args, shell_env);
-		arr_free(command as *mut *mut libc::c_char);
-		return !status as i32;
-	}
-	1
+pub unsafe fn builtin_cd(shell_env: &mut Env, command: *mut *const c_char) -> i32 {
+	let cmd_args = *command.add(1);
+	// option of cmd_args -> none if null
+	let opt_cmd_args = if cmd_args.is_null() {
+		None
+	} else {
+		Some(CStr::from_ptr(cmd_args).to_str().unwrap())
+	};
+	let status = cd_internal(opt_cmd_args, shell_env);
+	arr_free(command as *mut *mut libc::c_char);
+	!status as i32
 }

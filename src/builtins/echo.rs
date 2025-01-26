@@ -50,15 +50,12 @@ unsafe fn echo_default(cmd_args: *const *const c_char) {
 	}
 }
 
-#[unsafe(no_mangle)]
-pub unsafe fn echo(_shell_env: &mut Env, cmd_opt: Option<*mut *const c_char>) -> i32 {
-	if let Some(args) = cmd_opt {
-		if !(*args.add(1)).is_null() {
-			echo_default(&*args.add(1));
-		} else {
-			println!();
-		}
-		arr_free(args as *mut *mut c_char);
+pub unsafe fn echo(args: *mut *const c_char) -> i32 {
+	if !(*args.add(1)).is_null() {
+		echo_default(&*args.add(1));
+	} else {
+		println!();
 	}
-	0 as c_int
+	arr_free(args as *mut *mut c_char);
+	0
 }

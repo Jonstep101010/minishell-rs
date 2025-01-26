@@ -5,7 +5,10 @@ mod heredoc;
 mod redirections;
 use self::{execute_pipes::execute_pipes, redirections::do_redirections};
 use crate::{
-	builtins::{echo::echo, env::builtin_env, pwd::builtin_pwd},
+	builtins::{
+		cd::builtin_cd, echo::echo, env::builtin_env, exit::builtin_exit, export::builtin_export,
+		pwd::builtin_pwd, unset::builtin_unset,
+	},
 	libutils_rs::src::utils::memsize::memsize,
 	t_shell, t_token,
 	tokenizer::destroy_tokens::destroy_all_tokens,
@@ -26,10 +29,10 @@ pub unsafe fn execute_commands(shell: &mut t_shell) {
 	};
 	match shell.token_len.unwrap() {
 		1 if !{
-			(*token).cmd_func == Some(echo)
-				|| (*token).cmd_func == Some(builtin_pwd)
-				|| (*token).cmd_func == Some(builtin_env)
-				|| (*token).cmd_func == Some(exec_bin)
+			(*token).cmd_name != b"cd"
+				&& (*token).cmd_name != b"unset"
+				&& (*token).cmd_name != b"export"
+				&& (*token).cmd_name != b"exit"
 		} =>
 		{
 			if do_redirections(&mut ((*token).cmd_args_vec)).is_err() {
@@ -44,10 +47,7 @@ pub unsafe fn execute_commands(shell: &mut t_shell) {
 				// free(shell as *mut libc::c_void);
 				std::process::exit(0);
 			}
-			let status = ((*token).cmd_func).expect("non-null function pointer")(
-				&mut (shell.env),
-				Some(command),
-			) as u8 as i32;
+			let status = executor(token, command, shell);
 			shell.env.set_status(status);
 		}
 		_ => {
@@ -55,4 +55,18 @@ pub unsafe fn execute_commands(shell: &mut t_shell) {
 		}
 	}
 	destroy_all_tokens(&mut (*shell));
+}
+
+pub unsafe fn executor(token: *mut t_token, command: *mut *const i8, shell: &mut t_shell) -> i32 {
+	let status = match (*token).cmd_name.as_slice() {
+		b"echo" => echo(command),
+		b"cd" => builtin_cd(&mut shell.env, command),
+		b"pwd" => builtin_pwd(&shell.env),
+		b"export" => builtin_export(&mut shell.env, command),
+		b"unset" => builtin_unset(&mut shell.env, command),
+		b"env" => builtin_env(&shell.env),
+		b"exit" => builtin_exit(&mut shell.env, command),
+		_ => exec_bin(&shell.env, command),
+	};
+	status
 }

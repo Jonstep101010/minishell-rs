@@ -1,5 +1,3 @@
-use libc::c_char;
-
 use crate::environment;
 pub use crate::lexer::check as lexical_checks;
 
@@ -8,7 +6,7 @@ impl t_token {
 		Self {
 			cmd_args_vec: vec![],
 			has_redir: false,
-			cmd_func: None,
+			cmd_name: vec![],
 			split_non_quoted,
 		}
 	}
@@ -53,7 +51,7 @@ impl Default for t_shell {
 pub struct t_token {
 	pub cmd_args_vec: Vec<t_arg>,
 	pub has_redir: bool,
-	pub cmd_func: Option<unsafe fn(&mut crate::Env, Option<*mut *const c_char>) -> i32>, // fn
+	pub cmd_name: Vec<u8>,
 	pub split_non_quoted: String,
 }
 

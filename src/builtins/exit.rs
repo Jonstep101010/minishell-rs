@@ -39,10 +39,8 @@ unsafe fn check_exit_code(command: *mut *const c_char) -> bool {
 }
 
 #[unsafe(no_mangle)]
-pub unsafe fn builtin_exit(shell_env: &mut Env, cmd_opt: Option<*mut *const c_char>) -> i32 {
-	if let Some(command) = cmd_opt
-		&& !command.is_null()
-	{
+pub unsafe fn builtin_exit(shell_env: &mut Env, command: *mut *const c_char) -> i32 {
+	if !command.is_null() {
 		if !(*command.add(1)).is_null() {
 			if **command.add(1) == 0 {
 				// eprintln!("exit");

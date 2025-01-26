@@ -2,7 +2,7 @@ use crate::t_shell;
 use ::libc;
 use libc::{close, dup, dup2, fork, pipe, wait, waitpid};
 
-use super::{heredoc::do_heredocs, redirections::do_redirections};
+use super::{executor, heredoc::do_heredocs, redirections::do_redirections};
 
 unsafe fn exec_last(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 	let mut status: i32 = 0;
@@ -27,10 +27,11 @@ unsafe fn exec_last(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 			// free(shell as *mut libc::c_void);
 			std::process::exit(0);
 		}
-		let ret = ((*(shell.token).add(i)).cmd_func).expect("non-null function pointer")(
-			&mut shell.env,
-			Some(command),
-		);
+		// let ret = ((*(shell.token).add(i)).cmd_func).expect("non-null function pointer")(
+		// 	&mut shell.env,
+		// 	Some(command),
+		// );
+		let ret = executor((shell.token).add(i), command, shell);
 		crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
 		// free(shell as *mut libc::c_void);
 		std::process::exit(ret);
@@ -67,10 +68,11 @@ unsafe fn exec_pipe(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 			// free(shell as *mut libc::c_void);
 			std::process::exit(0);
 		}
-		let ret = ((*(shell.token).add(i)).cmd_func).expect("non-null function pointer")(
-			&mut shell.env,
-			Some(command),
-		);
+		// let ret = ((*(shell.token).add(i)).cmd_func).expect("non-null function pointer")(
+		// 	&mut shell.env,
+		// 	Some(command),
+		// );
+		let ret = executor((shell.token).add(i), command, shell);
 		crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
 		// free(shell as *mut libc::c_void);
 		std::process::exit(ret);

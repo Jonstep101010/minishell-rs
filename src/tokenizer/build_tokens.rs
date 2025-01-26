@@ -11,12 +11,7 @@ use libutils_rs::src::{
 };
 
 use crate::{
-	builtins::{
-		cd::builtin_cd, echo::echo, env::builtin_env, exit::builtin_exit, export::builtin_export,
-		pwd::builtin_pwd, unset::builtin_unset,
-	},
 	environment::{Env, expander::expander},
-	execution::exec_bin::exec_bin,
 	parser::{
 		interpret_quotes::do_quote_bs,
 		split_outside_quotes::{split_non_quoted, split_outside_quotes},
@@ -29,7 +24,7 @@ unsafe fn init_token(mut size: usize) -> *mut t_token {
 	let template: t_token = {
 		t_token {
 			has_redir: false,
-			cmd_func: None,
+			cmd_name: vec![],
 			split_non_quoted: String::new(),
 			cmd_args_vec: vec![],
 		}
@@ -69,9 +64,7 @@ unsafe fn setup_token(token: *mut t_token, token_split: *mut *mut c_char, env: &
 	let mut ii = 0;
 	while !(*(token_split).add(ii)).is_null() {
 		(*token).cmd_args_vec[ii].elem = *(token_split).add(ii);
-		if (*token).cmd_func
-			!= Some(builtin_env as unsafe fn(&mut Env, Option<*mut *const c_char>) -> i32)
-		{
+		if (*token).cmd_name != b"env" {
 			let mut token_cmd_args_elem = (*token).cmd_args_vec[ii].elem;
 			// expand if allowed
 			if str_cchr(token_cmd_args_elem, '$' as i32 as libc::c_char) != 0 {
@@ -144,29 +137,11 @@ pub unsafe fn tokenize(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
 			}
 			ii += 1;
 		}
-		// set_cmd_func
-		(*(shell.token).add(i)).cmd_func =
-			match CStr::from_ptr((*(shell.token).add(i)).cmd_args_vec[ii].elem).to_bytes() {
-				b"echo" => Some(echo as unsafe fn(&mut Env, Option<*mut *const c_char>) -> i32),
-				b"cd" => Some(builtin_cd as unsafe fn(&mut Env, Option<*mut *const c_char>) -> i32),
-				b"pwd" => {
-					Some(builtin_pwd as unsafe fn(&mut Env, Option<*mut *const c_char>) -> i32)
-				}
-				b"export" => {
-					Some(builtin_export as unsafe fn(&mut Env, Option<*mut *const c_char>) -> i32)
-				}
-				b"unset" => {
-					Some(builtin_unset as unsafe fn(&mut Env, Option<*mut *const c_char>) -> i32)
-				}
-				b"env" => {
-					Some(builtin_env as unsafe fn(&mut Env, Option<*mut *const c_char>) -> i32)
-				}
-				b"exit" => {
-					Some(builtin_exit as unsafe fn(&mut Env, Option<*mut *const c_char>) -> i32)
-				}
-				_ => Some(exec_bin as unsafe fn(&mut Env, Option<*mut *const c_char>) -> i32),
-			};
-		// rm_quotes
+		// set name of command
+		(*(shell.token).add(i)).cmd_name =
+			CStr::from_ptr((*(shell.token).add(i)).cmd_args_vec[ii].elem)
+				.to_bytes()
+				.to_owned();
 		let mut quote = 0;
 		let mut iii = 0;
 		while iii < (*(shell.token).add(i)).cmd_args_vec.len()
