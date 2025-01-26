@@ -13,7 +13,7 @@ fn rm_prefix_redir_word_vec(args: &mut Vec<t_arg>) {
 				free(args[i].elem as *mut libc::c_void);
 			}
 			args[i + 1].type_0 = REDIR;
-			args[i + 1].redir = args[i].redir.clone();
+			args[i + 1].redir = args[i].redir;
 			args.remove(i);
 			// Recursively call the function to handle the next element
 			rm_prefix_redir_word_vec(args);
@@ -23,7 +23,7 @@ fn rm_prefix_redir_word_vec(args: &mut Vec<t_arg>) {
 	}
 }
 
-fn parse_redir_types_vec(arg: &mut Vec<t_arg>) {
+fn parse_redir_types_vec(arg: &mut [t_arg]) {
 	let mut i = 0;
 	while i < arg.len() && !arg[i].elem.is_null() {
 		if arg[i].type_0 == REDIR {

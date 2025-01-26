@@ -50,7 +50,7 @@ use libc::{access, close, dup2, open};
 // 	Ok(())
 // }
 
-pub unsafe fn do_redirections(cmd_args: &mut Vec<t_arg>) -> Result<(), i32> {
+pub unsafe fn do_redirections(cmd_args: &mut [t_arg]) -> Result<(), i32> {
 	let mut i = 0;
 	while i < cmd_args.len() {
 		let mut fd = 0;

@@ -44,7 +44,7 @@ unsafe fn init_token(mut size: usize) -> *mut t_token {
 		fresh1 != 0
 	} {
 		ft_memcpy(
-			&mut *token.add(size as usize) as *mut t_token as *mut libc::c_void,
+			&mut *token.add(size) as *mut t_token as *mut libc::c_void,
 			&template as *const t_token as *const libc::c_void,
 			::core::mem::size_of::<t_token>() as libc::c_ulong,
 		);

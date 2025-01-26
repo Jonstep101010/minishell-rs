@@ -28,7 +28,7 @@ unsafe fn exec_last(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 			std::process::exit(0);
 		}
 		let ret = ((*(shell.token).add(i)).cmd_func).expect("non-null function pointer")(
-			&mut (&mut shell.env),
+			&mut shell.env,
 			Some(command),
 		);
 		crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
