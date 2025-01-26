@@ -12,7 +12,7 @@ unsafe fn exec_last(mut shell: &mut t_shell, mut i: usize, mut prevpipe: *mut i3
 		if (*(shell.token).add(i)).has_redir {
 			do_heredocs(&*(shell.token).add(i), prevpipe, &shell.env);
 		}
-		if do_redirections((*(shell.token).add(i)).cmd_args).is_err() {
+		if do_redirections(&mut (*(shell.token).add(i)).cmd_args_vec).is_err() {
 			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
 			// free(shell as *mut libc::c_void);
 			todo!("bail out gracefully");
@@ -46,7 +46,7 @@ unsafe fn exec_pipe(mut shell: &mut t_shell, i: usize, mut prevpipe: *mut i32) {
 		close(pipefd[1_usize]);
 		dup2(*prevpipe, 0);
 		close(*prevpipe);
-		if do_redirections((*(shell.token).add(i)).cmd_args).is_err() {
+		if do_redirections(&mut (*(shell.token).add(i)).cmd_args_vec).is_err() {
 			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
 			// free(shell as *mut libc::c_void);
 			todo!("bail out gracefully");

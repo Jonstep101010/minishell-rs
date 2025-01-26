@@ -22,15 +22,17 @@ use crate::{
 	prelude::*,
 };
 
+#[allow(unused_mut)]
 unsafe fn init_token(mut size: size_t) -> *mut t_token {
 	let template: t_token = {
 		t_token {
-			cmd_args: std::ptr::null_mut::<t_arg>(),
+			// cmd_args: std::ptr::null_mut::<t_arg>(),
 			has_redir: false,
 			tmp_arr: std::ptr::null_mut::<*mut libc::c_char>(),
 			bin: std::ffi::CString::new("").unwrap(),
 			cmd_func: None,
 			split_non_quoted: String::new(),
+			cmd_args_vec: vec![],
 		}
 	};
 	let mut token: *mut t_token =
@@ -77,45 +79,27 @@ unsafe fn get_tokens(mut trimmed_line: *const libc::c_char) -> Option<(*mut t_to
 	Some((token, i))
 }
 
-unsafe fn init_cmdargs(mut size: size_t) -> *mut t_arg {
-	let template: t_arg = {
-		t_arg {
-			elem: std::ptr::null_mut::<libc::c_char>(),
-			type_0: STRING,
-			redir: None,
-		}
-	};
-	let mut args: *mut t_arg =
-		ft_calloc(size + 1, ::core::mem::size_of::<t_arg>() as libc::c_ulong) as *mut t_arg;
-	while !args.is_null() && {
-		let fresh0 = size;
-		size = size.wrapping_sub(1);
-		fresh0 != 0
-	} {
-		ft_memcpy(
-			&mut *args.offset(size as isize) as *mut t_arg as *mut libc::c_void,
-			&template as *const t_arg as *const libc::c_void,
-			::core::mem::size_of::<t_arg>() as libc::c_ulong,
-		);
-	}
-	args
-}
-
 unsafe fn setup_token(mut token: *mut t_token, env: &Env) -> Option<()> {
 	if token.is_null() || ((*token).tmp_arr).is_null() {
 		return None;
 	}
-	(*token).cmd_args = init_cmdargs(arr_len((*token).tmp_arr));
-	if ((*token).cmd_args).is_null() {
+	(*token).cmd_args_vec = vec![
+		t_arg {
+			elem: std::ptr::null_mut::<libc::c_char>(),
+			type_0: STRING,
+			redir: None,
+		};
+		arr_len((*token).tmp_arr) as usize
+	];
+	if ((*token).cmd_args_vec).is_empty() {
 		arr_free((*token).tmp_arr);
 		return None;
 	}
 	let mut ii = 0;
 	while !(*((*token).tmp_arr).add(ii)).is_null() {
-		let fresh1 = &mut (*((*token).cmd_args).add(ii)).elem;
-		*fresh1 = *((*token).tmp_arr).add(ii);
+		(*token).cmd_args_vec[ii].elem = *((*token).tmp_arr).add(ii);
 		if (*token).cmd_func != Some(builtin_env as unsafe fn(&mut t_shell, *mut t_token) -> i32) {
-			let mut token_cmd_args_elem = (*((*token).cmd_args).add(ii)).elem;
+			let mut token_cmd_args_elem = (*token).cmd_args_vec[ii].elem;
 			// expand if allowed
 			if str_cchr(token_cmd_args_elem, '$' as i32 as libc::c_char) != 0 {
 				// we know this is non-null
@@ -155,7 +139,7 @@ unsafe fn setup_token(mut token: *mut t_token, env: &Env) -> Option<()> {
 // 	}
 // }
 
-pub unsafe fn tokenize(mut shell: &mut t_shell, mut trimmed_line: &str) -> Option<()> {
+pub unsafe fn tokenize(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
 	let trimmed_line = std::ffi::CString::new(trimmed_line).unwrap();
 	let tuple = get_tokens(trimmed_line.as_ptr())?;
 	shell.token_len = Some(tuple.1);
@@ -163,43 +147,46 @@ pub unsafe fn tokenize(mut shell: &mut t_shell, mut trimmed_line: &str) -> Optio
 	let mut i = 0;
 	while i < shell.token_len.unwrap() {
 		setup_token(&mut *(shell.token).add(i), &shell.env)?;
-		if (*(shell.token).add(i)).cmd_args.is_null() {
-			return None;
-		}
-		let mut token: *mut t_token = &mut *(shell.token).add(i);
-		super::redirection_utils::process_redirections(token);
+		// if (*(shell.token).add(i)).cmd_args_vec.is_empty() {
+		// 	return None;
+		// }
+		super::redirection_utils::process_redirections((shell.token).add(i));
 		let mut ii = 0;
-		while !((*((*token).cmd_args).add(ii)).elem).is_null() {
-			if (*((*token).cmd_args).add(ii)).type_0 != REDIR {
+		// check if the elem is null for a specific tokens' cmd_args
+		while ii < (*(shell.token).add(i)).cmd_args_vec.len()
+			&& !(*(shell.token).add(i)).cmd_args_vec[ii].elem.is_null()
+		{
+			if (*(shell.token).add(i)).cmd_args_vec[ii].type_0 != REDIR {
 				break;
 			}
 			ii += 1;
 		}
-		// assert!(!((*((*token).cmd_args).add(i)).elem.is_null()));
 		// set_cmd_func
-		(*token).cmd_func = match CStr::from_ptr((*((*token).cmd_args).add(i)).elem).to_bytes() {
-			b"echo" => Some(echo as unsafe fn(&mut t_shell, *mut t_token) -> i32),
-			b"cd" => Some(builtin_cd as unsafe fn(&mut t_shell, *mut t_token) -> i32),
-			b"pwd" => Some(builtin_pwd as unsafe fn(&mut t_shell, *mut t_token) -> i32),
-			b"export" => Some(builtin_export as unsafe fn(&mut t_shell, *mut t_token) -> i32),
-			b"unset" => Some(builtin_unset as unsafe fn(&mut t_shell, *mut t_token) -> i32),
-			b"env" => Some(builtin_env as unsafe fn(&mut t_shell, *mut t_token) -> i32),
-			b"exit" => Some(builtin_exit as unsafe fn(&mut t_shell, *mut t_token) -> i32),
-			_ => Some(exec_bin as unsafe fn(&mut t_shell, *mut t_token) -> i32),
-		};
+		// (*token).cmd_func = match CStr::from_ptr((*((*token).cmd_args).add(i)).elem).to_bytes() {
+		(*(shell.token).add(i)).cmd_func =
+			match CStr::from_ptr((*(shell.token).add(i)).cmd_args_vec[ii].elem).to_bytes() {
+				b"echo" => Some(echo as unsafe fn(&mut t_shell, *mut t_token) -> i32),
+				b"cd" => Some(builtin_cd as unsafe fn(&mut t_shell, *mut t_token) -> i32),
+				b"pwd" => Some(builtin_pwd as unsafe fn(&mut t_shell, *mut t_token) -> i32),
+				b"export" => Some(builtin_export as unsafe fn(&mut t_shell, *mut t_token) -> i32),
+				b"unset" => Some(builtin_unset as unsafe fn(&mut t_shell, *mut t_token) -> i32),
+				b"env" => Some(builtin_env as unsafe fn(&mut t_shell, *mut t_token) -> i32),
+				b"exit" => Some(builtin_exit as unsafe fn(&mut t_shell, *mut t_token) -> i32),
+				_ => Some(exec_bin as unsafe fn(&mut t_shell, *mut t_token) -> i32),
+			};
 		// rm_quotes
 		let mut quote = 0;
 		let mut iii = 0;
-		loop {
-			if ((*(*token).cmd_args.add(iii)).elem).is_null() {
-				break;
-			}
+		while iii < (*(shell.token).add(i)).cmd_args_vec.len()
+			&& !(*(shell.token).add(i)).cmd_args_vec[iii].elem.is_null()
+		{
 			let mut tmp: *mut libc::c_char =
-				do_quote_bs((*(*token).cmd_args.add(iii)).elem, &mut quote) as *mut libc::c_char;
+				do_quote_bs((*(shell.token).add(i)).cmd_args_vec[iii].elem, &mut quote)
+					as *mut libc::c_char;
 			if tmp.is_null() {
 				break;
 			}
-			(*(*token).cmd_args.add(iii)).elem = tmp;
+			(*(shell.token).add(i)).cmd_args_vec[iii].elem = tmp;
 			iii += 1;
 		}
 		i += 1;

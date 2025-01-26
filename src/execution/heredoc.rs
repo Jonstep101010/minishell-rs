@@ -43,16 +43,13 @@ unsafe fn heredoc_loop(mut delim: *mut libc::c_char, mut fd: i32, env: &Env) {
 #[unsafe(no_mangle)]
 pub unsafe fn do_heredocs(token: *const t_token, mut target: *mut i32, env: &Env) {
 	let mut i = 0;
-	loop {
-		if ((*((*token).cmd_args).add(i)).elem).is_null() {
-			break;
-		}
-		if (*((*token).cmd_args).add(i)).redir == Some(HEREDOC) {
+	while i < (*token).cmd_args_vec.len() {
+		if ((*token).cmd_args_vec[i]).redir == Some(HEREDOC) {
 			let oflags = OFlag::O_RDWR | OFlag::O_CREAT | OFlag::O_TRUNC;
 			let mode = Mode::from_bits(0o644).expect("Invalid mode");
 			match nix::fcntl::open(c".heredoc.txt", oflags, mode) {
 				Ok(mut fd) => {
-					heredoc_loop((*((*token).cmd_args).add(i)).elem, fd, env);
+					heredoc_loop(((*token).cmd_args_vec[i]).elem, fd, env);
 					close(fd);
 					fd = nix::fcntl::open(c".heredoc.txt", OFlag::O_RDONLY, Mode::empty()).unwrap();
 					dup2(fd, *target);

@@ -3,7 +3,6 @@
 	non_camel_case_types,
 	non_snake_case,
 	non_upper_case_globals,
-	unused_mut,
 	clippy::missing_safety_doc,
 	clippy::upper_case_acronyms
 )]
@@ -66,6 +65,7 @@ pub mod utils {
 pub mod msh;
 pub use prelude::*;
 
+#[allow(unused_mut)]
 unsafe fn main_0() -> i32 {
 	// let mut shell: &mut t_shell = utils::init_shell::init_shell();
 	// if shell.is_null() {
@@ -91,7 +91,8 @@ unsafe fn main_0() -> i32 {
 					tokenizer::destroy_tokens::destroy_all_tokens(&mut shell);
 					continue;
 				}
-				if ((*shell.token).cmd_args).is_null() {
+				// if ((*shell.token).cmd_args).is_null() {
+				if ((*shell.token).cmd_args_vec).is_empty() {
 					tokenizer::destroy_tokens::destroy_all_tokens(&mut shell);
 					// return -(1);
 					continue;

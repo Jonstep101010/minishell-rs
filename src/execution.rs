@@ -12,8 +12,6 @@ use crate::{
 };
 use ::libc;
 use exec_bin::exec_bin;
-#[allow(unused_imports)]
-use libc::strerror;
 
 #[unsafe(no_mangle)]
 pub unsafe fn execute_commands(mut shell: &mut t_shell) {
@@ -34,7 +32,7 @@ pub unsafe fn execute_commands(mut shell: &mut t_shell) {
 				|| (*token).cmd_func == Some(exec_bin)
 		} =>
 		{
-			if do_redirections((*token).cmd_args).is_err() {
+			if do_redirections(&mut ((*token).cmd_args_vec)).is_err() {
 				todo!("some sort of handling");
 			}
 			shell.exit_status =

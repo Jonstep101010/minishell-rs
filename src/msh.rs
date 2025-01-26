@@ -4,7 +4,8 @@ pub use crate::lexer::check as lexical_checks;
 impl t_token {
 	pub fn new(split_non_quoted: String) -> Self {
 		Self {
-			cmd_args: std::ptr::null_mut::<t_arg>(),
+			// cmd_args: std::ptr::null_mut::<t_arg>(),
+			cmd_args_vec: vec![],
 			has_redir: false,
 			tmp_arr: std::ptr::null_mut::<*mut libc::c_char>(),
 			bin: std::ffi::CString::new("").unwrap(),
@@ -53,7 +54,8 @@ impl Default for t_shell {
 #[derive(Clone, Debug)]
 #[repr(C)]
 pub struct t_token {
-	pub cmd_args: *mut t_arg,            // Vec<t_arg>
+	// pub cmd_args: *mut t_arg,            // Vec<t_arg>
+	pub cmd_args_vec: Vec<t_arg>,        // Vec<t_arg>
 	pub has_redir: bool,                 // replace with Option<type>
 	pub tmp_arr: *mut *mut libc::c_char, // Vec<String>
 	pub bin: std::ffi::CString,          // String
@@ -61,21 +63,21 @@ pub struct t_token {
 	pub split_non_quoted: String,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 pub struct t_arg {
 	pub elem: *mut libc::c_char, // String
 	pub type_0: e_arg,           // wrapped enum attribute
 	pub redir: Option<e_redir>,  // enum wrapping string
 }
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(C)]
 pub enum e_arg {
 	STRING = 0,
 	REDIR = 1,
 	REDIR_REMOVED = 2,
 }
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(C)]
 pub enum e_redir {
 	INPUT_REDIR = 1,
