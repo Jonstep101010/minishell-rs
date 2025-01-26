@@ -53,35 +53,6 @@ unsafe fn init_token(mut size: usize) -> *mut t_token {
 	token
 }
 
-unsafe fn get_tokens(trimmed_line: *const libc::c_char) -> Option<Vec<*mut *mut libc::c_char>> {
-	let mut split_pipes: *mut *mut libc::c_char = split_outside_quotes(trimmed_line, c"|".as_ptr());
-	if split_pipes.is_null() {
-		panic!("alloc fail token");
-	}
-	if (*split_pipes).is_null() {
-		arr_free(split_pipes);
-		return None;
-	}
-	let mut i = 0;
-	let mut token_splits_vec = vec![];
-	while !(*split_pipes.add(i)).is_null() {
-		token_splits_vec.push(split_outside_quotes(
-			*split_pipes.add(i),
-			c" \t\n\r\x0B\x0C".as_ptr(),
-		));
-		if (token_splits_vec.last().unwrap()).is_null() {
-			// @audit will leak!
-			todo!("shall not be null!");
-			// return None;
-		}
-		i += 1;
-	}
-	assert_eq!(arr_len(split_pipes), i as u64);
-	assert_eq!(i, token_splits_vec.len());
-	free(split_pipes as *mut libc::c_void);
-	Some(token_splits_vec)
-}
-
 unsafe fn setup_token(
 	mut token: *mut t_token,
 	mut token_split: *mut *mut c_char,
@@ -144,17 +115,28 @@ unsafe fn setup_token(
 
 pub unsafe fn tokenize(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
 	let trimmed_line = std::ffi::CString::new(trimmed_line).unwrap();
-	let token_splits_vec = get_tokens(trimmed_line.as_ptr())?;
-	shell.token_len = Some(token_splits_vec.len());
-	shell.token = init_token(token_splits_vec.len());
+	let mut split_pipes: *mut *mut libc::c_char =
+		split_outside_quotes(trimmed_line.as_ptr(), c"|".as_ptr());
+	if split_pipes.is_null() {
+		panic!("alloc fail token");
+	}
+	if (*split_pipes).is_null() {
+		arr_free(split_pipes);
+		return None;
+	}
+	shell.token_len = Some(arr_len(split_pipes) as usize);
+	shell.token = init_token(shell.token_len.unwrap());
 	if shell.token.is_null() {
 		panic!("alloc fail token");
 	}
 	let mut i = 0;
 	while i < shell.token_len.unwrap() {
-		debug_assert!(!token_splits_vec[i].is_null());
 		debug_assert!(!(shell.token).add(i).is_null());
-		setup_token(&mut *(shell.token).add(i), token_splits_vec[i], &shell.env)?;
+		setup_token(
+			&mut *(shell.token).add(i),
+			split_outside_quotes(*split_pipes.add(i), c" \t\n\r\x0B\x0C".as_ptr()),
+			&shell.env,
+		)?;
 		super::redirection_utils::process_redirections((shell.token).add(i));
 		let mut ii = 0;
 		// check if the elem is null for a specific tokens' cmd_args
@@ -195,6 +177,7 @@ pub unsafe fn tokenize(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
 		}
 		i += 1;
 	}
+	free(split_pipes as *mut libc::c_void);
 	Some(())
 }
 
