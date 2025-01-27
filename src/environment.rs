@@ -1,5 +1,6 @@
 pub mod check_key;
 pub mod expander;
+use crate::prelude::*;
 use std::{collections::HashMap, fmt::Display};
 
 #[derive(Clone, Debug)]
@@ -67,14 +68,22 @@ impl Env {
 			.map(|s| s.to_string())
 			.collect()
 	}
-	pub fn as_ptr_array(&self) -> Vec<*const i8> {
-		let mut ptrs = Vec::new();
+	// pub fn as_ptr_array(&self) -> Vec<*const i8> {
+	// 	let mut ptrs = Vec::new();
+	// 	for (key, value) in &self.map {
+	// 		let var: String = format!("{}={}", key, value);
+	// 		ptrs.push(var.as_ptr() as *const i8);
+	// 	}
+	// 	ptrs.push(::core::ptr::null_mut());
+	// 	ptrs
+	// }
+	pub fn to_cstring_vec(&self) -> Vec<CString> {
+		let mut vec_cstrings = Vec::new();
 		for (key, value) in &self.map {
-			let var: String = format!("{}={}", key, value);
-			ptrs.push(var.as_ptr() as *const i8);
+			let var = CString::new(format!("{}={}", key, value)).unwrap();
+			vec_cstrings.push(var);
 		}
-		ptrs.push(::core::ptr::null_mut());
-		ptrs
+		vec_cstrings
 	}
 	// @todo implement builtins in environment
 	pub fn export(&mut self, key: &str, value: String) {

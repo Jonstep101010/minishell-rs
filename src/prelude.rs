@@ -17,3 +17,4 @@ pub use crate::eprint_msh;
 pub use crate::msh::{e_arg::*, e_redir::*, t_arg, t_shell, t_token};
 pub use crate::utils::interop::*;
 pub use libc::{c_char, c_int};
+pub use std::ffi::{CStr, CString};

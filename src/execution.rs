@@ -64,7 +64,10 @@ pub unsafe fn executor(token: *mut t_token, shell: &mut t_shell) -> i32 {
 		b"unset" => builtin_unset(&mut shell.env, command),
 		b"env" => builtin_env(&shell.env),
 		b"exit" => builtin_exit(&mut shell.env, command),
-		_ => exec_bin(&shell.env, command),
+		_ => {
+			let args = crate::tokenizer::build_command::get_vec_cstr_token(token);
+			exec_bin(&shell.env, &args)
+		}
 	};
 	libutils_rs::arr_free(command.cast());
 	status
