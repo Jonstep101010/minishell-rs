@@ -1,13 +1,11 @@
 use crate::prelude::*;
 
-use libft_rs::ft_strncmp::ft_strncmp;
-
-unsafe fn is_n_arg(mut arg: *const c_char) -> bool {
-	if *arg as c_int == '-' as i32 {
-		arg = arg.add(1);
-		while *arg as c_int == 'n' as i32 {
-			arg = arg.add(1);
-			if *arg as c_int == '\0' as i32 {
+fn is_n_arg(arg: &[u8]) -> bool {
+	if arg[0] == b'-' {
+		let mut i = 1;
+		while arg[i] == b'n' {
+			i += 1;
+			if arg[i] == b'\0' {
 				return true;
 			}
 		}
@@ -15,9 +13,9 @@ unsafe fn is_n_arg(mut arg: *const c_char) -> bool {
 	false
 }
 
-unsafe fn echo_default(cmd_args: *const *const c_char) {
+fn echo_default(cmd_args: &[CString]) {
 	let mut i = 0;
-	while !(*cmd_args.add(i)).is_null() && is_n_arg(*cmd_args.add(i)) {
+	while i < cmd_args.len() && is_n_arg(cmd_args[i].as_bytes_with_nul()) {
 		i += 1;
 	}
 	let mut flag = match i {
@@ -25,21 +23,21 @@ unsafe fn echo_default(cmd_args: *const *const c_char) {
 		_ => 1,
 	};
 	let n_pos = i;
-	while !(*cmd_args.add(i)).is_null() {
+	while i < cmd_args.len() {
 		if flag == 1 as c_int
-			&& ft_strncmp(*cmd_args.add(i), c"-n".as_ptr(), 2u64) == 0 as c_int
-			&& *(*cmd_args.add(i)).add(2) as c_int != '\0' as i32
+			&& cmd_args[i].count_bytes() == 2
+			&& cmd_args[i].as_bytes() == b"-n"
 			&& i != n_pos + 1
 		{
 			flag = 0;
 		}
 		print!(
 			"{}",
-			std::ffi::CStr::from_ptr(*cmd_args.add(i))
+			cmd_args[i]
 				.to_str()
 				.expect("CStr::from_bytes_with_nul failed")
 		);
-		if !(*cmd_args.add(i + 1)).is_null() {
+		if i + 1 < cmd_args.len() {
 			print!(" ");
 		}
 		i += 1;
@@ -49,9 +47,9 @@ unsafe fn echo_default(cmd_args: *const *const c_char) {
 	}
 }
 
-pub unsafe fn echo(args: *mut *const c_char) -> i32 {
-	if !(*args.add(1)).is_null() {
-		echo_default(&*args.add(1));
+pub fn echo(args: Vec<CString>) -> i32 {
+	if args.len() != 1 {
+		echo_default(&args[1..]);
 	} else {
 		println!();
 	}
