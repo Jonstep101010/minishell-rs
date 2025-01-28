@@ -18,6 +18,7 @@ unsafe fn exec_last(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 		}
 		dup2(*prevpipe, 0);
 		close(*prevpipe);
+		assert!(!(shell.token.add(i)).is_null());
 		executor(&mut *(shell.token).add(i), shell);
 		crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
 		std::process::exit(shell.env.get_status());
@@ -45,6 +46,7 @@ unsafe fn exec_pipe(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
 			todo!("bail out gracefully");
 		}
+		assert!(!(shell.token.add(i)).is_null());
 		executor(&mut *(shell.token).add(i), shell);
 		crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
 		std::process::exit(shell.env.get_status());
@@ -54,7 +56,6 @@ unsafe fn exec_pipe(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 		*prevpipe = pipefd[0_usize];
 	};
 }
-#[unsafe(no_mangle)]
 pub unsafe fn execute_pipes(shell: &mut t_shell) {
 	let mut prevpipe = dup(0);
 	for i in 0..shell.token_len.unwrap() - 1 {
