@@ -1,11 +1,4 @@
-#![allow(
-	mutable_transmutes,
-	non_camel_case_types,
-	non_snake_case,
-	non_upper_case_globals,
-	clippy::missing_safety_doc,
-	clippy::upper_case_acronyms
-)]
+#![allow(non_camel_case_types, non_snake_case, clippy::upper_case_acronyms)]
 #![feature(let_chains)]
 #![feature(extern_types)]
 #![allow(unsafe_op_in_unsafe_fn)]
@@ -15,9 +8,6 @@ extern crate libc;
 // # Safety should only be active in very specific test scenarios
 // extern crate libft_rs;
 // extern crate libutils_rs;
-
-mod prelude;
-pub mod tokenizer;
 
 pub mod builtins {
 	pub mod cd;
@@ -39,6 +29,8 @@ pub mod utils {
 
 // handle signals? @note removed - non-functional
 pub mod msh;
+mod prelude;
+mod tokenizer;
 use prelude::*;
 
 pub fn main() {

@@ -1,13 +1,10 @@
-// use crate::environment::check_valid_key;
-use crate::prelude::*;
-
-fn declare_x(env: &Env) {
+fn declare_x(env: &crate::Env) {
 	for (key, value) in env.iter() {
 		println!("declare -x {}={}", key, value);
 	}
 }
 
-pub fn builtin_export(shell_env: &mut Env, command: Vec<CString>) -> i32 {
+pub fn builtin_export(shell_env: &mut crate::Env, command: Vec<crate::CString>) -> i32 {
 	if command.len() == 1 {
 		declare_x(shell_env);
 		return 0;
@@ -15,7 +12,7 @@ pub fn builtin_export(shell_env: &mut Env, command: Vec<CString>) -> i32 {
 	let mut i = 1;
 	while i < command.len() {
 		if !crate::environment::check_valid_key(command[i].as_bytes_with_nul()) {
-			eprint_msh!(
+			crate::eprint_msh!(
 				"export: `{}': not a valid identifier",
 				command[i].to_str().unwrap()
 			);

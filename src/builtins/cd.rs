@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{CString, Env};
 use std::path::Path;
 
 fn changedir(path_string: &str, env: &mut Env) -> bool {

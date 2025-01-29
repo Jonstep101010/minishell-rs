@@ -1,9 +1,3 @@
-use crate::{
-	environment::{Env, check_valid_key},
-	eprint_msh,
-	prelude::*,
-};
-
 fn check_illegal_char(str: &[u8]) -> bool {
 	let mut i = 0;
 	while str[i] != b'\0' {
@@ -15,7 +9,7 @@ fn check_illegal_char(str: &[u8]) -> bool {
 	false
 }
 
-pub fn builtin_unset(shell_env: &mut Env, args: Vec<CString>) -> i32 {
+pub fn builtin_unset(shell_env: &mut crate::Env, args: Vec<crate::CString>) -> i32 {
 	if args.len() == 1 || args[1].is_empty() {
 		return 0;
 	}
@@ -23,15 +17,15 @@ pub fn builtin_unset(shell_env: &mut Env, args: Vec<CString>) -> i32 {
 	while i < args.len() {
 		let cur = args[i].to_str().unwrap();
 		if check_illegal_char(args[i].as_bytes_with_nul())
-			|| !check_valid_key(args[i].as_bytes_with_nul())
+			|| !crate::environment::check_valid_key(args[i].as_bytes_with_nul())
 		{
-			eprint_msh!("unset: `{cur}': not a valid identifier");
+			crate::eprint_msh!("unset: `{cur}': not a valid identifier");
 			return 1;
 		}
 		if let Some(key) = shell_env.remove(cur) {
 			println!("unset: {}", key);
 		} else {
-			eprint_msh!("unset: `{}': not a valid identifier", cur);
+			crate::eprint_msh!("unset: `{}': not a valid identifier", cur);
 			return 1;
 		}
 		i += 1;
