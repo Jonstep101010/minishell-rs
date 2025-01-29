@@ -17,10 +17,8 @@ fn rm_prefix_redir_word_vec(args: &mut Vec<t_arg>) {
 
 fn parse_redir_types_vec(arg: &mut [t_arg]) {
 	let mut i = 0;
-	// while i < arg.len() && !arg[i].elem.is_null() {
 	while i < arg.len() {
 		if arg[i].type_0 == REDIR {
-			// unsafe {
 			arg[i].elem_str = {
 				if arg[i].redir == Some(INPUT_REDIR) || arg[i].redir == Some(OUTPUT_REDIR) {
 					arg[i].elem_str[1..].to_string()
@@ -28,8 +26,6 @@ fn parse_redir_types_vec(arg: &mut [t_arg]) {
 					arg[i].elem_str[2..].to_string()
 				}
 			};
-			// free_null(&mut arg[i].elem as *mut *mut libc::c_char as *mut libc::c_void);
-			// }
 		}
 		i += 1;
 	}

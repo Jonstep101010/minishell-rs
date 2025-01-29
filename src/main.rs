@@ -50,16 +50,16 @@ pub mod utils {
 
 // handle signals? @note removed - non-functional
 pub mod msh;
-pub use prelude::*;
+use crate::msh::tokenizer;
+use prelude::*;
 
-#[allow(unused_mut)]
 pub fn main() {
 	let mut shell = t_shell::new();
 	// check signals
 	loop {
 		if let Some(readline_line) = unsafe { str_readline("minishell> ") } {
 			// b" \t\n\r\x0B\x0C\0"
-			let mut trimmed_line = readline_line.trim_ascii();
+			let trimmed_line = readline_line.trim_ascii();
 			if trimmed_line.is_empty() {
 				continue;
 			}
@@ -67,22 +67,11 @@ pub fn main() {
 			if let Err(status) = msh::lexical_checks(trimmed_line) {
 				shell.env.set_status(status);
 				continue;
+			} else if tokenizer(&mut shell, trimmed_line).is_none() {
+				shell.token_len = None;
+				continue;
 			} else {
-				unsafe {
-					tokenizer::build_tokens::tokenize(&mut shell, trimmed_line);
-					if (shell.token_vec).is_empty() {
-						tokenizer::destroy_tokens::destroy_all_tokens(&mut shell);
-						continue;
-					}
-					if (shell.token_vec.first().unwrap().cmd_args_vec).is_empty() {
-						tokenizer::destroy_tokens::destroy_all_tokens(&mut shell);
-						continue;
-					}
-				}
-			}
-			// @todo implement new debug for piped tokens
-			dbg!(&shell.token_vec);
-			if !(shell.token_vec).is_empty() {
+				dbg!(&shell.token_vec);
 				execution::execute_commands(&mut shell);
 			}
 		} else {

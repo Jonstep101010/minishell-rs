@@ -24,7 +24,7 @@ fn echo_default(cmd_args: &[CString]) {
 	};
 	let n_pos = i;
 	while i < cmd_args.len() {
-		if flag == 1 as c_int
+		if flag == 1
 			&& cmd_args[i].count_bytes() == 2
 			&& cmd_args[i].as_bytes() == b"-n"
 			&& i != n_pos + 1
@@ -42,7 +42,7 @@ fn echo_default(cmd_args: &[CString]) {
 		}
 		i += 1;
 	}
-	if flag != 1 as c_int {
+	if flag != 1 {
 		println!();
 	}
 }

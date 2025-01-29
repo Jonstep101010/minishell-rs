@@ -1,4 +1,4 @@
-use crate::t_shell;
+use crate::prelude::*;
 use ::libc;
 use libc::{close, dup, dup2, fork, pipe, wait, waitpid};
 
@@ -60,7 +60,7 @@ pub unsafe fn execute_pipes(shell: &mut t_shell) {
 	let mut prevpipe = dup(0);
 	for i in 0..shell.token_len.unwrap() - 1 {
 		if shell.token_vec[i].has_redir && i != shell.token_len.unwrap() - 1 {
-			do_heredocs(&mut shell.token_vec[i], &mut prevpipe, &shell.env);
+			do_heredocs(&shell.token_vec[i], &mut prevpipe, &shell.env);
 		}
 		exec_pipe(shell, i, &mut prevpipe);
 	}

@@ -1,5 +1,5 @@
 use crate::{
-	environment::{Env, expander::expander},
+	environment::expander::expander,
 	parser::{interpret_quotes::rs_do_quote_bs, split_outside_quotes::split_non_quoted},
 	prelude::*,
 };
@@ -21,7 +21,7 @@ pub fn tokenize(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
 			split_non_quoted: std::mem::take(piped_token),
 		})
 		.collect();
-	for mut token in &mut shell.token_vec {
+	for token in &mut shell.token_vec {
 		// debug_assert!(!(shell.token).add(i).is_null());
 		let token_args = split_non_quoted(&token.split_non_quoted, " \t\n\r\x0B\x0C");
 		token.cmd_args_vec = token_args
@@ -57,7 +57,11 @@ pub fn tokenize(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
 			arg.elem_str = rs_do_quote_bs(arg.elem_str.as_bytes(), &mut quote)
 		}
 	}
-	Some(())
+	if (shell.token_vec.first().unwrap().cmd_args_vec).is_empty() || (shell.token_vec).is_empty() {
+		None
+	} else {
+		Some(())
+	}
 }
 
 impl t_token {

@@ -10,7 +10,6 @@ use crate::{
 		cd::builtin_cd, echo::echo, env::builtin_env, exit::builtin_exit, export::builtin_export,
 		pwd::builtin_pwd, unset::builtin_unset,
 	},
-	t_shell, t_token,
 	tokenizer::destroy_tokens::destroy_all_tokens,
 };
 use exec_bin::exec_bin;
@@ -34,7 +33,7 @@ pub fn execute_commands(shell: &mut t_shell) {
 			unsafe { execute_pipes(shell) };
 		}
 	}
-	unsafe { destroy_all_tokens(&mut (*shell)) };
+	destroy_all_tokens(&mut (*shell));
 }
 
 pub fn executor(token: &mut t_token, shell_env: &mut Env) {
