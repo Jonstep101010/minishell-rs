@@ -1,6 +1,3 @@
-// src/prelude.rs
-// other pub use statements
-
 pub type __uint8_t = libc::c_uchar;
 pub type __uint32_t = libc::c_uint;
 pub type __uid_t = libc::c_uint;

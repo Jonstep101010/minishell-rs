@@ -101,7 +101,6 @@ impl Env {
 		}
 		vec_cstrings
 	}
-	// @todo implement builtins in environment
 	pub fn export(&mut self, key: &str, value: String) {
 		if key != "?" {
 			self.map.insert(key.to_string(), value);
@@ -113,7 +112,6 @@ impl Env {
 	pub fn get_status(&self) -> i32 {
 		self.status
 	}
-	// @todo implement builtins in environment
 	pub fn unset(&mut self, key: &str) {
 		self.map.remove(key);
 	}

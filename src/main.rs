@@ -4,19 +4,20 @@
 
 extern crate libc;
 
-// handle signals? @note removed - non-functional
-// # Safety should only be active in very specific test scenarios
-// extern crate libft_rs;
-// extern crate libutils_rs;
+// to spend more time ;\
+// handle signals? removed - non-functional
+// use rustyline instead of readline
+// use process instead of fork
+// use tempfile for heredoc (if possible!)
 
 mod environment;
 mod execution;
-mod lexer; // mod lexer
+mod lexer;
 
 pub mod utils {
 	pub mod error;
 	pub mod rust_readline;
-} // mod utils
+}
 
 pub mod msh;
 mod prelude;
@@ -28,7 +29,6 @@ pub fn main() {
 	// check signals
 	loop {
 		if let Some(readline_line) = crate::utils::rust_readline::str_readline("minishell> ") {
-			// b" \t\n\r\x0B\x0C\0"
 			let trimmed_line = readline_line.trim_ascii();
 			if trimmed_line.is_empty() {
 				continue;

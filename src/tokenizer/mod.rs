@@ -35,6 +35,7 @@ pub(super) fn parse(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
 }
 
 impl t_token {
+	/// for a split pipe, sets up the corresponding token (split whitespace, parse redirections, expand)
 	pub fn new(pipe_split: String, shell_env: &Env) -> Self {
 		let mut token = t_token {
 			cmd_args_vec: split_non_quoted(&pipe_split, " \t\n\r\x0B\x0C")

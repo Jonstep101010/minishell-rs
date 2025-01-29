@@ -36,7 +36,6 @@ mod tests {
 	#[fixture]
 	fn test_expander(#[case] expected: &str, #[case] input: &str) {
 		let env = Env::new_test();
-		// let input = CString::new(input).unwrap();
 		let output = env.expander(input);
 		assert_eq!(expected, output);
 	}
@@ -51,7 +50,6 @@ mod tests {
 	#[fixture]
 	fn test_expander_weird(#[case] expected: &str, #[case] input: &str) {
 		let env = Env::new_test();
-		// let input = CString::new(input).unwrap();
 		let output = env.expander(input);
 		assert_eq!(expected, output);
 	}
@@ -62,7 +60,6 @@ mod tests {
 	#[fixture]
 	fn test_expander_status(#[case] expected: &str, #[case] input: &str) {
 		let env = Env::new_exit_status();
-		// let input = CString::new(input).unwrap();
 		let output = env.expander(input);
 		assert_eq!(expected, output);
 	}
