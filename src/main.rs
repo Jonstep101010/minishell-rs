@@ -38,7 +38,6 @@ pub mod parser {
 pub mod tokenizer {
 	pub mod build_command;
 	pub mod build_tokens;
-	pub mod destroy_tokens;
 	pub mod redirection_utils;
 } // mod tokenizer
 pub mod utils {

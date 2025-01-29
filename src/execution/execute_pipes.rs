@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use ::libc;
-use libc::{close, dup, dup2, fork, pipe, wait, waitpid};
+use libc::{close, dup2, fork, pipe, wait, waitpid};
 
 use super::{executor, heredoc::do_heredocs, redirections::do_redirections};
 
@@ -13,14 +13,15 @@ unsafe fn exec_last(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 			do_heredocs(&shell.token_vec[i], &mut *prevpipe, &shell.env);
 		}
 		if do_redirections(&mut shell.token_vec[i].cmd_args_vec).is_err() {
-			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
-			todo!("bail out gracefully");
+			shell.restore();
+			eprint_msh!("failed to do redirections");
+			std::process::exit(1);
 		}
 		dup2(*prevpipe, 0);
 		close(*prevpipe);
 		// assert!(!(shell.token.add(i)).is_null());
 		executor(&mut shell.token_vec[i], &mut shell.env);
-		crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
+		// shell.restore(); //@note redundant as we do not return to the parent process
 		std::process::exit(shell.env.get_status());
 	} else {
 		waitpid(cpid, &mut status, 0);
@@ -42,13 +43,11 @@ unsafe fn exec_pipe(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 		close(pipefd[1_usize]);
 		dup2(*prevpipe, 0);
 		close(*prevpipe);
-		if do_redirections(&mut shell.token_vec[i].cmd_args_vec).is_err() {
-			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
-			todo!("bail out gracefully");
+		if let Err(status) = do_redirections(&mut shell.token_vec[i].cmd_args_vec) {
+			eprint_msh!("failed to do redirections");
+			std::process::exit(status);
 		}
-		// assert!(!(shell.token.add(i)).is_null());
 		executor(&mut shell.token_vec[i], &mut shell.env);
-		crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
 		std::process::exit(shell.env.get_status());
 	} else {
 		close(pipefd[1_usize]);
@@ -56,13 +55,17 @@ unsafe fn exec_pipe(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 		*prevpipe = pipefd[0_usize];
 	};
 }
-pub unsafe fn execute_pipes(shell: &mut t_shell) {
-	let mut prevpipe = dup(0);
+pub fn execute_pipes(shell: &mut t_shell) {
+	let mut prevpipe = nix::unistd::dup(0).unwrap();
 	for i in 0..shell.token_len.unwrap() - 1 {
 		if shell.token_vec[i].has_redir && i != shell.token_len.unwrap() - 1 {
 			do_heredocs(&shell.token_vec[i], &mut prevpipe, &shell.env);
 		}
-		exec_pipe(shell, i, &mut prevpipe);
+		unsafe {
+			exec_pipe(shell, i, &mut prevpipe);
+		}
 	}
-	exec_last(shell, shell.token_len.unwrap() - 1, &mut prevpipe);
+	unsafe {
+		exec_last(shell, shell.token_len.unwrap() - 1, &mut prevpipe);
+	}
 }

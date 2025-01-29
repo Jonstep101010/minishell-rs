@@ -4,14 +4,11 @@ mod execute_pipes;
 mod heredoc;
 mod redirections;
 use self::{execute_pipes::execute_pipes, redirections::do_redirections};
-use crate::prelude::*;
-use crate::{
-	builtins::{
-		cd::builtin_cd, echo::echo, env::builtin_env, exit::builtin_exit, export::builtin_export,
-		pwd::builtin_pwd, unset::builtin_unset,
-	},
-	tokenizer::destroy_tokens::destroy_all_tokens,
+use crate::builtins::{
+	cd::builtin_cd, echo::echo, env::builtin_env, exit::builtin_exit, export::builtin_export,
+	pwd::builtin_pwd, unset::builtin_unset,
 };
+use crate::prelude::*;
 use exec_bin::exec_bin;
 pub fn execute_commands(shell: &mut t_shell) {
 	match shell.token_len.unwrap() {
@@ -23,17 +20,17 @@ pub fn execute_commands(shell: &mut t_shell) {
 				&& shell.token_vec[0].cmd_name != b"exit"
 		} =>
 		{
-			if do_redirections(&mut shell.token_vec[0].cmd_args_vec).is_err() {
-				todo!("some sort of handling");
+			if let Err(status) = do_redirections(&mut shell.token_vec[0].cmd_args_vec) {
+				eprint_msh!("failed to do redirections");
+				std::process::exit(status)
 			}
-			// assert!(!(shell.token).is_null());
 			executor(&mut shell.token_vec[0], &mut shell.env)
 		}
 		_ => {
-			unsafe { execute_pipes(shell) };
+			execute_pipes(shell);
 		}
 	}
-	destroy_all_tokens(&mut (*shell));
+	shell.restore();
 }
 
 pub fn executor(token: &mut t_token, shell_env: &mut Env) {
