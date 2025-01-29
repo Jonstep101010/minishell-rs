@@ -39,13 +39,10 @@ impl t_token {
 	pub fn new(pipe_split: String, shell_env: &Env) -> Self {
 		let mut token = t_token {
 			cmd_args_vec: split_non_quoted(&pipe_split, " \t\n\r\x0B\x0C")
-				.iter()
+				.iter_mut()
 				.map(|arg| {
-					t_arg::new(if arg.contains('$') {
-						shell_env.expander(arg)
-					} else {
-						arg.to_string()
-					})
+					shell_env.expander(arg);
+					t_arg::new(std::mem::take(arg))
 				})
 				.collect(),
 			has_redir: false,

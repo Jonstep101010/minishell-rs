@@ -36,8 +36,9 @@ mod tests {
 	#[fixture]
 	fn test_expander(#[case] expected: &str, #[case] input: &str) {
 		let env = Env::new_test();
-		let output = env.expander(input);
-		assert_eq!(expected, output);
+		let mut bind_mut = input.to_owned();
+		env.expander(&mut bind_mut);
+		assert_eq!(expected, bind_mut);
 	}
 	#[rstest]
 	#[case("$\"USER\"", "$\"USER\"")]
@@ -50,8 +51,9 @@ mod tests {
 	#[fixture]
 	fn test_expander_weird(#[case] expected: &str, #[case] input: &str) {
 		let env = Env::new_test();
-		let output = env.expander(input);
-		assert_eq!(expected, output);
+		let mut bind_mut = input.to_owned();
+		env.expander(&mut bind_mut);
+		assert_eq!(expected, bind_mut);
 	}
 	#[rstest]
 	#[case("echo 0", "echo $?")]
@@ -60,7 +62,8 @@ mod tests {
 	#[fixture]
 	fn test_expander_status(#[case] expected: &str, #[case] input: &str) {
 		let env = Env::new_exit_status();
-		let output = env.expander(input);
-		assert_eq!(expected, output);
+		let mut bind_mut = input.to_owned();
+		env.expander(&mut bind_mut);
+		assert_eq!(expected, bind_mut);
 	}
 }

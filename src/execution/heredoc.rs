@@ -14,9 +14,9 @@ pub(super) fn do_heredocs(token: &t_token, target: &mut i32, env: &Env) {
 					loop {
 						let opt_line = crate::utils::rust_readline::str_readline("> ");
 						match opt_line {
-							Some(line) if line != delim => {
-								let expanded = env.expander(&line);
-								let mut output = expanded.into_bytes();
+							Some(mut line) if line != delim => {
+								env.expander(&mut line);
+								let mut output = line.into_bytes();
 								output.push(b'\n');
 								let safe_fd = unsafe { BorrowedFd::borrow_raw(fd) };
 								if let Err(e) = nix::unistd::write(safe_fd, &output) {
