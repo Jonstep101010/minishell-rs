@@ -1,19 +1,7 @@
 use crate::environment;
 pub use crate::lexer::check as lexical_checks;
 
-impl t_token {
-	pub fn new(split_non_quoted: String) -> Self {
-		Self {
-			cmd_args_vec: vec![],
-			has_redir: false,
-			cmd_name: vec![],
-			split_non_quoted,
-		}
-	}
-}
-
 #[derive(Clone)]
-#[repr(C)]
 pub struct t_shell {
 	pub(crate) env: environment::Env,
 	pub token: *mut t_token, // Vec<t_token>

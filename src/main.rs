@@ -79,8 +79,7 @@ pub fn main() {
 					}
 				}
 			}
-			self::t_shell::create_tokens(&mut shell, trimmed_line);
-			dbg!(&shell.token_vec);
+			// @todo implement new debug for piped tokens
 			if !(shell.token).is_null() {
 				execution::execute_commands(&mut shell);
 			}

@@ -149,11 +149,22 @@ pub unsafe fn tokenize(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
 	Some(())
 }
 
+impl t_token {
+	pub fn new(split_non_quoted: String) -> Self {
+		Self {
+			cmd_args_vec: vec![],
+			has_redir: false,
+			cmd_name: vec![],
+			split_non_quoted,
+		}
+	}
+}
+
 // @todo testing before usage
 impl t_shell {
 	///
 	/// future replacement for `get_tokens`
-	pub fn create_tokens(&mut self, trimmed_line: &str) {
+	pub fn create_piped_tokens(&mut self, trimmed_line: &str) {
 		let split_pipes = crate::parser::split_outside_quotes::split_non_quoted(trimmed_line, "|");
 		self.token_vec = split_pipes
 			.iter()
