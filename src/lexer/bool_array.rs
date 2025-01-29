@@ -65,10 +65,12 @@ impl BoolArray for Box<[bool]> {
 	}
 }
 
+#[allow(unused)]
 pub fn bool_arr_zeroing_vec(len: usize) -> Vec<bool> {
 	Vec::zeroing(len)
 }
 
+#[allow(unused)]
 pub fn bool_arr_zeroing_box(len: usize) -> Box<[bool]> {
 	Box::zeroing(len)
 }

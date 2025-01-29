@@ -18,7 +18,6 @@ extern crate libc;
 
 mod prelude;
 pub mod tokenizer;
-use utils::rust_readline::{str_add_history, str_readline};
 
 pub mod builtins {
 	pub mod cd;
@@ -34,7 +33,6 @@ pub mod execution; // mod execution
 pub mod lexer; // mod lexer
 
 pub mod utils {
-	pub mod bool_array;
 	pub mod error;
 	pub mod rust_readline;
 } // mod utils
@@ -47,13 +45,13 @@ pub fn main() {
 	let mut shell = t_shell::new();
 	// check signals
 	loop {
-		if let Some(readline_line) = unsafe { str_readline("minishell> ") } {
+		if let Some(readline_line) = crate::utils::rust_readline::str_readline("minishell> ") {
 			// b" \t\n\r\x0B\x0C\0"
 			let trimmed_line = readline_line.trim_ascii();
 			if trimmed_line.is_empty() {
 				continue;
 			}
-			unsafe { str_add_history(trimmed_line) };
+			crate::utils::rust_readline::str_add_history(trimmed_line);
 			if let Err(status) = msh::lexical_checks(trimmed_line) {
 				shell.env.set_status(status);
 				continue;

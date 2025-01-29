@@ -6,7 +6,7 @@ fn heredoc_loop(delim: &str, fd: i32, env: &Env) {
 	// g_ctrl_c = 0;
 	// not handling ctrl c signals for now
 	loop {
-		let opt_line = unsafe { crate::utils::rust_readline::str_readline("> ") };
+		let opt_line = crate::utils::rust_readline::str_readline("> ");
 		match opt_line {
 			Some(line) if line != delim => {
 				if let Some(expanded) = crate::environment::expander::expander(&line, env) {

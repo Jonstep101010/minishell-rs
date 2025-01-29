@@ -25,26 +25,30 @@
 ///
 /// Returns an `Option<String>` representing whether a `String` was returned
 /// or NULL. `None` indicates the user has signal end of input.
-pub unsafe fn str_readline(prompt: &str) -> Option<String> {
+pub fn str_readline(prompt: &str) -> Option<String> {
 	let cprmt = std::ffi::CString::new(prompt).unwrap();
-	let ret = gnu_readline_sys::readline(cprmt.as_ptr());
-	if ret.is_null() {
-		// user pressed Ctrl-D
-		None
-	} else {
-		let slice = std::ffi::CStr::from_ptr(ret);
-		let bytes = slice.to_bytes();
+	unsafe {
+		let ret = gnu_readline_sys::readline(cprmt.as_ptr());
+		if ret.is_null() {
+			// user pressed Ctrl-D
+			None
+		} else {
+			let slice = std::ffi::CStr::from_ptr(ret);
+			let bytes = slice.to_bytes();
 
-		// the return from readline needs to be explicitly freed
-		// so clone the input first
-		let line = String::from_utf8_lossy(bytes).into_owned().clone();
+			// the return from readline needs to be explicitly freed
+			// so clone the input first
+			let line = String::from_utf8_lossy(bytes).into_owned().clone();
 
-		libc::free(ret as *mut libc::c_void);
+			libc::free(ret as *mut libc::c_void);
 
-		Some(line)
+			Some(line)
+		}
 	}
 }
 
-pub unsafe fn str_add_history(line: &str) {
-	gnu_readline_sys::add_history(std::ffi::CString::new(line).unwrap().as_ptr());
+pub fn str_add_history(line: &str) {
+	unsafe {
+		gnu_readline_sys::add_history(std::ffi::CString::new(line).unwrap().as_ptr());
+	}
 }
