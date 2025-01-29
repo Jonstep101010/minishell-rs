@@ -9,14 +9,13 @@ fn heredoc_loop(delim: &str, fd: i32, env: &Env) {
 		let opt_line = crate::utils::rust_readline::str_readline("> ");
 		match opt_line {
 			Some(line) if line != delim => {
-				if let Some(expanded) = crate::environment::expander::expander(&line, env) {
-					let mut output = expanded.into_bytes();
-					output.push(b'\n');
-					let safe_fd = unsafe { BorrowedFd::borrow_raw(fd) };
-					if let Err(e) = nix::unistd::write(safe_fd, &output) {
-						eprintln!("heredoc write error: {}", e);
-						return;
-					}
+				let expanded = crate::environment::expander::expander(&line, env);
+				let mut output = expanded.into_bytes();
+				output.push(b'\n');
+				let safe_fd = unsafe { BorrowedFd::borrow_raw(fd) };
+				if let Err(e) = nix::unistd::write(safe_fd, &output) {
+					eprintln!("heredoc write error: {}", e);
+					return;
 				}
 			}
 			_ => return,

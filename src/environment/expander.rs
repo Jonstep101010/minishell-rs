@@ -4,19 +4,15 @@ use super::Env;
 use std::ffi::CString;
 
 /// Expand the input string using the environment variables stored in the `env` struct.
-///
-/// # Arguments
-/// `input_expander` - A `CStr` reference to the input string to be expanded.
-#[allow(clippy::missing_panics_doc, clippy::items_after_statements)]
 #[must_use]
-pub fn expander(input_expander: &str, env: &Env) -> Option<String> {
+pub fn expander(input_expander: &str, env: &Env) -> String {
+	const CHARMATCH: &[u8; 9] = b"$\"'/? )(\0";
 	let mut i = 0;
 	let mut should_expand = true;
 	let mut has_double_quote = false;
 	let mut ret = String::new();
 	let input_expander = CString::new(input_expander).unwrap();
 	let bytes = input_expander.to_bytes_with_nul();
-	const CHARMATCH: &[u8; 9] = b"$\"'/? )(\0";
 	let idx_advance = |bytes_at_i: &[u8]| {
 		let mut count: usize = 0;
 		while !CHARMATCH.iter().any(|&x| x == bytes_at_i[count + 1]) {
@@ -51,7 +47,7 @@ pub fn expander(input_expander: &str, env: &Env) -> Option<String> {
 		}
 		i += 1;
 	}
-	Some(ret)
+	ret
 }
 
 #[cfg(test)]
@@ -93,7 +89,7 @@ mod tests {
 	fn test_expander(#[case] expected: &str, #[case] input: &str) {
 		let env = Env::new_test();
 		// let input = CString::new(input).unwrap();
-		let output = expander(input, &env).unwrap();
+		let output = expander(input, &env);
 		assert_eq!(expected, output);
 	}
 	#[rstest]
@@ -108,7 +104,7 @@ mod tests {
 	fn test_expander_weird(#[case] expected: &str, #[case] input: &str) {
 		let env = Env::new_test();
 		// let input = CString::new(input).unwrap();
-		let output = expander(input, &env).unwrap();
+		let output = expander(input, &env);
 		assert_eq!(expected, output);
 	}
 	#[rstest]
@@ -119,7 +115,7 @@ mod tests {
 	fn test_expander_status(#[case] expected: &str, #[case] input: &str) {
 		let env = Env::new_exit_status();
 		// let input = CString::new(input).unwrap();
-		let output = expander(input, &env).unwrap();
+		let output = expander(input, &env);
 		assert_eq!(expected, output);
 	}
 }

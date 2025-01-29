@@ -4,7 +4,7 @@ fn declare_x(env: &crate::Env) {
 	}
 }
 
-pub fn builtin_export(shell_env: &mut crate::Env, command: Vec<crate::CString>) -> i32 {
+pub fn export(shell_env: &mut crate::Env, command: Vec<crate::CString>) -> i32 {
 	if command.len() == 1 {
 		declare_x(shell_env);
 		return 0;

@@ -37,7 +37,7 @@ pub fn parse(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
 				redir: None,
 				elem_str: {
 					if arg.contains('$') {
-						expander(arg, &shell.env).unwrap()
+						expander(arg, &shell.env)
 					} else {
 						arg.to_string()
 					}

@@ -15,7 +15,7 @@ fn check_exit_code(command: Vec<CString>) -> Result<i32, i32> {
 	}
 }
 
-pub fn builtin_exit(shell_env: &mut Env, command: Vec<CString>) -> i32 {
+pub fn exit(shell_env: &mut Env, command: Vec<CString>) -> i32 {
 	if command.len() > 1 {
 		let exit_code = match check_exit_code(command) {
 			Err(code) => return code,

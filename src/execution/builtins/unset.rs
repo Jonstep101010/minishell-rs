@@ -9,7 +9,7 @@ fn check_illegal_char(str: &[u8]) -> bool {
 	false
 }
 
-pub fn builtin_unset(shell_env: &mut crate::Env, args: Vec<crate::CString>) -> i32 {
+pub fn unset(shell_env: &mut crate::Env, args: Vec<crate::CString>) -> i32 {
 	if args.len() == 1 || args[1].is_empty() {
 		return 0;
 	}

@@ -43,13 +43,6 @@ impl Deref for Env {
 
 impl Env {
 	#[cfg(test)]
-	pub fn new_empty() -> Self {
-		Self {
-			map: HashMap::new(),
-			status: 0,
-		}
-	}
-	#[cfg(test)]
 	pub fn new_exit_status() -> Self {
 		let mut status_env = HashMap::new();
 		status_env.insert("?".to_string(), "0".to_string());

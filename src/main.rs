@@ -9,18 +9,9 @@ extern crate libc;
 // extern crate libft_rs;
 // extern crate libutils_rs;
 
-pub mod builtins {
-	pub mod cd;
-	pub mod echo;
-	pub mod env;
-	pub mod exit;
-	pub mod export;
-	pub mod pwd;
-	pub mod unset;
-} // mod builtins
-pub mod environment; // mod environment
-pub mod execution; // mod execution
-pub mod lexer; // mod lexer
+mod environment;
+mod execution; // mod environment
+mod lexer; // mod lexer
 
 pub mod utils {
 	pub mod error;

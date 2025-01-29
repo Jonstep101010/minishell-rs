@@ -49,7 +49,7 @@ fn cd_internal(opt_target: Option<&str>, env: &mut Env) -> bool {
 	}
 }
 
-pub fn builtin_cd(shell_env: &mut Env, args: Vec<CString>) -> i32 {
+pub fn cd(shell_env: &mut Env, args: Vec<CString>) -> i32 {
 	let opt_target_dir = if args.len() == 1 {
 		None
 	} else {
