@@ -32,8 +32,8 @@ pub unsafe fn do_quote_bs(mut s: *const c_char, quote: &mut c_int) -> *mut c_cha
 	tmp
 }
 
-pub fn rs_do_quote_bs(bytes_s: &[u8], quote: &mut c_int) -> CString {
-	let mut tmp = Vec::new();
+pub fn rs_do_quote_bs(bytes_s: &[u8], quote: &mut c_int) -> String {
+	let mut tmp = String::new();
 	for &byte in bytes_s {
 		match (*quote as u8, byte) {
 			(0, b'\'' | b'"') => *quote = byte as c_int,
@@ -41,11 +41,11 @@ pub fn rs_do_quote_bs(bytes_s: &[u8], quote: &mut c_int) -> CString {
 				*quote = 0;
 			}
 			_ => {
-				tmp.push(byte);
+				tmp.push(byte as char);
 			}
 		}
 	}
-	unsafe { CString::from_vec_unchecked(tmp) }
+	tmp
 }
 
 #[cfg(test)]

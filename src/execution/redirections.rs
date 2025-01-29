@@ -9,7 +9,8 @@ pub fn do_redirections(cmd_args: &mut [t_arg]) -> Result<(), i32> {
 	let mut i = 0;
 	while i < cmd_args.len() {
 		if (cmd_args[i]).type_0 == REDIR && (cmd_args[i]).redir.unwrap() != HEREDOC {
-			let file = unsafe { CStr::from_ptr((cmd_args[i]).elem) };
+			let file = CString::new((cmd_args[i]).elem_str.clone()).unwrap();
+			let file = file.as_c_str();
 			let fd_result = match (cmd_args[i]).redir.unwrap() {
 				INPUT_REDIR => {
 					if access(file, AccessFlags::F_OK).is_err() {
@@ -46,8 +47,7 @@ pub fn do_redirections(cmd_args: &mut [t_arg]) -> Result<(), i32> {
 					let _ = nix::unistd::close(fd);
 				}
 				Err(_) => {
-					let tmp = unsafe { std::ffi::CStr::from_ptr((cmd_args[i]).elem) };
-					eprint_msh!("failed to execute: {}", tmp.to_str().unwrap());
+					eprint_msh!("failed to execute: {}", (cmd_args[i]).elem_str);
 					return Err(-1);
 				}
 			}

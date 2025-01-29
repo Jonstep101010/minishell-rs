@@ -9,11 +9,12 @@ use std::ffi::{CStr, CString};
 /// `input_expander` - A `CStr` reference to the input string to be expanded.
 #[allow(clippy::missing_panics_doc, clippy::items_after_statements)]
 #[must_use]
-pub fn expander(input_expander: &CStr, env: &Env) -> Option<CString> {
+pub fn expander(input_expander: &str, env: &Env) -> Option<String> {
 	let mut i = 0;
 	let mut should_expand = true;
 	let mut has_double_quote = false;
 	let mut ret = String::new();
+	let input_expander = CString::new(input_expander).unwrap();
 	let bytes = input_expander.to_bytes_with_nul();
 	const CHARMATCH: &[u8; 9] = b"$\"'/? )(\0";
 	let idx_advance = |bytes_at_i: &[u8]| {
@@ -70,7 +71,7 @@ pub fn expander(input_expander: &CStr, env: &Env) -> Option<CString> {
 		}
 		i += 1;
 	}
-	Some(CString::new(ret).unwrap())
+	Some(ret)
 }
 
 #[cfg(test)]
@@ -111,10 +112,10 @@ mod tests {
 	),"echo $USER | echo \"$USER\"")]
 	#[fixture]
 	fn test_expander(#[case] expected: &str, #[case] input: &str) {
-		let env = Env::new();
-		let input = CString::new(input).unwrap();
-		let output = expander(&input, &env).unwrap();
-		assert_eq!(expected, output.to_str().unwrap());
+		let env = Env::new_test();
+		// let input = CString::new(input).unwrap();
+		let output = expander(input, &env).unwrap();
+		assert_eq!(expected, output);
 	}
 	#[rstest]
 	#[case("$\"USER\"", "$\"USER\"")]
@@ -126,10 +127,10 @@ mod tests {
 	#[case("echo something $$ strange", "echo something $$ strange")]
 	#[fixture]
 	fn test_expander_weird(#[case] expected: &str, #[case] input: &str) {
-		let env = Env::new();
-		let input = CString::new(input).unwrap();
-		let output = expander(&input, &env).unwrap();
-		assert_eq!(expected, output.to_str().unwrap());
+		let env = Env::new_test();
+		// let input = CString::new(input).unwrap();
+		let output = expander(input, &env).unwrap();
+		assert_eq!(expected, output);
 	}
 	#[rstest]
 	#[case("echo 0", "echo $?")]
@@ -138,8 +139,8 @@ mod tests {
 	#[fixture]
 	fn test_expander_status(#[case] expected: &str, #[case] input: &str) {
 		let env = Env::new_exit_status();
-		let input = CString::new(input).unwrap();
-		let output = expander(&input, &env).unwrap();
-		assert_eq!(expected, output.to_str().unwrap());
+		// let input = CString::new(input).unwrap();
+		let output = expander(input, &env).unwrap();
+		assert_eq!(expected, output);
 	}
 }

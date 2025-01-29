@@ -61,6 +61,23 @@ impl Env {
 			status: 0,
 		}
 	}
+	#[cfg(test)]
+	pub fn new_test() -> Self {
+		// collect environment variables
+		#[cfg(miri)]
+		{
+			let mut host_env: HashMap<String, String> = HashMap::new();
+			host_env.insert("USER".to_string(), "someweirdname".to_string());
+			Self {
+				map: host_env,
+				status: 0,
+			}
+		}
+		#[cfg(not(miri))]
+		{
+			Self::new()
+		}
+	}
 	pub fn get_paths(&self) -> Vec<String> {
 		self.get("PATH")
 			.unwrap()

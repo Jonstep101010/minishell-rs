@@ -1,6 +1,9 @@
 use crate::prelude::*;
 use nix::{fcntl::OFlag, sys::stat::Mode};
-use std::str::FromStr;
+use std::{
+	os::fd::{AsFd, AsRawFd, BorrowedFd, IntoRawFd},
+	str::FromStr,
+};
 
 fn heredoc_loop(delim: &str, fd: i32, env: &Env) {
 	// g_ctrl_c = 0;
@@ -9,9 +12,16 @@ fn heredoc_loop(delim: &str, fd: i32, env: &Env) {
 		let opt_line = unsafe { crate::utils::rust_readline::str_readline("> ") };
 		match opt_line {
 			Some(line) if line != delim => {
-				let expand_input = CString::from_str(&line).unwrap();
-				if let Some(expanded) = crate::environment::expander::expander(&expand_input, env) {
-					unsafe { libc::write(fd, expanded.as_ptr().cast(), expanded.count_bytes()) };
+				// let expand_input = CString::from_str(&line).unwrap();
+				if let Some(expanded) = crate::environment::expander::expander(&line, env) {
+					// unsafe { libc::write(fd, expanded.as_ptr().cast(), expanded.count_bytes()) };
+					let mut output = expanded.into_bytes();
+					output.push(b'\n');
+					let safe_fd = unsafe { BorrowedFd::borrow_raw(fd) };
+					if let Err(e) = nix::unistd::write(safe_fd, &output) {
+						eprintln!("heredoc write error: {}", e);
+						return;
+					}
 				}
 			}
 			_ => return,
@@ -27,15 +37,7 @@ pub fn do_heredocs(token: &t_token, target: &mut i32, env: &Env) {
 			let mode = Mode::from_bits(0o644).expect("Invalid mode");
 			match nix::fcntl::open(c".heredoc.txt", oflags, mode) {
 				Ok(mut fd) => {
-					heredoc_loop(
-						unsafe {
-							CStr::from_ptr((token.cmd_args_vec[i]).elem)
-								.to_str()
-								.unwrap()
-						},
-						fd,
-						env,
-					);
+					heredoc_loop(&(token.cmd_args_vec[i]).elem_str, fd, env);
 					nix::unistd::close(fd).unwrap();
 					fd = nix::fcntl::open(c".heredoc.txt", OFlag::O_RDONLY, Mode::empty()).unwrap();
 					nix::unistd::dup2(fd, *target).unwrap();

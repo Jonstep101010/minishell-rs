@@ -43,12 +43,13 @@ pub struct t_token {
 	pub split_non_quoted: String,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Debug)]
 #[repr(C)]
 pub struct t_arg {
-	pub elem: *mut libc::c_char, // String
-	pub type_0: e_arg,           // wrapped enum attribute
-	pub redir: Option<e_redir>,  // enum wrapping string
+	// pub elem: *mut libc::c_char, // String
+	pub elem_str: String,
+	pub type_0: e_arg,          // wrapped enum attribute
+	pub redir: Option<e_redir>, // enum wrapping string
 }
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(C)]
