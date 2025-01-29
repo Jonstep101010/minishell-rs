@@ -1,22 +1,9 @@
 use crate::environment;
-pub use crate::lexer::check as lexical_checks;
-
-impl t_token {
-	pub fn new(split_non_quoted: String) -> Self {
-		Self {
-			cmd_args_vec: vec![],
-			has_redir: false,
-			cmd_name: vec![],
-			split_non_quoted,
-		}
-	}
-}
+pub(crate) use crate::lexer::check as lexical_checks;
 
 #[derive(Clone)]
-#[repr(C)]
 pub struct t_shell {
 	pub(crate) env: environment::Env,
-	pub token: *mut t_token, // Vec<t_token>
 	pub token_len: Option<usize>,
 	pub token_vec: Vec<t_token>,
 }
@@ -25,19 +12,14 @@ impl t_shell {
 	pub fn new() -> Self {
 		Self {
 			env: environment::Env::new(),
-			token: std::ptr::null_mut(),
 			token_len: None,
 			token_vec: vec![],
 		}
 	}
-	pub fn export(&mut self, key: &str, value: String) {
-		self.env.export(key, value);
-	}
-	pub fn unset(&mut self, key: &str) {
-		self.env.unset(key);
-	}
-	pub fn get_var(&self, key: &str) -> Option<&String> {
-		self.env.get(key)
+	///
+	/// restores the token_len to the default value without input (new entry)
+	pub fn restore(&mut self) {
+		self.token_len = None;
 	}
 }
 
@@ -46,34 +28,55 @@ impl Default for t_shell {
 		Self::new()
 	}
 }
-#[derive(Clone, Debug)]
-#[repr(C)]
+
+#[derive(Clone, Debug, PartialEq)]
 pub struct t_token {
 	pub cmd_args_vec: Vec<t_arg>,
 	pub has_redir: bool,
 	pub cmd_name: Vec<u8>,
-	pub split_non_quoted: String,
 }
 
-#[derive(Copy, Clone, Debug)]
-#[repr(C)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct t_arg {
-	pub elem: *mut libc::c_char, // String
-	pub type_0: e_arg,           // wrapped enum attribute
-	pub redir: Option<e_redir>,  // enum wrapping string
+	pub elem_str: String,
+	pub type_0: e_arg,          // wrapped enum attribute
+	pub redir: Option<e_redir>, // enum wrapping string
 }
+
+impl t_arg {
+	pub fn new(elem_str_expanded: String) -> Self {
+		Self {
+			elem_str: elem_str_expanded,
+			type_0: e_arg::STRING,
+			redir: None,
+		}
+	}
+}
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
-#[repr(C)]
 pub enum e_arg {
 	STRING = 0,
 	REDIR = 1,
 	REDIR_REMOVED = 2,
 }
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
-#[repr(C)]
 pub enum e_redir {
 	INPUT_REDIR = 1,
 	OUTPUT_REDIR = 2,
 	APPEND = 3,
 	HEREDOC = 4,
+}
+#[macro_export]
+macro_rules! eprint_msh {
+	($($arg:tt)*) => {
+		{
+			use std::io::Write;
+			let stderr = std::io::stderr();
+			let mut handle = stderr.lock();
+			write!(handle, "minishell: ").unwrap();
+			write!(handle, $($arg)*).unwrap();
+			writeln!(handle).unwrap();
+		}
+	};
 }

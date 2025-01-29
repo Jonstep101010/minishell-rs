@@ -1,29 +1,5 @@
-#![allow(unused_mut)]
-
-use ::libc;
-
-#[allow(dead_code)]
-unsafe fn bool_arr_zeroing(mut len: crate::size_t) -> *mut bool {
-	let mut i: usize = 0;
-	let mut ignore: *mut bool = libft_rs::ft_calloc::ft_calloc(
-		len.wrapping_add(1 as libc::c_ulong),
-		::core::mem::size_of::<bool>() as libc::c_ulong,
-	) as *mut bool;
-	if ignore.is_null() {
-		return std::ptr::null_mut::<bool>();
-	}
-	while i < len.wrapping_add(1) as usize {
-		*ignore.add(i) = false;
-		i = i.wrapping_add(1);
-	}
-	ignore
-}
-
 pub trait BoolArray {
-	// fn zeroing_nul(len: usize) -> Self;
 	fn zeroing(len: usize) -> Self;
-	// fn range_ignore(s: &[u8], ignore: &mut Self, c: u8);
-	// fn range_ignore_nul(s: &[u8], ignore: &mut Self, c: u8);
 	fn range_ignore(s: &[u8], ignore: &mut Self, c: u8);
 }
 
@@ -89,52 +65,69 @@ impl BoolArray for Box<[bool]> {
 	}
 }
 
+#[allow(unused)]
 pub fn bool_arr_zeroing_vec(len: usize) -> Vec<bool> {
 	Vec::zeroing(len)
 }
 
+#[allow(unused)]
 pub fn bool_arr_zeroing_box(len: usize) -> Box<[bool]> {
 	Box::zeroing(len)
 }
 
-#[allow(dead_code)]
-unsafe fn range_ignore_ptr(
-	mut s: *const libc::c_char,
-	mut ignore: *mut bool,
-	mut c: libc::c_uchar,
-) {
-	let mut i = 0;
-	while *s.add(i) != 0 {
-		if *s.add(i) as u8 == c && *ignore.add(i) as u8 == 0 {
-			*ignore.add(i) = true;
-			i += 1;
-			while *s.add(i) != 0 && *s.add(i) as u8 != c {
-				*ignore.add(i) = true;
-				i += 1;
-			}
-			if *s.add(i) as u8 == c {
-				*ignore.add(i) = true;
-			}
-			while *s.add(i) as u8 != c {
-				*ignore.add(i) = false;
-				i -= 1;
-			}
-		} else {
-			i += 1;
-		}
-	}
-}
-
 #[cfg(test)]
 mod tests {
-	use crate::utils::bool_array::{bool_arr_zeroing, libc::strlen, range_ignore_ptr};
+	#![allow(unused_mut)]
+	#![allow(dead_code)]
+	#![allow(unsafe_op_in_unsafe_fn)]
 
-	use libc::size_t;
+	unsafe fn range_ignore_ptr(
+		mut s: *const libc::c_char,
+		mut ignore: *mut bool,
+		mut c: libc::c_uchar,
+	) {
+		let mut i = 0;
+		while *s.add(i) != 0 {
+			if *s.add(i) as u8 == c && *ignore.add(i) as u8 == 0 {
+				*ignore.add(i) = true;
+				i += 1;
+				while *s.add(i) != 0 && *s.add(i) as u8 != c {
+					*ignore.add(i) = true;
+					i += 1;
+				}
+				if *s.add(i) as u8 == c {
+					*ignore.add(i) = true;
+				}
+				while *s.add(i) as u8 != c {
+					*ignore.add(i) = false;
+					i -= 1;
+				}
+			} else {
+				i += 1;
+			}
+		}
+	}
+
+	#[allow(dead_code)]
+	unsafe fn bool_arr_zeroing(mut len: usize) -> *mut bool {
+		let mut i: usize = 0;
+		let mut ignore: *mut bool = libc::calloc(len, ::core::mem::size_of::<bool>()) as *mut bool;
+		if ignore.is_null() {
+			return std::ptr::null_mut::<bool>();
+		}
+		while i < len.wrapping_add(1) {
+			*ignore.add(i) = false;
+			i = i.wrapping_add(1);
+		}
+		ignore
+	}
+
+	use libc::{size_t, strlen};
 
 	use super::{BoolArray, bool_arr_zeroing_box, bool_arr_zeroing_vec};
 
 	unsafe fn support_bool_arr_zeroing(mut ignore: *mut *mut bool, mut len: usize) {
-		*ignore = super::bool_arr_zeroing(len as u64) as *mut bool;
+		*ignore = bool_arr_zeroing(len) as *mut bool;
 	}
 
 	unsafe fn support_expected(mut s: *const libc::c_char) -> *mut bool {
@@ -213,7 +206,7 @@ mod tests {
 					as *const libc::c_char,
 			);
 			let mut len = libc::strlen(s.as_ptr());
-			let mut arr = bool_arr_zeroing(len as u64);
+			let mut arr = bool_arr_zeroing(len);
 			let mut vec_arr: Vec<bool> = BoolArray::zeroing(len);
 			let mut bool_box: Box<[bool]> = BoolArray::zeroing(len);
 			if arr.is_null() {

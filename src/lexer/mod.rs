@@ -1,4 +1,5 @@
 use crate::eprint_msh;
+mod bool_array;
 
 struct t_lexer<'a> {
 	pub singlequotes: i32,
@@ -194,7 +195,7 @@ impl<'a> t_lexer<'a> {
 		}
 		if self.singlequotes > 0 || self.doublequotes > 0 {
 			// ignore_quotes
-			use crate::utils::bool_array::{BoolArray, bool_arr_zeroing_box};
+			use bool_array::{BoolArray, bool_arr_zeroing_box};
 			self.ignore = Some(bool_arr_zeroing_box(self.len_nul));
 			BoolArray::range_ignore(
 				self.cstring.as_bytes_with_nul(),
