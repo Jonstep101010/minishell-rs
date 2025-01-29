@@ -10,7 +10,7 @@ extern crate libc;
 // extern crate libutils_rs;
 
 mod environment;
-mod execution; // mod environment
+pub mod execution;
 mod lexer; // mod lexer
 
 pub mod utils {
@@ -43,7 +43,7 @@ pub fn main() {
 				continue;
 			} else {
 				dbg!(&shell.token_vec);
-				execution::execute_commands(&mut shell);
+				crate::execution::execute_commands(&mut shell);
 			}
 		} else {
 			std::process::exit(shell.env.get_status())

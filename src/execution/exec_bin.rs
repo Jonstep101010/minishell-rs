@@ -1,11 +1,10 @@
 use crate::prelude::*;
 use nix::errno::Errno;
 
-use super::bin_path;
-
 pub fn exec_bin(shell_env: &Env, slice_args: &[CString]) -> ! {
 	// @follow-up make this a result
-	let (access_status, path_prefixed_bin) = bin_path::get_path_prefixed(shell_env, &slice_args[0]);
+	let (access_status, path_prefixed_bin) =
+		super::bin_path::get_path_prefixed(shell_env, &slice_args[0]);
 	if let Some(path_exec_bin) = path_prefixed_bin {
 		let slice_env = shell_env.to_cstring_vec();
 		if nix::unistd::execve(&path_exec_bin, slice_args, slice_env.as_slice()).is_err() {

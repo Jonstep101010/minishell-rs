@@ -1,4 +1,3 @@
-pub mod build_command;
 mod parse_quotes;
 mod redirection_utils;
 mod split_non_quoted;
