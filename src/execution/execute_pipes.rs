@@ -1,11 +1,12 @@
 #![allow(unsafe_op_in_unsafe_fn)]
+
 use ::libc;
 use nix::{
 	sys::wait::{WaitStatus, waitpid},
 	unistd::{ForkResult, fork},
 };
 
-use super::{eprint_msh, executor, heredoc::do_heredocs, redirections::do_redirections, t_shell};
+use super::{executor, heredoc::do_heredocs, redirections::do_redirections, t_shell};
 
 unsafe fn exec_last(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 	match unsafe { fork() } {
@@ -25,9 +26,7 @@ unsafe fn exec_last(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 				do_heredocs(&shell.token_vec[i], &mut *prevpipe, &shell.env);
 			}
 			if do_redirections(&mut shell.token_vec[i].cmd_args_vec).is_err() {
-				shell.restore();
-				eprint_msh!("failed to do redirections");
-				std::process::exit(1);
+				panic!("failed to do redirections");
 			}
 			libc::dup2(*prevpipe, 0);
 			libc::close(*prevpipe);
@@ -54,9 +53,8 @@ unsafe fn exec_pipe(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 			libc::close(pipefd[1_usize]);
 			libc::dup2(*prevpipe, 0);
 			libc::close(*prevpipe);
-			if let Err(status) = do_redirections(&mut shell.token_vec[i].cmd_args_vec) {
-				eprint_msh!("failed to do redirections");
-				std::process::exit(status);
+			if do_redirections(&mut shell.token_vec[i].cmd_args_vec).is_err() {
+				panic!("failed to do redirections");
 			}
 			executor(&mut shell.token_vec[i], &mut shell.env);
 			std::process::exit(shell.env.get_status());

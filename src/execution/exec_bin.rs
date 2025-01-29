@@ -7,7 +7,7 @@ pub fn exec_bin(shell_env: &Env, slice_args: &[CString]) -> ! {
 	if let Some(path_exec_bin) = path_prefixed_bin {
 		let slice_env = shell_env.to_cstring_vec();
 		if nix::unistd::execve(&path_exec_bin, slice_args, slice_env.as_slice()).is_err() {
-			todo!("handle execve_fail");
+			panic!("execve failure")
 		}
 	} else if access_status == 126 && !matches!(slice_args[0].as_bytes()[0], b'/' | b'~') {
 		eprint_msh!("{}: {}", slice_args[0].to_str().unwrap(), Errno::last());

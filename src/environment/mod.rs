@@ -57,7 +57,7 @@ impl Env {
 		let mut host_env: HashMap<String, String> = std::env::vars().collect();
 		// @note we will only expand the exit status when needed using shell
 		// we panic if we can't get the current working directory
-		assert!(host_env.contains_key("PWD"));
+		// assert!(host_env.contains_key("PWD"));
 		if !host_env.contains_key("PATH") {
 			host_env.insert(
 				"PATH".to_string(),
