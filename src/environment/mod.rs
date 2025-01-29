@@ -1,6 +1,7 @@
-pub mod expander;
-use crate::prelude::*;
-use std::{collections::HashMap, fmt::Display};
+#![warn(clippy::pedantic)]
+
+mod tests_expander;
+use std::{collections::HashMap, ffi::CString, fmt::Display};
 
 pub fn check_valid_key(s: &[u8]) -> bool {
 	let mut i = 0;
@@ -26,7 +27,7 @@ pub struct Env {
 impl Display for Env {
 	fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
 		for (key, value) in &self.map {
-			writeln!(f, "{}={}", key, value)?;
+			writeln!(f, "{key}={value}")?;
 		}
 		Ok(())
 	}
@@ -89,22 +90,13 @@ impl Env {
 		self.get("PATH")
 			.unwrap()
 			.split(':')
-			.map(|s| s.to_string())
+			.map(std::string::ToString::to_string)
 			.collect()
 	}
-	// pub fn as_ptr_array(&self) -> Vec<*const i8> {
-	// 	let mut ptrs = Vec::new();
-	// 	for (key, value) in &self.map {
-	// 		let var: String = format!("{}={}", key, value);
-	// 		ptrs.push(var.as_ptr() as *const i8);
-	// 	}
-	// 	ptrs.push(::core::ptr::null_mut());
-	// 	ptrs
-	// }
 	pub fn to_cstring_vec(&self) -> Vec<CString> {
 		let mut vec_cstrings = Vec::new();
 		for (key, value) in &self.map {
-			let var = CString::new(format!("{}={}", key, value)).unwrap();
+			let var = CString::new(format!("{key}={value}")).unwrap();
 			vec_cstrings.push(var);
 		}
 		vec_cstrings
@@ -127,6 +119,54 @@ impl Env {
 	}
 	pub fn get_slice(&self, key: &[u8]) -> Option<&String> {
 		self.get(std::str::from_utf8(key).unwrap())
+	}
+	/// Expand the input string using the environment
+	#[must_use]
+	pub fn expander(&self, input_expander: &str) -> String {
+		const CHARMATCH: &[u8; 9] = b"$\"'/? )(\0";
+		let mut i = 0;
+		let mut should_expand = true;
+		let mut has_double_quote = false;
+		let mut ret = String::new();
+		let input_expander = CString::new(input_expander).unwrap();
+		let bytes = input_expander.to_bytes_with_nul();
+		let idx_advance = |bytes_at_i: &[u8]| {
+			let mut count: usize = 0;
+			while !CHARMATCH.iter().any(|&x| x == bytes_at_i[count + 1]) {
+				count += 1;
+			}
+			if bytes_at_i[count] != b'\0' && bytes_at_i[count + 1] == b'?' {
+				count += 1;
+			}
+			count
+		};
+		while i < input_expander.count_bytes() {
+			if bytes[i] == b'"' {
+				has_double_quote = !has_double_quote;
+			} else if bytes[i] == b'\''
+				&& !has_double_quote
+				&& bytes[idx_advance(&bytes[i..])] != b'"'
+			{
+				should_expand = !should_expand;
+			}
+			if bytes[i] == b'$' && should_expand && !b"$()".contains(&bytes[i + 1]) {
+				let key_byte_slice = &bytes[(i + 1)..=(idx_advance(&bytes[i..]) + i)];
+				// advance by key length in source string
+				i += key_byte_slice.len();
+				let expansion = if key_byte_slice.is_empty() {
+					"$".to_string()
+				} else if let Some(expansion) = self.get_slice(key_byte_slice) {
+					expansion.to_string()
+				} else {
+					String::new()
+				};
+				ret.push_str(&expansion);
+			} else {
+				ret.push(bytes[i].into());
+			}
+			i += 1;
+		}
+		ret
 	}
 }
 

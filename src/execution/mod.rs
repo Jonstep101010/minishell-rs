@@ -4,13 +4,24 @@ mod execute_pipes;
 mod heredoc;
 mod redirections;
 
+pub mod builtins {
+	pub mod cd;
+	pub mod echo;
+	pub mod env;
+	pub mod exit;
+	pub mod export;
+	pub mod pwd;
+	pub mod unset;
+	pub use {cd::cd, echo::echo, env::env, exit::exit, export::export, pwd::pwd, unset::unset};
+}
+
 use crate::{
-	execution::{execute_pipes::execute_pipes, redirections::do_redirections},
+	execution::{exec_bin::exec_bin, execute_pipes::execute_pipes, redirections::do_redirections},
 	prelude::*,
 };
 
 impl crate::t_token {
-	pub fn get_args_vec(&mut self) -> Vec<CString> {
+	pub fn get_args_vec(&self) -> Vec<CString> {
 		assert!(
 			!self.cmd_args_vec.is_empty() && !self.cmd_args_vec[0].elem_str.is_empty(),
 			"token has to contain something"
@@ -22,11 +33,12 @@ impl crate::t_token {
 				.filter(|arg| arg.type_0 != REDIR)
 				.map(|arg| CString::new(arg.elem_str.clone()).unwrap()),
 		);
+		debug_assert!(!vec_cstr.is_empty());
 		vec_cstr
 	}
 }
 
-pub fn execute_commands(shell: &mut t_shell) {
+pub(crate) fn execute_commands(shell: &mut t_shell) {
 	match shell.token_len.unwrap() {
 		0 => unreachable!("there should not be empty tokens here"),
 		1 if !{
@@ -48,10 +60,9 @@ pub fn execute_commands(shell: &mut t_shell) {
 	}
 	shell.restore();
 }
-pub mod builtins;
-pub fn executor(token: &mut t_token, shell_env: &mut Env) {
-	let args = crate::t_token::get_args_vec(token);
-	assert!(!args.is_empty());
+
+fn executor(token: &mut t_token, shell_env: &mut Env) {
+	let args = token.get_args_vec();
 	let status = match token.cmd_name.as_slice() {
 		b"echo" => builtins::echo(args),
 		b"cd" => builtins::cd(shell_env, args),
@@ -60,7 +71,7 @@ pub fn executor(token: &mut t_token, shell_env: &mut Env) {
 		b"unset" => builtins::unset(shell_env, args),
 		b"env" => builtins::env(shell_env),
 		b"exit" => builtins::exit(shell_env, args),
-		_ => crate::execution::exec_bin::exec_bin(shell_env, &args),
+		_ => exec_bin(shell_env, &args),
 	};
 	shell_env.set_status(status);
 }

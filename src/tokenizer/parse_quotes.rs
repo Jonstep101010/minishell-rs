@@ -27,7 +27,7 @@
 // 	tmp
 // }
 
-pub fn rs_do_quote_bs(bytes_s: &[u8], quote: &mut i32) -> String {
+pub(super) fn rs_do_quote_bs(bytes_s: &[u8], quote: &mut i32) -> String {
 	let mut tmp = String::new();
 	for &byte in bytes_s {
 		match (*quote as u8, byte) {

@@ -31,45 +31,47 @@ fn parse_redir_types_vec(arg: &mut [t_arg]) {
 	}
 }
 
-///
-/// checks for a single token (piped command) if there are redirs contained
-/// and processes those
-pub fn process_redirections(token: &mut t_token) {
-	let mut ii = 0;
-	let mut redir: bool = false;
-	let cmd_args = &mut token.cmd_args_vec;
-	while ii < cmd_args.len() && !cmd_args[ii].elem_str.is_empty() {
-		cmd_args[ii].redir = match cmd_args[ii].elem_str.as_str() {
-			">>" => Some(APPEND),
-			">" => Some(OUTPUT_REDIR),
-			"<<" => Some(HEREDOC),
-			"<" => Some(INPUT_REDIR),
-			_ => cmd_args[ii].redir,
-		};
-		if cmd_args[ii].redir.is_some() {
-			cmd_args[ii].type_0 = match cmd_args[ii].redir.unwrap() {
-				APPEND | HEREDOC => {
-					if (cmd_args[ii].elem_str).len() == 2 {
-						REDIR_REMOVED
-					} else {
-						REDIR
-					}
-				}
-				OUTPUT_REDIR | INPUT_REDIR => {
-					if (cmd_args[ii].elem_str).len() == 1 {
-						REDIR_REMOVED
-					} else {
-						REDIR
-					}
-				}
+impl t_token {
+	///
+	/// checks for a single token (piped command) if there are redirs contained
+	/// and processes those
+	pub(super) fn process_redirections(&mut self) {
+		let mut ii = 0;
+		let mut redir: bool = false;
+		let cmd_args = &mut self.cmd_args_vec;
+		while ii < cmd_args.len() && !cmd_args[ii].elem_str.is_empty() {
+			cmd_args[ii].redir = match cmd_args[ii].elem_str.as_str() {
+				">>" => Some(APPEND),
+				">" => Some(OUTPUT_REDIR),
+				"<<" => Some(HEREDOC),
+				"<" => Some(INPUT_REDIR),
+				_ => cmd_args[ii].redir,
 			};
-			redir = true;
+			if cmd_args[ii].redir.is_some() {
+				cmd_args[ii].type_0 = match cmd_args[ii].redir.unwrap() {
+					APPEND | HEREDOC => {
+						if (cmd_args[ii].elem_str).len() == 2 {
+							REDIR_REMOVED
+						} else {
+							REDIR
+						}
+					}
+					OUTPUT_REDIR | INPUT_REDIR => {
+						if (cmd_args[ii].elem_str).len() == 1 {
+							REDIR_REMOVED
+						} else {
+							REDIR
+						}
+					}
+				};
+				redir = true;
+			}
+			ii += 1;
 		}
-		ii += 1;
-	}
-	if redir {
-		token.has_redir = true;
-		parse_redir_types_vec(cmd_args);
-		rm_prefix_redir_word_vec(cmd_args);
+		if redir {
+			self.has_redir = true;
+			parse_redir_types_vec(cmd_args);
+			rm_prefix_redir_word_vec(cmd_args);
+		}
 	}
 }

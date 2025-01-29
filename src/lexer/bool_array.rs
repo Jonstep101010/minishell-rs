@@ -79,6 +79,7 @@ pub fn bool_arr_zeroing_box(len: usize) -> Box<[bool]> {
 mod tests {
 	#![allow(unused_mut)]
 	#![allow(dead_code)]
+	#![allow(unsafe_op_in_unsafe_fn)]
 
 	unsafe fn range_ignore_ptr(
 		mut s: *const libc::c_char,

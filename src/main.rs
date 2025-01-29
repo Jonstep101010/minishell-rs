@@ -1,16 +1,16 @@
 #![allow(non_camel_case_types, non_snake_case, clippy::upper_case_acronyms)]
 #![feature(let_chains)]
 #![feature(extern_types)]
-#![allow(unsafe_op_in_unsafe_fn)]
 
 extern crate libc;
 
+// handle signals? @note removed - non-functional
 // # Safety should only be active in very specific test scenarios
 // extern crate libft_rs;
 // extern crate libutils_rs;
 
 mod environment;
-pub mod execution;
+mod execution;
 mod lexer; // mod lexer
 
 pub mod utils {
@@ -18,7 +18,6 @@ pub mod utils {
 	pub mod rust_readline;
 } // mod utils
 
-// handle signals? @note removed - non-functional
 pub mod msh;
 mod prelude;
 mod tokenizer;

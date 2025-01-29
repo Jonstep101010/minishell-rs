@@ -43,7 +43,6 @@ pub struct t_token {
 	pub cmd_args_vec: Vec<t_arg>,
 	pub has_redir: bool,
 	pub cmd_name: Vec<u8>,
-	pub split_non_quoted: String,
 }
 
 #[derive(Clone, Debug)]
@@ -51,6 +50,16 @@ pub struct t_arg {
 	pub elem_str: String,
 	pub type_0: e_arg,          // wrapped enum attribute
 	pub redir: Option<e_redir>, // enum wrapping string
+}
+
+impl t_arg {
+	pub fn new(elem_str_expanded: String) -> Self {
+		Self {
+			elem_str: elem_str_expanded,
+			type_0: e_arg::STRING,
+			redir: None,
+		}
+	}
 }
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum e_arg {

@@ -9,7 +9,7 @@ fn heredoc_loop(delim: &str, fd: i32, env: &Env) {
 		let opt_line = crate::utils::rust_readline::str_readline("> ");
 		match opt_line {
 			Some(line) if line != delim => {
-				let expanded = crate::environment::expander::expander(&line, env);
+				let expanded = env.expander(&line);
 				let mut output = expanded.into_bytes();
 				output.push(b'\n');
 				let safe_fd = unsafe { BorrowedFd::borrow_raw(fd) };
@@ -23,7 +23,7 @@ fn heredoc_loop(delim: &str, fd: i32, env: &Env) {
 	}
 }
 
-pub fn do_heredocs(token: &t_token, target: &mut i32, env: &Env) {
+pub(super) fn do_heredocs(token: &t_token, target: &mut i32, env: &Env) {
 	let mut i = 0;
 	while i < token.cmd_args_vec.len() {
 		if (token.cmd_args_vec[i]).redir == Some(HEREDOC) {

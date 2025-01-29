@@ -5,7 +5,7 @@ use nix::{
 	unistd::{AccessFlags, access},
 };
 
-pub fn do_redirections(cmd_args: &mut [t_arg]) -> Result<(), i32> {
+pub(super) fn do_redirections(cmd_args: &mut [t_arg]) -> Result<(), i32> {
 	let mut i = 0;
 	while i < cmd_args.len() {
 		if (cmd_args[i]).type_0 == REDIR && (cmd_args[i]).redir.unwrap() != HEREDOC {

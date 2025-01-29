@@ -1,8 +1,8 @@
-use crate::prelude::*;
+#![allow(unsafe_op_in_unsafe_fn)]
 use ::libc;
 use libc::{close, dup2, fork, pipe, wait, waitpid};
 
-use super::{executor, heredoc::do_heredocs, redirections::do_redirections};
+use super::{eprint_msh, executor, heredoc::do_heredocs, redirections::do_redirections, t_shell};
 
 unsafe fn exec_last(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 	let mut status: i32 = 0;
@@ -19,9 +19,7 @@ unsafe fn exec_last(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 		}
 		dup2(*prevpipe, 0);
 		close(*prevpipe);
-		// assert!(!(shell.token.add(i)).is_null());
 		executor(&mut shell.token_vec[i], &mut shell.env);
-		// shell.restore(); //@note redundant as we do not return to the parent process
 		std::process::exit(shell.env.get_status());
 	} else {
 		waitpid(cpid, &mut status, 0);
@@ -32,6 +30,7 @@ unsafe fn exec_last(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 		}
 	};
 }
+
 unsafe fn exec_pipe(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 	let mut pipefd: [i32; 2] = [0; 2];
 	pipe(pipefd.as_mut_ptr());
@@ -55,7 +54,8 @@ unsafe fn exec_pipe(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 		*prevpipe = pipefd[0_usize];
 	};
 }
-pub fn execute_pipes(shell: &mut t_shell) {
+
+pub(super) fn execute_pipes(shell: &mut t_shell) {
 	let mut prevpipe = nix::unistd::dup(0).unwrap();
 	for i in 0..shell.token_len.unwrap() - 1 {
 		if shell.token_vec[i].has_redir && i != shell.token_len.unwrap() - 1 {
