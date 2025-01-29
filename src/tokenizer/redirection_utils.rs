@@ -35,14 +35,13 @@ fn parse_redir_types_vec(arg: &mut [t_arg]) {
 	}
 }
 
-#[unsafe(no_mangle)]
 ///
 /// checks for a single token (piped command) if there are redirs contained
 /// and processes those
-pub unsafe fn process_redirections(token: *mut t_token) {
+pub fn process_redirections(token: &mut t_token) {
 	let mut ii = 0;
 	let mut redir: bool = false;
-	let cmd_args = &mut (*token).cmd_args_vec;
+	let cmd_args = &mut token.cmd_args_vec;
 	while ii < cmd_args.len() && !cmd_args[ii].elem_str.is_empty() {
 		cmd_args[ii].redir = match cmd_args[ii].elem_str.as_str() {
 			">>" => Some(APPEND),
@@ -73,7 +72,7 @@ pub unsafe fn process_redirections(token: *mut t_token) {
 		ii += 1;
 	}
 	if redir {
-		(*token).has_redir = true;
+		token.has_redir = true;
 		parse_redir_types_vec(cmd_args);
 		rm_prefix_redir_word_vec(cmd_args);
 	}

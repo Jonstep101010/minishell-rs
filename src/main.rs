@@ -70,18 +70,19 @@ pub fn main() {
 			} else {
 				unsafe {
 					tokenizer::build_tokens::tokenize(&mut shell, trimmed_line);
-					if (shell.token).is_null() {
+					if (shell.token_vec).is_empty() {
 						tokenizer::destroy_tokens::destroy_all_tokens(&mut shell);
 						continue;
 					}
-					if ((*shell.token).cmd_args_vec).is_empty() {
+					if (shell.token_vec.first().unwrap().cmd_args_vec).is_empty() {
 						tokenizer::destroy_tokens::destroy_all_tokens(&mut shell);
 						continue;
 					}
 				}
 			}
 			// @todo implement new debug for piped tokens
-			if !(shell.token).is_null() {
+			dbg!(&shell.token_vec);
+			if !(shell.token_vec).is_empty() {
 				execution::execute_commands(&mut shell);
 			}
 		} else {

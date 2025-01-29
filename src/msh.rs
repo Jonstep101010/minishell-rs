@@ -4,7 +4,7 @@ pub use crate::lexer::check as lexical_checks;
 #[derive(Clone)]
 pub struct t_shell {
 	pub(crate) env: environment::Env,
-	pub token: *mut t_token, // Vec<t_token>
+	// pub token: *mut t_token, // Vec<t_token>
 	pub token_len: Option<usize>,
 	pub token_vec: Vec<t_token>,
 }
@@ -13,7 +13,7 @@ impl t_shell {
 	pub fn new() -> Self {
 		Self {
 			env: environment::Env::new(),
-			token: std::ptr::null_mut(),
+			// token: std::ptr::null_mut(),
 			token_len: None,
 			token_vec: vec![],
 		}
@@ -44,7 +44,6 @@ pub struct t_token {
 }
 
 #[derive(Clone, Debug)]
-#[repr(C)]
 pub struct t_arg {
 	// pub elem: *mut libc::c_char, // String
 	pub elem_str: String,

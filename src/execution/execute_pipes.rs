@@ -9,17 +9,17 @@ unsafe fn exec_last(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 	let cpid = fork();
 	if cpid == 0 {
 		// check_signals_child(&mut (*shell).p_termios);
-		if (*(shell.token).add(i)).has_redir {
-			do_heredocs(&*(shell.token).add(i), &mut *prevpipe, &shell.env);
+		if shell.token_vec[i].has_redir {
+			do_heredocs(&shell.token_vec[i], &mut *prevpipe, &shell.env);
 		}
-		if do_redirections(&mut (*(shell.token).add(i)).cmd_args_vec).is_err() {
+		if do_redirections(&mut shell.token_vec[i].cmd_args_vec).is_err() {
 			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
 			todo!("bail out gracefully");
 		}
 		dup2(*prevpipe, 0);
 		close(*prevpipe);
-		assert!(!(shell.token.add(i)).is_null());
-		executor(&mut *(shell.token).add(i), shell);
+		// assert!(!(shell.token.add(i)).is_null());
+		executor(&mut shell.token_vec[i], &mut shell.env);
 		crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
 		std::process::exit(shell.env.get_status());
 	} else {
@@ -42,12 +42,12 @@ unsafe fn exec_pipe(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 		close(pipefd[1_usize]);
 		dup2(*prevpipe, 0);
 		close(*prevpipe);
-		if do_redirections(&mut (*(shell.token).add(i)).cmd_args_vec).is_err() {
+		if do_redirections(&mut shell.token_vec[i].cmd_args_vec).is_err() {
 			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
 			todo!("bail out gracefully");
 		}
-		assert!(!(shell.token.add(i)).is_null());
-		executor(&mut *(shell.token).add(i), shell);
+		// assert!(!(shell.token.add(i)).is_null());
+		executor(&mut shell.token_vec[i], &mut shell.env);
 		crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
 		std::process::exit(shell.env.get_status());
 	} else {
@@ -59,8 +59,8 @@ unsafe fn exec_pipe(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 pub unsafe fn execute_pipes(shell: &mut t_shell) {
 	let mut prevpipe = dup(0);
 	for i in 0..shell.token_len.unwrap() - 1 {
-		if (*(shell.token).add(i)).has_redir && i != shell.token_len.unwrap() - 1 {
-			do_heredocs(&*(shell.token).add(i), &mut prevpipe, &shell.env);
+		if shell.token_vec[i].has_redir && i != shell.token_len.unwrap() - 1 {
+			do_heredocs(&mut shell.token_vec[i], &mut prevpipe, &shell.env);
 		}
 		exec_pipe(shell, i, &mut prevpipe);
 	}
