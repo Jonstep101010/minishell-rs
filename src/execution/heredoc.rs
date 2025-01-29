@@ -8,13 +8,13 @@ pub(super) fn do_heredocs(token: &t_token, target: &mut i32, env: &Env) {
 		if (token.cmd_args_vec[i]).redir == Some(HEREDOC) {
 			let oflags = OFlag::O_RDWR | OFlag::O_CREAT | OFlag::O_TRUNC;
 			let mode = Mode::from_bits(0o644).expect("Invalid mode");
+			let mut rl = rustyline::DefaultEditor::new().unwrap();
 			match nix::fcntl::open(c".heredoc.txt", oflags, mode) {
 				Ok(mut fd) => {
 					let delim: &str = &(token.cmd_args_vec[i]).elem_str;
 					loop {
-						let opt_line = crate::rust_readline::str_readline("> ");
-						match opt_line {
-							Some(mut line) if line != delim => {
+						match rl.readline("> ") {
+							Ok(mut line) if line != delim => {
 								env.expander(&mut line);
 								let mut output = line.into_bytes();
 								output.push(b'\n');
@@ -23,6 +23,9 @@ pub(super) fn do_heredocs(token: &t_token, target: &mut i32, env: &Env) {
 									eprintln!("heredoc write error: {}", e);
 									break;
 								}
+							}
+							Err(rustyline::error::ReadlineError::Eof) => {
+								continue;
 							}
 							_ => break,
 						}
