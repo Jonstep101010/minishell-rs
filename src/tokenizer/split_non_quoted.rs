@@ -1,5 +1,3 @@
-#![deny(unused_mut)]
-
 pub fn split_non_quoted(to_split: &str, set: &str) -> Vec<String> {
 	let to_split = to_split.trim_matches(|c| set.contains(c));
 	let bytes = to_split.as_bytes();

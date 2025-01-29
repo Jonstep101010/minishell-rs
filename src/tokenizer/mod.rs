@@ -1,10 +1,16 @@
-use crate::{
-	environment::expander::expander,
-	parser::{interpret_quotes::rs_do_quote_bs, split_outside_quotes::split_non_quoted},
-	prelude::*,
-};
+pub mod build_command;
+mod parse_quotes;
+mod redirection_utils;
+mod split_non_quoted;
 
-pub fn tokenize(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
+use parse_quotes::rs_do_quote_bs;
+use split_non_quoted::split_non_quoted;
+
+use crate::{environment::expander::expander, prelude::*};
+
+///
+/// sets up pipes and their commands/arguments, including redirections
+pub fn parse(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
 	let mut split_pipes = split_non_quoted(trimmed_line, "|");
 	assert!(!split_pipes.is_empty());
 	if split_pipes.first().unwrap().is_empty() {
@@ -38,7 +44,7 @@ pub fn tokenize(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
 				},
 			})
 			.collect();
-		super::redirection_utils::process_redirections(token);
+		self::redirection_utils::process_redirections(token);
 		let mut ii = 0;
 		while ii < token.cmd_args_vec.len() && !token.cmd_args_vec[ii].elem_str.is_empty() {
 			if token.cmd_args_vec[ii].type_0 != REDIR {
@@ -71,24 +77,6 @@ impl t_token {
 			has_redir: false,
 			cmd_name: vec![],
 			split_non_quoted,
-		}
-	}
-}
-
-// @todo testing before usage
-impl t_shell {
-	///
-	/// future replacement for `get_tokens`
-	pub fn create_piped_tokens(&mut self, trimmed_line: &str) {
-		let split_pipes = crate::parser::split_outside_quotes::split_non_quoted(trimmed_line, "|");
-		self.token_vec = split_pipes
-			.iter()
-			.map(|single_pipe| t_token::new(single_pipe.to_owned()))
-			.collect();
-		self.token_len = if self.token_vec.is_empty() {
-			None
-		} else {
-			Some(self.token_vec.len())
 		}
 	}
 }

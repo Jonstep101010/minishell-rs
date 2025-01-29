@@ -9,6 +9,7 @@ use crate::builtins::{
 	pwd::builtin_pwd, unset::builtin_unset,
 };
 use crate::prelude::*;
+use crate::tokenizer::build_command::get_vec_cstr_token;
 use exec_bin::exec_bin;
 pub fn execute_commands(shell: &mut t_shell) {
 	match shell.token_len.unwrap() {
@@ -34,7 +35,7 @@ pub fn execute_commands(shell: &mut t_shell) {
 }
 
 pub fn executor(token: &mut t_token, shell_env: &mut Env) {
-	let args = crate::tokenizer::build_command::get_vec_cstr_token(token);
+	let args = get_vec_cstr_token(token);
 	assert!(!args.is_empty());
 	let status = match token.cmd_name.as_slice() {
 		b"echo" => echo(args),

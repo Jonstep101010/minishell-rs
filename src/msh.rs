@@ -1,6 +1,6 @@
 use crate::environment;
 pub use crate::lexer::check as lexical_checks;
-pub use crate::tokenizer::build_tokens::tokenize as tokenizer;
+pub use crate::tokenizer;
 
 #[derive(Clone)]
 pub struct t_shell {

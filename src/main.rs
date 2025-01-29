@@ -17,6 +17,7 @@ extern crate libc;
 // extern crate libutils_rs;
 
 mod prelude;
+pub mod tokenizer;
 use utils::rust_readline::{str_add_history, str_readline};
 
 pub mod builtins {
@@ -31,25 +32,15 @@ pub mod builtins {
 pub mod environment; // mod environment
 pub mod execution; // mod execution
 pub mod lexer; // mod lexer
-pub mod parser {
-	pub mod interpret_quotes;
-	pub mod split_outside_quotes;
-} // mod parser
-pub mod tokenizer {
-	pub mod build_command;
-	pub mod build_tokens;
-	pub mod redirection_utils;
-} // mod tokenizer
+
 pub mod utils {
 	pub mod bool_array;
 	pub mod error;
-	pub mod interop;
 	pub mod rust_readline;
 } // mod utils
 
 // handle signals? @note removed - non-functional
 pub mod msh;
-use crate::msh::tokenizer;
 use prelude::*;
 
 pub fn main() {
@@ -66,7 +57,7 @@ pub fn main() {
 			if let Err(status) = msh::lexical_checks(trimmed_line) {
 				shell.env.set_status(status);
 				continue;
-			} else if tokenizer(&mut shell, trimmed_line).is_none() {
+			} else if tokenizer::parse(&mut shell, trimmed_line).is_none() {
 				shell.token_len = None;
 				continue;
 			} else {
