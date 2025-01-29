@@ -29,14 +29,14 @@ impl Default for t_shell {
 	}
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct t_token {
 	pub cmd_args_vec: Vec<t_arg>,
 	pub has_redir: bool,
 	pub cmd_name: Vec<u8>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct t_arg {
 	pub elem_str: String,
 	pub type_0: e_arg,          // wrapped enum attribute

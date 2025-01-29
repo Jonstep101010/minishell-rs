@@ -10,6 +10,14 @@ use crate::prelude::*;
 impl t_shell {
 	///
 	/// sets up pipes and their commands/arguments, including redirections
+	///
+	// /// # Example
+	// /// ```
+	/// let mut trimmed_line = "echo hello | cat > somefile";
+	/// let mut shell = t_shell::new();
+	/// assert!(shell.tokenize(trimmed_line).is_some());
+	// /// ```
+	///
 	pub(super) fn tokenize(&mut self, trimmed_line: &str) -> Option<()> {
 		let mut split_pipes = split_non_quoted(trimmed_line, "|");
 		assert!(!split_pipes.is_empty());
@@ -22,6 +30,116 @@ impl t_shell {
 			.map(|piped_token| t_token::new(std::mem::take(piped_token), &self.env))
 			.collect();
 		Some(())
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use rstest::{fixture, rstest};
+	macro_rules! token {
+		($cmd:expr, $has_redir:expr, $($arg:expr, $type:expr, $redir:expr),*) => {
+			t_token {
+				cmd_args_vec: vec![
+					$(
+						t_arg {
+							elem_str: $arg.to_string(),
+							type_0: $type,
+							redir: $redir,
+						},
+					)*
+				],
+				has_redir: $has_redir,
+				cmd_name: $cmd.as_bytes().to_vec(),
+			}
+		};
+	}
+	#[rstest]
+	#[case(
+		vec![
+			token!("echo", false,
+				"echo", STRING, None,
+				"hello", STRING, None
+			),
+			token!("cat", true,
+				"cat", STRING, None,
+				"outfile", REDIR, Some(OUTPUT_REDIR)
+			)
+		],
+		"echo hello | cat > outfile"
+	)]
+	// manual equivalent
+	// #[case(
+	// 	vec![
+	// 		t_token {
+	// 			cmd_args_vec: vec![
+	// 				t_arg {
+	// 					elem_str: "echo".to_string(),
+	// 					type_0: STRING,
+	// 					redir: None,
+	// 				},
+	// 				t_arg {
+	// 					elem_str: "hello".to_string(),
+	// 					type_0: STRING,
+	// 					redir: None,
+	// 				},
+	// 			],
+	// 			has_redir: false,
+	// 			cmd_name: vec![101, 99, 104, 111],
+	// 		},
+	// 		t_token {
+	// 			cmd_args_vec: vec![
+	// 				t_arg {
+	// 					elem_str: "cat".to_string(),
+	// 					type_0: STRING,
+	// 					redir: None,
+	// 				},
+	// 				t_arg {
+	// 					elem_str: "outfile".to_string(),
+	// 					type_0: REDIR,
+	// 					redir: Some(OUTPUT_REDIR),
+	// 				},
+	// 			],
+	// 			has_redir: true,
+	// 			cmd_name: vec![99, 97, 116],
+	// 		},
+	// 	],
+	// 	"echo hello | cat > outfile"
+	// )]
+	#[case(
+		vec![
+			token!("ls", false,
+				"ls", STRING, None,
+				"-la", STRING, None
+			),
+			token!("grep", true,
+				"grep", STRING, None,
+				"test", STRING, None,
+				"outfile", REDIR, Some(OUTPUT_REDIR)
+			)
+		],
+		"ls -la | grep test > outfile"
+	)]
+	#[case(
+		vec![
+			token!("cat", true,
+				"cat", STRING, None,
+				"infile", REDIR, Some(INPUT_REDIR)
+			),
+			token!("wc", true,
+				"wc", STRING, None,
+				"-l", STRING, None,
+				"result", REDIR, Some(OUTPUT_REDIR)
+			)
+		],
+		"cat < infile | wc -l > result"
+	)]
+	#[fixture]
+	fn test_tokenization(#[case] expected: Vec<t_token>, #[case] input: &str) {
+		let trimmed_line = input.trim_ascii();
+		let mut shell = t_shell::new();
+		assert!(shell.tokenize(trimmed_line).is_some());
+		assert_eq!(expected, shell.token_vec);
 	}
 }
 
