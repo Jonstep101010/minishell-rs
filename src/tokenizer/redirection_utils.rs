@@ -1,17 +1,9 @@
-use ::libc;
-use libc::free;
-use libft_rs::{ft_strdup::ft_strdup, ft_strncmp::ft_strncmp};
-use libutils_rs::src::utils::free_mem::free_null;
-
-use crate::{prelude::*, size_t, t_arg};
+use crate::prelude::*;
 
 fn rm_prefix_redir_word_vec(args: &mut Vec<t_arg>) {
 	let mut i = 0;
 	while i < args.len() {
 		if args[i].type_0 == REDIR_REMOVED && i + 1 < args.len() {
-			// unsafe {
-			// 	free(args[i].elem as *mut libc::c_void);
-			// }
 			args[i + 1].type_0 = REDIR;
 			args[i + 1].redir = args[i].redir;
 			args.remove(i);

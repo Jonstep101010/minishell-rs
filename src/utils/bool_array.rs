@@ -3,16 +3,13 @@
 use ::libc;
 
 #[allow(dead_code)]
-unsafe fn bool_arr_zeroing(mut len: crate::size_t) -> *mut bool {
+unsafe fn bool_arr_zeroing(mut len: usize) -> *mut bool {
 	let mut i: usize = 0;
-	let mut ignore: *mut bool = libft_rs::ft_calloc::ft_calloc(
-		len.wrapping_add(1 as libc::c_ulong),
-		::core::mem::size_of::<bool>() as libc::c_ulong,
-	) as *mut bool;
+	let mut ignore: *mut bool = libc::calloc(len, ::core::mem::size_of::<bool>()) as *mut bool;
 	if ignore.is_null() {
 		return std::ptr::null_mut::<bool>();
 	}
-	while i < len.wrapping_add(1) as usize {
+	while i < len.wrapping_add(1) {
 		*ignore.add(i) = false;
 		i = i.wrapping_add(1);
 	}
@@ -134,7 +131,7 @@ mod tests {
 	use super::{BoolArray, bool_arr_zeroing_box, bool_arr_zeroing_vec};
 
 	unsafe fn support_bool_arr_zeroing(mut ignore: *mut *mut bool, mut len: usize) {
-		*ignore = super::bool_arr_zeroing(len as u64) as *mut bool;
+		*ignore = super::bool_arr_zeroing(len) as *mut bool;
 	}
 
 	unsafe fn support_expected(mut s: *const libc::c_char) -> *mut bool {
@@ -213,7 +210,7 @@ mod tests {
 					as *const libc::c_char,
 			);
 			let mut len = libc::strlen(s.as_ptr());
-			let mut arr = bool_arr_zeroing(len as u64);
+			let mut arr = bool_arr_zeroing(len);
 			let mut vec_arr: Vec<bool> = BoolArray::zeroing(len);
 			let mut bool_box: Box<[bool]> = BoolArray::zeroing(len);
 			if arr.is_null() {

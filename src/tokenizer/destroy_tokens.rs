@@ -1,5 +1,4 @@
 use ::libc;
-use libutils_rs::src::utils::free_mem::free_null;
 
 use crate::{t_shell, t_token};
 
@@ -21,6 +20,16 @@ pub unsafe fn destroy_all_tokens(shell: &mut t_shell) {
 			i += 1;
 		}
 	}
-	free_null(&mut shell.token as *mut *mut t_token as *mut libc::c_void);
+	{
+		let p = &mut shell.token as *mut *mut t_token as *mut libc::c_void;
+		if p.is_null() {
+			return;
+		}
+		let ptr: *mut *mut libc::c_void = p as *mut *mut libc::c_void;
+		if !(*ptr).is_null() {
+			libc::free(*ptr);
+		}
+		*ptr = std::ptr::null_mut::<libc::c_void>();
+	};
 	shell.token_len = None;
 }

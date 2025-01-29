@@ -11,11 +11,12 @@
 #![allow(unsafe_op_in_unsafe_fn)]
 
 extern crate libc;
-extern crate libft_rs;
-extern crate libutils_rs;
+
+// # Safety should only be active in very specific test scenarios
+// extern crate libft_rs;
+// extern crate libutils_rs;
 
 mod prelude;
-use prelude::*;
 use utils::rust_readline::{str_add_history, str_readline};
 
 pub mod builtins {

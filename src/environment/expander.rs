@@ -1,7 +1,7 @@
 #![warn(clippy::pedantic)]
 
 use super::Env;
-use std::ffi::{CStr, CString};
+use std::ffi::CString;
 
 /// Expand the input string using the environment variables stored in the `env` struct.
 ///
@@ -45,26 +45,6 @@ pub fn expander(input_expander: &str, env: &Env) -> Option<String> {
 			} else {
 				String::new()
 			};
-			#[cfg(test)]
-			{
-				unsafe {
-					let expansion_c = if !key_byte_slice.is_empty() {
-						if let Some(val) = env.get_slice(key_byte_slice) {
-							let cstr = CString::new(val.as_str()).expect("valid cstring from val");
-							libft_rs::ft_strdup(cstr.as_ptr())
-						} else {
-							libft_rs::ft_strdup(b"\0" as *const u8 as *const libc::c_char)
-						}
-					} else {
-						libft_rs::ft_strdup(c"$".as_ptr())
-					};
-					assert_eq!(
-						*CStr::from_ptr(expansion_c),
-						*CString::new(expansion.clone()).unwrap().as_c_str()
-					);
-					libc::free(expansion_c.cast());
-				}
-			}
 			ret.push_str(&expansion);
 		} else {
 			ret.push(bytes[i].into());
@@ -77,7 +57,6 @@ pub fn expander(input_expander: &str, env: &Env) -> Option<String> {
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use std::ffi::CString;
 
 	//$'USER', $"USER" should not expand
 	use rstest::{fixture, rstest};

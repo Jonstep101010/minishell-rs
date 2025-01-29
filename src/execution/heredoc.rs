@@ -1,9 +1,6 @@
 use crate::prelude::*;
 use nix::{fcntl::OFlag, sys::stat::Mode};
-use std::{
-	os::fd::{AsFd, AsRawFd, BorrowedFd, IntoRawFd},
-	str::FromStr,
-};
+use std::os::fd::BorrowedFd;
 
 fn heredoc_loop(delim: &str, fd: i32, env: &Env) {
 	// g_ctrl_c = 0;
@@ -12,9 +9,7 @@ fn heredoc_loop(delim: &str, fd: i32, env: &Env) {
 		let opt_line = unsafe { crate::utils::rust_readline::str_readline("> ") };
 		match opt_line {
 			Some(line) if line != delim => {
-				// let expand_input = CString::from_str(&line).unwrap();
 				if let Some(expanded) = crate::environment::expander::expander(&line, env) {
-					// unsafe { libc::write(fd, expanded.as_ptr().cast(), expanded.count_bytes()) };
 					let mut output = expanded.into_bytes();
 					output.push(b'\n');
 					let safe_fd = unsafe { BorrowedFd::borrow_raw(fd) };
