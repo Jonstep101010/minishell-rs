@@ -10,7 +10,7 @@ unsafe fn exec_last(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 	if cpid == 0 {
 		// check_signals_child(&mut (*shell).p_termios);
 		if (*(shell.token).add(i)).has_redir {
-			do_heredocs(&*(shell.token).add(i), prevpipe, &shell.env);
+			do_heredocs(&*(shell.token).add(i), &mut *prevpipe, &shell.env);
 		}
 		if do_redirections(&mut (*(shell.token).add(i)).cmd_args_vec).is_err() {
 			crate::tokenizer::destroy_tokens::destroy_all_tokens(&mut (*shell));
