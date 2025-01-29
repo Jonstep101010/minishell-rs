@@ -5,9 +5,7 @@
 extern crate libc;
 
 // to spend more time ;\
-// handle signals? removed - non-functional
-// use rustyline instead of readline
-// use process instead of fork
+// handle signals? removed - non-functional - partially working in rustyline
 // use tempfile for heredoc (if possible!)
 
 mod environment;
@@ -17,8 +15,8 @@ mod msh;
 mod prelude;
 mod tokenizer;
 use prelude::*;
-use rustyline::error::ReadlineError;
-use rustyline::{DefaultEditor, Result};
+use rustyline::{DefaultEditor, Result, error::ReadlineError};
+
 pub fn main() -> Result<()> {
 	let mut shell = t_shell::new();
 	// check signals

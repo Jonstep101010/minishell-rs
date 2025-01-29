@@ -8,17 +8,39 @@ use split_non_quoted::split_non_quoted;
 use crate::prelude::*;
 
 impl t_shell {
+	/// Sets up pipes and their commands/arguments, including redirections
 	///
-	/// sets up pipes and their commands/arguments, including redirections
+	/// # Examples
 	///
-	// /// # Example
-	// /// ```
-	/// let mut trimmed_line = "echo hello | cat > somefile";
+	/// Basic pipe operation:
+	/// ```no_run
+	/// # use minishell_rs::t_shell;
 	/// let mut shell = t_shell::new();
-	/// assert!(shell.tokenize(trimmed_line).is_some());
-	// /// ```
+	/// assert!(shell.tokenize("echo hello | cat").is_some());
+	/// ```
 	///
-	pub(super) fn tokenize(&mut self, trimmed_line: &str) -> Option<()> {
+	/// Pipe with redirection:
+	/// ```no_run
+	/// # use minishell_rs::t_shell;
+	/// let mut shell = t_shell::new();
+	/// assert!(shell.tokenize("echo hello | cat > outfile").is_some());
+	/// ```
+	///
+	/// Multiple pipes:
+	/// ```no_run
+	/// # use minishell_rs::t_shell;
+	/// let mut shell = t_shell::new();
+	/// assert!(shell.tokenize("ls -l | grep test | wc -l").is_some());
+	/// ```
+	///
+	/// Empty input handling:
+	/// ```no_run
+	/// # use minishell_rs::t_shell;
+	/// let mut shell = t_shell::new();
+	/// assert!(shell.tokenize("").is_none());
+	/// assert!(shell.tokenize("|").is_none());
+	/// ```
+	pub fn tokenize(&mut self, trimmed_line: &str) -> Option<()> {
 		let mut split_pipes = split_non_quoted(trimmed_line, "|");
 		assert!(!split_pipes.is_empty());
 		if split_pipes.first().unwrap().is_empty() {
