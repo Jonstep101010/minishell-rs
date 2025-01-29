@@ -8,7 +8,9 @@ use split_non_quoted::split_non_quoted;
 use crate::prelude::*;
 
 impl t_shell {
-	fn new_input(&mut self, trimmed_line: &str) -> Option<()> {
+	///
+	/// sets up pipes and their commands/arguments, including redirections
+	pub(super) fn tokenize(&mut self, trimmed_line: &str) -> Option<()> {
 		let mut split_pipes = split_non_quoted(trimmed_line, "|");
 		assert!(!split_pipes.is_empty());
 		if split_pipes.first().unwrap().is_empty() {
@@ -19,17 +21,6 @@ impl t_shell {
 			.iter_mut()
 			.map(|piped_token| t_token::new(std::mem::take(piped_token), &self.env))
 			.collect();
-		Some(())
-	}
-}
-
-///
-/// sets up pipes and their commands/arguments, including redirections
-pub(super) fn parse(shell: &mut t_shell, trimmed_line: &str) -> Option<()> {
-	shell.new_input(trimmed_line);
-	if shell.token_vec.first().unwrap().cmd_args_vec.is_empty() || shell.token_vec.is_empty() {
-		None
-	} else {
 		Some(())
 	}
 }

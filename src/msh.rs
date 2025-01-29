@@ -21,15 +21,6 @@ impl t_shell {
 	pub fn restore(&mut self) {
 		self.token_len = None;
 	}
-	pub fn export(&mut self, key: &str, value: String) {
-		self.env.export(key, value);
-	}
-	pub fn unset(&mut self, key: &str) {
-		self.env.unset(key);
-	}
-	pub fn get_var(&self, key: &str) -> Option<&String> {
-		self.env.get(key)
-	}
 }
 
 impl Default for t_shell {
@@ -61,16 +52,31 @@ impl t_arg {
 		}
 	}
 }
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum e_arg {
 	STRING = 0,
 	REDIR = 1,
 	REDIR_REMOVED = 2,
 }
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum e_redir {
 	INPUT_REDIR = 1,
 	OUTPUT_REDIR = 2,
 	APPEND = 3,
 	HEREDOC = 4,
+}
+#[macro_export]
+macro_rules! eprint_msh {
+	($($arg:tt)*) => {
+		{
+			use std::io::Write;
+			let stderr = std::io::stderr();
+			let mut handle = stderr.lock();
+			write!(handle, "minishell: ").unwrap();
+			write!(handle, $($arg)*).unwrap();
+			writeln!(handle).unwrap();
+		}
+	};
 }

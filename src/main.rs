@@ -13,14 +13,9 @@ extern crate libc;
 mod environment;
 mod execution;
 mod lexer;
-
-pub mod utils {
-	pub mod error;
-	pub mod rust_readline;
-}
-
-pub mod msh;
+mod msh;
 mod prelude;
+mod rust_readline;
 mod tokenizer;
 use prelude::*;
 
@@ -28,20 +23,19 @@ pub fn main() {
 	let mut shell = t_shell::new();
 	// check signals
 	loop {
-		if let Some(readline_line) = crate::utils::rust_readline::str_readline("minishell> ") {
+		if let Some(readline_line) = crate::rust_readline::str_readline("minishell> ") {
 			let trimmed_line = readline_line.trim_ascii();
 			if trimmed_line.is_empty() {
 				continue;
 			}
-			crate::utils::rust_readline::str_add_history(trimmed_line);
+			crate::rust_readline::str_add_history(trimmed_line);
 			if let Err(status) = msh::lexical_checks(trimmed_line) {
 				shell.env.set_status(status);
 				continue;
-			} else if tokenizer::parse(&mut shell, trimmed_line).is_none() {
-				shell.token_len = None;
+			} else if shell.tokenize(trimmed_line).is_none() {
 				continue;
 			} else {
-				dbg!(&shell.token_vec);
+				// dbg!(&shell.token_vec);
 				crate::execution::execute_commands(&mut shell);
 			}
 		} else {

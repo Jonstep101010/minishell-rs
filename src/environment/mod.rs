@@ -112,9 +112,6 @@ impl Env {
 	pub fn get_status(&self) -> i32 {
 		self.status
 	}
-	pub fn unset(&mut self, key: &str) {
-		self.map.remove(key);
-	}
 	pub fn get_slice(&self, key: &[u8]) -> Option<&String> {
 		self.get(std::str::from_utf8(key).unwrap())
 	}

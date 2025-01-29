@@ -12,7 +12,7 @@ pub(super) fn do_heredocs(token: &t_token, target: &mut i32, env: &Env) {
 				Ok(mut fd) => {
 					let delim: &str = &(token.cmd_args_vec[i]).elem_str;
 					loop {
-						let opt_line = crate::utils::rust_readline::str_readline("> ");
+						let opt_line = crate::rust_readline::str_readline("> ");
 						match opt_line {
 							Some(mut line) if line != delim => {
 								env.expander(&mut line);
