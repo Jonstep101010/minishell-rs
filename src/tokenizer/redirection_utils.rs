@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::msh::{e_arg::*, e_redir::*, t_arg, t_token};
 
 fn rm_prefix_redir_word_vec(args: &mut Vec<t_arg>) {
 	let mut i = 0;

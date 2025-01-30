@@ -17,8 +17,9 @@ pub mod builtins {
 
 use crate::{
 	execution::{exec_bin::exec_bin, execute_pipes::execute_pipes, redirections::do_redirections},
-	prelude::*,
+	msh::{Env, e_arg::*, eprint_msh, t_shell, t_token},
 };
+use std::ffi::CString;
 
 impl crate::t_token {
 	pub fn get_args_vec(&self) -> Vec<CString> {

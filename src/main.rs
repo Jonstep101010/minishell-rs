@@ -12,9 +12,8 @@ mod environment;
 mod execution;
 mod lexer;
 mod msh;
-mod prelude;
 mod tokenizer;
-use prelude::*;
+use msh::*;
 use rustyline::{DefaultEditor, Result, error::ReadlineError};
 
 pub fn main() -> Result<()> {
@@ -30,7 +29,7 @@ pub fn main() -> Result<()> {
 					continue;
 				}
 				rl.add_history_entry(trimmed_line)?;
-				if let Err(status) = msh::lexical_checks(trimmed_line) {
+				if let Err(status) = lexer::check(trimmed_line) {
 					shell.env.set_status(status);
 					continue;
 				} else if shell.tokenize(trimmed_line).is_none() {

@@ -5,7 +5,7 @@ mod split_non_quoted;
 use parse_quotes::rs_do_quote_bs;
 use split_non_quoted::split_non_quoted;
 
-use crate::prelude::*;
+use crate::msh::{Env, e_arg::*, t_arg, t_shell, t_token};
 
 impl t_shell {
 	/// Sets up pipes and their commands/arguments, including redirections
@@ -58,6 +58,7 @@ impl t_shell {
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use crate::e_redir::*;
 	use rstest::{fixture, rstest};
 	macro_rules! token {
 		($cmd:expr, $has_redir:expr, $($arg:expr, $type:expr, $redir:expr),*) => {

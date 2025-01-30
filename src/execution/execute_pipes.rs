@@ -1,12 +1,12 @@
 #![allow(unsafe_op_in_unsafe_fn)]
 
+use super::{executor, heredoc::do_heredocs, redirections::do_redirections};
+use crate::t_shell;
 use ::libc;
 use nix::{
 	sys::wait::{WaitStatus, waitpid},
 	unistd::{ForkResult, fork},
 };
-
-use super::{executor, heredoc::do_heredocs, redirections::do_redirections, t_shell};
 
 unsafe fn exec_last(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 	match unsafe { fork() } {

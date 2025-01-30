@@ -1,9 +1,9 @@
-use crate::environment;
-pub(crate) use crate::lexer::check as lexical_checks;
+pub(crate) use crate::{environment::Env, eprint_msh};
+pub(crate) use std::ffi::CString;
 
 #[derive(Clone)]
-pub struct t_shell {
-	pub(crate) env: environment::Env,
+pub(crate) struct t_shell {
+	pub env: Env,
 	pub token_len: Option<usize>,
 	pub token_vec: Vec<t_token>,
 }
@@ -11,7 +11,7 @@ pub struct t_shell {
 impl t_shell {
 	pub fn new() -> Self {
 		Self {
-			env: environment::Env::new(),
+			env: Env::new(),
 			token_len: None,
 			token_vec: vec![],
 		}
@@ -30,14 +30,14 @@ impl Default for t_shell {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct t_token {
+pub(crate) struct t_token {
 	pub cmd_args_vec: Vec<t_arg>,
 	pub has_redir: bool,
 	pub cmd_name: Vec<u8>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct t_arg {
+pub(crate) struct t_arg {
 	pub elem_str: String,
 	pub type_0: e_arg,          // wrapped enum attribute
 	pub redir: Option<e_redir>, // enum wrapping string
@@ -54,19 +54,20 @@ impl t_arg {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub enum e_arg {
-	STRING = 0,
-	REDIR = 1,
-	REDIR_REMOVED = 2,
+pub(crate) enum e_arg {
+	STRING,
+	REDIR,
+	REDIR_REMOVED,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub enum e_redir {
-	INPUT_REDIR = 1,
-	OUTPUT_REDIR = 2,
-	APPEND = 3,
-	HEREDOC = 4,
+pub(crate) enum e_redir {
+	INPUT_REDIR,
+	OUTPUT_REDIR,
+	APPEND,
+	HEREDOC,
 }
+
 #[macro_export]
 macro_rules! eprint_msh {
 	($($arg:tt)*) => {

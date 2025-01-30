@@ -1,9 +1,10 @@
-use crate::prelude::*;
+use crate::msh::{e_arg::*, e_redir::*, eprint_msh, t_arg};
 use nix::{
 	fcntl::{OFlag, open},
 	sys::stat::Mode,
 	unistd::{AccessFlags, access},
 };
+use std::ffi::CString;
 
 pub(super) fn do_redirections(cmd_args: &mut [t_arg]) -> Result<(), i32> {
 	let mut i = 0;
