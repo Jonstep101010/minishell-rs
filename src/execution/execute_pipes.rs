@@ -21,7 +21,7 @@ unsafe fn exec_last(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 			_ => (),
 		},
 		Ok(ForkResult::Child) => {
-			// check signals child
+			// previously: check signals child
 			if shell.token_vec[i].has_redir {
 				do_heredocs(&shell.token_vec[i], &mut *prevpipe, &shell.env);
 			}
@@ -47,7 +47,7 @@ unsafe fn exec_pipe(shell: &mut t_shell, i: usize, prevpipe: *mut i32) {
 			*prevpipe = pipefd[0_usize];
 		}
 		Ok(ForkResult::Child) => {
-			// check signals child
+			// previously: check signals child
 			libc::close(pipefd[0_usize]);
 			libc::dup2(pipefd[1_usize], 1);
 			libc::close(pipefd[1_usize]);

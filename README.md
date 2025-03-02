@@ -2,7 +2,7 @@
 
 A gradual rewrite of a [c2rust](https://github.com/immunant/c2rust) transpiled [project](https://gh.jschwabe.site/42_minishell).
 
-This was a personal project to see how C systems programming constructs/syscalls can be implemented in a more readable/concise way.
+This was a personal project to see how C systems programming constructs/syscalls can be implemented in a more concise way.
 
 ## journey
 
@@ -17,4 +17,4 @@ FWIW, the original implementation used loads of custom glue that could have been
 ### key takeaways
 - rust is not c, interacting with raw pointers is more error prone due to its memory model and assumptions about memory carried over from c
 - signal handling was easier to do in c (I ended up just scrapping it in the end)
-- since rust has [`Command`](https://doc.rust-lang.org/std/process/struct.Command.html), most of my execution logic was not needed (I ended up reimplementing my logic anyway - the reason for most `unsafe` usage)
+- even though rust has [`Command`](https://doc.rust-lang.org/std/process/struct.Command.html), I reimplemented my execution logic anyways (the reason for most `unsafe` usage)

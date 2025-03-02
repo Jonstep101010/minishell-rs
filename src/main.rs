@@ -4,10 +4,6 @@
 
 extern crate libc;
 
-// to spend more time ;\
-// handle signals? removed - non-functional - partially working in rustyline
-// use tempfile for heredoc (if possible!)
-
 mod environment;
 mod execution;
 mod lexer;
@@ -18,7 +14,7 @@ use rustyline::{DefaultEditor, Result, error::ReadlineError};
 
 pub fn main() -> Result<()> {
 	let mut shell = t_shell::new();
-	// check signals
+	// previously: check signals
 	let mut rl = DefaultEditor::new()?;
 	loop {
 		let readline = rl.readline("minishell> ");
@@ -35,7 +31,6 @@ pub fn main() -> Result<()> {
 				} else if shell.tokenize(trimmed_line).is_none() {
 					continue;
 				} else {
-					// dbg!(&shell.token_vec);
 					crate::execution::execute_commands(&mut shell);
 				}
 			}
