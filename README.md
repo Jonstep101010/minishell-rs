@@ -11,9 +11,10 @@ FWIW, the original implementation used loads of custom glue that could have been
 ### goals
 1. see where rust syntax and std containers can enable better readability/code structure
 2. discover where [`CString`](https://doc.rust-lang.org/stable/std/ffi/struct.CString.html), [`CStr`](https://doc.rust-lang.org/stable/std/ffi/struct.CStr.html) and `&[u8]` ([u8](https://doc.rust-lang.org/stable/std/primitive.u8.html)) can find usage and reduce interactions with `char *`
-3. replace foreign/libc usage with [nix](https://docs.rs/nix/latest/nix/) wrappers, enabling more idiomatic (and hopefully less error prone) usage of unix system functions.
+3. replace `extern "C"`/[libc](https://docs.rs/libc/latest/libc/) usage with [nix](https://docs.rs/nix/latest/nix/) wrappers, enabling more idiomatic (and hopefully less error prone) usage of unix system functions.
 4. provide me with an excuse to write rust code
 
 ### key takeaways
-- rust is not c, interacting with raw pointers is more error prone due to its memory model
-- signal handling is easier to do in the c model (I ended up just scrapping it in the end)
+- rust is not c, interacting with raw pointers is more error prone due to its memory model and assumptions about memory carried over from c
+- signal handling was easier to do in c (I ended up just scrapping it in the end)
+- since rust has [`Command`](https://doc.rust-lang.org/std/process/struct.Command.html), most of my execution logic was not needed (I ended up reimplementing my logic anyway - the reason for most `unsafe` usage)
