@@ -39,8 +39,8 @@ pub(crate) struct t_token {
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) struct t_arg {
 	pub elem_str: String,
-	pub type_0: e_arg,          // wrapped enum attribute
-	pub redir: Option<e_redir>, // enum wrapping string
+	pub type_0: e_arg,
+	pub redir: Option<e_redir>,
 }
 
 impl t_arg {
