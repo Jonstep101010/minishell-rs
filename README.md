@@ -1,16 +1,21 @@
-# minishell
+# minishell-rs
 
-A gradual rewrite of a [c2rust](https://github.com/immunant/c2rust) transpiled [project](https://gh.jschwabe.site/42_minishell).
+A gradual rewrite of a [c2rust](https://github.com/immunant/c2rust) transpiled [codebase](https://gh.jschwabe.site/42_minishell).
 
-This was a personal project to see how C systems programming constructs/syscalls can be implemented in a more concise way.
+Discover how C language programming constructs can be implemented in a more concise way.
 
 ## journey
+### context
 
-FWIW, the original implementation used loads of custom glue that could have been replaced with standard library functions. This was fine as a school project and provided me with ample opportunities for refactoring in the rust version.
+The original implementation used loads of custom glue that could have been replaced with libc functions (strtok, strcoll, scanf/sprintf, fprintf). 
 
-1. transpile, then simplify some operations, mostly aligning types and replacing `.offset()` with `.add()`
+This was fine as a school project and provided me with ample opportunities for refactoring in the rust version.
 
-## 
+### process
+1. transpile, then simplify some operations, mostly aligning types (e.g. [`libc::size_t`](https://docs.rs/libc/latest/libc/type.size_t.html) for [`u64`](https://doc.rust-lang.org/core/primitive.u64.html)/[`usize`](https://doc.rust-lang.org/core/primitive.usize.html)), removing non-needed casts and replacing [`.offset()`](https://doc.rust-lang.org/std/ptr/struct.NonNull.html#method.offset) with [`.add()`](https://doc.rust-lang.org/std/ptr/struct.NonNull.html#method.add)
+2. multiple failed rewrites of core functionality caused by newly introduced logic bugs - mitigated by comprehensive [test cases](https://docs.rs/rstest/latest/rstest/attr.rstest.html#test-parametrized-cases)
+3. issues with readability, naming - resolved by using more idiomatic constructs: [`Option`](https://doc.rust-lang.org/std/option/enum.Option.html), [`Result`](https://doc.rust-lang.org/std/result/enum.Result.html), [tuples](https://doc.rust-lang.org/std/primitive.tuple.html), [slices](https://doc.rust-lang.org/std/primitive.slice.html) instead of [references](https://doc.rust-lang.org/std/primitive.reference.html), [`impl`](https://doc.rust-lang.org/std/keyword.impl.html) for structs
+4. remove duplicate or dead code replaced by std ([`format!`](https://doc.rust-lang.org/std/macro.format.html), [`vec![]`](https://doc.rust-lang.org/std/macro.vec.html), ...)
 
 ### goals
 1. see where rust syntax and std containers can enable better readability/code structure
@@ -20,8 +25,8 @@ FWIW, the original implementation used loads of custom glue that could have been
 
 ### key takeaways
 - rust is not c, interacting with raw pointers is more error prone due to its memory model and assumptions about memory carried over from c
-- signal handling was easier to do in c (I ended up just scrapping it in the end)
-- even though rust has [`Command`](https://doc.rust-lang.org/std/process/struct.Command.html), I adapted my execution logic anyways (the reason for most `unsafe` usage)
+- signal handling was easier to do in c, I ended up removing it as it caused weird bugs
+- even though rust has [`Command`](https://doc.rust-lang.org/std/process/struct.Command.html), it was not used. I adapted my execution logic to be more idiomatic by using nix wrappers (the reason for most `unsafe` usage)
 
 ### refined strategy
 1. document & simplify original logic
