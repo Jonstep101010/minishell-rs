@@ -3,7 +3,7 @@ mod tests {
 	use crate::Env;
 
 	//$'USER', $"USER" should not expand
-	use rstest::{fixture, rstest};
+	use rstest::rstest;
 
 	// use $USER env var only
 	// expected, input for expander
@@ -33,7 +33,6 @@ mod tests {
 				std::env::var("USER").unwrap(),
 				std::env::var("USER").unwrap()
 	),"echo $USER | echo \"$USER\"")]
-	#[fixture]
 	fn test_expander(#[case] expected: &str, #[case] input: &str) {
 		let env = Env::new_test();
 		let mut bind_mut = input.to_owned();
@@ -48,7 +47,6 @@ mod tests {
 	#[case("echo \"$ \"", "echo \"$ \"")]
 	#[case(&format!("echo {}$", std::env::var("USER").unwrap()), "echo $USER$")]
 	#[case("echo something $$ strange", "echo something $$ strange")]
-	#[fixture]
 	fn test_expander_weird(#[case] expected: &str, #[case] input: &str) {
 		let env = Env::new_test();
 		let mut bind_mut = input.to_owned();
@@ -59,7 +57,6 @@ mod tests {
 	#[case("echo 0", "echo $?")]
 	#[case("0", "$?")]
 	#[case("0$00$$$$", "$?$$?$?$$$$hello?$")]
-	#[fixture]
 	fn test_expander_status(#[case] expected: &str, #[case] input: &str) {
 		let env = Env::new_exit_status();
 		let mut bind_mut = input.to_owned();

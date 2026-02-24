@@ -1,6 +1,4 @@
 #![allow(non_camel_case_types, non_snake_case, clippy::upper_case_acronyms)]
-#![feature(let_chains)]
-#![feature(extern_types)]
 
 extern crate libc;
 
@@ -42,7 +40,7 @@ pub fn main() -> Result<()> {
 				break;
 			}
 			Err(err) => {
-				println!("Error: {:?}", err);
+				println!("Error: {err:?}");
 				break;
 			}
 		}
@@ -50,8 +48,7 @@ pub fn main() -> Result<()> {
 	if shell.env.get_status() == 0 {
 		Ok(())
 	} else {
-		Err(ReadlineError::Io(std::io::Error::new(
-			std::io::ErrorKind::Other,
+		Err(ReadlineError::Io(std::io::Error::other(
 			"Non-zero exit status",
 		)))
 	}

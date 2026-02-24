@@ -214,11 +214,11 @@ impl<'a> t_lexer<'a> {
 	pub fn check(trimmed_line: &str) -> Result<i32, i32> {
 		let mut lexer = t_lexer::new(trimmed_line);
 		lexer.check_quotes()?;
-		if lexer.pipes != 0 || lexer.redir_greater != 0 || lexer.redir_smaller != 0 {
-			if let Err(_e) = lexer.check_pipes_redirection() {
-				// map error printing in future
-				return Err(2);
-			}
+		if (lexer.pipes != 0 || lexer.redir_greater != 0 || lexer.redir_smaller != 0)
+			&& let Err(_e) = lexer.check_pipes_redirection()
+		{
+			// map error printing in future
+			return Err(2);
 		}
 		Ok(0)
 	}
@@ -231,7 +231,7 @@ pub fn check(trimmed_line: &str) -> Result<i32, i32> {
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use rstest::{fixture, rstest};
+	use rstest::rstest;
 
 	#[rstest]
 	#[case("echo \"|\"")]
@@ -290,7 +290,6 @@ mod tests {
 	#[case("> outfile")]
 	#[case("< outfile")]
 	#[case("cat << delim | > outfile")]
-	#[fixture]
 	fn lexer_success(#[case] input: &str) {
 		assert_eq!(Ok(0), t_lexer::check(input));
 	}
@@ -342,7 +341,6 @@ mod tests {
 	#[case("> > >")]
 	#[case("> > >")]
 	#[case("> tmpfile > midfile >")]
-	#[fixture]
 	fn lexer_failure(#[case] input: &str) {
 		assert!(t_lexer::check(input).is_err());
 	}

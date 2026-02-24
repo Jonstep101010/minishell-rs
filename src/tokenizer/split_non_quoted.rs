@@ -31,7 +31,7 @@ pub(super) fn split_non_quoted(to_split: &str, set: &str) -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
-	use rstest::{fixture, rstest};
+	use rstest::rstest;
 
 	#[rstest]
 	#[case(vec!["echo ", " \"nopipes |\" ", " echo hello"], "echo | \"nopipes |\" | echo hello")]
@@ -43,7 +43,6 @@ mod tests {
 	#[case(vec!["cat ", " cat ", " ls"], "cat | cat | ls")]
 	#[case(vec!["echo hello    ", " echo world ", " cat"], "echo hello    || echo world | cat")]
 	#[case(vec!["cat ", " ls"], "cat | ls")]
-	#[fixture]
 	fn test_split_pipes(#[case] expected: Vec<&str>, #[case] input: &str) {
 		let vec_safe_output = super::split_non_quoted(input, "|");
 		assert_eq!(expected, vec_safe_output);
@@ -62,7 +61,6 @@ mod tests {
 	#[case(vec!["ls"], " ls")]
 	#[case(vec!["echo", "hello"], "echo hello    ")]
 	#[case(vec!["echo", "world"], "echo world ")]
-	#[fixture]
 	fn test_split_whitespace(#[case] expected: Vec<&str>, #[case] input: &str) {
 		let vec_safe_output = super::split_non_quoted(input, " \t\n\r");
 		assert_eq!(expected, vec_safe_output);
@@ -70,7 +68,6 @@ mod tests {
 	#[rstest]
 	#[case(vec!["ls \n-l\r \tsomedir ", " cat -e ", " wc -l"], vec!["ls", "-l", "somedir"], "ls \n-l\r \tsomedir | cat -e | wc -l")]
 	#[case(vec!["ls -l somedir ", " cat -e ", " wc -l"], vec!["ls", "-l", "somedir"], "ls -l somedir | cat -e | wc -l")]
-	#[fixture]
 	fn test_split_pipes_whitespace(
 		#[case] expected: Vec<&str>,
 		#[case] expected_two: Vec<&str>,

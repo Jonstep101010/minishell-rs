@@ -16,7 +16,7 @@ pub(super) fn rs_do_quote_bs(bytes_s: &[u8], quote: &mut i32) -> String {
 
 #[cfg(test)]
 mod tests {
-	use rstest::{fixture, rstest};
+	use rstest::rstest;
 
 	// expected, input
 	#[rstest]
@@ -47,7 +47,6 @@ mod tests {
 		"echo hello tehre hello inside single \"\"jesus\"\"",
 		"echo 'hello tehre 'hello inside single' \"\"jesus\"\"'"
 	)]
-	#[fixture]
 	fn test_quote_separation(#[case] expected: &str, #[case] input: &str) {
 		let input = std::ffi::CString::new(input).unwrap();
 		let mut ptr_int_quote = 0;

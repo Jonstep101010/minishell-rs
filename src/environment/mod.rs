@@ -158,7 +158,7 @@ impl Env {
 				let expansion = if key_byte_slice.is_empty() {
 					"$".to_string()
 				} else if let Some(expansion) = self.get_slice(key_byte_slice) {
-					expansion.to_string()
+					expansion.clone()
 				} else {
 					String::new()
 				};

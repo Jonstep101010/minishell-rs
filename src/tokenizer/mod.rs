@@ -59,7 +59,7 @@ impl t_shell {
 mod tests {
 	use super::*;
 	use crate::e_redir::*;
-	use rstest::{fixture, rstest};
+	use rstest::rstest;
 	macro_rules! token {
 		($cmd:expr, $has_redir:expr, $($arg:expr, $type:expr, $redir:expr),*) => {
 			t_token {
@@ -91,44 +91,6 @@ mod tests {
 		],
 		"echo hello | cat > outfile"
 	)]
-	// manual equivalent
-	// #[case(
-	// 	vec![
-	// 		t_token {
-	// 			cmd_args_vec: vec![
-	// 				t_arg {
-	// 					elem_str: "echo".to_string(),
-	// 					type_0: STRING,
-	// 					redir: None,
-	// 				},
-	// 				t_arg {
-	// 					elem_str: "hello".to_string(),
-	// 					type_0: STRING,
-	// 					redir: None,
-	// 				},
-	// 			],
-	// 			has_redir: false,
-	// 			cmd_name: vec![101, 99, 104, 111],
-	// 		},
-	// 		t_token {
-	// 			cmd_args_vec: vec![
-	// 				t_arg {
-	// 					elem_str: "cat".to_string(),
-	// 					type_0: STRING,
-	// 					redir: None,
-	// 				},
-	// 				t_arg {
-	// 					elem_str: "outfile".to_string(),
-	// 					type_0: REDIR,
-	// 					redir: Some(OUTPUT_REDIR),
-	// 				},
-	// 			],
-	// 			has_redir: true,
-	// 			cmd_name: vec![99, 97, 116],
-	// 		},
-	// 	],
-	// 	"echo hello | cat > outfile"
-	// )]
 	#[case(
 		vec![
 			token!("ls", false,
@@ -157,7 +119,6 @@ mod tests {
 		],
 		"cat < infile | wc -l > result"
 	)]
-	#[fixture]
 	fn test_tokenization(#[case] expected: Vec<t_token>, #[case] input: &str) {
 		let trimmed_line = input.trim_ascii();
 		let mut shell = t_shell::new();

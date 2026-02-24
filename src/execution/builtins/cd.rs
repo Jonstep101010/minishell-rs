@@ -27,25 +27,21 @@ fn changedir(path_string: &str, env: &mut Env) -> bool {
 }
 
 fn cd_internal(opt_target: Option<&str>, env: &mut Env) -> bool {
-	if opt_target.is_none() {
-		let env_path = env.get("HOME");
-		if env_path.is_none() {
+	match (opt_target, env.get("HOME")) {
+		(None, None) => {
 			eprintln!("cd: HOME not set");
 			false
-		} else {
-			let env_path = env.get("HOME").unwrap().clone();
-			changedir(&env_path, env);
+		}
+		(None, Some(env_path)) => {
+			changedir(&env_path.clone(), env);
 			true
 		}
-	} else if let Some(env_path) = env.get("HOME")
-		&& opt_target.unwrap().as_bytes() == b"~"
-	{
-		changedir(&env_path.clone(), env)
-	} else if opt_target.unwrap().as_bytes() == b"-" && env.get("OLDPWD").is_some() {
-		let oldpwd = env.get("OLDPWD").unwrap().clone();
-		changedir(&oldpwd, env)
-	} else {
-		changedir(opt_target.unwrap(), env)
+		(Some("~"), Some(env_path)) => changedir(&env_path.clone(), env),
+		(Some("-"), _) if env.get("OLDPWD").is_some() => {
+			let oldpwd = env.get("OLDPWD").unwrap().clone();
+			changedir(&oldpwd, env)
+		}
+		(Some(target), _) => changedir(target, env),
 	}
 }
 
