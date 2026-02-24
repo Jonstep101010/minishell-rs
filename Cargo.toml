@@ -12,7 +12,7 @@ autobins = false
 path = "src/main.rs"
 name = "minishell-rs"
 [dependencies]
-libc = "0.2.182"
+libc = "0.2.180"
 nix = { version = "0.29.0", features = ["fs", "process", "term"] }
 rstest = "0.26.1"
 rustyline = "17.0.2"

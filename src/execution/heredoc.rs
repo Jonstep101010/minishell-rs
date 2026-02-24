@@ -1,8 +1,8 @@
 use crate::msh::{Env, e_redir::*, eprint_msh, t_token};
 use nix::{fcntl::OFlag, sys::stat::Mode};
-use std::os::fd::BorrowedFd;
+use std::os::fd::{AsRawFd, BorrowedFd, OwnedFd};
 
-pub(super) fn do_heredocs(token: &t_token, target: &mut i32, env: &Env) {
+pub(super) fn do_heredocs(token: &t_token, target: &mut OwnedFd, env: &Env) {
 	let mut i = 0;
 	while i < token.cmd_args_vec.len() {
 		if (token.cmd_args_vec[i]).redir == Some(HEREDOC) {
@@ -32,7 +32,7 @@ pub(super) fn do_heredocs(token: &t_token, target: &mut i32, env: &Env) {
 					}
 					nix::unistd::close(fd).unwrap();
 					fd = nix::fcntl::open(c".heredoc.txt", OFlag::O_RDONLY, Mode::empty()).unwrap();
-					nix::unistd::dup2(fd, *target).unwrap();
+					nix::unistd::dup2(fd, OwnedFd::as_raw_fd(target)).unwrap();
 					nix::unistd::close(fd).unwrap();
 					let _ = nix::unistd::unlink(c".heredoc.txt");
 				}
