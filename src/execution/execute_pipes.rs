@@ -7,12 +7,11 @@ use crate::t_shell;
 use nix::{
 	errno::Errno,
 	sys::wait::{WaitStatus, waitpid},
-	unistd::{ForkResult, Pid, fork},
+	unistd::{ForkResult, Pid},
 };
 use std::io::stdin;
-
-unsafe fn exec_last(shell: &mut t_shell, i: usize, mut prevpipe: OwnedFd, pids: &mut Vec<Pid>) {
-	match unsafe { fork() } {
+fn exec_last(shell: &mut t_shell, i: usize, mut prevpipe: OwnedFd, pids: &mut Vec<Pid>) {
+	match unsafe { nix::unistd::fork() } {
 		Ok(ForkResult::Parent { child }) => {
 			pids.push(child);
 			drop(prevpipe);
@@ -67,9 +66,9 @@ unsafe fn exec_last(shell: &mut t_shell, i: usize, mut prevpipe: OwnedFd, pids: 
 	}
 }
 
-unsafe fn exec_pipe(shell: &mut t_shell, i: usize, prevpipe: &mut OwnedFd, pids: &mut Vec<Pid>) {
+fn exec_pipe(shell: &mut t_shell, i: usize, prevpipe: &mut OwnedFd, pids: &mut Vec<Pid>) {
 	let pipefd = nix::unistd::pipe().expect("pipe fail");
-	match unsafe { fork() } {
+	match unsafe { nix::unistd::fork() } {
 		Ok(ForkResult::Parent { child }) => {
 			pids.push(child);
 			drop(pipefd.1);
@@ -101,16 +100,12 @@ unsafe fn exec_pipe(shell: &mut t_shell, i: usize, prevpipe: &mut OwnedFd, pids:
 }
 pub(super) fn execute_pipes(shell: &mut t_shell) {
 	let mut prevpipe = nix::unistd::dup(stdin()).unwrap();
-	let mut pids = Vec::new();
+	let mut pids = Vec::with_capacity(shell.token_vec.len());
 	for i in 0..shell.token_len.unwrap() - 1 {
 		if shell.token_vec[i].has_redir && i != shell.token_len.unwrap() - 1 {
 			do_heredocs(&shell.token_vec[i], &mut prevpipe, &shell.env);
 		}
-		unsafe {
-			exec_pipe(shell, i, &mut prevpipe, &mut pids);
-		}
+		exec_pipe(shell, i, &mut prevpipe, &mut pids);
 	}
-	unsafe {
-		exec_last(shell, shell.token_len.unwrap() - 1, prevpipe, &mut pids);
-	}
+	exec_last(shell, shell.token_len.unwrap() - 1, prevpipe, &mut pids);
 }
