@@ -1,6 +1,6 @@
 use crate::msh::{Env, e_redir::*, eprint_msh, t_token};
 use nix::{fcntl::OFlag, sys::stat::Mode};
-use std::os::fd::{AsRawFd, BorrowedFd, OwnedFd};
+use std::os::fd::OwnedFd;
 
 pub(super) fn do_heredocs(token: &t_token, target: &mut OwnedFd, env: &Env) {
 	let mut i = 0;
@@ -18,11 +18,7 @@ pub(super) fn do_heredocs(token: &t_token, target: &mut OwnedFd, env: &Env) {
 								env.expander(&mut line);
 								let mut output = line.into_bytes();
 								output.push(b'\n');
-								// let safe_fd = unsafe { BorrowedFd::borrow_raw(fd) };
-								if let Err(e) = nix::unistd::write(
-									target.try_clone().expect("valid fd"),
-									&output,
-								) {
+								if let Err(e) = nix::unistd::write(&fd, &output) {
 									eprintln!("heredoc write error: {}", e);
 									break;
 								}
