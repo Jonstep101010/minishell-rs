@@ -1,6 +1,6 @@
 #![allow(unsafe_op_in_unsafe_fn)]
 
-use std::os::fd::{FromRawFd, OwnedFd};
+use std::os::fd::{FromRawFd, IntoRawFd, OwnedFd};
 
 use super::{executor, heredoc::do_heredocs, redirections::do_redirections};
 use crate::t_shell;
@@ -10,7 +10,7 @@ use nix::{
 	unistd::{ForkResult, fork},
 };
 
-unsafe fn exec_last(shell: &mut t_shell, i: usize, prevpipe: &mut i32, prev_owned: &mut OwnedFd) {
+unsafe fn exec_last(shell: &mut t_shell, i: usize, mut prevpipe: OwnedFd) {
 	match unsafe { fork() } {
 		Ok(ForkResult::Parent { child }) => match waitpid(child, None) {
 			Ok(WaitStatus::Exited(_, exit_code)) => {
@@ -25,14 +25,14 @@ unsafe fn exec_last(shell: &mut t_shell, i: usize, prevpipe: &mut i32, prev_owne
 		Ok(ForkResult::Child) => {
 			// previously: check signals child
 			if shell.token_vec[i].has_redir {
-				let mut x = OwnedFd::from_raw_fd(*prevpipe);
-				do_heredocs(&shell.token_vec[i], &mut x, &shell.env);
+				do_heredocs(&shell.token_vec[i], &mut prevpipe, &shell.env);
 			}
 			if do_redirections(&mut shell.token_vec[i].cmd_args_vec).is_err() {
 				panic!("failed to do redirections");
 			}
-			libc::dup2(*prevpipe, 0);
-			libc::close(*prevpipe);
+			nix::unistd::dup2_stdin(prevpipe.try_clone().expect("fd"));
+			nix::unistd::close(prevpipe.into_raw_fd());
+			// drop(prevpipe);
 			executor(&mut shell.token_vec[i], &mut shell.env);
 			std::process::exit(shell.env.get_status());
 		}
@@ -65,20 +65,18 @@ unsafe fn exec_pipe(shell: &mut t_shell, i: usize, prevpipe: &mut i32, prev_owne
 		Err(e) => eprintln!("fork failed: {}", e),
 	};
 }
-
+use std::io::stdin;
 pub(super) fn execute_pipes(shell: &mut t_shell) {
-	// let mut prevpipe = nix::unistd::dup(stdin()).unwrap();
-	let mut prevpipe = nix::unistd::dup(0).unwrap();
-	let mut x = unsafe { OwnedFd::from_raw_fd(prevpipe) };
+	let mut prevpipe = nix::unistd::dup(stdin()).unwrap();
 	for i in 0..shell.token_len.unwrap() - 1 {
 		if shell.token_vec[i].has_redir && i != shell.token_len.unwrap() - 1 {
-			do_heredocs(&shell.token_vec[i], &mut x, &shell.env);
+			do_heredocs(&shell.token_vec[i], &mut prevpipe, &shell.env);
 		}
 		unsafe {
-			exec_pipe(shell, i, &mut prevpipe, &mut x);
+			exec_pipe(shell, i, &mut 0, &mut prevpipe);
 		}
 	}
 	unsafe {
-		exec_last(shell, shell.token_len.unwrap() - 1, &mut prevpipe, &mut x);
+		exec_last(shell, shell.token_len.unwrap() - 1, prevpipe);
 	}
 }

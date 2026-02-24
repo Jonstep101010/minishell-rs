@@ -18,8 +18,11 @@ pub(super) fn do_heredocs(token: &t_token, target: &mut OwnedFd, env: &Env) {
 								env.expander(&mut line);
 								let mut output = line.into_bytes();
 								output.push(b'\n');
-								let safe_fd = unsafe { BorrowedFd::borrow_raw(fd) };
-								if let Err(e) = nix::unistd::write(safe_fd, &output) {
+								// let safe_fd = unsafe { BorrowedFd::borrow_raw(fd) };
+								if let Err(e) = nix::unistd::write(
+									target.try_clone().expect("valid fd"),
+									&output,
+								) {
 									eprintln!("heredoc write error: {}", e);
 									break;
 								}
@@ -32,7 +35,7 @@ pub(super) fn do_heredocs(token: &t_token, target: &mut OwnedFd, env: &Env) {
 					}
 					nix::unistd::close(fd).unwrap();
 					fd = nix::fcntl::open(c".heredoc.txt", OFlag::O_RDONLY, Mode::empty()).unwrap();
-					nix::unistd::dup2(fd, OwnedFd::as_raw_fd(target)).unwrap();
+					nix::unistd::dup2(&fd, target).unwrap();
 					nix::unistd::close(fd).unwrap();
 					let _ = nix::unistd::unlink(c".heredoc.txt");
 				}

@@ -41,9 +41,9 @@ pub(super) fn do_redirections(cmd_args: &mut [t_arg]) -> Result<(), i32> {
 			match fd_result {
 				Ok(fd) => {
 					if (cmd_args[i]).redir != Some(INPUT_REDIR) {
-						let _ = nix::unistd::dup2(fd, 1);
+						let _ = nix::unistd::dup2_stdout(&fd);
 					} else {
-						let _ = nix::unistd::dup2(fd, 0);
+						let _ = nix::unistd::dup2_stdin(&fd);
 					}
 					let _ = nix::unistd::close(fd);
 				}
