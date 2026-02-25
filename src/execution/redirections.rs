@@ -1,4 +1,9 @@
-use crate::msh::{ArgType::*, CommandArg, RedirType::*, eprint_msh};
+use crate::msh::{
+	ArgType::Redir,
+	CommandArg,
+	RedirType::{Append, HereDoc, InputRedir, OutputRedir},
+	eprint_msh,
+};
 use nix::{
 	fcntl::{OFlag, open},
 	sys::stat::Mode,
@@ -36,21 +41,18 @@ pub(super) fn do_redirections(cmd_args: &mut [CommandArg]) -> Result<(), i32> {
 						Mode::from_bits(0o644).unwrap(),
 					)
 				}
-				_ => unreachable!(),
+				HereDoc => unreachable!(),
 			};
-			match fd_result {
-				Ok(fd) => {
-					if (cmd_args[i]).redir != Some(InputRedir) {
-						let _ = nix::unistd::dup2_stdout(&fd);
-					} else {
-						let _ = nix::unistd::dup2_stdin(&fd);
-					}
-					let _ = nix::unistd::close(fd);
+			if let Ok(fd) = fd_result {
+				if (cmd_args[i]).redir == Some(InputRedir) {
+					let _ = nix::unistd::dup2_stdin(&fd);
+				} else {
+					let _ = nix::unistd::dup2_stdout(&fd);
 				}
-				Err(_) => {
-					eprint_msh!("failed to execute: {}", (cmd_args[i]).elem_str);
-					return Err(-1);
-				}
+				let _ = nix::unistd::close(fd);
+			} else {
+				eprint_msh!("failed to execute: {}", (cmd_args[i]).elem_str);
+				return Err(-1);
 			}
 		}
 		i += 1;

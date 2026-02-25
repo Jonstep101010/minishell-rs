@@ -1,10 +1,10 @@
-use crate::{environment::Env, msh::*};
-use nix::unistd::*;
+use crate::{environment::Env, msh::eprint_msh};
+use nix::unistd::AccessFlags;
 use std::ffi::{CStr, CString};
 
 fn find_bin(bin_prefix: &str, paths: Vec<String>) -> Option<CString> {
 	for path_prefix in paths {
-		let bin_path = format!("{}{}", path_prefix, bin_prefix);
+		let bin_path = format!("{path_prefix}{bin_prefix}");
 		if nix::unistd::access(bin_path.as_str(), AccessFlags::F_OK).is_ok() {
 			return Some(CString::new(bin_path).unwrap());
 		}

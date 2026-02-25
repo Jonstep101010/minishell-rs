@@ -29,47 +29,44 @@ impl<'a> Lexer<'a> {
 		let mut i = 0;
 		let bytes = self.cstring.as_bytes_with_nul();
 		while i < self.len_nul - 1 {
-			match self.ignore.as_ref().unwrap()[i] {
-				false => {
-					// inner while quotes
-					let mut flag_word = false;
-					flag_redir = false;
-					while i < self.len_nul - 1
-						&& bytes[i] != b'|'
-						&& !self.ignore.as_ref().unwrap()[i]
-					{
-						if (bytes[i] == b'>' || bytes[i] == b'<')
-							&& (!flag_redir || (i > 0 && bytes[i - 1] == bytes[i]))
-						{
-							flag_redir = true;
-						} else if bytes[i] == b'<' || bytes[i] == b'>' {
-							eprint_msh!("syntax error near unexpected token `newline'");
-							return Err(2);
-						} else if bytes[i].is_ascii_alphanumeric() {
-							flag_redir = false;
-							flag_word = true;
-						}
-						i += 1;
-					}
-					// inner if quotes
-					if !self.ignore.as_ref().unwrap()[i]
-						&& bytes[i] == b'|'
-						&& !check_ignore && (!flag_word || flag_redir)
-					{
-						eprint_msh!("syntax error near unexpected token `|'");
-						return Err(2);
-					}
-					if bytes[i] == b'|' {
-						check_ignore = false;
-					}
-				}
-				true => {
-					check_ignore = true;
-					while i < self.len_nul - 1 && self.ignore.as_ref().unwrap()[i] {
-						i += 1;
-					}
-				}
-			}
+			if self.ignore.as_ref().unwrap()[i] {
+   					check_ignore = true;
+   					while i < self.len_nul - 1 && self.ignore.as_ref().unwrap()[i] {
+   						i += 1;
+   					}
+   				} else {
+   					// inner while quotes
+   					let mut flag_word = false;
+   					flag_redir = false;
+   					while i < self.len_nul - 1
+   						&& bytes[i] != b'|'
+   						&& !self.ignore.as_ref().unwrap()[i]
+   					{
+   						if (bytes[i] == b'>' || bytes[i] == b'<')
+   							&& (!flag_redir || (i > 0 && bytes[i - 1] == bytes[i]))
+   						{
+   							flag_redir = true;
+   						} else if bytes[i] == b'<' || bytes[i] == b'>' {
+   							eprint_msh!("syntax error near unexpected token `newline'");
+   							return Err(2);
+   						} else if bytes[i].is_ascii_alphanumeric() {
+   							flag_redir = false;
+   							flag_word = true;
+   						}
+   						i += 1;
+   					}
+   					// inner if quotes
+   					if !self.ignore.as_ref().unwrap()[i]
+   						&& bytes[i] == b'|'
+   						&& !check_ignore && (!flag_word || flag_redir)
+   					{
+   						eprint_msh!("syntax error near unexpected token `|'");
+   						return Err(2);
+   					}
+   					if bytes[i] == b'|' {
+   						check_ignore = false;
+   					}
+   				}
 			i += 1;
 		}
 		if flag_redir && !check_ignore {

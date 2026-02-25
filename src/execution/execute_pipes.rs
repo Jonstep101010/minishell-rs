@@ -30,10 +30,10 @@ fn exec_last(shell: &mut ShellState, i: usize, mut prevpipe: OwnedFd, pids: &mut
 						remaining -= 1;
 					}
 					Ok(_) => remaining -= 1,
-					Err(Errno::EINTR) => continue,
+					Err(Errno::EINTR) => {} // continue,
 					Err(Errno::ECHILD) => break,
 					Err(e) => {
-						eprintln!("waitpid failed: {}", e);
+						eprintln!("waitpid failed: {e}");
 						break;
 					}
 				}
@@ -52,15 +52,16 @@ fn exec_last(shell: &mut ShellState, i: usize, mut prevpipe: OwnedFd, pids: &mut
 			if shell.token_vec[i].has_redir {
 				do_heredocs(&shell.token_vec[i], &mut prevpipe, &shell.env);
 			}
-			if do_redirections(&mut shell.token_vec[i].cmd_args_vec).is_err() {
-				panic!("failed to do redirections");
-			}
+			assert!(
+				do_redirections(&mut shell.token_vec[i].cmd_args_vec).is_ok(),
+				"failed to do redirections"
+			);
 			nix::unistd::dup2_stdin(&prevpipe).expect("dup2 stdin failed");
 			drop(prevpipe);
 			executor(&mut shell.token_vec[i], &mut shell.env);
 			std::process::exit(shell.env.get_status());
 		}
-		Err(e) => eprintln!("fork failed: {}", e),
+		Err(e) => eprintln!("fork failed: {e}"),
 	}
 }
 
@@ -87,14 +88,15 @@ fn exec_pipe(shell: &mut ShellState, i: usize, prevpipe: &mut OwnedFd, pids: &mu
 			drop(pipefd.1);
 			nix::unistd::dup2_stdin(prevpipe.as_fd()).expect("dup2 stdin failed");
 			nix::unistd::close(prevpipe.as_raw_fd()).expect("close prevpipe after dup2");
-			if do_redirections(&mut shell.token_vec[i].cmd_args_vec).is_err() {
-				panic!("failed to do redirections");
-			}
+			assert!(
+				do_redirections(&mut shell.token_vec[i].cmd_args_vec).is_ok(),
+				"failed to do redirections"
+			);
 			executor(&mut shell.token_vec[i], &mut shell.env);
 			std::process::exit(shell.env.get_status());
 		}
-		Err(e) => eprintln!("fork failed: {}", e),
-	};
+		Err(e) => eprintln!("fork failed: {e}"),
+	}
 }
 pub(super) fn execute_pipes(shell: &mut ShellState) {
 	let mut prevpipe = nix::unistd::dup(stdin()).unwrap();

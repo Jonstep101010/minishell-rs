@@ -1,3 +1,4 @@
+#![allow(clippy::semicolon_if_nothing_returned)]
 extern crate libc;
 
 mod environment;
@@ -5,7 +6,7 @@ mod execution;
 mod lexer;
 mod msh;
 mod tokenizer;
-use msh::*;
+use msh::{CString, CommandToken, Env, ShellState};
 use rustyline::{DefaultEditor, Result, error::ReadlineError};
 
 pub fn main() -> Result<()> {
@@ -23,15 +24,15 @@ pub fn main() -> Result<()> {
 				rl.add_history_entry(trimmed_line)?;
 				if let Err(status) = lexer::check(trimmed_line) {
 					shell.env.set_status(status);
-					continue;
+					// continue;
 				} else if shell.tokenize(trimmed_line).is_none() {
-					continue;
+					// continue;
 				} else {
 					crate::execution::execute_commands(&mut shell);
 				}
 			}
 			Err(ReadlineError::Interrupted) => {
-				continue;
+				// continue;
 			}
 			Err(ReadlineError::Eof) => {
 				println!("CTRL-D");

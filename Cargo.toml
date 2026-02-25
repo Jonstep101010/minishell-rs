@@ -11,6 +11,9 @@ autobins = false
 [[bin]]
 path = "src/main.rs"
 name = "minishell-rs"
+[lints.clippy]
+pedantic = "warn"
+
 [dependencies]
 libc = "0.2.180"
 nix = { version = "0.31.1", features = ["fs", "process", "term", "signal"] }

@@ -18,7 +18,7 @@ impl ShellState {
 		}
 	}
 	///
-	/// restores the token_len to the default value without input (new entry)
+	/// restores the `token_len` to the default value without input (new entry)
 	pub fn restore(&mut self) {
 		self.token_len = None;
 	}

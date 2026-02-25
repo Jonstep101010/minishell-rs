@@ -17,7 +17,7 @@ pub mod builtins {
 
 use crate::{
 	execution::{exec_bin::exec_bin, execute_pipes::execute_pipes, redirections::do_redirections},
-	msh::{ArgType::*, CommandToken, Env, ShellState, eprint_msh},
+	msh::{ArgType::Redir, CommandToken, Env, ShellState, eprint_msh},
 };
 use std::ffi::CString;
 
@@ -31,7 +31,9 @@ impl crate::CommandToken {
 		vec_cstr.extend(
 			self.cmd_args_vec
 				.iter()
-				.filter(|arg| arg.type_0.is_some_and(|redirtype| redirtype != Redir))
+				.filter(|arg| {
+					arg.type_0.is_some_and(|redirtype| redirtype != Redir) || arg.type_0.is_none()
+				})
 				.map(|arg| CString::new(arg.elem_str.clone()).unwrap()),
 		);
 		debug_assert!(!vec_cstr.is_empty());
@@ -65,13 +67,13 @@ pub(crate) fn execute_commands(shell: &mut ShellState) {
 fn executor(token: &mut CommandToken, shell_env: &mut Env) {
 	let args = token.get_args_vec();
 	let status = match token.cmd_name.as_slice() {
-		b"echo" => builtins::echo(args),
-		b"cd" => builtins::cd(shell_env, args),
+		b"echo" => builtins::echo(&args),
+		b"cd" => builtins::cd(shell_env, &args),
 		b"pwd" => builtins::pwd(shell_env),
-		b"export" => builtins::export(shell_env, args),
-		b"unset" => builtins::unset(shell_env, args),
+		b"export" => builtins::export(shell_env, &args),
+		b"unset" => builtins::unset(shell_env, &args),
 		b"env" => builtins::env(shell_env),
-		b"exit" => builtins::exit(shell_env, args),
+		b"exit" => builtins::exit(shell_env, &args),
 		_ => exec_bin(shell_env, &args),
 	};
 	shell_env.set_status(status);

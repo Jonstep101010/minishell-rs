@@ -1,4 +1,8 @@
-use crate::msh::{ArgType::*, CommandArg, CommandToken, RedirType::*};
+use crate::msh::{
+	ArgType::{RedirRemoved, Redir},
+	CommandArg, CommandToken,
+	RedirType::{Append, HereDoc, InputRedir, OutputRedir},
+};
 
 fn rm_prefix_redir_word_vec(args: &mut Vec<CommandArg>) {
 	let mut i = 0;

@@ -1,4 +1,4 @@
-use crate::msh::{CommandToken, Env, RedirType::*, eprint_msh};
+use crate::msh::{CommandToken, Env, RedirType::HereDoc, eprint_msh};
 use nix::{fcntl::OFlag, sys::stat::Mode};
 use std::os::fd::OwnedFd;
 
@@ -19,13 +19,11 @@ pub(super) fn do_heredocs(token: &CommandToken, target: &mut OwnedFd, env: &Env)
 								let mut output = line.into_bytes();
 								output.push(b'\n');
 								if let Err(e) = nix::unistd::write(&fd, &output) {
-									eprintln!("heredoc write error: {}", e);
+									eprintln!("heredoc write error: {e}");
 									break;
 								}
 							}
-							Err(rustyline::error::ReadlineError::Eof) => {
-								continue;
-							}
+							Err(rustyline::error::ReadlineError::Eof) => {} // continue;
 							_ => break,
 						}
 					}
