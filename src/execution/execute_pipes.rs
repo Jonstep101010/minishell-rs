@@ -58,6 +58,10 @@ fn exec_last(shell: &mut ShellState, i: usize, mut prevpipe: OwnedFd, pids: &mut
 			);
 			nix::unistd::dup2_stdin(&prevpipe).expect("dup2 stdin failed");
 			drop(prevpipe);
+			assert!(
+				!shell.token_vec[i].cmd_name.is_empty(),
+				"cmd_name should not be empty: incorrect state in execute_commands"
+			);
 			executor(&mut shell.token_vec[i], &mut shell.env);
 			std::process::exit(shell.env.get_status());
 		}
@@ -91,6 +95,10 @@ fn exec_pipe(shell: &mut ShellState, i: usize, prevpipe: &mut OwnedFd, pids: &mu
 			assert!(
 				do_redirections(&mut shell.token_vec[i].cmd_args_vec).is_ok(),
 				"failed to do redirections"
+			);
+			assert!(
+				!shell.token_vec[i].cmd_name.is_empty(),
+				"cmd_name should not be empty: incorrect state in execute_commands"
 			);
 			executor(&mut shell.token_vec[i], &mut shell.env);
 			std::process::exit(shell.env.get_status());

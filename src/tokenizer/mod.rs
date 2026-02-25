@@ -119,6 +119,14 @@ mod tests {
 		],
 		"cat < infile | wc -l > result"
 	)]
+	#[case(
+		vec![
+			token!("", true,
+				"infile", Some(Redir), Some(InputRedir)
+			)
+		],
+		"< infile"
+	)]
 	fn test_tokenization(#[case] expected: Vec<Token>, #[case] input: &str) {
 		let trimmed_line = input.trim_ascii();
 		let mut shell = ShellState::new();
@@ -149,12 +157,9 @@ impl Token {
 			}
 			ii += 1;
 		}
-		// set name of command
-		token.cmd_args_vec[ii]
-			.elem_str
-			.clone()
-			.into_bytes()
-			.clone_into(&mut token.cmd_name);
+		if ii < token.cmd_args_vec.len() {
+			token.cmd_name = token.cmd_args_vec[ii].elem_str.clone().into_bytes();
+		}
 		let mut quote = 0;
 		for arg in &mut token.cmd_args_vec {
 			arg.elem_str = rs_do_quote_bs(arg.elem_str.as_bytes(), &mut quote);
