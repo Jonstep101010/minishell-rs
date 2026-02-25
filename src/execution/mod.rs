@@ -17,11 +17,11 @@ pub mod builtins {
 
 use crate::{
 	execution::{exec_bin::exec_bin, execute_pipes::execute_pipes, redirections::do_redirections},
-	msh::{Env, e_arg::*, eprint_msh, t_shell, t_token},
+	msh::{ArgType::*, CommandToken, Env, ShellState, eprint_msh},
 };
 use std::ffi::CString;
 
-impl crate::t_token {
+impl crate::CommandToken {
 	pub fn get_args_vec(&self) -> Vec<CString> {
 		assert!(
 			!self.cmd_args_vec.is_empty() && !self.cmd_args_vec[0].elem_str.is_empty(),
@@ -31,7 +31,7 @@ impl crate::t_token {
 		vec_cstr.extend(
 			self.cmd_args_vec
 				.iter()
-				.filter(|arg| arg.type_0 != REDIR)
+				.filter(|arg| arg.type_0.is_some_and(|redirtype| redirtype != Redir))
 				.map(|arg| CString::new(arg.elem_str.clone()).unwrap()),
 		);
 		debug_assert!(!vec_cstr.is_empty());
@@ -39,7 +39,7 @@ impl crate::t_token {
 	}
 }
 
-pub(crate) fn execute_commands(shell: &mut t_shell) {
+pub(crate) fn execute_commands(shell: &mut ShellState) {
 	match shell.token_len.unwrap() {
 		0 => unreachable!("there should not be empty tokens here"),
 		1 if !{
@@ -62,7 +62,7 @@ pub(crate) fn execute_commands(shell: &mut t_shell) {
 	shell.restore();
 }
 
-fn executor(token: &mut t_token, shell_env: &mut Env) {
+fn executor(token: &mut CommandToken, shell_env: &mut Env) {
 	let args = token.get_args_vec();
 	let status = match token.cmd_name.as_slice() {
 		b"echo" => builtins::echo(args),

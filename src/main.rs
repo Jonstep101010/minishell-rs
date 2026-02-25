@@ -1,5 +1,3 @@
-#![allow(non_camel_case_types, non_snake_case, clippy::upper_case_acronyms)]
-
 extern crate libc;
 
 mod environment;
@@ -11,7 +9,7 @@ use msh::*;
 use rustyline::{DefaultEditor, Result, error::ReadlineError};
 
 pub fn main() -> Result<()> {
-	let mut shell = t_shell::new();
+	let mut shell = ShellState::new();
 	// previously: check signals
 	let mut rl = DefaultEditor::new()?;
 	loop {

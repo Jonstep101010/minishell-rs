@@ -1,4 +1,4 @@
-use crate::msh::{e_arg::*, e_redir::*, eprint_msh, t_arg};
+use crate::msh::{ArgType::*, CommandArg, RedirType::*, eprint_msh};
 use nix::{
 	fcntl::{OFlag, open},
 	sys::stat::Mode,
@@ -6,14 +6,14 @@ use nix::{
 };
 use std::ffi::CString;
 
-pub(super) fn do_redirections(cmd_args: &mut [t_arg]) -> Result<(), i32> {
+pub(super) fn do_redirections(cmd_args: &mut [CommandArg]) -> Result<(), i32> {
 	let mut i = 0;
 	while i < cmd_args.len() {
-		if (cmd_args[i]).type_0 == REDIR && (cmd_args[i]).redir.unwrap() != HEREDOC {
+		if (cmd_args[i]).type_0 == Some(Redir) && (cmd_args[i]).redir.unwrap() != HereDoc {
 			let file = CString::new((cmd_args[i]).elem_str.clone()).unwrap();
 			let file = file.as_c_str();
 			let fd_result = match (cmd_args[i]).redir.unwrap() {
-				INPUT_REDIR => {
+				InputRedir => {
 					if access(file, AccessFlags::F_OK).is_err() {
 						return Err(127);
 					} else if access(file, AccessFlags::R_OK).is_err() {
@@ -21,12 +21,12 @@ pub(super) fn do_redirections(cmd_args: &mut [t_arg]) -> Result<(), i32> {
 					}
 					open(file, OFlag::O_RDONLY, Mode::empty())
 				}
-				OUTPUT_REDIR => open(
+				OutputRedir => open(
 					file,
 					OFlag::O_WRONLY | OFlag::O_CREAT | OFlag::O_TRUNC,
 					Mode::from_bits(0o644).unwrap(),
 				),
-				APPEND => {
+				Append => {
 					if access(file, AccessFlags::W_OK).is_err() {
 						return Err(126);
 					}
@@ -40,7 +40,7 @@ pub(super) fn do_redirections(cmd_args: &mut [t_arg]) -> Result<(), i32> {
 			};
 			match fd_result {
 				Ok(fd) => {
-					if (cmd_args[i]).redir != Some(INPUT_REDIR) {
+					if (cmd_args[i]).redir != Some(InputRedir) {
 						let _ = nix::unistd::dup2_stdout(&fd);
 					} else {
 						let _ = nix::unistd::dup2_stdin(&fd);

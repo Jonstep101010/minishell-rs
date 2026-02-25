@@ -1,5 +1,3 @@
-#![warn(clippy::pedantic)]
-
 mod tests_expander;
 use std::{collections::HashMap, ffi::CString, fmt::Display};
 

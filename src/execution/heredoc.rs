@@ -1,11 +1,11 @@
-use crate::msh::{Env, e_redir::*, eprint_msh, t_token};
+use crate::msh::{CommandToken, Env, RedirType::*, eprint_msh};
 use nix::{fcntl::OFlag, sys::stat::Mode};
 use std::os::fd::OwnedFd;
 
-pub(super) fn do_heredocs(token: &t_token, target: &mut OwnedFd, env: &Env) {
+pub(super) fn do_heredocs(token: &CommandToken, target: &mut OwnedFd, env: &Env) {
 	let mut i = 0;
 	while i < token.cmd_args_vec.len() {
-		if (token.cmd_args_vec[i]).redir == Some(HEREDOC) {
+		if (token.cmd_args_vec[i]).redir == Some(HereDoc) {
 			let oflags = OFlag::O_RDWR | OFlag::O_CREAT | OFlag::O_TRUNC;
 			let mode = Mode::from_bits(0o644).expect("Invalid mode");
 			let mut rl = rustyline::DefaultEditor::new().unwrap();
