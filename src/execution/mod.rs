@@ -31,9 +31,7 @@ impl crate::CommandToken {
 		vec_cstr.extend(
 			self.cmd_args_vec
 				.iter()
-				.filter(|arg| {
-					arg.type_0.is_some_and(|redirtype| redirtype != Redir) || arg.type_0.is_none()
-				})
+				.filter(|arg| arg.type_0.is_none_or(|redir| redir != Redir))
 				.map(|arg| CString::new(arg.elem_str.clone()).unwrap()),
 		);
 		debug_assert!(!vec_cstr.is_empty());

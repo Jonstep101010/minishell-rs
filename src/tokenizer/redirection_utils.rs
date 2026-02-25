@@ -1,5 +1,5 @@
 use crate::msh::{
-	ArgType::{RedirRemoved, Redir},
+	ArgType::{Redir, RedirRemoved},
 	CommandArg, CommandToken,
 	RedirType::{Append, HereDoc, InputRedir, OutputRedir},
 };
@@ -20,18 +20,16 @@ fn rm_prefix_redir_word_vec(args: &mut Vec<CommandArg>) {
 }
 
 fn parse_redir_types_vec(arg: &mut [CommandArg]) {
-	let mut i = 0;
-	while i < arg.len() {
-		if arg[i].type_0 == Some(Redir) {
-			arg[i].elem_str = {
-				if arg[i].redir == Some(InputRedir) || arg[i].redir == Some(OutputRedir) {
-					arg[i].elem_str[1..].to_string()
+	for item in arg {
+		if item.type_0 == Some(Redir) {
+			item.elem_str = {
+				if item.redir == Some(InputRedir) || item.redir == Some(OutputRedir) {
+					item.elem_str[1..].to_string()
 				} else {
-					arg[i].elem_str[2..].to_string()
+					item.elem_str[2..].to_string()
 				}
 			};
 		}
-		i += 1;
 	}
 }
 
@@ -41,7 +39,6 @@ impl CommandToken {
 	/// and processes those
 	pub(super) fn process_redirections(&mut self) {
 		let mut ii = 0;
-		let mut redir: bool = false;
 		let cmd_args = &mut self.cmd_args_vec;
 		while ii < cmd_args.len() && !cmd_args[ii].elem_str.is_empty() {
 			cmd_args[ii].redir = match cmd_args[ii].elem_str.as_str() {
@@ -51,29 +48,17 @@ impl CommandToken {
 				"<" => Some(InputRedir),
 				_ => cmd_args[ii].redir,
 			};
-			if cmd_args[ii].redir.is_some() {
-				cmd_args[ii].type_0 = match cmd_args[ii].redir.unwrap() {
-					Append | HereDoc => {
-						if (cmd_args[ii].elem_str).len() == 2 {
-							Some(RedirRemoved)
-						} else {
-							Some(Redir)
-						}
-					}
-					OutputRedir | InputRedir => {
-						if (cmd_args[ii].elem_str).len() == 1 {
-							Some(RedirRemoved)
-						} else {
-							Some(Redir)
-						}
-					}
-				};
-				redir = true;
+			if let Some(redirtype) = cmd_args[ii].redir {
+				cmd_args[ii].type_0 = Some(match redirtype {
+					Append | HereDoc if (cmd_args[ii].elem_str).len() == 2 => RedirRemoved,
+					OutputRedir | InputRedir if (cmd_args[ii].elem_str).len() == 1 => RedirRemoved,
+					_ => Redir,
+				});
+				self.has_redir = true;
 			}
 			ii += 1;
 		}
-		if redir {
-			self.has_redir = true;
+		if self.has_redir {
 			parse_redir_types_vec(cmd_args);
 			rm_prefix_redir_word_vec(cmd_args);
 		}
