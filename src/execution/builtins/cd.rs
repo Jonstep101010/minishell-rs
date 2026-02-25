@@ -1,5 +1,5 @@
-use crate::{CString, Env};
-use std::path::Path;
+use crate::Env;
+use std::{ffi::CString, path::Path};
 
 fn changedir(path_string: &str, env: &mut Env) -> bool {
 	let oldpwd = std::env::current_dir().unwrap();

@@ -1,4 +1,5 @@
-use crate::{CString, Env, eprint_msh};
+use crate::{Env, eprint_msh};
+use std::ffi::CString;
 
 fn check_exit_code(command: &[CString]) -> Result<i32, i32> {
 	if command[1].is_empty() {

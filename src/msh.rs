@@ -31,7 +31,7 @@ impl Default for ShellState {
 }
 
 ///
-/// Store single Command ([`crate::msh::t_arg`]) separated by pipes in [`crate::msh::ShellState`]
+/// Store single Command ([`crate::msh::CommandArg`]) separated by pipes in [`crate::msh::ShellState`]
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) struct CommandToken {
 	pub cmd_args_vec: Vec<CommandArg>,

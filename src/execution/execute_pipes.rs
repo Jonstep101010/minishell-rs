@@ -1,4 +1,4 @@
-use std::os::fd::{AsFd, AsRawFd, OwnedFd};
+use std::os::fd::{AsFd, OwnedFd};
 
 use super::{executor, heredoc::do_heredocs, redirections::do_redirections};
 use crate::ShellState;
@@ -91,7 +91,11 @@ fn exec_pipe(shell: &mut ShellState, i: usize, prevpipe: &mut OwnedFd, pids: &mu
 			nix::unistd::dup2_stdout(&pipefd.1).expect("dup2 stdout failed");
 			drop(pipefd.1);
 			nix::unistd::dup2_stdin(prevpipe.as_fd()).expect("dup2 stdin failed");
-			nix::unistd::close(prevpipe.as_raw_fd()).expect("close prevpipe after dup2");
+			let old_prevpipe = std::mem::replace(
+				prevpipe,
+				nix::unistd::dup(stdin()).expect("dup stdin placeholder failed"),
+			);
+			drop(old_prevpipe);
 			assert!(
 				do_redirections(&mut shell.token_vec[i].cmd_args_vec).is_ok(),
 				"failed to do redirections"

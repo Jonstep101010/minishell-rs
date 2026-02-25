@@ -6,7 +6,7 @@ mod execution;
 mod lexer;
 mod msh;
 mod tokenizer;
-use msh::{CString, CommandToken, Env, ShellState};
+use msh::{CString, Env, ShellState};
 use rustyline::{DefaultEditor, Result, error::ReadlineError};
 
 pub fn main() -> Result<()> {
@@ -24,16 +24,11 @@ pub fn main() -> Result<()> {
 				rl.add_history_entry(trimmed_line)?;
 				if let Err(status) = lexer::check(trimmed_line) {
 					shell.env.set_status(status);
-					// continue;
-				} else if shell.tokenize(trimmed_line).is_none() {
-					// continue;
-				} else {
+				} else if shell.tokenize(trimmed_line).is_some() {
 					crate::execution::execute_commands(&mut shell);
 				}
 			}
-			Err(ReadlineError::Interrupted) => {
-				// continue;
-			}
+			Err(ReadlineError::Interrupted) => {}
 			Err(ReadlineError::Eof) => {
 				println!("CTRL-D");
 				break;

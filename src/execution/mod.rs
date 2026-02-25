@@ -40,7 +40,7 @@ fn restore_parent_stdio(stdin_bak: &OwnedFd, stdout_bak: &OwnedFd) -> Result<(),
 	Ok(())
 }
 
-impl crate::CommandToken {
+impl CommandToken {
 	pub fn get_args_vec(&self) -> Vec<CString> {
 		// assert!(
 		// 	!self.cmd_args_vec.is_empty() && !self.cmd_args_vec[0].elem_str.is_empty(),
