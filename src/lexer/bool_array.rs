@@ -13,7 +13,7 @@ impl BoolArray for Vec<bool> {
 		let mut i = 0;
 		assert_eq!(s[s.len() - 1], b'\0', "s has to be nul-terminated!");
 		while i < ignore.len() {
-			if s[i] == c && ignore[i] as u8 == 0 {
+			if s[i] == c && u8::from(ignore[i]) == 0 {
 				ignore[i] = true;
 				i += 1;
 				while i < ignore.len() && s[i] != c {
@@ -44,7 +44,7 @@ impl BoolArray for Box<[bool]> {
 		let mut i = 0;
 		assert_eq!(s[s.len() - 1], b'\0', "s has to be nul-terminated!");
 		while i < ignore.len() {
-			if s[i] == c && ignore[i] as u8 == 0 {
+			if s[i] == c && u8::from(ignore[i]) == 0 {
 				ignore[i] = true;
 				i += 1;
 				while i < ignore.len() && s[i] != c {
@@ -111,7 +111,8 @@ mod tests {
 	#[allow(dead_code)]
 	unsafe fn bool_arr_zeroing(mut len: usize) -> *mut bool {
 		let mut i: usize = 0;
-		let mut ignore: *mut bool = libc::calloc(len, ::core::mem::size_of::<bool>()) as *mut bool;
+		let mut ignore: *mut bool =
+			libc::calloc(len + 1, ::core::mem::size_of::<bool>()) as *mut bool;
 		if ignore.is_null() {
 			return std::ptr::null_mut::<bool>();
 		}

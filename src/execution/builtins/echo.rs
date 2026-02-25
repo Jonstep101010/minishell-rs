@@ -10,10 +10,13 @@ fn is_n_arg(arg: &[u8]) -> bool {
 	}
 	false
 }
+use std::ffi::CString;
 
-pub fn echo(args: Vec<crate::CString>) -> i32 {
-	if args.len() != 1 {
-		let cmd_args: &[crate::CString] = &args[1..];
+pub fn echo(args: &[CString]) -> i32 {
+	if args.len() == 1 {
+		println!();
+	} else {
+		let cmd_args: &[CString] = &args[1..];
 		let mut i = 0;
 		while i < cmd_args.len() && is_n_arg(cmd_args[i].as_bytes_with_nul()) {
 			i += 1;
@@ -45,8 +48,6 @@ pub fn echo(args: Vec<crate::CString>) -> i32 {
 		if flag != 1 {
 			println!();
 		}
-	} else {
-		println!();
 	}
 	0
 }

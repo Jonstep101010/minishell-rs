@@ -2,19 +2,17 @@ pub(super) fn split_non_quoted(to_split: &str, set: &str) -> Vec<String> {
 	let to_split = to_split.trim_matches(|c| set.contains(c));
 	let bytes = to_split.as_bytes();
 	let len = bytes.len();
-	let mut quote = 0;
+	let mut quote: Option<u8> = None;
 	let mut start = 0;
 	let mut vec_splits = vec![];
 	let mut i = 0;
 	while i < len {
-		quote = if quote != 0 && bytes[i] == quote {
-			0
-		} else if quote == 0 && (bytes[i] == b'\'' || bytes[i] == b'"') {
-			bytes[i]
-		} else {
-			quote
+		quote = match quote {
+			Some(quotedata) if bytes[i] == quotedata => None,
+			None if (bytes[i] == b'\'' || bytes[i] == b'"') => Some(bytes[i]),
+			_ => quote,
 		};
-		if quote == 0 && set.as_bytes().contains(&bytes[i]) {
+		if quote.is_none() && set.as_bytes().contains(&bytes[i]) {
 			let string_slice = &to_split[start..i];
 			vec_splits.push(string_slice.to_string());
 			while set.as_bytes().contains(&bytes[i + 1]) {

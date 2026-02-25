@@ -1,5 +1,3 @@
-#![warn(clippy::pedantic)]
-
 mod tests_expander;
 use std::{collections::HashMap, ffi::CString, fmt::Display};
 
@@ -102,9 +100,7 @@ impl Env {
 		vec_cstrings
 	}
 	pub fn export(&mut self, key: &str, value: String) {
-		if key != "?" {
-			self.map.insert(key.to_string(), value);
-		}
+		self.map.insert(key.to_string(), value);
 	}
 	pub fn set_status(&mut self, new_status: i32) {
 		self.status = new_status;
@@ -155,7 +151,9 @@ impl Env {
 				let key_byte_slice = &bytes[(i + 1)..=(idx_advance(&bytes[i..]) + i)];
 				// advance by key length in source string
 				i += key_byte_slice.len();
-				let expansion = if key_byte_slice.is_empty() {
+				let expansion = if key_byte_slice == [b'?'] {
+					self.get_status().to_string()
+				} else if key_byte_slice.is_empty() {
 					"$".to_string()
 				} else if let Some(expansion) = self.get_slice(key_byte_slice) {
 					expansion.clone()

@@ -5,9 +5,9 @@ mod split_non_quoted;
 use parse_quotes::rs_do_quote_bs;
 use split_non_quoted::split_non_quoted;
 
-use crate::msh::{Env, e_arg::*, t_arg, t_shell, t_token};
+use crate::msh::{ArgType::Redir, CommandArg, CommandToken as Token, Env, ShellState};
 
-impl t_shell {
+impl ShellState {
 	/// Sets up pipes and their commands/arguments, including redirections
 	///
 	/// # Examples
@@ -49,7 +49,7 @@ impl t_shell {
 		self.token_len = Some(split_pipes.len());
 		self.token_vec = split_pipes
 			.iter_mut()
-			.map(|piped_token| t_token::new(std::mem::take(piped_token), &self.env))
+			.map(|piped_token| Token::new(piped_token, &self.env))
 			.collect();
 		Some(())
 	}
@@ -58,14 +58,14 @@ impl t_shell {
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use crate::e_redir::*;
+	use crate::msh::RedirType::*;
 	use rstest::rstest;
 	macro_rules! token {
 		($cmd:expr, $has_redir:expr, $($arg:expr, $type:expr, $redir:expr),*) => {
-			t_token {
+			Token {
 				cmd_args_vec: vec![
 					$(
-						t_arg {
+						CommandArg {
 							elem_str: $arg.to_string(),
 							type_0: $type,
 							redir: $redir,
@@ -81,12 +81,12 @@ mod tests {
 	#[case(
 		vec![
 			token!("echo", false,
-				"echo", STRING, None,
-				"hello", STRING, None
+				"echo", None, None,
+				"hello", None, None
 			),
 			token!("cat", true,
-				"cat", STRING, None,
-				"outfile", REDIR, Some(OUTPUT_REDIR)
+				"cat", None, None,
+				"outfile", Some(Redir), Some(OutputRedir)
 			)
 		],
 		"echo hello | cat > outfile"
@@ -94,13 +94,13 @@ mod tests {
 	#[case(
 		vec![
 			token!("ls", false,
-				"ls", STRING, None,
-				"-la", STRING, None
+				"ls", None, None,
+				"-la", None, None
 			),
 			token!("grep", true,
-				"grep", STRING, None,
-				"test", STRING, None,
-				"outfile", REDIR, Some(OUTPUT_REDIR)
+				"grep", None, None,
+				"test", None, None,
+				"outfile", Some(Redir), Some(OutputRedir)
 			)
 		],
 		"ls -la | grep test > outfile"
@@ -108,34 +108,42 @@ mod tests {
 	#[case(
 		vec![
 			token!("cat", true,
-				"cat", STRING, None,
-				"infile", REDIR, Some(INPUT_REDIR)
+				"cat", None, None,
+				"infile", Some(Redir), Some(InputRedir)
 			),
 			token!("wc", true,
-				"wc", STRING, None,
-				"-l", STRING, None,
-				"result", REDIR, Some(OUTPUT_REDIR)
+				"wc", None, None,
+				"-l", None, None,
+				"result", Some(Redir), Some(OutputRedir)
 			)
 		],
 		"cat < infile | wc -l > result"
 	)]
-	fn test_tokenization(#[case] expected: Vec<t_token>, #[case] input: &str) {
+	#[case(
+		vec![
+			token!("", true,
+				"infile", Some(Redir), Some(InputRedir)
+			)
+		],
+		"< infile"
+	)]
+	fn test_tokenization(#[case] expected: Vec<Token>, #[case] input: &str) {
 		let trimmed_line = input.trim_ascii();
-		let mut shell = t_shell::new();
+		let mut shell = ShellState::new();
 		assert!(shell.tokenize(trimmed_line).is_some());
 		assert_eq!(expected, shell.token_vec);
 	}
 }
 
-impl t_token {
+impl Token {
 	/// for a split pipe, sets up the corresponding token (split whitespace, parse redirections, expand)
-	pub fn new(pipe_split: String, shell_env: &Env) -> Self {
-		let mut token = t_token {
-			cmd_args_vec: split_non_quoted(&pipe_split, " \t\n\r\x0B\x0C")
+	pub fn new(pipe_split: &str, shell_env: &Env) -> Self {
+		let mut token = Token {
+			cmd_args_vec: split_non_quoted(pipe_split, " \t\n\r\x0B\x0C")
 				.iter_mut()
 				.map(|arg| {
 					shell_env.expander(arg);
-					t_arg::new(std::mem::take(arg))
+					CommandArg::new(std::mem::take(arg))
 				})
 				.collect(),
 			has_redir: false,
@@ -144,20 +152,17 @@ impl t_token {
 		token.process_redirections();
 		let mut ii = 0;
 		while ii < token.cmd_args_vec.len() && !token.cmd_args_vec[ii].elem_str.is_empty() {
-			if token.cmd_args_vec[ii].type_0 != REDIR {
+			if token.cmd_args_vec[ii].type_0 != Some(Redir) {
 				break;
 			}
 			ii += 1;
 		}
-		// set name of command
-		token.cmd_name = token.cmd_args_vec[ii]
-			.elem_str
-			.clone()
-			.into_bytes()
-			.to_owned();
+		if ii < token.cmd_args_vec.len() {
+			token.cmd_name = token.cmd_args_vec[ii].elem_str.clone().into_bytes();
+		}
 		let mut quote = 0;
-		for arg in token.cmd_args_vec.iter_mut() {
-			arg.elem_str = rs_do_quote_bs(arg.elem_str.as_bytes(), &mut quote)
+		for arg in &mut token.cmd_args_vec {
+			arg.elem_str = rs_do_quote_bs(arg.elem_str.as_bytes(), &mut quote);
 		}
 		token
 	}

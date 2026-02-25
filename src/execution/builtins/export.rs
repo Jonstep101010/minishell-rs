@@ -1,10 +1,10 @@
 fn declare_x(env: &crate::Env) {
 	for (key, value) in env.iter() {
-		println!("declare -x {}={}", key, value);
+		println!("declare -x {key}={value}");
 	}
 }
 
-pub fn export(shell_env: &mut crate::Env, command: Vec<crate::CString>) -> i32 {
+pub fn export(shell_env: &mut crate::Env, command: &[crate::CString]) -> i32 {
 	if command.len() == 1 {
 		declare_x(shell_env);
 		return 0;
@@ -25,5 +25,5 @@ pub fn export(shell_env: &mut crate::Env, command: Vec<crate::CString>) -> i32 {
 		}
 		i += 1;
 	}
-	if i > 1 { 0 } else { 1 }
+	i32::from(i <= 1)
 }

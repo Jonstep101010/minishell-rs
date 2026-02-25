@@ -1,7 +1,7 @@
 use crate::eprint_msh;
 mod bool_array;
 
-struct t_lexer<'a> {
+struct Lexer<'a> {
 	pub singlequotes: i32,
 	pub doublequotes: i32,
 	pub open_curly_brackets: i32,
@@ -19,7 +19,7 @@ struct t_lexer<'a> {
 	pub cstring: std::ffi::CString,
 }
 
-impl<'a> t_lexer<'a> {
+impl<'a> Lexer<'a> {
 	fn check_pipes_redirection_quotes(&mut self) -> Result<(), i32> {
 		if self.ignore.is_none() {
 			return Ok(());
@@ -29,45 +29,41 @@ impl<'a> t_lexer<'a> {
 		let mut i = 0;
 		let bytes = self.cstring.as_bytes_with_nul();
 		while i < self.len_nul - 1 {
-			match self.ignore.as_ref().unwrap()[i] {
-				false => {
-					// inner while quotes
-					let mut flag_word = false;
-					flag_redir = false;
-					while i < self.len_nul - 1
-						&& bytes[i] != b'|'
-						&& !self.ignore.as_ref().unwrap()[i]
-					{
-						if (bytes[i] == b'>' || bytes[i] == b'<')
-							&& (!flag_redir || (i > 0 && bytes[i - 1] == bytes[i]))
-						{
-							flag_redir = true;
-						} else if bytes[i] == b'<' || bytes[i] == b'>' {
-							eprint_msh!("syntax error near unexpected token `newline'");
-							return Err(2);
-						} else if bytes[i].is_ascii_alphanumeric() {
-							flag_redir = false;
-							flag_word = true;
-						}
-						i += 1;
-					}
-					// inner if quotes
-					if !self.ignore.as_ref().unwrap()[i]
-						&& bytes[i] == b'|'
-						&& !check_ignore && (!flag_word || flag_redir)
-					{
-						eprint_msh!("syntax error near unexpected token `|'");
-						return Err(2);
-					}
-					if bytes[i] == b'|' {
-						check_ignore = false;
-					}
+			if self.ignore.as_ref().unwrap()[i] {
+				check_ignore = true;
+				while i < self.len_nul - 1 && self.ignore.as_ref().unwrap()[i] {
+					i += 1;
 				}
-				true => {
-					check_ignore = true;
-					while i < self.len_nul - 1 && self.ignore.as_ref().unwrap()[i] {
-						i += 1;
+			} else {
+				// inner while quotes
+				let mut flag_word = false;
+				flag_redir = false;
+				while i < self.len_nul - 1 && bytes[i] != b'|' && !self.ignore.as_ref().unwrap()[i]
+				{
+					if (bytes[i] == b'>' || bytes[i] == b'<')
+						&& (!flag_redir || (i > 0 && bytes[i - 1] == bytes[i]))
+					{
+						flag_redir = true;
+					} else if bytes[i] == b'<' || bytes[i] == b'>' {
+						eprint_msh!("syntax error near unexpected token `newline'");
+						return Err(2);
+					} else if bytes[i].is_ascii_alphanumeric() {
+						flag_redir = false;
+						flag_word = true;
 					}
+					i += 1;
+				}
+				// inner if quotes
+				if !self.ignore.as_ref().unwrap()[i]
+					&& bytes[i] == b'|'
+					&& !check_ignore
+					&& (!flag_word || flag_redir)
+				{
+					eprint_msh!("syntax error near unexpected token `|'");
+					return Err(2);
+				}
+				if bytes[i] == b'|' {
+					check_ignore = false;
 				}
 			}
 			i += 1;
@@ -141,7 +137,7 @@ impl<'a> t_lexer<'a> {
 	}
 
 	fn new(trimmed_line: &'a str) -> Self {
-		let mut lexer = t_lexer {
+		let mut lexer = Lexer {
 			singlequotes: 0,
 			doublequotes: 0,
 			open_curly_brackets: 0,
@@ -212,7 +208,7 @@ impl<'a> t_lexer<'a> {
 	}
 
 	pub fn check(trimmed_line: &str) -> Result<i32, i32> {
-		let mut lexer = t_lexer::new(trimmed_line);
+		let mut lexer = Lexer::new(trimmed_line);
 		lexer.check_quotes()?;
 		if (lexer.pipes != 0 || lexer.redir_greater != 0 || lexer.redir_smaller != 0)
 			&& let Err(_e) = lexer.check_pipes_redirection()
@@ -225,7 +221,7 @@ impl<'a> t_lexer<'a> {
 }
 
 pub fn check(trimmed_line: &str) -> Result<i32, i32> {
-	t_lexer::check(trimmed_line)
+	Lexer::check(trimmed_line)
 }
 
 #[cfg(test)]
@@ -291,7 +287,7 @@ mod tests {
 	#[case("< outfile")]
 	#[case("cat << delim | > outfile")]
 	fn lexer_success(#[case] input: &str) {
-		assert_eq!(Ok(0), t_lexer::check(input));
+		assert_eq!(Ok(0), Lexer::check(input));
 	}
 	#[rstest]
 	#[case("ls > outfile >")]
@@ -342,6 +338,6 @@ mod tests {
 	#[case("> > >")]
 	#[case("> tmpfile > midfile >")]
 	fn lexer_failure(#[case] input: &str) {
-		assert!(t_lexer::check(input).is_err());
+		assert!(Lexer::check(input).is_err());
 	}
 }

@@ -1,11 +1,11 @@
-use crate::msh::{Env, e_redir::*, eprint_msh, t_token};
+use crate::msh::{CommandToken, Env, RedirType::HereDoc, eprint_msh};
 use nix::{fcntl::OFlag, sys::stat::Mode};
-use std::os::fd::BorrowedFd;
+use std::os::fd::OwnedFd;
 
-pub(super) fn do_heredocs(token: &t_token, target: &mut i32, env: &Env) {
+pub(super) fn do_heredocs(token: &CommandToken, target: &mut OwnedFd, env: &Env) {
 	let mut i = 0;
 	while i < token.cmd_args_vec.len() {
-		if (token.cmd_args_vec[i]).redir == Some(HEREDOC) {
+		if (token.cmd_args_vec[i]).redir == Some(HereDoc) {
 			let oflags = OFlag::O_RDWR | OFlag::O_CREAT | OFlag::O_TRUNC;
 			let mode = Mode::from_bits(0o644).expect("Invalid mode");
 			let mut rl = rustyline::DefaultEditor::new().unwrap();
@@ -18,21 +18,18 @@ pub(super) fn do_heredocs(token: &t_token, target: &mut i32, env: &Env) {
 								env.expander(&mut line);
 								let mut output = line.into_bytes();
 								output.push(b'\n');
-								let safe_fd = unsafe { BorrowedFd::borrow_raw(fd) };
-								if let Err(e) = nix::unistd::write(safe_fd, &output) {
-									eprintln!("heredoc write error: {}", e);
+								if let Err(e) = nix::unistd::write(&fd, &output) {
+									eprintln!("heredoc write error: {e}");
 									break;
 								}
 							}
-							Err(rustyline::error::ReadlineError::Eof) => {
-								continue;
-							}
+							Err(rustyline::error::ReadlineError::Eof) => {} // continue;
 							_ => break,
 						}
 					}
 					nix::unistd::close(fd).unwrap();
 					fd = nix::fcntl::open(c".heredoc.txt", OFlag::O_RDONLY, Mode::empty()).unwrap();
-					nix::unistd::dup2(fd, *target).unwrap();
+					nix::unistd::dup2(&fd, target).unwrap();
 					nix::unistd::close(fd).unwrap();
 					let _ = nix::unistd::unlink(c".heredoc.txt");
 				}

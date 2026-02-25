@@ -1,11 +1,11 @@
-use crate::{CString, Env};
-use std::path::Path;
+use crate::Env;
+use std::{ffi::CString, path::Path};
 
 fn changedir(path_string: &str, env: &mut Env) -> bool {
 	let oldpwd = std::env::current_dir().unwrap();
 	let rust_path = Path::new(path_string);
 	match std::env::set_current_dir(rust_path) {
-		Ok(_) => {
+		Ok(()) => {
 			let pwd = std::env::current_dir();
 			match pwd {
 				Ok(p) => {
@@ -14,13 +14,13 @@ fn changedir(path_string: &str, env: &mut Env) -> bool {
 					true
 				}
 				Err(e) => {
-					eprintln!("cd: {}: {}", path_string, e);
+					eprintln!("cd: {path_string}: {e}");
 					false
 				}
 			}
 		}
 		Err(e) => {
-			eprintln!("cd: {}: {}", path_string, e);
+			eprintln!("cd: {path_string}: {e}");
 			false
 		}
 	}
@@ -45,11 +45,11 @@ fn cd_internal(opt_target: Option<&str>, env: &mut Env) -> bool {
 	}
 }
 
-pub fn cd(shell_env: &mut Env, args: Vec<CString>) -> i32 {
+pub fn cd(shell_env: &mut Env, args: &[CString]) -> i32 {
 	let opt_target_dir = if args.len() == 1 {
 		None
 	} else {
 		Some(args[1].to_str().unwrap())
 	};
-	!cd_internal(opt_target_dir, shell_env) as i32
+	i32::from(!cd_internal(opt_target_dir, shell_env))
 }
